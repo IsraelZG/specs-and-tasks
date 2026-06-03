@@ -17,6 +17,7 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 | verbete | título | tags |
 |:---|:---|:---|
 | [[chave-mestra-ed25519]] | Chave Mestra Ed25519 | protocol, criptografia, identidade |
+| [[chave-de-epoca]] | Chave de Época (Epoch Key) | protocol, criptografia, acesso, forward-secrecy |
 
 ## Placeholders (dependências declaradas, verbetes pendentes)
 
@@ -29,4 +30,6 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 | [[peer-id]] | PeerId |
 | [[key-vault]] | Key Vault (Cofre de Chaves) |
 | [[profile-authentication]] | PROFILE:AUTHENTICATION (Identidade-Âncora) |
+| [[asset-permission]] | ASSET:PERMISSION |
+| [[rotacao-de-epocas]] | Rotação de Épocas |
 
