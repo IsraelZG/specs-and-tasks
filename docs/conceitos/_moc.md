@@ -8,6 +8,7 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 | verbete | título | tags |
 |:---|:---|:---|
 | [[ulid]] | ULID (Universally Unique Lexicographically Sortable Identifier) | protocol, identificadores |
+| [[id]] | Campo id (identificador de versão de nó) | protocol, identificadores |
 | [[hlc]] | Hybrid Logical Clock (HLC) | protocol, temporal-ordering, sync, linhagem |
 
 ## Placeholders (dependências declaradas, verbetes pendentes)
@@ -17,3 +18,4 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 | [[linhagem-de-versoes]] | Linhagem de Versões |
 | [[head]] | Head (ponta da linhagem) |
 | [[mutates]] | MUTATES (aresta de linhagem) |
+| [[entity-id]] | Campo entity_id (identificador estável de entidade) |
