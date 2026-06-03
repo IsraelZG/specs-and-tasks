@@ -12,6 +12,12 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 | [[entity-id]] | entity_id (identificador de entidade) | protocol, identificadores, linhagem |
 | [[hlc]] | Hybrid Logical Clock (HLC) | protocol, temporal-ordering, sync, linhagem |
 
+## Ontologia do Grafo
+
+| verbete | título | tags |
+|:---|:---|:---|
+| [[aresta]] | Aresta (Edge) | protocol, ontologia, graph |
+
 ## Identidade e Criptografia
 
 | verbete | título | tags |
@@ -26,10 +32,12 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 | [[linhagem-de-versoes]] | Linhagem de Versões |
 | [[head]] | Head (ponta da linhagem) |
 | [[mutates]] | MUTATES (aresta de linhagem) |
-| [[chave-de-epoca]] | Chave de Época (AES-256-GCM) |
 | [[peer-id]] | PeerId |
 | [[key-vault]] | Key Vault (Cofre de Chaves) |
 | [[profile-authentication]] | PROFILE:AUTHENTICATION (Identidade-Âncora) |
 | [[asset-permission]] | ASSET:PERMISSION |
 | [[rotacao-de-epocas]] | Rotação de Épocas |
+| [[no]] | Nó (Node) |
+| [[substantivo-verbo-principio]] | Princípio Substantivo/Verbo |
+| [[verbos-raiz-canonicos]] | Verbos Raiz Canônicos |
 
