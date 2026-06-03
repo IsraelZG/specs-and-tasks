@@ -16,6 +16,7 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 
 | verbete | título | tags |
 |:---|:---|:---|
+| [[no]] | Nó (Node) | protocol, ontologia, graph |
 | [[aresta]] | Aresta (Edge) | protocol, ontologia, graph |
 
 ## Identidade e Criptografia
@@ -37,7 +38,10 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 | [[profile-authentication]] | PROFILE:AUTHENTICATION (Identidade-Âncora) |
 | [[asset-permission]] | ASSET:PERMISSION |
 | [[rotacao-de-epocas]] | Rotação de Épocas |
-| [[no]] | Nó (Node) |
+| [[profile]] | PROFILE (O Ator) |
+| [[content]] | CONTENT (A Informação) |
+| [[asset]] | ASSET (O Valor e a Permissão) |
+| [[specification]] | SPECIFICATION (A Lei) |
 | [[substantivo-verbo-principio]] | Princípio Substantivo/Verbo |
 | [[verbos-raiz-canonicos]] | Verbos Raiz Canônicos |
 
