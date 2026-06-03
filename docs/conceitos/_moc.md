@@ -18,6 +18,7 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 |:---|:---|:---|
 | [[no]] | Nó (Node) | protocol, ontologia, graph |
 | [[aresta]] | Aresta (Edge) | protocol, ontologia, graph |
+| [[mutates]] | Aresta MUTATES | protocol, ontologia, linhagem, arestas |
 
 ## Identidade e Criptografia
 
@@ -32,7 +33,6 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 |:---|:---|
 | [[linhagem-de-versoes]] | Linhagem de Versões |
 | [[head]] | Head (ponta da linhagem) |
-| [[mutates]] | MUTATES (aresta de linhagem) |
 | [[peer-id]] | PeerId |
 | [[key-vault]] | Key Vault (Cofre de Chaves) |
 | [[profile-authentication]] | PROFILE:AUTHENTICATION (Identidade-Âncora) |
