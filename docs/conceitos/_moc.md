@@ -3,10 +3,11 @@
 Índice dos verbetes canônicos. Cada conceito é definido UMA vez em `conceitos/`.
 Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 
-## Identidade, Criptografia e Controle de Acesso
+## Identificadores e Ordenação
 
 | verbete | título | tags |
 |:---|:---|:---|
+| [[ulid]] | ULID (Universally Unique Lexicographically Sortable Identifier) | protocol, identificadores |
 | [[hlc]] | Hybrid Logical Clock (HLC) | protocol, temporal-ordering, sync, linhagem |
 
 ## Placeholders (dependências declaradas, verbetes pendentes)
