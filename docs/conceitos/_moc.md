@@ -12,6 +12,12 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 | [[entity-id]] | entity_id (identificador de entidade) | protocol, identificadores, linhagem |
 | [[hlc]] | Hybrid Logical Clock (HLC) | protocol, temporal-ordering, sync, linhagem |
 
+## Identidade e Criptografia
+
+| verbete | título | tags |
+|:---|:---|:---|
+| [[chave-mestra-ed25519]] | Chave Mestra Ed25519 | protocol, criptografia, identidade |
+
 ## Placeholders (dependências declaradas, verbetes pendentes)
 
 | verbete | título |
@@ -19,4 +25,8 @@ Os cadernos linkam para cá via [[slug]]; nunca redefinem.
 | [[linhagem-de-versoes]] | Linhagem de Versões |
 | [[head]] | Head (ponta da linhagem) |
 | [[mutates]] | MUTATES (aresta de linhagem) |
+| [[chave-de-epoca]] | Chave de Época (AES-256-GCM) |
+| [[peer-id]] | PeerId |
+| [[key-vault]] | Key Vault (Cofre de Chaves) |
+| [[profile-authentication]] | PROFILE:AUTHENTICATION (Identidade-Âncora) |
 
