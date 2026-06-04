@@ -87,6 +87,6 @@ As seguintes definições duplicadas foram consolidadas neste verbete:
 | [[key-vault]] | 2 | criado |
 | [[chave-de-epoca]] | 1 | criado |
 | [[ucan]] | 2 | criado |
-| [[asset-permission]] | 2 | placeholder |
-| [[asset-role]] | 2 | placeholder |
+| [[asset-permission]] | 2 | criado |
+| [[asset-role]] | 2 | criado |
 | [[onda]] | 4 | criado |

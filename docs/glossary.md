@@ -122,8 +122,6 @@ Este documento centraliza a definição de termos e primitivas arquiteturais da 
 
 **PROFILE:SYSTEM** — Subtipo de PROFILE dotado de chaves Ed25519 que executa funções de infraestrutura, validação (Validadores de Domínio), auditoria ou comunicação interna do sistema via nós `CONTENT:MESSAGE` roteados por arestas `DIRECTED_TO`.
 
-**CONTENT:INTENT** — Subtipo de CONTENT que materializa a intenção de uma ação que exige validação não-trivial.
-
 **CONTENT:MESSAGE** — Subtipo de CONTENT usado para toda comunicação interna de infraestrutura (como `SYSTEM_QUERY` ou `SYSTEM_RESPONSE`) e notificações entre agentes do sistema, operando de modo offline-first.
 
 ---
