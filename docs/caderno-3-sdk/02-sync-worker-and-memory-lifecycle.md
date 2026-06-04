@@ -114,49 +114,9 @@ Se o líder eleito falhar durante uma sessão RBSR ativa:
 
 ## 6. Gênese da Rede — First Peer Protocol
 
-Quando um peer tenta entrar em um swarm e não encontra ninguém, o `SwarmRegistry` executa uma máquina de estados:
+A inicialização e o cold start da topologia de rede local e global do dispositivo seguem o contrato especificado no [[first-peer-protocol]]. 
 
-```
-                ┌──────────────┐
-                │   JOINING    │
-                └──────┬───────┘
-                       │  join(topic)
-                       ▼
-                ┌──────────────┐
-                │ WAITING_FOR_ │
-                │    SWARM     │
-                │  (timer: 8s) │
-                └──────┬───────┘
-                       │
-           ┌───────────┴───────────┐
-           │                       │
-      Peer encontrado         Timer expirou
-           │                       │
-           ▼               ┌───────┴────────┐
-    ┌──────────────┐   Possui token    Não possui
-    │  CONNECTED   │   de fundação?     token?
-    └──────────────┘        │               │
-                       ┌────┴────┐    ┌─────┴──────┐
-                       ▼         ▼    ▼             
-                ┌──────────┐  ┌──────────────┐
-                │ GENESIS  │  │ OFFLINE_RETRY │
-                │ (fundar) │  │  (esperar)    │
-                └──────────┘  └──────────────┘
-```
-
-**Estados:**
-
-- **JOINING:** Chama `join(topic)` e inicia busca (mDNS + DHT + fallback WebSocket em paralelo).
-- **WAITING_FOR_SWARM:** Timer de 8 s. LAN responde em < 1 s (mDNS); WAN em < 3 s (DHT); fallback WebSocket em < 5 s. Os 8 s cobrem todos os mecanismos.
-- **CONNECTED:** Peer encontrou a rede. Operação normal.
-- **GENESIS:** Ocorre **apenas** se o timer expirou sem peers **e** o peer detém o **bootstrap token** (chave de fundação gerada na criação do workspace) ou o usuário manifestou "Criar Nova Rede". Neste estado:
-  1. Cria registros de bootstrap: `PROFILE` do admin, `SPECIFICATION` do workspace, `SPECIFICATION:NETWORK_BIRTH` (fundação imutável).
-  2. Anuncia-se na DHT como seed do tópico.
-  3. Marca-se como `PROVISIONAL_SYSTEM_PEER` no `SwarmRegistry`.
-  4. Aceita conexões entrantes normalmente.
-- **OFFLINE_RETRY:** Timer expirado sem token de fundação (ex.: convidado com internet lenta). A UI exibe "Aguardando conexão com a rede…"; Sync Worker suspende busca ativa; pings exponenciais no fallback WebSocket (10 s → 20 s → 40 s → máx. 60 s). Quando um peer aparecer → transita para CONNECTED.
-
-**Transição GENESIS → CONNECTED:** Quando um segundo peer se conecta, o `PROVISIONAL_SYSTEM_PEER` perde o status provisório e passa a operar como peer normal. O `NETWORK_BIRTH` permanece imutável no grafo como prova de fundação.
+A lógica operacional e a máquina de estados (JOINING ➔ WAITING_FOR_SWARM ➔ CONNECTED / GENESIS / OFFLINE_RETRY) são orquestradas pelo [[sync-worker]] e mantidas no [[swarm-registry]]. Chaves criptográficas de fundação de rede e a criação do nó imutável [[specification-network-birth]] são coordenadas em cooperação com o [[crypto-worker]] para validação de privilégios.
 
 ---
 

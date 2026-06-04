@@ -198,9 +198,9 @@ Este documento centraliza a definição de termos e primitivas arquiteturais da 
 
 **Sync Worker** — Web worker principal da camada de transporte. Orquestra o Automerge Repo, mantém o loop de RBSR, gerencia o `SwarmRegistry`, executa transações no SQLite WASM (OPFS) e coordena os demais workers (Crypto, Index). Opera fora da Main Thread via Comlink. Ver RFC de Transporte §3.1.
 
-**First Peer Protocol** — Máquina de estados do `SwarmRegistry` executada quando um peer tenta entrar em um swarm sem encontrar ninguém. Transita pelos estados: JOINING → WAITING_FOR_SWARM (8 s) → CONNECTED | GENESIS | OFFLINE_RETRY. Ver caderno-3/02 §6.
+**First Peer Protocol** — Máquina de estados do [[swarm-registry]] executada quando um peer tenta entrar em um swarm sem encontrar nenhum outro participante ativo. Transita pelos estados JOINING → WAITING_FOR_SWARM (8 s) → CONNECTED | GENESIS | OFFLINE_RETRY. Ver [[first-peer-protocol]].
 
-**GENESIS** — Estado transitório do First Peer Protocol atingido quando o timer de 8 s expira sem peers e o peer detém o bootstrap token (chave de fundação). Nesse estado, o peer funda a rede criando os registros de bootstrap e o nó `SPECIFICATION:NETWORK_BIRTH`. Ver caderno-3/02 §6.
+**GENESIS** — Estado transitório do [[first-peer-protocol]] atingido quando o timer de 8 s expira sem peers e o peer detém o bootstrap token (chave de fundação). Nesse estado, o peer funda a rede criando os registros de bootstrap e o nó [[specification-network-birth]]. Ver [[first-peer-protocol]].
 
 **GlobalThrottle** — Componente do Sync Worker que governa a disputa por banda e sockets entre múltiplos swarms simultâneos (workspaces em abas diferentes). Cota: 70% para aba ativa, 20% para aba visível, 10% para background. Em mobile com bateria < 30%, swarms em background são pausados. Ver caderno-3/02 §7.
 
