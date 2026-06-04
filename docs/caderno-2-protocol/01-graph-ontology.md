@@ -1,0 +1,163 @@
+# 01-graph-ontology.md — Graph Ontology Specification
+
+Este documento descreve a ontologia unificada do grafo de dados da Plataforma V3.1. A decisão fundamental do sistema reside no minimalismo ontológico: toda entidade física ou abstrata do mundo é representada por um de quatro tipos de nós, e os relacionamentos ou ações são representados por arestas.
+
+---
+
+## 1. O Princípio do Substantivo e do Verbo
+
+Toda a modelagem semântica no sistema deve conformar-se à seguinte regra linguística vinculativa: **nós são substantivos e arestas são verbos**.
+
+* O ato de delegar não é um nó — é uma aresta (`DELEGATED_TO`). O nó é a permissão ou papel delegado (`ASSET:PERMISSION` ou `ASSET:ROLE`).
+* O ato de consentir não é um nó — é uma aresta (`GRANTED_TO`). O nó é a declaração de consentimento (`ASSET:CONSENT`).
+* O ato de aprovar não é um nó — é uma aresta (`APPROVED_BY`).
+* O ato de mutar/alterar não é um nó — é uma aresta (`MUTATES`).
+* **Não existe o tipo de nó `EVENT`**. Eventos consolidados são representados por novos nós-versão (na tabela `nodes`) e arestas relacionais. A intenção de uma ação é representada pelo nó `CONTENT:INTENT` (um subtipo de `CONTENT`, não uma primitiva separada).
+
+---
+
+## 2. Convenção de Nomenclatura de Arestas
+
+As arestas de alto grau semântico — especialmente relações contínuas entre entidades — seguem o padrão formal:
+
+```
+VERBO:DOMÍNIO:SPECIFIER
+```
+
+Onde `VERBO` é a raiz verbal no presente contínuo, `DOMÍNIO` é a categoria ontológica da relação e `SPECIFIER` é o refinamento opcional dentro do domínio. Exemplos canônicos:
+
+| Aresta | Significado Semântico |
+| :--- | :--- |
+| `INTERACTS:CONTENT:LIKES` | Peer curte um nó de conteúdo. |
+| `INTERACTS:CONTENT:SHARES` | Peer compartilha um nó de conteúdo. |
+| `RELATES:FAMILY:PARENT_OF` | Relação familiar de maternidade/paternidade. |
+| `RELATES:SOCIAL:FOLLOWS` | Relação social de seguimento. |
+| `PARTICIPATES_IN:GROUP:MEMBER` | Pertencimento a grupo como membro simples. |
+| `PARTICIPATES_IN:PROJECT:CONTRIBUTOR` | Pertencimento a projeto como contribuidor de código. |
+
+*Nota: A aresta `PARTICIPATES_IN` substitui permanentemente a antiga aresta `MEMBER_OF` em toda a ontologia da plataforma.*
+
+### 2.1 Verbos Raiz Canônicos e Relacionais
+Os verbos raiz canônicos aceitos na plataforma são:
+* `RELATES` — Relações sociais, familiares e interpessoais.
+* `OWNS` — Posse estável de ativos, recursos e documentos.
+* `GOVERNS` — Governança, regulação e especificações.
+* `INTERACTS` — Interações temporárias ou casuais com conteúdos.
+* `PARTICIPATES_IN` — Pertencimento contínuo a grupos, projetos e contextos.
+
+Para expressar a estrutura e composição interna do modelo de permissões, a plataforma define duas arestas estruturais permanentes que apontam para o `entity_id` dos nós:
+* **`AGGREGATES`** — Liga uma `ASSET:ROLE` a uma `ASSET:PERMISSION`, indicando que o papel engloba aquela permissão.
+* **`REQUIRES`** — Liga uma `ASSET:PERMISSION` a outra, indicando uma dependência ou pré-requisito de acesso.
+
+### 2.2 Arestas de Transação Serializada (v4)
+
+Operações não-comutativas sobre `ASSET` materializam-se a partir de um `CONTENT:INTENT` (o hub), com duas arestas de ancoragem novas:
+
+* **`SPENDS`** — Liga um `CONTENT:INTENT` ao **head específico** (`nodes.id`, não `entity_id`) do `ASSET` de origem que será debitado. É a **única referência intencional a uma versão específica** na ontologia: pinar o head exato é o que serializa o débito e permite detecção de conflito estrutural (duas intents com `SPENDS` para o mesmo head). Justificativa de minimalismo: nenhuma outra aresta fixa a versão consumida como âncora de serialização.
+* **`CREDITS`** — Liga um `CONTENT:INTENT` ao **`entity_id`** (linhagem estável) do `ASSET` de destino. Aponta para a linhagem, não para o head, porque creditar é comutativo (ver caderno-2/04 §4.3, merge aditivo). Segue o padrão de referência estável de `AGGREGATES`/`REQUIRES`.
+
+O ciclo de aprovação reusa as arestas existentes `APPROVED_BY` (validador → intent) e `RESOLVES` (validador → intent, fechando o ciclo); o movimento executado reusa `TRANSFERRED_TO` (origem → destino); os nós de saldo resultantes reusam `RESULTED_FROM` apontando para o `CONTENT:INTENT`. A regra de serialização (invariante de core vs. política de SPEC) está em caderno-4/03 §3.5.
+
+**Nota (v4 multidomínio):** Em sagas transdomínio, `ASSET:LOCK` (item temporal com TTL) pode ser o **output de uma operação de reserva** em vez de transferência final. O lock ancora no head da linhagem via `SPENDS` (herdando detecção estrutural de conflito); expira automaticamente via lápide/GC (caderno-3/01 §2.2) quando TTL vence. Ver rfc-transacoes-multidominio.md §2.
+
+### 2.3 Arestas de Contribuição e Social (v4)
+
+* **`CONSUMES`** — Liga um `PROFILE` a um `CONTENT` consumido (ex.: chunks de um `CONTENT:FILE`). Verbo distinto (ato do consumidor; histórico próprio).
+* **`CONTRIBUTES`** — Liga um `PROFILE:SYSTEM` à prova de contribuição à rede. Unifica banda, storage e processamento por atributo `kind: serve | store | compute` — mesmo tipo diferenciado por payload, pois validação/cripto/sync são idênticas (critério 1 do §4). O *standing* acumulado é um `ASSET:BALANCE_STATE` de contribuição (ver caderno-3/03 §X / RFC §3.3).
+* **`BLOCKS`** — Liga um `PROFILE` a outro `PROFILE`. Conjunto **limitado** (dezenas), avaliado como filtro de leitura na montagem do feed público. Não é garantia criptográfica (ver caderno-2/02 §X / RFC §2.8).
+
+---
+
+## 3. Os Quatro Tipos de Nós
+
+### 3.1 PROFILE (O Ator)
+Representa entidades ativas e dotadas de identidade criptográfica (par de chaves pública/privada Ed25519) que atuam como sujeitos de ações.
+* **Subtipos Canônicos**:
+  * `PROFILE:AUTHENTICATION` — A identidade-âncora do humano dentro de uma rede. Única por rede, carrega as credenciais primárias.
+  * `PROFILE:PERSONA` — Máscaras de exibição e interação pública do usuário. Múltiplas personas por humano são permitidas.
+  * `PROFILE:ORGANIZATION` — Representação de empresa, departamento, consórcio ou grupos com fins de moderação (ver §3.5).
+  * `PROFILE:SYSTEM` — Entidades robotizadas que executam funções de infraestrutura (Sync Workers, validadores, etc.).
+* **Comportamento**: Emitem ações (arestas `AUTHORED`, `APPROVED_BY`, `SIGNED_BY`) e recebem pertences (arestas `PARTICIPATES_IN`, `OWNS`).
+
+### 3.2 CONTENT (A Informação)
+Dados estruturados passivos e versionados. São a matéria-prima informativa que circula no grafo.
+* **Subtipos Canônicos**:
+  * `CONTENT:DOCUMENT` — Workspace de texto, planilhas e commits Automerge.
+  * `CONTENT:MESSAGE` — Mensagens de chat ou instruções internas de microsserviços.
+  * `CONTENT:INTENT` — Registro assinado de uma intenção de modificação não-trivial.
+  * `CONTENT:THEME` — Variáveis de tematização visual.
+  * `CONTENT:TRANSLATION` — Dicionário de strings i18n.
+* **Comportamento**: Alvos de criação (`AUTHORED`), mutação (`MUTATES`), governança (`GOVERNED_BY`) ou referência (`REPLIES_TO`, `ATTACHES`).
+
+### 3.3 ASSET (O Valor e a Permissão)
+Qualquer recurso finito, direito, saldo ou autorização no sistema.
+* **Subtipos Canônicos**:
+  * `ASSET:BALANCE_STATE` — Saldo consolidado (débito/crédito) em moeda interna ou fiduciária.
+  * `ASSET:INVENTORY` — Estoque físico ou quantidade de SKUs.
+  * `ASSET:PERMISSION` — Direito atômico de acesso e mutação, definido por query de traversal e restrições (substitui `ASSET:CAPABILITY`). **Permanecem declarativos** (não executáveis — a execução é responsabilidade de `SPECIFICATION` procedural / Zen Engine). Ver caderno-2/02 §2.1.
+  * `ASSET:ROLE` — Cargo ou papel de negócio que agrega permissões via arestas `AGGREGATES`.
+  * `ASSET:CONSENT` — Consentimentos para processamento sob a LGPD/GDPR.
+  * `ASSET:LOCK` — Reserva temporária de recurso com TTL (participante de sagas multidomínio; ver rfc-transacoes-multidominio.md §2).
+* **Comportamento**: Transacionados via arestas `TRANSFERRED_TO`, delegados via `DELEGATED_TO` ou concedidos via `GRANTED_TO`.
+
+### 3.4 SPECIFICATION (A Lei)
+Contratos formais imutáveis que definem regras de validação de schemas, comportamento de UI, permissões e governança.
+* **Subtipos Canônicos**:
+  * `SPECIFICATION:SCHEMA` — JSONSchema ou JSONLogic definindo campos obrigatórios e lógicas.
+  * `SPECIFICATION:WORKFLOW` — Máquina de estados ou diagrama BPMN para processos.
+  * `SPECIFICATION:NETWORK_GOVERNANCE` — Regras de bootstrap, sucessão e dissolução da rede.
+* **Natureza Dual das Especificações**: Cada `SPECIFICATION` pode expressar duas naturezas (sendo ao menos uma obrigatória):
+  1. **Schema Declarativo**: Define a estrutura válida (propriedades) para os nós/arestas associados.
+  2. **Procedimento Executável**: Define uma transformação determinística de inputs em novos nós/arestas (Zen Engine).
+* **Comportamento**: Governam nós (`GOVERNED_BY`), estendem canônicas (`EXTENDS`) e são sucedidas via `SUPERSEDED_BY`.
+
+### 3.5 Moderação via Grupos-como-PROFILE
+Para viabilizar a moderação em ambientes colaborativos sem violar a autoria individual, grupos moderados são instanciados como um **`PROFILE:ORGANIZATION`** (e não como `CONTENT`), possuindo seu próprio par de chaves criptográficas (custodiadas pelo cofre de chaves do grupo).
+* **Estrutura de Postagem**: Os posts pertencem à pessoa criadora (aresta `AUTHORED`), mas indicam pertença ao grupo através de uma aresta `BELONGS_TO` apontando para o `PROFILE:ORGANIZATION` do grupo.
+* **Mecânica de Moderação**: Moderadores autorizados comandam a emissão de uma lápide (tombstone com `weight = 0`) sobre a aresta `BELONGS_TO`. O post é desvinculado visualmente do feed do grupo sem que a assinatura original do autor no nó-conteúdo seja corrompida.
+
+---
+
+## 4. Diretrizes de Minimalismo Ontológico
+
+A proliferação descontrolada de subtipos ou arestas fragmenta a interoperabilidade da rede. Para adicionar qualquer novo tipo ou aresta no catálogo de `SPECIFICATION`s da plataforma, todos os seguintes critérios de minimalismo devem ser satisfeitos:
+
+1. **Diferenciação de Comportamento Sistêmico**: O novo tipo não deve servir apenas como "marcação semântica para humanos". Se dois tipos possuem regras idênticas de validação, criptografia e sincronização, eles devem ser o mesmo tipo, diferenciados apenas por payload.
+2. **Impossibilidade de Resolução por Payload + SPECIFICATION**: A distinção deve ser o último recurso estrutural, não o primeiro.
+3. **Existência de Arestas Exclusivas**: O tipo deve participar de pelo menos uma relação ou validação que não faça sentido para nenhum outro tipo.
+4. **Reusabilidade Multidomínio**: O tipo deve ser útil em múltiplos módulos ou ser de importância crucial para um domínio central (ex: Financeiro).
+
+### 4.1 Descoberta por Grafo (Discovery-by-Graph)
+Os componentes de software devem programar comportamentos com base nas conexões e contratos do grafo, e não por comparações de strings brutas de tipos.
+
+*❌ Código Antipatrono:*
+```typescript
+if (node.type === 'CONTENT:POST_BLOG' || node.type === 'CONTENT:POST_NEWS') {
+  showInFeed(node);
+}
+```
+
+*✅ Código Correto:*
+```typescript
+const isPublishable = await checkGraphRelation(node, 'GOVERNED_BY', 'SPECIFICATION:FEED_PUBLISHABLE');
+if (isPublishable) {
+  showInFeed(node);
+}
+```
+
+### 4.2 Antipadrão Dual-Nó: "Post", "Story", "Anúncio" NÃO são Subtipos
+
+Uma tentação comum é criar subtipos de `CONTENT` para cada idioma de negócio: `CONTENT:POST`, `CONTENT:POST_BLOG`, `CONTENT:STORY`, `CONTENT:ADVERTISEMENT`, etc. **Essa proliferação viola o minimalismo.**
+
+**Regra:** "Post", "story", "anúncio", "produto" — **todos são `CONTENT` genérico**, diferenciados por uma aresta `GOVERNED_BY` apontando para uma `SPECIFICATION` que define seu schema e seu comportamento de UI/feed.
+
+- `CONTENT` com `GOVERNED_BY SPECIFICATION:FEED_PUBLIC_POST` = é um post publicável.
+- `CONTENT` com `GOVERNED_BY SPECIFICATION:STORY_24H` = é uma story; UI aplica expiração via `retention_state = expunged` em 24h.
+- `CONTENT` com `GOVERNED_BY SPECIFICATION:ADVERTISEMENT` = é um anúncio; UI aplica tier de audiência conforme schema.
+
+**Metadados observáveis:** Necessidade de propriedades leves observáveis (ex: contagem de interações, timestamp de criação) é resolvida por campos `searchable: true` projetados no schema da `SPECIFICATION` (caderno-3/01 §5 / FTS5). Não cria nó `POST_META` dual — é projeção local, não grafo.
+
+**Justificativa:** Critério §4 (minimalismo):
+- Os tipos `POST` e `STORY` têm regras idênticas de validação, criptografia e sync (critério 1 = FAIL).
+- A distinção é resolúvel por payload + `SPECIFICATION` (critério 2 = FAIL).
+- Ambos participam das mesmas arestas (`AUTHORED`, `INTERACTS`, etc.); nenhuma aresta é exclusiva (critério 3 = FAIL).
