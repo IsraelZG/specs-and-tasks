@@ -31,24 +31,15 @@ Cada chunk é cifrado **independentemente** com AES‑256‑GCM, produzindo `(ci
 
 ### 3.2 Dois modos de chave (escolhidos por modalidade / SPECIFICATION)
 
+A especificação de chaves e o comportamento detalhado de criptografia estão consolidados no verbete canônico [[convergent-encryption]].
+
 A `SPECIFICATION:MEDIA_DELIVERY` que governa o asset declara `dedup_mode: convergent | unique`. O default por modalidade: **Pública/Corporativa → `convergent`**; **P2P Puro → `unique`**.
 
-**Modo `convergent` (managed, com deduplicação):**
-- A chave deriva do **próprio conteúdo**, de forma determinística e idêntica para qualquer publicador da mesma rede:
-```
-K_content = HKDF(salt_rede, H(plaintext_canônico), "blob-convergent-v1")  // 32 bytes
-```
-onde `salt_rede` é um segredo de rede mantido pelo agente do sistema (escopa a dedup à rede; duas redes não cruzam confirmação de arquivos).
-- **Nonce determinístico:** `nonce_i = fixed_field(8B) ‖ counter_i(4B big‑endian)`, com `fixed_field = H(plaintext_canônico)[:8]` e `counter_i = i`. É seguro porque conteúdo diferente ⇒ `K_content` *e* `fixed_field` diferentes; conteúdo igual ⇒ mesmo ciphertext (que é o objetivo da dedup). Nunca ocorre "(chave, nonce) iguais sobre plaintexts diferentes" — a condição do *forbidden attack* do GCM.
-- **Consequência:** conteúdo igual → ciphertext igual → `InfoHash` igual → **deduplicação na camada de storage/swarm** (uma cópia física na rede). O upload e a geração de chunks/chaves no modo convergente são **coordenados pelo agente do sistema** (`PROFILE:SYSTEM`), que aplica o `salt_rede` consistente e checa se o `InfoHash` já existe antes de re‑subir.
+Consulte o verbete canônico [[convergent-encryption]] para:
+- A fórmula de derivação de `K_content` no modo `convergent` e o nonce determinístico antialiançamento.
+- A fórmula de derivação de `K_file` no modo `unique`.
+- As consequências de privacidade, deduplicação e coordenação com o [[agente-de-sistema]].
 
-**Modo `unique` (P2P puro, sem deduplicação):**
-- Chave única por arquivo, não derivada do conteúdo:
-```
-K_file = HKDF(epoch_key, file_entity_id, "blob-unique-v1")  // 32 bytes
-```
-- **Nonce:** `fixed_field` aleatório por arquivo `‖ counter_i`.
-- **Consequência:** conteúdo idêntico cifrado por usuários diferentes → ciphertext diferente → `InfoHash` diferente → **sem dedup**, mas **sem confirmation‑of‑file attack** — privacidade máxima.
 
 ### 3.3 Armazenamento das tags (região trailing)
 
