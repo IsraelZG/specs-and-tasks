@@ -28,7 +28,7 @@ Este documento centraliza a definição de termos e primitivas arquiteturais da 
 
 **NotificationConnector** — Interface única de egress out‑of‑band (SMTP base + Gmail/WhatsApp/SMS); capacidade do papel de peer do sistema. Ver caderno‑3/06.
 
-**Rendition** — Variante de um asset de mídia (qualidade/língua/bitrate/tamanho), modelada como nó `CONTENT` irmão ligado ao asset lógico por `RELATES:MEDIA:RENDITION`. Renditions são irmãs, não versões (`MUTATES` proibido entre elas). Ver caderno‑3/05 §4.1.
+**Rendition** — Variante de um asset de mídia (qualidade/língua/bitrate/tamanho), modelada como nó `CONTENT` irmão. Ver [[rendition]].
 
 **SERVES** — Aresta `PROFILE → CONTENT` que declara que uma fonte (peer/cloud/IPFS) hospeda um ciphertext; durável no grafo (fontes estáveis) ou no cache efêmero (seeders‑peer). Ver caderno‑3/05 §4.2.
 

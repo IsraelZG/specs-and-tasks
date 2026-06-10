@@ -59,9 +59,12 @@ A chave (`K_content` ou `K_file`) **nunca** está no asset nem no manifesto em c
 
 ### 4.1 Asset lógico vs renditions
 
-- O **asset lógico** é um nó `CONTENT` (ex.: "o filme X") governado por `GOVERNED_BY → SPECIFICATION:MEDIA_ASSET`. Não carrega ciphertext; agrega renditions.
-- Cada **rendition** (1080p, 4K, legenda PT, áudio 128 kbps, foto 2048px) é um **nó `CONTENT` próprio**, content‑addressed e imutável, governado por `GOVERNED_BY → SPECIFICATION:MEDIA_RENDITION`, ligado ao asset lógico por uma **aresta estrutural** `RELATES:MEDIA:RENDITION` (asset → rendition). Renditions são **irmãs, não versões** — por isso `MUTATES` é proibido entre elas. Cada rendition pode ter `ASSET:PERMISSION` e `AUTHORED` próprios (4K pago vs 1080p free; legenda adicionada depois por outro autor).
-- **`MUTATES` é reservado** para o único caso de versão real: re‑encodar/corrigir os *bytes de uma rendition específica* (substituir um encode 1080p ruim). Aí `MUTATES` aponta da nova versão da rendition para a anterior, como qualquer linhagem.
+O modelo que separa o **asset lógico** de suas **renditions** (variações de mídia) está consolidado no verbete canônico [[rendition]].
+
+Consulte o verbete canônico [[rendition]] para:
+- A estrutura de nós e arestas que compõe as renditions.
+- O uso e as restrições da relação `MUTATES` em renditions.
+- Detalhes sobre o gerenciamento de permissões individuais por variação de qualidade ou idioma.
 
 ### 4.2 Fontes (redundância de ponteiros)
 
@@ -72,29 +75,11 @@ Adicionar uma fonte ao **mesmo ciphertext** (ex.: "este `InfoHash` agora também
 
 ### 4.3 Schema do manifesto (payload do nó da rendition `CONTENT`)
 
-```json
-{
-"asset_id": "video_x",
-"rendition": { "kind": "video", "quality": "1080p", "lang": null, "codec": "h264" },
-"encryption": {
-  "algorithm": "AES-256-GCM",
-  "dedup_mode": "convergent",
-  "chunk_size_bytes": 1048576,
-  "chunk_count": 1024,
-  "plaintext_size_bytes": 1073741824,
-  "fixed_field_ref": "derivado de H(plaintext)[:8] (convergent) | aleatório (unique)",
-  "key_ref": "urn:ucan:epoch_key_id_123",
-  "tag_region": { "offset": 1073741824, "length": 16384 }
-},
-"pointers": [
-  { "adapter": "webtorrent", "infohash": "hash_do_ciphertext", "piece_length": 1048576 },
-  { "adapter": "ipfs",       "cid": "cid_do_ciphertext" },
-  { "adapter": "cloud_webseed", "url": "https://webseed.suarede.com/blobs/" }
-]
-}
-```
+A especificação normativa e o schema do manifesto JSON para cada `rendition` estão consolidados no verbete canônico [[rendition]].
 
-> `pointers` é a lista de adapters disponíveis para esta rendition (espelha as arestas `SERVES` duráveis). O cliente escolhe por disponibilidade/custo/latência. `piece_length = chunk_size` (potência‑de‑2; as tags ficam fora do stream, em `tag_region`).
+Consulte o verbete canônico [[rendition]] para obter:
+- O schema JSON normativo e a tipagem dos campos de metadados de rendition.
+- A descrição das propriedades de criptografia associadas e dos ponteiros físicos de adapters de transporte (`webtorrent`, `ipfs`, `cloud_webseed`).
 
 ---
 
