@@ -35,9 +35,6 @@ Conforme `caderno-3-sdk/04-theme-and-i18n-data-structures.md §1.2`, ao criar ou
 - **Contraste WCAG** — razão mínima de **4.5:1** para pares críticos (`background`/`foreground`,
   `primary`/`primary-foreground`); publicação bloqueada ou marcada incompatível se abaixo do limiar.
 
-<!-- TODO(revisar): confirmar se "Validador de Domínio" (nome do glossário) e zen-engine são o mesmo
-componente — ver _inventario.md §7 e caderno-3/04 §1.2. -->
-
 ## Distribuição
 
 Nós `CONTENT:THEME` são catalogados e descobertos via [[marketplace-customizacoes]].

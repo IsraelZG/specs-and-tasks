@@ -33,9 +33,6 @@ Conforme `caderno-3-sdk/04-theme-and-i18n-data-structures.md §2.2`, o [[zen-eng
   devem ser preservados na string traduzida.
 - **Ausência de injeção de scripts** — os payloads textuais não podem conter scripts maliciosos.
 
-<!-- TODO(revisar): confirmar se "Validador de Domínio" (nome do glossário) e zen-engine são o mesmo
-componente — ver _inventario.md §7 e caderno-3/04 §2.2. -->
-
 ## Distribuição
 
 Nós `CONTENT:TRANSLATION` são catalogados e descobertos via [[marketplace-customizacoes]].
