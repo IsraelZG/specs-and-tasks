@@ -38,4 +38,4 @@ Estado da migração e ferramentas:
 - Executar uma onda: /rodar-onda <n>
 - Verificar o wiki: Use o subagent auditor-wiki
 
-Ondas 1 a 11 concluídas. Próxima: Onda 12.
+Ondas 1 a 12 concluídas. Fase 2 de migração de conceitos concluída com sucesso.
