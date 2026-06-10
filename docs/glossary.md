@@ -20,7 +20,7 @@ Este documento centraliza a definição de termos e primitivas arquiteturais da 
 
 **Convergent Encryption (modo `convergent`)** — Cifra cuja chave deriva do próprio conteúdo para viabilizar deduplicação física de arquivos. Ver [[convergent-encryption]].
 
-**Consolidação de Live** — Padrão de gravação de transmissão ao vivo: durante a live, segmentos completos são distribuídos como `REPLICABLE_VOLATILE` pelo canal efêmero (nunca nós de grafo), com o disco local do broadcaster como fonte de verdade; ao encerrar, a gravação é consolidada num único `CONTENT:FILE` (`REPLICABLE_AUDITABLE`). No modo `unique` a consolidação é só re‑hash; no `convergent`, re‑encriptação. Ver caderno‑3/05 §8.2.
+**Consolidação de Live** — Padrão de gravação de transmissão ao vivo no qual segmentos de mídia voláteis são distribuídos temporariamente e, ao encerrar, unificados em um único arquivo de mídia durável. Ver [[consolidacao-de-live]].
 
 **Edge Translation** — Edge Worker stateless e content‑blind que traduz HTTP Range ↔ peça WebTorrent, injetando token de acesso ao bucket, sem ver a chave AES. Ver [[edge-translation]].
 
