@@ -43,7 +43,7 @@ Este documento centraliza e descreve todas as funcionalidades pendentes, lacunas
 * **Status:** 🟡 **Parcialmente Implementado**
 * **O que já está feito:**
   * Criação física e testes de coalescência em segundo plano da tabela `pending_staging` para compilar edições colaborativas granulares em nós do tipo `CONTENT:AUDIT` na tabela física central `nodes`.
-  * Persistência de deltas de sincronização do Y.js (`yjs_updates` e snapshots periódicos compactados em `snapshots`).
+  * Persistência de deltas de sincronização do Automerge (tabela `pending_changes` e snapshots periódicos compactados em nós-versões).
   * Recuperação automática de staging entries residuais no boot (Crash Recovery).
   * Persistência de intenções locais na tabela temporária `pending_intents` via `SyncWorkerAPI.saveIntent`.
 * **Lacunas / O que falta fazer:**
@@ -69,17 +69,17 @@ Este documento centraliza e descreve todas as funcionalidades pendentes, lacunas
   * [MODIFY] `packages/core/src/database/schema.ts` — Triggers adicionais para FTS5, Geo-Index (R\*Tree) e balanços de ativos.
   * [NEW] `apps/web/src/worker/network/wave-scheduler.ts` — Gerenciar scheduling de sincronização em ondas (Ondas 0, 1, 2 e 3).
   * [MODIFY] `apps/web/src/worker/network/crdt-manager.ts` — Sincronização por grupos/tópicos orientada ao subgrafo de capabilities em vez de uma sala global única.
-  * [NEW] `apps/web/src/worker/database/gc.ts` — Algoritmo G4 de Garbage Collection e compactação Y.js local.
+  * [NEW] `apps/web/src/worker/database/gc.ts` — Algoritmo G4 de Garbage Collection e compactação do Automerge local.
 
 #### Checklist de Tarefas:
 - [ ] **Busca com FTS5 & Geolocalização (R\*Tree)**: Escrever triggers nativos no SQLite para preencher indexadores FTS5 (`search_index_fts`) apenas para campos indexáveis descriptografados e configurar busca espacial com módulo R\*Tree do SQLite WASM.
 - [ ] **Agregação de Ativos (`asset_balances`)**: Criar tabela local e triggers para manter balanços consolidados agregando débitos/créditos de arestas de transação.
-- [ ] **Sincronização em Ondas (Waves)**: Schedule de downloads Y.js:
+- [ ] **Sincronização em Ondas (Waves)**: Schedule de downloads do Automerge:
   * **Onda 0**: Identidade, chaves e specifications de rede (imediato, segundos).
   * **Onda 1**: Conversas recentes (últimos 30 dias), notificações e saldos quentes (minutos).
   * **Onda 2**: Histórico antigo como nós de metadados "casca" (background).
 - [ ] **Reidratação Dinâmica (Graph-Based Routing)**: Ao renderizar um nó podado ("casca"), solicitar sob demanda o payload criptografado aos peers do mesmo grupo via delta WebRTC.
-- [ ] **GC Híbrido (G4) & Compactação**: Notificar usuário ao atingir 90% da quota OPFS e podar nós antigos (Integral -> Casca) respeitando nós prioritários (`ASSET:PIN`) e limites regulatórios. Disparar GC correspondente no Y.js.
+- [ ] **GC Híbrido (G4) & Compactação**: Notificar usuário ao atingir 90% da quota OPFS e podar nós antigos (Integral -> Casca) respeitando nós prioritários (`ASSET:PIN`) e limites regulatórios. Disparar compactação correspondente do Automerge.
 
 ---
 
