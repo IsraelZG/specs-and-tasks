@@ -38,4 +38,4 @@ Estado da migração e ferramentas:
 - Executar uma onda: /rodar-onda <n>
 - Verificar o wiki: Use o subagent auditor-wiki
 
-Ondas 1 a 10 concluídas. Próxima: Onda 11.
+Ondas 1 a 11 concluídas. Próxima: Onda 12.
