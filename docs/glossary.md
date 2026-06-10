@@ -22,7 +22,7 @@ Este documento centraliza a definição de termos e primitivas arquiteturais da 
 
 **Consolidação de Live** — Padrão de gravação de transmissão ao vivo: durante a live, segmentos completos são distribuídos como `REPLICABLE_VOLATILE` pelo canal efêmero (nunca nós de grafo), com o disco local do broadcaster como fonte de verdade; ao encerrar, a gravação é consolidada num único `CONTENT:FILE` (`REPLICABLE_AUDITABLE`). No modo `unique` a consolidação é só re‑hash; no `convergent`, re‑encriptação. Ver caderno‑3/05 §8.2.
 
-**Edge Translation** — Edge Worker stateless e content‑blind que traduz HTTP Range ↔ peça WebTorrent, injetando token de acesso ao bucket, sem ver a chave AES. Ver caderno‑3/05 §5.2.
+**Edge Translation** — Edge Worker stateless e content‑blind que traduz HTTP Range ↔ peça WebTorrent, injetando token de acesso ao bucket, sem ver a chave AES. Ver [[webseed-bep19]].
 
 **Link Multiaddr** — Artefato de conectividade pura (endereçamento libp2p), compartilhável e reutilizável; não concede identidade nem acesso. Distinto do convite. Ver RFC §2.4.4.
 
@@ -32,7 +32,7 @@ Este documento centraliza a definição de termos e primitivas arquiteturais da 
 
 **SERVES** — Aresta `PROFILE → CONTENT` que declara que uma fonte (peer/cloud/IPFS) hospeda um ciphertext; durável no grafo (fontes estáveis) ou no cache efêmero (seeders‑peer). Ver caderno‑3/05 §4.2.
 
-**WebSeed (BEP 19)** — Nuvem (S3/GCS/Drive) atuando como seeder HTTP do swarm WebTorrent via HTTP Range, sem rodar cliente torrent. Ver caderno‑3/05 §5.2.
+**WebSeed (BEP 19)** — Nuvem (S3/GCS/Drive) atuando como seeder HTTP do swarm WebTorrent via HTTP Range, sem rodar cliente torrent. Ver [[webseed-bep19]].
 
 **ASSET:INVITE** — Asset consumível que concede o direito de criar cadastro sob web‑of‑trust; embute multiaddr para primeiro contato. Distinto do link multiaddr. Ver RFC §2.4.4 e v4 §4.2.
 

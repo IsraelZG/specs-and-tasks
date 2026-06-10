@@ -94,15 +94,14 @@ Cada protocolo é um **NetworkAdapter independente**; o manifesto lista os adapt
 
 ### 5.2 Cloud WebSeed + Edge Translation (BEP 19)
 
-Integra nuvem (S3/GCS/Drive) ao swarm **sem rodar cliente torrent na nuvem**:
+A especificação normativa para a integração de servidores de nuvem como HTTP seeders (BEP 19) e o funcionamento do mecanismo de Edge Translation estão consolidados no verbete canônico [[webseed-bep19]].
 
-1. **Upload:** o agente do sistema (managed) cifra por chunk e envia o ciphertext via HTTP para a nuvem como **um objeto consolidado por rendition** (no S3, o Multipart Upload é só o transporte de upload; ao completar vira um objeto único). As tags vão na `tag_region` ao final do mesmo objeto.
-2. **Registro:** grava `InfoHash` + URL HTTP do WebSeed no manifesto / aresta `SERVES`.
-3. **Download:** o cliente WebTorrent é instanciado com o magnet + a URL do WebSeed.
-4. **Edge Translation:** um **Edge Worker** (Cloudflare/Lambda) atua como ponte stateless e **content‑blind**: injeta o token de acesso ao bucket e traduz `HTTP Range` ↔ peça do WebTorrent sob demanda. **Vê apenas ciphertext + token**, nunca a chave AES. Duas camadas: *token* = "pode buscar estes bytes do bucket" (acesso ao storage); *chave AES* = "pode ler estes bytes" (conteúdo).
-5. **Range‑Range:** o objeto na nuvem é segmentado **só na transmissão** via `Range: bytes=...`. `peça_i = objeto[i × piece_length : (i+1) × piece_length]`; `tag_i = objeto[tag_region.offset + 16i : +16]`.
+Consulte [[webseed-bep19]] para obter:
+- O fluxo de upload, registro e download integrado ao swarm WebTorrent.
+- A tradução de requisições stateless via Edge Worker (Edge Translation).
+- O mapeamento de ranges de peças e tags criptográficas.
+- As restrições e regras do funcionamento modality-gated.
 
-> **Modality‑gated:** o WebSeed/Edge é feature de modalidade gerida. Em P2P puro sem Edge Worker, a redundância vem de seeders‑peer + custódia.
 
 ### 5.3 IPFS
 
