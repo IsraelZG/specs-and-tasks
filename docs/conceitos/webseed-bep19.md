@@ -29,6 +29,7 @@ dependencias:
   - [[serves-aresta]]
   - [[modalidade-de-rede]]
   - [[peer-do-sistema]]
+  - [[edge-translation]]
 ---
 
 # WebSeed (BEP 19)
@@ -59,13 +60,12 @@ O contrato operacional da integração com nuvem segue o protocolo estrito:
 A integração técnica do WebSeed no SDK (lente especificada em [caderno-3-sdk/05-media-transport-plane.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/05-media-transport-plane.md)) envolve o desacoplamento de transporte e criptografia:
 
 ### Edge Translation
-Para viabilizar o acesso a storages privados de nuvem sem comprometer a segurança, o SDK delega a comunicação a um componente intermediário:
-- Um **Edge Worker** (Cloudflare Workers ou AWS Lambda) atua como ponte stateless e **content-blind**.
-- Ele injeta o token de acesso ao bucket e traduz `HTTP Range` ↔ peça do WebTorrent sob demanda.
-- O Edge Worker **vê apenas ciphertext + token**, nunca a chave AES.
-- Isso estabelece duas camadas de segurança desacopladas:
-  1. *Token*: "pode buscar estes bytes do bucket" (autorização de acesso ao storage físico).
-  2. *Chave AES*: "pode ler estes bytes" (controle de acesso ao conteúdo lógico, gerenciado via [[key-vault]] / [[ucan]]).
+
+A comunicação com storages privados de nuvem sem comprometer a segurança é delegada a um componente intermediário stateless e content-blind, detalhado no verbete canônico [[edge-translation]].
+
+Consulte [[edge-translation]] para:
+- O papel e o funcionamento do Edge Worker na tradução de requisições `HTTP Range` ↔ peça WebTorrent.
+- As duas camadas de segurança desacopladas (token de acesso físico vs. chave lógica de decifração).
 
 ### Reidratação e Ordem de Fallback
 - A ordem de fallback padrão do SDK para download de mídia: **Swarm P2P → WebSeed cloud → IPFS** (regida pela política `SPECIFICATION:MEDIA_DELIVERY`).
@@ -101,6 +101,7 @@ Em futuras revisões da especificação, planeja-se a automação da auditoria d
 | [[agente-de-sistema]] | 10 | criado |
 | [[convergent-encryption]] | 11 | criado |
 | [[rendition]] | 11 | criado |
+| [[edge-translation]] | 11 | criado |
 | [[serves-aresta]] | 11 | <!-- TODO(revisar): verbete não criado na Onda 11 — Foam placeholder --> |
 | [[content-file]] | 11 | não é alvo de verbete na Fase 2 (sem ★) |
 | [[modalidade-de-rede]] | 12 | <!-- TODO(revisar): verbete não criado na Onda 12 — Foam placeholder --> |
