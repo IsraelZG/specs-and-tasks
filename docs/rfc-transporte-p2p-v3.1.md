@@ -184,11 +184,7 @@ A sincronização é segmentada para fluidez de UI:
 Todo pacote de domínio carrega dois carimbos de ordenação no envelope **assinado**:
 
 1. **`current_epoch_index`** — índice da chave criptográfica vigente. Se houver *drift* temporal (a permissão de um peer expirar/rotacionar durante a transferência), a conexão interrompe o RBSR com `STALE_EPOCH`, forçando o *catch-up* de identidades antes de enviar dados de domínio potencialmente não-legíveis.
-2. **`hlc = (pt, c)`** — carimbo de Hybrid Logical Clock (componente físico `pt` em ms + contador lógico `c`). O transporte é responsável por **transmitir** e **validar** o HLC; a lógica de seleção de head e de merge de fork vive no caderno de protocolo do grafo (Apêndice A). Regras de validação na recepção:
-   - **Monotonicidade de linhagem:** um nó que faz `MUTATES` de um pai $P$ é rejeitado como malformado se $\text{HLC}(\text{filho}) \le \text{HLC}(P)$.
-   - **Limite de drift:** se `pt_remoto > wall_clock_local + MAX_DRIFT` (ex.: 5 min), o valor **não** é adotado no `max` do relógio local e o nó é posto em quarentena até entrar na janela. Isso limita o ataque de "HLC futuro-distante" a `MAX_DRIFT`, em vez de poluir o relógio de toda a malha.
-
-> O algoritmo de atualização do HLC (eventos local/envio/recepção) e a função de ordem total são especificados no caderno de protocolo (Apêndice A, item 2). O transporte apenas serializa o par `(pt, c)` e aplica as duas regras de validação acima.
+2. [[hlc]] ([caderno-2-protocol/02-cryptographic-lineage-and-auth.md#35-hlc](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/02-cryptographic-lineage-and-auth.md#L134)) — O transporte é responsável por **transmitir** e **validar** o HLC; a lógica de seleção de head e de merge de fork vive no caderno de protocolo do grafo (Apêndice A).
 
 ### 2.10 — Modelo de Dados e Concorrência
 
