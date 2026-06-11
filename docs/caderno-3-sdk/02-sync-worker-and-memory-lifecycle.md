@@ -193,6 +193,7 @@ O Private Swarm sincroniza um banco SQLite secundário isolado (`device_state.db
 - Cache de prefetch (evita re-download do mesmo BLOB em cada dispositivo)
 - Preferências de UI (tema, layout, idioma)
 - Histórico de peers já sincronizados
+- Tabela `blind_archives` (armazenamento local de [[custodia-cega-archive|Archive Cargos]], indexada por `archive_id` e contendo o payload cifrado)
 
 ### 9.3 Resolução de Conflitos
 

@@ -41,7 +41,7 @@
 | a10_1_27 | rcf-005.md §a10 | NOVA-SECAO-CADERNO | `docs/caderno-2-protocol/02-cryptographic-lineage-and-auth.md` | §3.3.1 — Adicionar Rotação Cooperativa de Época de Grupo | haiku | [x] |
 | a10_2_28 | rcf-005.md §a10 | EDITA-CONCEITO | `docs/conceitos/rotacao-de-epocas.md` | Anotar o modo cooperativo de rotação em grupo | haiku | [x] |
 | a11_1_29 | rcf-005.md §a11 | NOVA-SECAO-CADERNO | `docs/caderno-2-protocol/02-cryptographic-lineage-and-auth.md` | §3.4 — Adicionar Custódia Cega: Archive Cargo (encomenda cifrada) | haiku | [x] |
-| a11_2_30 | rcf-005.md §a11 | EDITA-CADERNO | `docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md` | `device_state.db` — Anotar nova tabela `blind_archives` | haiku | [ ] |
+| a11_2_30 | rcf-005.md §a11 | EDITA-CADERNO | `docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md` | `device_state.db` — Anotar nova tabela `blind_archives` | haiku | [x] |
 | a11_3_31 | rcf-005.md §a11 | NOVO-CONCEITO | `docs/conceitos/custodia-cega-archive.md` | Adicionar verbete Custódia Cega com Archive Cargo e limites honestos | haiku | [ ] |
 | a11_4_32 | rcf-005.md §a11 | DESCARTE | `docs/backlog-geral.md` | Registrar resolução de B.1 para M3/M4 com T-301/T-305 | haiku | [DESCARTADA: legado] |
 | a12_1_33 | rcf-005.md §a12 | EDITA-CADERNO | `docs/caderno-2-protocol/02-cryptographic-lineage-and-auth.md` | §3.3 — Re-entrega a dispositivos delegados e substituição de envelopes | revisar-humano | [ ] |
