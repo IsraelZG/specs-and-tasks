@@ -42,5 +42,21 @@ A interface abstrai o backend: o resto do sistema chama `notify()` agnóstico de
 
 ## 4. Limites Honestos
 
-- Conector é infra operada por alguém: introduz uma dependência de disponibilidade e um ponto de confiança (o operador do SMTP vê os destinatários e o conteúdo dos e‑mails de sistema).
-- Entrega não é garantida (spam filters, indisponibilidade do provedor) — fluxos de recuperação devem ter canal alternativo (ex.: shard externo do SSS, caderno‑2/02 §4.2).
+- Conector é infra operada por alguém: introduz uma dependência de disponibilidade e um ponto de confiança (o operador do SMTP vê os destinatários e o conteúdo dos e-mails de sistema).
+- Entrega não é garantida (spam filters, indisponibilidade do provedor) — fluxos de recuperação devem ter canal alternativo (ex.: shard externo do SSS, caderno-2/02 §4.2).
+
+---
+
+## 5. Push Connector Content-Blind (conector de ingresso)
+
+O **Push Connector** acorda dispositivos suspensos sem violar criptografia E2E (coexistindo com o `NotificationConnector` de egresso).
+
+### 5.1 Fluxo de Funcionamento
+
+1. Em background, o cliente registra o seu token Web Push (VAPID; FCM/APNs nos wrappers nativos) no peer do sistema, associado ao seu `DevicePeerId`, **fora do grafo**.
+2. Ao replicar um registro destinado a um escopo do dispositivo, o peer do sistema dispara o push.
+3. **Payload estritamente restrito:** `blind_scope_id`, [[hlc]] do novo head, e nonce anti-replay — **nunca** o conteúdo ou o `PersonaPeerId` do remetente.
+4. O Service Worker acorda, executa reconciliação restrita ([[onda]] 1 da janela), decifra via [[key-vault]] local, e apenas então compõe a notificação nativa final para o usuário.
+5. Sem chave em cache, o push é exibido em modo **mudo** ("Nova atividade") e adia a exibição do conteúdo.
+
+*Ver mais em [[push-cego]] para os limites honestos e vazamento de metadados associados.*
