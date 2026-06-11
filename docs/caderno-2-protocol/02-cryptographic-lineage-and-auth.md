@@ -127,6 +127,18 @@ Quando um membro ou papel é revogado de um grupo/documento:
 4. O membro excluído perde o acesso às chaves das novas épocas. Contudo, mantém acesso aos dados históricos cifrados com chaves das épocas em que era participante (preservando o forward secrecy pragmático).
 *   **Acesso pós-rotação offline**: Há uma distinção importante: **`UCAN válido offline` $\neq$ `acesso ao conteúdo pós-rotação`**. Se a chave de época rotacionar enquanto um dispositivo com UCAN válido está offline, o dispositivo conseguirá ler todo o histórico anterior criptografado com as chaves de época antigas que ele possui localmente. No entanto, ele **não conseguirá descriptografar os novos nós** gravados na época recente até que restabeleça a conexão de rede para obter e reidratar a nova chave criptografada correspondente.
 
+### 3.3.1 Rotação Cooperativa de Época de Grupo em P2P Puro
+
+Sem autoridade declarada (KMS/super peer), a coordenação é determinística (não BFT; pressupõe membros já em confiança via [[ucan]]):
+
+1. **Anel:** Os [[agente-de-sistema]] dos membros **online** são ordenados por menor `entity_id` (a mesma eleição de committer de caderno-2/04 §4); o menor lidera o ciclo.
+2. **Geração:** O líder gera a nova chave de época localmente.
+3. **Disponibilização:** A nova chave é publicada no Key Vault de Rede (acessível via KEK por escopo, gated por UCAN + delegação), executando **uma** operação por escopo, em vez de N envelopes por dispositivo.
+4. **Ata:** O líder emite **um** nó `CONTENT` governado por `SPECIFICATION:EPOCH_ROTATION`, com o payload `{ scope, new_epoch_index, hlc, envelope_id? }` (o `envelope_id` está presente apenas na variante KEK). Qualquer membro audita que a rotação ocorreu e que o acesso está disponível ao conjunto autorizado.
+5. **Falha do líder:** O anel se reordena; qualquer membro inicia um novo ciclo se o líder vigente estagnar. Até lá, a época corrente segue válida; expirado o TTL sem rotação, o escopo degrada a read-only para novos conteúdos (freeze escopado).
+
+**Limites declarados (Rotação Cooperativa):** Um líder malicioso pode apenas **atrasar** a rotação (mitigado por reeleição imediata) ou **omitir** a disponibilização a um membro específico (fato detectável pela ata; o membro omitido reivindica pelo canal de rede). Ele não consegue forjar a chave de outros membros nem ler o que não lhe cabe por especificação.
+
 ### 3.4 KMS Online-Optional e Conectividade
 * **Modo Online**: Com conectividade ativa, a rotação de chaves e revogação de UCANs se propagam instantaneamente na rede.
 * **Modo Offline**: Em redes P2P puras ou dispositivos temporariamente isolados, a rotação de chaves é enfileirada localmente e as chaves de nova época são geradas de forma descentralizada e consolidadas de forma assíncrona assim que ocorre a reconexão e reconciliação de estado.
