@@ -23,7 +23,7 @@ CREATE TABLE nodes (
   created_at INTEGER NOT NULL,    -- MANTIDO (exibição/janela temporal; não extrair de hlc>>16)
   hlc INTEGER NOT NULL,           -- (pt << 16) | c
   signature BLOB,
-  retention_state INTEGER NOT NULL DEFAULT 0  -- v4: TEXT → INTEGER (0=integral,1=pruned,2=expunged,3=orphan)
+  retention_state INTEGER NOT NULL DEFAULT 0  -- v4: TEXT → INTEGER (0=integral,1=pruned,2=expunged,3=orphan/quarentena)
 );
 
 -- =========================
@@ -43,7 +43,7 @@ CREATE TABLE edges (
   created_at INTEGER NOT NULL,    -- MANTIDO
   hlc INTEGER NOT NULL,
   signature BLOB,
-  retention_state INTEGER NOT NULL DEFAULT 0  -- v4: TEXT → INTEGER (0=integral,1=pruned,2=expunged,3=orphan)
+  retention_state INTEGER NOT NULL DEFAULT 0  -- v4: TEXT → INTEGER (0=integral,1=pruned,2=expunged,3=orphan/quarentena)
 );
 
 -- Índices: idx_nodes_pub_key e idx_edges_previous_hash continuam válidos sobre BLOB.
@@ -73,7 +73,7 @@ A plataforma **não realiza o somatório de pesos de arestas (`SUM(weight)`)** p
 1. A deleção marca a aresta como inativa (`active = 0`), criando uma lápide.
 2. Um trigger local remove a relação da projeção `active_edges`, tornando-a invisível para consultas da aplicação.
 3. O registro original e a lápide permanecem no grafo para auditoria.
-4. O GC (§4 do caderno 3/02) pode podar lápides expiradas após **N ciclos de auditoria**, respeitando os requisitos de retenção legal de cada modalidade (financeiro: 5 anos; conteúdo comum: configurável pela `SPECIFICATION`). Registros marcados como `retention_state = 'expunged'` não preservam nem payload nem assinatura; apenas o `id` permanece como âncora de auditoria.
+4. O GC (§4 do caderno 3/02) pode podar lápides expiradas após **N ciclos de auditoria**, respeitando os requisitos de retenção legal de cada modalidade (financeiro: 5 anos; conteúdo comum: configurável pela `SPECIFICATION`). Registros marcados como `retention_state = 2 (expunged)` não preservam nem payload nem assinatura; apenas o `id` permanece como âncora de auditoria.
 
 ### 2.3 Ausência de `updated_at`
 Como a plataforma é estritamente append-only, modificações nunca disparam comandos `UPDATE` nas linhas replicáveis. Alterações geram novas linhas com novos `id`s vinculados por arestas `MUTATES` compartilhando o mesmo `entity_id`.
