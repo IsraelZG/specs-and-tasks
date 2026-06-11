@@ -30,6 +30,12 @@ Nunca um PR monolítico. Ao terminar uma unidade, rode /verificar antes de segui
 ## Links
 Wikilinks [[slug]] para conceitos. Slugs kebab-case, estáveis.
 
+## Absorção de RFCs
+RFCs são propostas; conteúdo aceito vive nos cadernos/conceitos, não em rfc-*.md.
+Todo RFC novo segue docs/rfcs/_TEMPLATE.md (tabela "Onde integrar" + "Texto
+normativo") para ser auto-roteável. Absorver com /absorver-rfc; a RFC é deletada
+ao fim. docs/rfcs/_status.md registra status e destino-caderno de cada RFC.
+
 ## Migração wiki — Fase 2
 
 Estado da migração e ferramentas:

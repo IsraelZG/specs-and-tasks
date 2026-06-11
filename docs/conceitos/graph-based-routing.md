@@ -11,7 +11,7 @@ modo: hub
 **Modo hub** — definição normativa baseada em [02-sync-worker-and-memory-lifecycle.md:L67-L68](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L67-L68) and [rfc-transporte-p2p-v3.1.md:L97-L98](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L97-L98). Glossário consolidado aqui.
 
 > Aparições consolidadas:
-> - [glossary.md:L49](file:///c:/Dev2026/Docs/docs/glossary.md#L49) — definição sucinta no glossário.
+> - [[graph-based-routing]] — definição sucinta no glossário.
 > - [02-sync-worker-and-memory-lifecycle.md:L67-L68](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L67-L68) — execução na Onda 3 de sincronização do SDK (fonte principal).
 > - [rfc-transporte-p2p-v3.1.md:L97-L98](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L97-L98) — roteamento quente e exclusão de DHT global (visão e protocolo).
 > - [rfc-transporte-p2p-v3.1.md:L478-L493](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L478-L493) — roteamento indireto de BLOBs em conformidade com o grafo.

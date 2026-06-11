@@ -1,7 +1,7 @@
 ---
 name: linhagem-de-versoes
 title: "Linhagem de Versões"
-aliases: ["Version Lineage", "Linhagem de Versões"]
+aliases: ["Version Lineage", "Linhagem de Versões", "resulted-from", "resulted_from", "resolves"]
 tags: [protocol, imutabilidade, auditoria]
 ---
 

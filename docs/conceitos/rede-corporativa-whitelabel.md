@@ -1,7 +1,7 @@
 ---
 name: rede-corporativa-whitelabel
 title: "Rede Corporativa Whitelabel"
-aliases: ["rede corporativa whitelabel", "redes corporativas whitelabel", "whitelabel corporativo", "Rede Corporativa", "Redes Corporativas"]
+aliases: ["rede corporativa whitelabel", "redes corporativas whitelabel", "whitelabel corporativo", "Rede Corporativa", "Redes Corporativas", "whitelabel"]
 tags: [vision, governanca, produto]
 modo: hub
 ---

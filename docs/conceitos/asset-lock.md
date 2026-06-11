@@ -1,7 +1,7 @@
 ---
 name: asset-lock
 title: "ASSET:LOCK"
-aliases: ["ASSET:LOCK", "asset lock", "reserva temporária", "lock TTL"]
+aliases: ["ASSET:LOCK", "asset lock", "reserva temporária", "lock TTL", "asset-lock como reserva", "asset:lock como reserva"]
 tags: [protocol, transacoes, saga, asset]
 ---
 

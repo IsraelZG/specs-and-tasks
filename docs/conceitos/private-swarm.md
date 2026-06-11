@@ -61,4 +61,4 @@ A governança e evolução do Private Swarm são centradas na soberania do usuá
 ## Aparições a consolidar
 As definições e implementações de suporte originais a serem consolidadas sob este verbete canônico encontram-se em:
 - `docs/rfc-transporte-p2p-v3.1.md §4.7` ([RFC — Camada de Transporte P2P](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L575))
-- `docs/glossary.md §Private Swarm` ([Glossário](file:///c:/Dev2026/Docs/docs/glossary.md#L211))
+- `docs/glossary.md §Private Swarm` ([[tombstone-lapide]])

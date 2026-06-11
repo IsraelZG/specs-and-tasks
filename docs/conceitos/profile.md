@@ -1,7 +1,7 @@
 ---
 name: profile
 title: "PROFILE (O Ator)"
-aliases: ["profile node", "ator", "identidade criptográfica"]
+aliases: ["profile node", "ator", "identidade criptográfica", "peer"]
 tags: [protocol, ontologia, graph]
 ---
 

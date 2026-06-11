@@ -2,10 +2,12 @@
 title: Automerge Repo
 slug: automerge-repo
 aliases:
-  - Automerge Repo
-  - automerge-repo
-  - automerge repo
-  - camada de orquestração do Automerge
+  - "Automerge Repo"
+  - "automerge-repo"
+  - "automerge repo"
+  - "camada de orquestração do Automerge"
+  - "automerge"
+  - "crdt"
 tags:
   - protocol
   - automerge

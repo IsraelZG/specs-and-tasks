@@ -2,9 +2,12 @@
 title: Merge Aditivo
 slug: merge-aditivo
 aliases:
-  - merge-aditivo
-  - merge aditivo
-  - merge aditivo de saldo
+  - "merge-aditivo"
+  - "merge aditivo"
+  - "merge aditivo de saldo"
+  - "credits"
+  - "credits-v4"
+  - "credits (v4)"
 tags:
   - protocol
   - automerge

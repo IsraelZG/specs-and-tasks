@@ -1,7 +1,7 @@
 ---
 name: rotacao-de-epocas
 title: "Rotação de Épocas"
-aliases: ["epoch rotation", "rotação de chaves", "key rotation"]
+aliases: ["epoch rotation", "rotação de chaves", "key rotation", "stale-epoch", "stale_epoch"]
 tags: [protocol, criptografia, forward-secrecy, acesso]
 ---
 
