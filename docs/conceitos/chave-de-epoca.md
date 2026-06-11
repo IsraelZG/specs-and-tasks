@@ -28,7 +28,7 @@ Propriedades-chave (extraídas literalmente de §3.1 e §3.3):
 - **Forward secrecy pragmático:** "O membro excluído perde o acesso às chaves das novas épocas. Contudo, mantém acesso aos dados históricos cifrados com chaves das épocas em que era participante."
 - **Acesso offline pós-rotação:** "`UCAN válido offline ≠ acesso ao conteúdo pós-rotação`." O dispositivo offline lê histórico mas não decifra novos nós até reconectar e obter a nova chave.
 
-Separação de papéis: a [[chave-mestra-ed25519]] **assina**; a Chave de Época **cifra**. As duas camadas nunca se substituem.
+Separação de papéis: a [[chave-mestra-ed25519]] **assina**; a Chave de Época **cifra** (tratando-se exclusivamente de uma Época de Conteúdo, totalmente ortogonal à [[epoca-de-identidade]]). As duas camadas nunca se substituem.
 
 ## Implementação
 
