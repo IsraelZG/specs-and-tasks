@@ -157,6 +157,8 @@ Uma tentação comum é criar subtipos de `CONTENT` para cada idioma de negócio
 
 **Metadados observáveis:** Necessidade de propriedades leves observáveis (ex: contagem de interações, timestamp de criação) é resolvida por campos `searchable: true` projetados no schema da `SPECIFICATION` (caderno-3/01 §5 / FTS5). Não cria nó `POST_META` dual — é projeção local, não grafo.
 
+- **Conversa (Chat):** Evita-se criar um nó contêiner "Chat" ou "DM" no grafo. A DM existe puramente quando há permissão mútua escopada ativa, sendo o `conversation_id` calculado deterministicamente a partir dos IDs dos participantes. Grupos de chat utilizam a entidade `PROFILE:ORGANIZATION` existente, com pertencimento por aresta `PARTICIPATES_IN:GROUP:MEMBER`. As mensagens (`CONTENT:MESSAGE`) de grupo apontam para a organização via `BELONGS_TO`. A listagem de conversas na home da aplicação reside em uma projeção local não-replicada (`chat_conversations` no `device_state.db`), evitando tráfego e nós contêineres redundantes no grafo (ver `docs/caderno-3-sdk/07-chat-reference-spec.md`).
+
 **Justificativa:** Critério §4 (minimalismo):
 - Os tipos `POST` e `STORY` têm regras idênticas de validação, criptografia e sync (critério 1 = FAIL).
 - A distinção é resolúvel por payload + `SPECIFICATION` (critério 2 = FAIL).
