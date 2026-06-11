@@ -139,25 +139,39 @@ Sem autoridade declarada (KMS/super peer), a coordenação é determinística (n
 
 **Limites declarados (Rotação Cooperativa):** Um líder malicioso pode apenas **atrasar** a rotação (mitigado por reeleição imediata) ou **omitir** a disponibilização a um membro específico (fato detectável pela ata; o membro omitido reivindica pelo canal de rede). Ele não consegue forjar a chave de outros membros nem ler o que não lhe cabe por especificação.
 
-### 3.4 KMS Online-Optional e Conectividade
+### 3.4 Custódia Cega: Archive Cargo (encomenda cifrada)
+
+Disponibilidade de subgrafos sem expor semântica ao custodiante:
+
+1. **Empacotamento:** o `PROFILE:SYSTEM` emissor serializa um lote de nós/arestas **de uma única época**, compacta (zstd) e cifra com a [[chave-de-epoca]] do escopo (AES-256-GCM) — a mesma dos payloads individuais. O custodiante **não valida assinatura, não vê `pub_key`, não aprende autoria**.
+2. **Registro no grafo:** `archive_id = blake2s256(ciphertext)`. Nó `CONTENT` governado por `SPECIFICATION:ARCHIVE_MANIFEST`, payload `{ archive_id, blind_scope_id, epoch_index, hlc_range, size, expires_at }`. As arestas `ARCHIVES` (manifesto → originais empacotados) são governadas pelo sync [[ucan]]-scoped (T-305) — quem não tem [[ucan]] não as vê. **§2.7 intacto.**
+3. **Entrega/armazenamento:** o emissor envia o ciphertext aos custodiantes via canal `EPHEMERAL` (fora do RBSR). O custodiante guarda em `device_state.db` (tabela `blind_archives`, **não** no grafo replicado), indexado por `archive_id`. **Atribuição:** consistent hashing sobre `blind_scope_id` no anel de custódia existente (mesmo mecanismo de BLOBs) — sem coordinator central.
+4. **Recuperação:** peer autorizado envia `archive_id`; o custodiante devolve o ciphertext; o requisitante decifra localmente com a [[chave-de-epoca]] da época correspondente (que já possui via Key Vault de Rede). Integridade self-certifying: `blake2s256(ciphertext)` deve bater com `archive_id` e a tag GCM deve validar.
+5. **GC:** `expires_at` permite descarte sem coordinator; renovação via novo `EPHEMERAL` com mesmo `archive_id`.
+
+**Reuso maximal:** [[chave-de-epoca|chaves de época]] existentes (zero cripto nova); SPECIFICATION como governança (zero [[ucan]] novo); `EPHEMERAL` + `device_state.db` (zero canal novo); consistent hashing (zero algoritmo novo); `CONTENT` genérico (zero tipo ontológico novo).
+
+**Integração com a poda (G4/T-806):** o [[custodia-cega-archive|Archive Cargo]] é o mecanismo que satisfaz a invariante "nunca reduzir cópias íntegras abaixo de N=3" — um nó só é podado a casca após confirmação de que ≥N custodiantes possuem o archive que o contém (protocolo RELEASE/ACK + health-check do T-806).
+
+### 3.5 KMS Online-Optional e Conectividade
 * **Modo Online**: Com conectividade ativa, a rotação de chaves e revogação de UCANs se propagam instantaneamente na rede.
 * **Modo Offline**: Em redes P2P puras ou dispositivos temporariamente isolados, a rotação de chaves é enfileirada localmente e as chaves de nova época são geradas de forma descentralizada e consolidadas de forma assíncrona assim que ocorre a reconexão e reconciliação de estado.
 
-### 3.5 Ordenação Causal, HLC e Seleção de Head
+### 3.6 Ordenação Causal, HLC e Seleção de Head
 
-#### 3.5.1 Definição de Head
+#### 3.6.1 Definição de Head
 O **head** de uma entidade é a **ponta (tip) da linhagem**: o nó-versão do qual nenhuma aresta `MUTATES` ativa parte (ou seja, ninguém mutou a partir dele). **Não** é "o nó de maior `created_at`" — esse critério, baseado em relógio de parede, está sujeito a skew e à manipulação do autor.
 
-Operacionalmente, head = nó-versão de **maior HLC** da entidade. Isso é equivalente à definição estrutural acima **por causa** da invariante de monotonicidade (§3.5.4): se todo filho tem HLC maior que o pai, o nó de maior HLC nunca pode ter um descendente — logo é sempre uma ponta.
+Operacionalmente, head = nó-versão de **maior HLC** da entidade. Isso é equivalente à definição estrutural acima **por causa** da invariante de monotonicidade (§3.6.4): se todo filho tem HLC maior que o pai, o nó de maior HLC nunca pode ter um descendente — logo é sempre uma ponta.
 
-#### 3.5.2 Estrutura do HLC
+#### 3.6.2 Estrutura do HLC
 Cada nó/aresta carrega um carimbo `hlc = (pt, c)`:
 * `pt` — componente físico em ms (colado ao tempo real; serve para display e janelas temporais).
 * `c` — contador lógico (16 bits) que desempata eventos no mesmo `pt`.
 
 Empacotamento: `hlc = (pt << 16) | c`, armazenado como inteiro e **coberto pela assinatura Ed25519**.
 
-#### 3.5.3 Algoritmo de Atualização
+#### 3.6.3 Algoritmo de Atualização
 Estado por peer: `L = (pt, c)`.
 
 ```
@@ -181,8 +195,8 @@ Ordem total determinística (idêntica em todos os peers, sem coordenação):
 
 Garantia: se `e1 → e2` (causal), então `HLC(e1) < HLC(e2)`. A recíproca **não** vale: HLC ordena, mas **não detecta concorrência** — a detecção de fork é estrutural (duas `MUTATES` ativas com o mesmo `source_id`; ver caderno-2/04 §3.2). Dentro de documentos colaborativos, a concorrência granular é resolvida pelo Automerge, não pelo HLC.
 
-#### 3.5.4 Invariantes de Validação na Recepção
-1. **Monotonicidade de pai:** um nó que faz `MUTATES` de um pai `P` é **rejeitado como malformado** se `HLC(filho) ≤ HLC(P)`. Isso impede pós-datar para "voltar no tempo" da linhagem e é o que sustenta a equivalência de §3.5.1.
+#### 3.6.4 Invariantes de Validação na Recepção
+1. **Monotonicidade de pai:** um nó que faz `MUTATES` de um pai `P` é **rejeitado como malformado** se `HLC(filho) ≤ HLC(P)`. Isso impede pós-datar para "voltar no tempo" da linhagem e é o que sustenta a equivalência de §3.6.1.
 2. **Limite de drift:** se `pt_remoto > wall_clock_local + MAX_DRIFT` (ex.: 5 min), o valor **não** é adotado no `max` do relógio local e o nó entra em quarentena até estar na janela. Isso limita o ataque de "HLC futuro-distante" a `MAX_DRIFT`, em vez de poluir o relógio de toda a malha.
 
 ---

@@ -9,7 +9,11 @@ description: Converte um caderno em uma lente do wiki. Para cada conceito que
 
 Trabalhe SOMENTE no caderno indicado em $ARGUMENTS. Um caderno por invocação.
 
-1. Liste os conceitos do `_moc.md` e ache cada ocorrência no caderno.
+1. Execute o script determinístico para identificar quais conceitos do MOC estão presentes no caderno:
+   ```bash
+   node scripts/migrar-caderno-preflight.mjs $ARGUMENTS
+   ```
+   E use a lista retornada para o processamento.
 2. Para cada ocorrência:
    - Se o caderno apenas REDESCREVE o conceito → troque o trecho por [[slug]],
      mantendo só a frase de transição que dá o ângulo daquele nível.

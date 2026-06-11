@@ -10,11 +10,13 @@ dos cadernos — isso é trabalho dos subagents, para manter seu contexto enxuto
 Você só lê o plano, despacha subagents e agrega os retornos.
 
 ## Passo 1 — montar a fila
-- Leia docs/conceitos/_plano-de-ondas.md e extraia, NA ORDEM LISTADA, os conceitos
-  da onda $ARGUMENTS (slug + modo). A ordem importa: ela respeita dependências.
-- Liste docs/conceitos/*.md. Remova da fila qualquer conceito cujo arquivo já exista
-  (idempotência — permite retomar após /clear sem refazer nada).
-- Se a fila ficar vazia, relate "onda $ARGUMENTS já concluída" e PARE.
+- Execute o script determinístico para obter a fila de verbetes pendentes:
+  ```bash
+  node scripts/get-wave-queue.mjs $ARGUMENTS
+  ```
+- Se a fila estiver vazia (todos os verbetes já existem), relate "onda $ARGUMENTS já concluída" e PARE.
+- Caso contrário, use a lista retornada pelo script como a fila a processar.
+
 
 ## Passo 2 — criar, um por vez (SEQUENCIAL, nunca em paralelo)
 Para cada slug da fila, na ordem, ESPERANDO um terminar antes de despachar o próximo
