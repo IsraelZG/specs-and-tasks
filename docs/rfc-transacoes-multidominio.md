@@ -271,3 +271,5 @@ Edições relacionadas necessárias (commitadas separadamente):
 5. **caderno-3/01 §5:** Confirmar que ranking/busca consume `searchable: true` de SPEC (Zen), não nó novo.
 6. **caderno-4/03:** Extensão multidomínio: invariante de core é per-perna; consistência cross-domínio é padrão.
 7. **backlog-geral:** Primitivo de saga/2PC + TTL é pré-requisito para módulos financeiros compostos.
+
+

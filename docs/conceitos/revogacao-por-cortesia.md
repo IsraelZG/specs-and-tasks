@@ -79,3 +79,5 @@ O mesmo arquivo cita "cortesia executável" no contexto de bond/caução: *"Com 
 | [[tombstone-lapide]] | 7 | criado |
 | [[bloqueio-social]] | 3 | criado |
 | [[retention-state]] | — | Foam placeholder (não é alvo de verbete na Fase 2) |
+
+

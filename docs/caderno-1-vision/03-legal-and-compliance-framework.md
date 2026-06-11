@@ -56,3 +56,5 @@ Quando um titular solicita a exclusão de dados não protegidos por retenção r
 * **Extrações Externas**: Dados que foram intencionalmente capturados por screenshot, exportados via API local por terceiros ou copiados para armazenamento fora do grafo estão fora do alcance de eliminação da plataforma.
 
 Esta postura técnica é equivalente ou superior a qualquer sistema SaaS contemporâneo em nuvem, com a vantagem de que a rotação criptográfica por épocas e as Virtual Foreign Keys (VFK) minimizam os riscos de vazamento futuro de novas transações após a exclusão.
+
+

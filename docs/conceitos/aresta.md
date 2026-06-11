@@ -17,14 +17,14 @@ Separar entidades (nós) de relações (arestas) é a garantia de que o modelo p
 
 ## Contrato
 
-O texto autoritativo está em [[caderno-2-protocol/01-graph-ontology#2-convencao-de-nomenclatura-de-arestas]].
+O texto autoritativo está em [[caderno-2-protocol/01-graph-ontology#2-convenção-de-nomenclatura-de-arestas]].
 
 Propriedades-chave:
 
 - **Estrutura mínima:** `(source_id, type, target_id)` + campos de linhagem (`id`, `entity_id`, `hlc`, `signature`, `epoch`).
 - **Padrão de nomenclatura:** `VERBO:DOMÍNIO:SPECIFIER` — `VERBO` é a raiz verbal presente, `DOMÍNIO` é a categoria ontológica, `SPECIFIER` é o refinamento opcional.
 - **Verbos raiz aceitos:** ver [[verbos-raiz-canonicos]]. Verbos fora deste conjunto requerem RFC.
-- **Polimorfismo de alvo:** `target_id` pode apontar para um nó (`nodes.id`, 11º char `N`) ou para outra aresta (`edges.id`, 11º char `E`) — resolvido via Virtual Foreign Key; ver [[ulid]].
+- **Polimorfismo de alvo:** `target_id` pode apontar para um nó (`nodes.id`, 11º char `N`) ou para outra aresta (`edges.id`, 11º char `E`) — resolvido via [[vfk|Virtual Foreign Key]]; ver [[ulid]].
 - **Imutabilidade:** arestas são append-only; "remover" uma relação equivale a criar uma aresta de encerramento (`RESOLVES`, `REVOKED_BY`) ou marcar `active = 0`.
 - **Assinatura:** todos os campos planos e o payload cifrado são cobertos pela assinatura [[chave-mestra-ed25519]] do autor.
 
@@ -41,3 +41,5 @@ Novos tipos de aresta são adicionados via RFC de ontologia. A convenção `VERB
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
 | `glossary.md` | `§Aresta` | Substituir pelo wikilink `[[aresta]]` |
+
+

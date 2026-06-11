@@ -97,3 +97,5 @@ A economia ganha papel de segurança **apenas** no bonding de papéis privilegia
 - [[credits]] <!-- Foam placeholder — verbete Onda 10 --> — aresta de crédito sobre um ASSET
 - [[defesa-sybil]] <!-- Foam placeholder — verbete Onda 10 --> — mecanismo primário anti-Sybil (separado da economia)
 - [[bond-caucao]] <!-- Foam placeholder — verbete Onda 10 --> — caução para papéis privilegiados; único ponto onde economia tem papel de segurança
+
+

@@ -369,3 +369,4 @@ A remuneração (tráfego, armazenamento, **processamento** — validações, an
 ---
 
 *Esta RFC consolida as decisões de design da v4: o agente de sistema como espinha de orquestração (confiável para orquestrar, não para afirmar); a serialização por linhagem com invariante no core e política na SPEC; o fluxo de aprovação intent-hub com K=1 como caso comum; a medição de contribuição em quatro regimes verificáveis alimentando uma economia modular sobre ASSET; a reputação local com fatos negativos verificáveis; e a defesa Sybil ancorada no custo de identidade, separada da economia. As otimizações de schema preservam o que é criptograficamente load-bearing, prevenindo a enchente de arestas em vez de raspar bytes.*
+

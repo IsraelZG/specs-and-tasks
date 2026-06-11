@@ -81,3 +81,5 @@ O G4 também é responsável pela coleta de [[tombstone-lapide|tombstones]] expi
 | [[poda-segura]] | 4 | criado |
 | [[tier-aware-degradation]] | 12 | placeholder |
 | [[tombstone-lapide]] | 7 | placeholder |
+
+

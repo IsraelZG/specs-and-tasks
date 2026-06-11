@@ -110,3 +110,5 @@ As seguintes definições duplicadas do termo foram consolidadas neste verbete:
 | [[sync-worker]] | 7 | placeholder |
 | [[tinybase]] | 7 | placeholder |
 | [[agente-de-sistema]] | 10 | placeholder |
+
+

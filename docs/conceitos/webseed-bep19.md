@@ -106,3 +106,5 @@ Em futuras revisões da especificação, planeja-se a automação da auditoria d
 | [[content-file]] | 11 | não é alvo de verbete na Fase 2 (sem ★) |
 | [[modalidade-de-rede]] | 12 | <!-- TODO(revisar): verbete não criado na Onda 12 — Foam placeholder --> |
 | [[peer-do-sistema]] | 12 | <!-- TODO(revisar): verbete não criado na Onda 12 — Foam placeholder --> |
+
+

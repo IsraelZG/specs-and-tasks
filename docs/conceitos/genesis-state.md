@@ -29,7 +29,7 @@ Em arquiteturas [[local-first|local-first]] e descentralizadas, a criação de u
 
 ## Contrato
 
-O comportamento normativo do estado `GENESIS` conforme especificado em [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#6-gênese-da-rede-—-first-peer-protocol]] é definido da seguinte forma:
+O comportamento normativo do estado `GENESIS` conforme especificado em [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#6-gênese-da-rede--first-peer-protocol]] é definido da seguinte forma:
 
 Ocorre **apenas** se o timer de busca expirou sem peers conectados **e** o peer local detém o **bootstrap token** (chave de fundação gerada na criação do workspace) ou o usuário manifestou a intenção de "Criar Nova Rede". Neste estado, o peer realiza as seguintes ações de forma atômica:
 
@@ -45,7 +45,7 @@ Ocorre **apenas** se o timer de busca expirou sem peers conectados **e** o peer 
 
 ## Implementação
 
-O `Genesis State` é orquestrado localmente no [[sync-worker]] dentro do fluxo do [[first-peer-protocol]] (ver [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#6-gênese-da-rede-—-first-peer-protocol]]):
+O `Genesis State` é orquestrado localmente no [[sync-worker]] dentro do fluxo do [[first-peer-protocol]] (ver [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#6-gênese-da-rede--first-peer-protocol]]):
 
 - **Timer de Espera**: O protocolo inicia a busca em paralelo via mDNS (LAN), DHT (WAN) e conexões de fallback via WebSocket. O temporizador de 8 segundos em `WAITING_FOR_SWARM` aguarda retornos.
 - **Resolução sem Peers**: Se a busca falhar ao fim do timer, o Sync Worker verifica a posse do token ou a intenção do usuário:
@@ -78,3 +78,5 @@ A capacidade de inicializar o `Genesis State` e a posse do *bootstrap token* sã
 | [[specification]] | 1 | criado |
 | [[sync-worker]] | 7 | placeholder (onda futura) |
 | [[peer-do-sistema]] | 12 | placeholder (onda futura) |
+
+

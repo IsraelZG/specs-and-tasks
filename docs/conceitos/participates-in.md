@@ -81,3 +81,5 @@ Conforme `caderno-2-protocol/01-graph-ontology.md §3.1`, nós do tipo [[profile
 |:---|:---|:---|
 | `caderno-2-protocol/01-graph-ontology.md` | `§2` e `§2.1` | Substituir definição inline por `[[participates-in]]` |
 | `glossary.md` | `§PARTICIPATES_IN` | Substituir definição por `[[participates-in]]` |
+
+

@@ -15,7 +15,7 @@ Conforme `caderno-2-protocol/01-graph-ontology.md §2.1`:
 
 > **`AGGREGATES`** — Liga uma `ASSET:ROLE` a uma `ASSET:PERMISSION`, indicando que o papel engloba aquela permissão.
 
-A semântica completa de como `ASSET:ROLE` agrega permissões atômicas via `AGGREGATES` está em **[[caderno-2-protocol/01-graph-ontology#2-1-verbos-raiz-canônicos-e-relacionais]]**.
+A semântica completa de como `ASSET:ROLE` agrega permissões atômicas via `AGGREGATES` está em **[[caderno-2-protocol/01-graph-ontology#21-verbos-raiz-canônicos-e-relacionais]]**.
 
 ## Por quê
 
@@ -62,3 +62,5 @@ Seguindo o [[substantivo-verbo-principio]], o **ato de compor um papel** é um v
 | `caderno-2-protocol/01-graph-ontology.md` | `§2.1` | Substituir descrição inline por `[[aggregates]]` |
 | `glossary.md` | `§AGGREGATES` | Substituir definição por `[[aggregates]]` |
 | `glossary.md` | `§ASSET:ROLE` | Substituir "por meio de arestas `AGGREGATES`" por `[[aggregates]]` |
+
+

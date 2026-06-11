@@ -13,3 +13,5 @@ tags: [protocol, ontologia, graph]
 > Outras aparições: `glossary.md §CONTENT`
 >
 > Ver também: [[no]], [[mutates]], [[aresta]]
+
+

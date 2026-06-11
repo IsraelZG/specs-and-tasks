@@ -98,3 +98,5 @@ Dependências de ondas futuras (Foam placeholders — não criar agora):
 | `glossary.md` | `§SPENDS`, `§CREDITS`, `§RESULTED_FROM`, `§RESOLVES` | Adicionar link `[[content-intent]]` |
 | `rfc-v4.md` | `§2.4` | Adicionar link `[[content-intent]]` no título/intro da seção |
 | `caderno-1-vision/03-legal-and-compliance-framework.md` | `§2.2`, `§2.3` | Substituir `CONTENT:INTENT` inline por `[[content-intent]]` |
+
+

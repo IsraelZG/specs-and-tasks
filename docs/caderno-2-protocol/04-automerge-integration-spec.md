@@ -87,3 +87,5 @@ Em produção espera-se o uso de um Committer árbitro — **preferencialmente u
 ### 4.3 Merge Aditivo de Saldo (v4)
 
 Para saldos, a regra da SPECIFICATION é **aditiva**: créditos concorrentes (`CREDITS`) que bifurcam a linhagem do ativo de destino são mesclados **somando os deltas** (`base + Δ₁ + Δ₂`), nunca por Last-Write-Wins — LWW perderia valor. Apenas o **débito** (`SPENDS`) é serializado por um validador (não-comutativo); o crédito é monotônico e dispensa aprovação própria.
+
+

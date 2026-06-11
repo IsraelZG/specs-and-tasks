@@ -105,3 +105,5 @@ Rastreamento de arquivos e locais a consolidar nas etapas subsequentes.
 | `docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md` | `§3 Onda 3` | Inserir referência wikilink `[[graph-based-routing]]` |
 | `docs/rfc-transporte-p2p-v3.1.md` | `§2.4.1` | Inserir referência wikilink `[[graph-based-routing]]` |
 | `docs/rfc-transporte-p2p-v3.1.md` | `§3.4` | Inserir referência wikilink `[[graph-based-routing]]` |
+
+

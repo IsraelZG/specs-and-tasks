@@ -72,3 +72,5 @@ A [[invariante-de-core]] só faz sentido dentro do domínio não-comutativo: "du
 | [[invariante-de-core]] | 9 | criado |
 | [[validador-declarado]] | 9 | criado |
 | [[content-intent]] | 3 | criado |
+
+

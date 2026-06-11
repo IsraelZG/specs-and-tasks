@@ -92,3 +92,5 @@ O design prevê que a transição de parâmetros criptográficos, como a altera�
 | [[ucan]] | 2 | criado |
 | [[chave-de-epoca]] | 1 | criado |
 | [[modalidade-de-rede]] | 12 | <!-- Foam placeholder — Onda 12 (futura) --> |
+
+

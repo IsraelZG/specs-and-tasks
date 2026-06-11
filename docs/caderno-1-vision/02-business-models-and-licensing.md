@@ -43,3 +43,5 @@ A Plataforma V3.1 é orientada por uma governança que equilibra o dinamismo com
 ### 3.2 Evolução Dirigida pela Comunidade
 * **Roadmap de RFCs**: Propostas de alteração em specifications canônicas (`PROFILE:CORE`, `CONTENT:MESSAGE`, etc.) devem ser documentadas e submetidas a um processo público de aprovação (RFCs), impedindo a fragmentação da ontologia.
 * **Soberania Tecnológica**: A compatibilidade matemática das arestas e nós garante que qualquer desenvolvedor possa implementar seus próprios clientes compatíveis em outras linguagens (Rust, Go, Swift) mantendo a rede pública interoperável.
+
+

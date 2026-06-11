@@ -95,3 +95,5 @@ A tabela detalha as dependências deste conceito, marcando com *placeholder* (Wi
 | [[peer-do-sistema]] | 12 | placeholder |
 | [[fundador]] | 12 | placeholder |
 | [[peer]] | 1.5/glossary | placeholder |
+
+

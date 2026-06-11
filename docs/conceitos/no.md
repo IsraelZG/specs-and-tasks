@@ -19,7 +19,7 @@ A ausência de `EVENT` é deliberada: eventos consolidados são nós-versão con
 
 ## Contrato
 
-O texto autoritativo dos quatro tipos e dos critérios de minimalismo está em [[caderno-2-protocol/01-graph-ontology#3-os-quatro-tipos-de-nos]].
+O texto autoritativo dos quatro tipos e dos critérios de minimalismo está em [[caderno-2-protocol/01-graph-ontology#3-os-quatro-tipos-de-nós]].
 
 Propriedades estruturais comuns a todos os nós:
 
@@ -53,3 +53,5 @@ Novos tipos-raiz requerem RFC de ontologia que demonstre falha nos quatro crité
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
 | `glossary.md` | `§Nó (Node)` | Substituir pelo wikilink `[[no]]` |
+
+

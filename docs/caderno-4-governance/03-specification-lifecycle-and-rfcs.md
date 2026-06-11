@@ -99,3 +99,5 @@ serialization:
 **Defaults por modalidade:** Corporativa → `leader` (super peer); Pública → `quorum` licenciado; P2P puro → `quorum` bizantino sobre anel de custódia.
 
 **Extensão multidomínio (v4):** Quando uma operação envolve múltiplas linhagens de domínios distintos (sagas transdomínio), a invariante de core permanece **por-perna**: cada leg respeita sua serialização conforme a SPEC do seu ativo. **Consistência cross-domínio é padrão de composição (protocolo), não primitiva de core.** Oferece-se dois tiers: Tier 1 (Saga com `ASSET:LOCK` TTL, eventual + sans-isolamento, default) e Tier 2 (2PC com coordenador confiável, isolamento de snapshot). Ver rfc-transacoes-multidominio.md §1, §7.
+
+

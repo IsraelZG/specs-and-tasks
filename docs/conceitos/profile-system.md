@@ -104,3 +104,5 @@ Em redes com autoridade, a suíte contínua de honeypots é um recurso gerenciad
 - [[profile-persona]] — máscara pública humana, contraparte do sistema
 - [[ucan]] — tokens de autorização usados pelo agente para operar com escopo limitado
 - [[agente-de-sistema]] <!-- Foam placeholder — verbete Onda 10 -->
+
+

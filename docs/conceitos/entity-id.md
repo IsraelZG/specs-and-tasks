@@ -36,3 +36,5 @@ Estável. A semântica `entity_id = id do nó-raiz` é invariante do schema v4.
 |:---|:---|:---|
 | `glossary.md` | `§entity_id` | Substituir pelo wikilink `[[entity-id]]` |
 | `caderno-3-sdk/01-sqlite-and-projections-schema.md` | `§1` (comentário DDL) | Adicionar link `[[entity-id]]` ao comentário da coluna |
+
+

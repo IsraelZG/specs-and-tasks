@@ -109,3 +109,5 @@ caução. Ver [[invariante-de-core]] §"Colisões como fatos forenses".
 - [[bond-caucao]] <!-- Foam placeholder — verbete Onda 10 --> — caução que o fato negativo pode acionar para corte
 - [[comutativo-vs-nao-comutativo]] — apenas operações não-comutativas exigem validadores caucionados
 - [[content]] — tipo ontológico no qual o fato negativo é persistido (`CONTENT` autocomprovável)
+
+

@@ -87,3 +87,5 @@ Enquanto o estado durável de cada perna é replicado normalmente (lock consumid
 | [[2pc-com-lock-ttl]] | 9 | criado |
 | [[validador-declarado]] | 9 | placeholder (mesma onda, não criado) |
 | [[politica-de-ttl]] | 9 | criado |
+
+

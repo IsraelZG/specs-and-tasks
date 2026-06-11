@@ -103,3 +103,5 @@ As regras de enquadramento da matriz de transporte e os limites de degradação 
 | [[transport-hints]] | 7 | placeholder |
 | [[tinybase]] | 7 | placeholder |
 | [[sync-worker]] | 7 | placeholder |
+
+

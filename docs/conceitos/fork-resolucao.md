@@ -110,3 +110,5 @@ As definições e referências duplicadas do termo foram unificadas sob este ver
 | [[congelamento-escopado]] | 8 | placeholder |
 | [[validador-declarado]] | 9 | placeholder |
 | [[agente-de-sistema]] | 10 | placeholder |
+
+

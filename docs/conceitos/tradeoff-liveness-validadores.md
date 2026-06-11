@@ -76,3 +76,5 @@ O protocolo [[rbsr]] detecta e registra forks estruturalmente mesmo sem validado
 | [[consenso-emergencia]] | 8 | placeholder (mesma onda) |
 | [[serialization-por-linhagem]] | 9 | placeholder (onda futura) |
 | [[invariante-de-core]] | 9 | placeholder (onda futura) |
+
+

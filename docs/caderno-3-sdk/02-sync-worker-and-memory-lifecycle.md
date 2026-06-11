@@ -54,6 +54,15 @@ A pilha local ([[sync-worker]]/[[crypto-worker]]/[[index-worker]] + `StoragePort
 
 Toda menção a "o Sync Worker" lê-se "o Sync Worker do contexto dono"; abas nunca abrem conexão própria com o OPFS.
 
+### 1.5 Key Vault de Rede — API `requestEpochKey`
+
+> **Normativo (RFC-005 §A.12).** Estende o [[key-vault]] local (§1.2) com a face **de rede**, usada para re-entrega de chaves de época a dispositivos delegados. Definição normativa completa em [[caderno-2-protocol/02-cryptographic-lineage-and-auth#332-re-entrega-de-chave-de-época-a-dispositivos-delegados-key-vault-de-rede]].
+
+* **API de rede:** `requestEpochKey(ucan, scope, prova_de_delegação) → chave_de_época | DENIED`. Valida cadeia UCAN do escopo, `DELEGATED_TO` (dispositivo → persona membro), predicado `BLOCKS` e frescor da Época de Identidade. A resposta trafega **dentro** do canal Noise (frames `KEY_REQUEST`/`KEY_RESPONSE` do [[caderno-2-protocol/05-wire-protocol]]).
+* **API local:** `requestKey(scope)` (consumo do Sync Worker para decifrar payloads) permanece interna e **nunca** é exposta a peers remotos.
+* **Hot start natural:** dispositivo recém-delegado sincroniza o grafo (RBSR), chama `requestEpochKey`, recebe a chave e lê o histórico — O(1) por escopo, sem envelopes por dispositivo.
+* **Limite honesto (P2P puro):** sem peer online detentor da chave, o pedido aguarda reconexão (liveness). Na modalidade gerida, o peer do sistema elimina o limite.
+
 ---
 
 ## 2. TinyBase como Ponte Reativa
@@ -216,3 +225,5 @@ O Private Swarm sincroniza um banco SQLite secundário isolado (`device_state.db
 | P2P Puro | ✅ Sim | Relay ou direto, indistintamente |
 | Corporativa | ✅ Sim | Isolado do grafo corporativo; empresa sem acesso |
 | Pública | ✅ Sim | Chave Mestra é do usuário, não da plataforma |
+
+

@@ -76,3 +76,5 @@ Diferença fundamental: `CONTRIBUTES` é exclusiva de [[profile-system]]; `CONSU
 | `caderno-2-protocol/01-graph-ontology.md` | `§2.3` | Substituir definição inline por `[[consumes-aresta]]` |
 | `glossary.md` | `§CONSUMES (v4)` | Substituir por link `[[consumes-aresta]]` |
 | `rfc-v4.md` | `§3.2` e `§3.3` | Substituir menções definitórias por `[[consumes-aresta]]` |
+
+

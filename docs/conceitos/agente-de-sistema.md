@@ -97,3 +97,5 @@ Ver tabela completa em `rfc-v4.md §1.3`. Resumo dos princípios centrais:
 - [[contribuicao-verificavel]] <!-- Foam placeholder — verbete Onda 10 --> — o que o agente reporta à rede
 - [[serialization-por-linhagem]] — mecanismo que o agente executa para escritas não-comutativas
 - [[reputacao-local]] — consequência da detecção de desonestidade do agente
+
+

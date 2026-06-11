@@ -99,3 +99,5 @@ Diferença fundamental: `CONTRIBUTES` é exclusiva de [[profile-system]]; `CONSU
 | `caderno-2-protocol/01-graph-ontology.md` | `§2.3` | Substituir definição inline por `[[blocks-aresta]]` |
 | `docs/glossary.md` | `§BLOCKS (v4)` | Substituir por link `[[blocks-aresta]]` |
 | `rfc-v4.md` | `§3.2` | Substituir menção definitória por `[[blocks-aresta]]` |
+
+

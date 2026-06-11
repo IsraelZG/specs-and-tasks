@@ -26,8 +26,8 @@ ecossistema libp2p para autenticação mútua entre nós.
 
 O handshake troca os seguintes elementos em 3 round-trips:
 
-- `PeerId = blake2s256(PROFILE:PERSONA_PUB_KEY)` — ver [[peer-id]]
-- `current_epoch_index` — índice da [[chave-de-epoca|época criptográfica]] vigente
+- `DevicePeerId = blake2s256(DEVICE_PUB_KEY)` — a chave estática do handshake é a do dispositivo (RFC-005 §A.5); ver [[peer-id]]
+- `identity_epoch_index` — índice da [[epoca-de-identidade|Época de Identidade]] vigente (RFC-005 §A.1; Épocas de Conteúdo nunca transitam no handshake)
 - Nonce assinado com a chave privada Ed25519
 
 > Especificação completa (sequência exata de mensagens, campos e validações):
@@ -36,7 +36,7 @@ O handshake troca os seguintes elementos em 3 round-trips:
 
 ## Comportamento em caso de divergência de época
 
-Se o `current_epoch_index` divergir entre os peers durante o Noise_XX, a
+Se o `identity_epoch_index` divergir entre os peers durante o Noise_XX, a
 conexão **não é descartada** — o data channel é imediatamente desviado para o
 pipeline de **Catch-up de Identidades (Onda 0)**, forçando a sincronização de
 chaves e UCANs atualizados antes de qualquer tráfego de domínio.
@@ -49,7 +49,7 @@ Ver [[ucan]] para o modelo de autorização que depende das chaves sincronizadas
 |:---|:---|
 | Épocas alinhadas, assinaturas válidas | Peer registrado como "conectado" no [[swarm-registry]] <!-- Foam placeholder — verbete Onda 5 --> |
 | Falha criptográfica (assinatura inválida ou chave incorreta) | Shadowban de 24 h no [[relay-trust-model]] <!-- Foam placeholder — verbete Onda 5 --> do peer local |
-| Divergência de `current_epoch_index` | Desvio para Catch-up de Identidades (Onda 0); ver [[stale-epoch]] <!-- Foam placeholder — verbete futuro --> |
+| Divergência de `identity_epoch_index` | Desvio para Catch-up de Identidades (Onda 0); ver [[stale-epoch]] <!-- Foam placeholder — verbete futuro --> |
 
 ## Implementações de referência
 
@@ -64,3 +64,5 @@ Ver [[ucan]] para o modelo de autorização que depende das chaves sincronizadas
 - [[swarm-registry]] <!-- Foam placeholder — verbete Onda 5 --> — registro de peers conectados
 - [[relay-trust-model]] <!-- Foam placeholder — verbete Onda 5 --> — política de shadowban pós-falha
 - [[stale-epoch]] <!-- Foam placeholder — verbete futuro --> — condição de época divergente
+
+

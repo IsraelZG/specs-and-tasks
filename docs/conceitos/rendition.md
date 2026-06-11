@@ -101,3 +101,5 @@ Novos tipos de codecs, tipos de arquivo ou adapters de transporte podem ser intr
 | [[profile]] | 1 | criado |
 | [[serves-aresta]] | 11 | <!-- Foam placeholder — Onda 11 --> |
 | [[convergent-encryption]] | 11 | criado |
+
+

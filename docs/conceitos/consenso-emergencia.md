@@ -71,3 +71,5 @@ O cenário em que **todos** os validadores de uma linhagem se tornam permanentem
 | [[congelamento-escopado]] | 8 | placeholder (mesma onda) |
 | [[serialization-por-linhagem]] | 9 | placeholder (onda futura) |
 | [[invariante-de-core]] | 9 | placeholder (onda futura) |
+
+

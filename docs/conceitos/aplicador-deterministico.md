@@ -90,3 +90,5 @@ O fluxo completo está em `rfc-v4.md §2.4`. Em resumo:
 | [[serialization-por-linhagem]] | 9 | criado |
 | [[validador-declarado]] | 9 | criado |
 | [[agente-de-sistema]] | 10 | placeholder (onda 10) |
+
+

@@ -37,3 +37,5 @@ Alterações na lista fechada de eventos que incrementam a Época de Identidade 
 ## Aparições a consolidar
 
 Nenhuma.
+
+

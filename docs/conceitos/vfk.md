@@ -77,3 +77,5 @@ Regras derivadas:
 | [[aresta]] | 1 | criado |
 | [[sync-worker]] | 7 | criado |
 | [[tinybase]] | 7 | criado |
+
+

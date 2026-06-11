@@ -17,7 +17,7 @@ O nó registra de forma granular:
 - a **chave pública do emitente** (o titular dos dados);
 - e admite **revogação instantânea** via nova versão assinada pelo titular.
 
-A lente jurídica completa — papéis de controlador/operador por modalidade de rede, direitos de portabilidade, deleção e o procedimento de expurgo LGPD — está em **[[caderno-1-vision/03-legal-and-compliance-framework#2-1-consentimento-de-primeira-classe-asset-consent]]**.
+A lente jurídica completa — papéis de controlador/operador por modalidade de rede, direitos de portabilidade, deleção e o procedimento de expurgo LGPD — está em **[[caderno-1-vision/03-legal-and-compliance-framework#21-consentimento-de-primeira-classe-assetconsent]]**.
 
 ## Invariantes Ontológicas
 
@@ -61,3 +61,5 @@ Seguindo o [[substantivo-verbo-principio]]:
 |:---|:---|:---|
 | `caderno-2-protocol/01-graph-ontology.md` | `§3.3` | Substituir definição por `[[asset-consent]]` |
 | `caderno-1-vision/03-legal-and-compliance-framework.md` | `§2.1` | Lente LGPD — manter texto normativo; adicionar wikilink de retorno para este verbete |
+
+

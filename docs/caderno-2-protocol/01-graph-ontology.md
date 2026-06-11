@@ -163,3 +163,5 @@ Uma tentação comum é criar subtipos de `CONTENT` para cada idioma de negócio
 - Os tipos `POST` e `STORY` têm regras idênticas de validação, criptografia e sync (critério 1 = FAIL).
 - A distinção é resolúvel por payload + `SPECIFICATION` (critério 2 = FAIL).
 - Ambos participam das mesmas arestas (`AUTHORED`, `INTERACTS`, etc.); nenhuma aresta é exclusiva (critério 3 = FAIL).
+
+

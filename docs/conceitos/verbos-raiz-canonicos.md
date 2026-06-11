@@ -13,3 +13,5 @@ tags: [protocol, ontologia, graph]
 > Outras aparições: `glossary.md §Verbos Raiz Canônicos`
 >
 > Ver também: [[aresta]], [[substantivo-verbo-principio]]
+
+

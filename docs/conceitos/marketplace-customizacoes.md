@@ -37,8 +37,8 @@ O funcionamento do Marketplace de Customizações no nível do protocolo envolve
 No SDK e na interface da plataforma, o Marketplace de Customizações é integrado por meio de schemas de conformidade e regras de rede (ver [[sdk]]):
 
 - **Validação de Conformidade**: A publicação de qualquer customização passa pelo [[zen-engine]] (validador de domínio), que aplica a respectiva especificação (ex: `SPECIFICATION:THEME`) para garantir a integridade dos tokens obrigatórios, a ausência de scripts nocivos e o contraste de acessibilidade WCAG mínimo de **4.5:1** (ver [[content-theme]]).
-- **Modelo de Monetização na Rede Pública**: Conforme detalhado em [[caderno-1-vision/02-business-models-and-licensing#13-marketplace-de-customizacoes-e-extensoes]], criadores de temas ou traduções pagos no marketplace público têm uma comissão retida pela plataforma (default de 15% a 30%, dependendo do tier de publicação).
-- **Imposição Corporativa e Acessibilidade**: Administradores de redes corporativas podem forçar a instalação e o uso de temas específicos via especificação de governança da rede ([[specification-network-governance]]). Contudo, o SDK preserva a soberania do usuário local no aplicativo, permitindo que o cliente force localmente o modo escuro/claro ou ajuste os tokens para garantir conformidade com requisitos de contraste e acessibilidade pessoal (ver [[caderno-3-sdk/04-theme-and-i18n-data-structures#3-distribuicao-via-marketplace-de-customizacoes]]).
+- **Modelo de Monetização na Rede Pública**: Conforme detalhado em [[caderno-1-vision/02-business-models-and-licensing#13-marketplace-de-customizações-e-extensões]], criadores de temas ou traduções pagos no marketplace público têm uma comissão retida pela plataforma (default de 15% a 30%, dependendo do tier de publicação).
+- **Imposição Corporativa e Acessibilidade**: Administradores de redes corporativas podem forçar a instalação e o uso de temas específicos via especificação de governança da rede ([[specification-network-governance]]). Contudo, o SDK preserva a soberania do usuário local no aplicativo, permitindo que o cliente force localmente o modo escuro/claro ou ajuste os tokens para garantir conformidade com requisitos de contraste e acessibilidade pessoal (ver [[caderno-3-sdk/04-theme-and-i18n-data-structures#3-distribuição-via-marketplace-de-customizações]]).
 
 ## Evolução
 
@@ -53,3 +53,5 @@ A governança e a distribuição do marketplace evoluem de acordo com a modalida
 |:---|:---|:---|
 | `docs/caderno-3-sdk/04-theme-and-i18n-data-structures.md` | `§3` | Referenciar o conceito usando `[[marketplace-customizacoes]]`. |
 | `docs/caderno-1-vision/02-business-models-and-licensing.md` | `§1.3` | Substituir a referência textual a marketplace de customizações por `[[marketplace-customizacoes]]`. |
+
+

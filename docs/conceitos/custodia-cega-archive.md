@@ -1,3 +1,19 @@
+---
+name: custodia-cega-archive
+title: "Custódia Cega (Archive Cargo)"
+aliases: ["Archive Cargo", "custódia cega", "blind custody", "blind_archives"]
+tags: [protocol, sdk, replicacao, privacidade]
+modo: canonical
+fonte-canonica: "caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.4"
+dependencias:
+  - [[ucan]]
+  - [[agente-de-sistema]]
+  - [[chave-de-epoca]]
+  - [[consistent-hashing]]
+  - [[ephemeral-messages]]
+  - [[poda-segura]]
+---
+
 # Custódia Cega (Archive Cargo)
 
 A **Custódia Cega** (implementada através do mecanismo de **Archive Cargo**) viabiliza a disponibilidade de subgrafos da rede sem expor a semântica ou o conteúdo das transações ao peer custodiante. Resolve a tensão entre a sincronização restrita ao escopo de [[ucan]] e a exigência de fator de replicação $N \ge 3$, especialmente quando a audiência legítima do subgrafo é menor que $N$.
@@ -31,3 +47,5 @@ O Archive Cargo atua como garantidor do Replication Factor mínimo ($N \ge 3$) e
 
 * **Vazamento de Metadados de Tráfego:** Embora o custodiante cego não aprenda o conteúdo das mensagens ou a autoria dos nós, ele observa metadados estruturais como `blind_scope_id`, a faixa de relógio lógico (`hlc_range`), o tamanho do arquivo (`size`), a data de expiração (`expires_at`) e quais `DevicePeerId` interagem (enviando ou buscando) com cada archive. A correlação de co-busca por múltiplos dispositivos permite inferir e agrupar dispositivos em torno de escopos compartilhados, gerando um grafo social parcial do sistema.
 * **Vulnerabilidade a Spam (Armazenamento Abusivo):** Pelo fato de o custodiante não possuir a chave de decifragem e não poder validar a semântica ou legitimidade do subgrafo antes de armazená-lo, a defesa contra ataques de negação de serviço ou exaustão de armazenamento é estritamente de natureza econômica e de reputação. O controle é feito aplicando quotas por `DevicePeerId` emissor e por `blind_scope_id`, com base em reputação acumulada (*standing*), e não por validação criptográfica do conteúdo.
+
+

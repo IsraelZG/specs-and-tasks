@@ -24,3 +24,5 @@ Trabalhe SOMENTE no caderno indicado em $ARGUMENTS. Um caderno por invocação.
 4. Não deixe definição duplicada "por segurança" — o git guarda o histórico.
 5. Commit único com mensagem "wiki: migra <caderno> para lente".
 6. Ao terminar, peça a verificação com o subagent auditor-wiki.
+
+

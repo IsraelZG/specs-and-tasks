@@ -50,7 +50,7 @@ A plataforma consolida a interface em um conjunto enxuto de engines polimórfica
 * **Composer**: Caixa de entrada de texto rica (rich-text) com plugins integrados para suporte a autocomplete de menções (`@`), comandos de sistema (`/`) e upload assíncrono de arquivos.
 * **ContextMenu & BottomSheet**: Componentes modais mobile-first com animações spring baseadas em gestos físicos de arraste (drag-to-dismiss) e integração com feedback háptico dos dispositivos móveis.
 * **StateMachine**: Renderizador de processos estruturados exibido como Kanban de colunas arrastáveis ou Stepper de etapas. As transações são validadas contra as regras declaradas na especificação do workflow antes de executarem localmente.
-* **AuditTrail**: Visualizador especializado na Linhagem de Versões MFA-S de um documento Automerge. Reconstrói os diffs semânticos e permite a viagem no tempo (Time Travel) carregando e reidratando snapshots passados via Graph-Based Routing.
+* **AuditTrail**: Visualizador especializado na Linhagem de Versões [[mfa-s|MFA-S]] de um documento Automerge. Reconstrói os diffs semânticos e permite a viagem no tempo (Time Travel) carregando e reidratando snapshots passados via Graph-Based Routing.
 
 ### 2.3 Motores Especializados
 * **GeoSpatial**: Componente de visualização espacial com duas variantes compartilhando a mesma API abstrata:
@@ -99,3 +99,5 @@ Para habilitar, ocultar ou modificar ações e renderizações baseando-se no mo
 Todas as core engines e componentes gerados são obrigados a satisfazer os requisitos de acessibilidade da WCAG 2.1 nível AA:
 * **Autonomia de Ajuste**: Parâmetros de acessibilidade (tamanho de fonte ampliado, contraste aumentado, redução de animações e modo leitor de tela) **sempre permanecem liberados para alteração pelo usuário**, ignorando qualquer restrição ou tema forçado por administradores de redes corporativas.
 * **Navegação Física**: Suporte total a navegação por teclado (focus loops em modais) e targets mínimos de toque de 44x44 pixels em dispositivos móveis.
+
+

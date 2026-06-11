@@ -334,3 +334,5 @@ Os conceitos a seguir possuem redefinições substanciais em **dois ou mais arqu
 | `agente-de-sistema` | rfc-v4 §1 + caderno-2/02 §1.6 + glossary | ★★ |
 | `serialization-por-linhagem` | rfc-v4 §2.3 + caderno-4/03 §3.5 + glossary | ★★ |
 | `invariante-de-core` | rfc-v4 §2.3 + caderno-4/03 §3.5 + glossary | ★★ |
+
+

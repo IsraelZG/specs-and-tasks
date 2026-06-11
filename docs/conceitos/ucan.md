@@ -78,3 +78,5 @@ fornecedor valida o UCAN antes de servir qualquer delta.
 - [[predicado-de-bloqueio]] — predicado extra (v4) na decisão de liberação (Onda 3)
 - [[rotacao-de-epocas]] — mecanismo substituído parcialmente pelo predicado de bloqueio (v4)
 - [[sync-dirigido-por-ucan]] <!-- Foam placeholder — verbete Onda 4 -->
+
+

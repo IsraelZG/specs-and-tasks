@@ -90,3 +90,5 @@ As seguintes definições duplicadas foram consolidadas neste verbete:
 | [[asset-permission]] | 2 | criado |
 | [[asset-role]] | 2 | criado |
 | [[onda]] | 4 | criado |
+
+

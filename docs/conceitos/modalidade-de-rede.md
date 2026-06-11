@@ -95,3 +95,5 @@ Cada rede nasce a partir de um ato de bootstrap conduzido por um fundador (um pe
 |:---|:---|:---|
 | `caderno-1-vision/01-vision-and-positioning.md` | `§4` | Substituir seções explicativas por links para [[modalidade-de-rede]] |
 | `glossary.md` | `§Modalidade de Rede` | Substituir definição por link explicativo para [[modalidade-de-rede]] |
+
+

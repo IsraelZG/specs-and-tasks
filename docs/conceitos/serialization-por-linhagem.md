@@ -127,3 +127,5 @@ Operações comutativas continuam funcionando independentemente de qualquer part
 | [[aplicador-deterministico]] | 9 | placeholder (mesma onda) |
 | [[comutativo-vs-nao-comutativo]] | 9 | placeholder (mesma onda) |
 | [[tradeoff-liveness-validadores]] | 8 | criado |
+
+

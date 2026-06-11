@@ -13,3 +13,5 @@ tags: [protocol, ontologia, graph]
 > Outras aparições: `glossary.md §SPECIFICATION`
 >
 > Ver também: [[no]], [[aresta]], [[substantivo-verbo-principio]]
+
+

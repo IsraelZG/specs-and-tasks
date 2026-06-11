@@ -38,3 +38,5 @@ Futuros aprimoramentos nos níveis de restrição de capabilities em `DELEGATED_
 ## Aparições a consolidar
 
 Nenhuma.
+
+

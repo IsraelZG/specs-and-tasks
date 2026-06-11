@@ -73,3 +73,5 @@ Registros marcados como `retention_state = expunged` (ver [[retention-state]]) n
 | [[retention-state]] | 7 | <!-- TODO(revisar): verbete não criado na Onda 7 — Foam placeholder --> |
 | [[g4-garbage-collection]] | 7 | criado |
 | [[active-edges]] | — | não é alvo de verbete na Fase 2 (sem ★) |
+
+

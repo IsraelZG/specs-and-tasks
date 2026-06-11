@@ -74,3 +74,5 @@ O Zen Engine também executa lógica de migração causal (`migration_from_vN`) 
 | [[linhagem-de-versoes]] | 1 | criado |
 | [[ucan]] | 2 | criado |
 | [[asset-balance-state]] | — | sem verbete (fase 3) |
+
+

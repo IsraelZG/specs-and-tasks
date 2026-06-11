@@ -102,3 +102,5 @@ Rastreamento de arquivos e locais a consolidar nas etapas subsequentes.
 | `docs/glossary.md` | `§ConnectionPromotionEngine` | Substituir por resumo curto e link `[[connection-promotion-engine]]` |
 | `docs/rfc-transporte-p2p-v3.1.md` | `§2.5.1` | Preservar conteúdo normativo; inserir referência wikilink `[[connection-promotion-engine]]` |
 | `docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md` | `§7.2` | Substituir menção textual por referência wikilink `[[connection-promotion-engine]]` |
+
+

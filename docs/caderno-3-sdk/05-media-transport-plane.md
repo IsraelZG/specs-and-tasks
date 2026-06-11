@@ -166,3 +166,5 @@ Consulte [[consolidacao-de-live]] para obter:
 - Caderno‑2/02 §2.2 (Key Vault, fluxo inverso), §4.1 (Central Custody).
 - v4 §3.3 (recibo de banda ancorado ao `InfoHash`).
 - Caderno‑2/01 §4 (minimalismo de tipos), §4.2 (antipadrão dual‑nó).
+
+

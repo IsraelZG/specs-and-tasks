@@ -69,3 +69,5 @@ propriedade institucional.
 - [[ucan]] — tokens de autorização emitidos e delegados pela persona
 - [[profile-system]] <!-- Foam placeholder — verbete Onda 3 -->
 - [[delegacao-persona-corporativa]] <!-- Foam placeholder — verbete futuro -->
+
+

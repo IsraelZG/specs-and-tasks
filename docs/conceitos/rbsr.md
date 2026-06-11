@@ -72,3 +72,5 @@ O RBSR estrutura a sincronização em quatro fases ([[onda]]). A Onda 0 é a fas
 | `caderno-2-protocol/03-set-reconciliation-protocol.md` | `§1` | Fonte canônica — acrescentar wikilink `[[rbsr]]` no título |
 | `rfc-transporte-p2p-v3.1.md` | `§2.6–2.6.4` | Conteúdo quase verbatim do caderno-2/03; substituir por resumo + `[[rbsr]]` |
 | `docs/glossary.md` | `§RBSR` | Acrescentar link `[[rbsr]]` na entrada |
+
+

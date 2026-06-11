@@ -103,3 +103,5 @@ O validador garante que:
 Os nós do tipo `CONTENT:THEME` e `CONTENT:TRANSLATION` são catalogados e descobertos por meio do **Marketplace de Customizações**.
 * Em redes públicas, a instalação é livre e regulada pela reputação dos publicadores.
 * Em redes corporativas, os administradores podem forçar temas corporativos específicos via `SPECIFICATION:NETWORK_GOVERNANCE`, mas o usuário sempre retém o direito de forçar o contraste e o modo de acessibilidade localmente.
+
+

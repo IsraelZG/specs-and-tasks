@@ -64,3 +64,5 @@ O Garbage Collector G4 (ver `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.m
 | [[consistent-hashing]] | 4 | placeholder |
 | [[poda-segura]] | 4 | placeholder |
 | [[modalidade-de-rede]] | 12 | placeholder |
+
+

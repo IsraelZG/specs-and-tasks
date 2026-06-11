@@ -9,7 +9,7 @@ tags: [protocol, acesso, ontologia]
 
 ## Definição
 
-`ASSET:ROLE` é um subtipo de [[asset]] que representa um **papel ou função de negócio** no sistema. Não é uma permissão atômica em si, mas um agrupamento lógico: conecta múltiplos nós [[asset-permission]] através de arestas estruturais `AGGREGATES`, compondo um conjunto coerente de direitos de acesso. A definição normativa completa — incluindo a invariante de validação de traversal profundo, a semântica dos templates vs. instanciação física e a separação entre fatos sociais e autorizações técnicas — está em **[[caderno-2-protocol/02-cryptographic-lineage-and-auth#2-1-asset-permission-e-asset-role]]**.
+`ASSET:ROLE` é um subtipo de [[asset]] que representa um **papel ou função de negócio** no sistema. Não é uma permissão atômica em si, mas um agrupamento lógico: conecta múltiplos nós [[asset-permission]] através de arestas estruturais `AGGREGATES`, compondo um conjunto coerente de direitos de acesso. A definição normativa completa — incluindo a invariante de validação de traversal profundo, a semântica dos templates vs. instanciação física e a separação entre fatos sociais e autorizações técnicas — está em **[[caderno-2-protocol/02-cryptographic-lineage-and-auth#21-assetpermission-e-assetrole]]**.
 
 ## Estrutura
 
@@ -49,3 +49,5 @@ Um caso normativo direto de `ASSET:ROLE` é a delegação de cargo em redes corp
 | `glossary.md` | `§ASSET:ROLE` | Substituir definição por `[[asset-role]]` |
 | `caderno-2-protocol/01-graph-ontology.md` | `§3.3` | Substituir definição por `[[asset-role]]`; manter exemplos de arestas |
 | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md` | `§2.1` | Fonte canônica normativa — manter; adicionar wikilink de retorno |
+
+

@@ -78,3 +78,5 @@ Um insider com a chave em mãos pode repasse-la ao bloqueado sem passar pelo Key
 |:---|:---|:---|
 | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md` | `§2.2.1` | Fonte canônica — acrescentar wikilink `[[predicado-de-bloqueio]]` na seção |
 | `rfc-v4.md` | `§2.8` | Substituir descrição inline do predicado por `[[predicado-de-bloqueio]]` |
+
+

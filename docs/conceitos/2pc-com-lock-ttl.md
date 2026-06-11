@@ -103,3 +103,5 @@ Duas operações concorrentes na linhagem do lock — confirm e expire — seria
 | [[validador-declarado]] | 9 | placeholder (mesma onda) |
 | [[linhagem-de-coordenacao]] | 9 | placeholder (mesma onda) |
 | [[politica-de-ttl]] | 9 | placeholder (mesma onda) |
+
+

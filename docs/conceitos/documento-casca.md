@@ -93,3 +93,5 @@ As definições e referências duplicadas do termo foram unificadas sob este ver
 | [[ucan]] | 2 | criado |
 | [[private-swarm]] | 5 | criado |
 | [[sync-worker]] | 7 | placeholder |
+
+

@@ -71,3 +71,5 @@ A governança do ciclo de vida e a evolução (alinhada a [caderno-4-governance/
 | [[ucan]] | 2 | criado |
 | [[webtorrent-blobs]] | 6 | não é alvo de verbete na Fase 2 (sem ★) — Foam placeholder |
 | [[webseed-bep19]] | 11 | criado |
+
+

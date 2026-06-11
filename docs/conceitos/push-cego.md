@@ -41,3 +41,5 @@ Políticas de mitigação (como padding de tráfego, batching de pushes ou rota�
 ## Aparições a consolidar
 
 Nenhuma.
+
+

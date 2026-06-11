@@ -18,7 +18,7 @@ A **rede corporativa whitelabel** é uma [[modalidade-de-rede]] fechada e isolad
 
 Esta modalidade visa fornecer conformidade regulatória, soberania e privacidade sob um mesmo núcleo arquitetural P2P-first, mas com adaptações pragmáticas corporativas. Por meio do **[[pragmatismo-topologico]]** <!-- Foam placeholder — Onda 12 -->, as empresas desfrutam de resiliência local e operação offline em cada dispositivo, enquanto usam a nuvem privada corporativa para backups centralizados, snapshots de bootstrap e controle central.
 
-Além disso, com base no **[[honestidade-radical]]** <!-- Foam placeholder — Onda 12 -->, assume-se que redes são silos completos: para fins de conformidade e segurança da informação, não há vazamento ou fluxo de dados entre redes distintas. A definição da visão de produto e as regras gerais de posicionamento corporativo são detalhadas em **[[caderno-1-vision/01-vision-and-positioning#4-2-rede-corporativa-whitelabel]]** e os modelos de comercialização em **[[caderno-1-vision/02-business-models-and-licensing#2-regras-de-whitelabel-corporativo]]**.
+Além disso, com base no **[[honestidade-radical]]** <!-- Foam placeholder — Onda 12 -->, assume-se que redes são silos completos: para fins de conformidade e segurança da informação, não há vazamento ou fluxo de dados entre redes distintas. A definição da visão de produto e as regras gerais de posicionamento corporativo são detalhadas em **[[caderno-1-vision/01-vision-and-positioning#42-rede-corporativa-whitelabel]]** e os modelos de comercialização em **[[caderno-1-vision/02-business-models-and-licensing#2-regras-de-whitelabel-corporativo]]**.
 
 ---
 
@@ -29,7 +29,7 @@ Criptograficamente e estruturalmente, as redes corporativas são governadas por 
 - **Delegação de Personas**: Personas profissionais ([[profile-persona]]) são criadas e delegadas a funcionários (a partir de sua chave [[profile-authentication]] vinculada ao login corporativo). O controle de acesso a relatórios e ativos é gerenciado por nós físicos de [[asset-role]] e [[asset-permission]] agregados. Em caso de desligamento, a empresa revoga o vínculo de delegação, mantendo o controle histórico sobre os dados gerados pela persona.
 - **Conformidade Legal**: Sob o GDPR/LGPD, a empresa atua como controladora exclusiva dos dados, enquanto a plataforma de software atua estritamente como operadora. Requisitos regulatórios específicos, como retenção legal prevalecente e auditoria contínua, são enforçados via especificações customizadas da rede.
 
-Para os contratos de identidade e conformidade legal, consulte **[[caderno-1-vision/03-legal-and-compliance-framework#1-1-redes-corporativas-whitelabel]]** e **[[caderno-2-protocol/02-cryptographic-lineage-and-auth#1-5-delegação-persona-corporativa]]**.
+Para os contratos de identidade e conformidade legal, consulte **[[caderno-1-vision/03-legal-and-compliance-framework#11-redes-corporativas-whitelabel]]** e **[[caderno-2-protocol/02-cryptographic-lineage-and-auth#15-delegação-de-persona-corporativa]]**.
 
 ---
 
@@ -75,3 +75,5 @@ As políticas de ciclo de vida corporativo e licenciamento comercial são descri
 | `glossary.md` | `§Whitelabel` | Substituir definição por link explicativo para [[rede-corporativa-whitelabel]] |
 | `caderno-1-vision/02-business-models-and-licensing.md` | `§2` | Substituir descrição por link explicativo para [[rede-corporativa-whitelabel]] |
 | `caderno-1-vision/03-legal-and-compliance-framework.md` | `§1.1` | Substituir delimitação por link explicativo para [[rede-corporativa-whitelabel]] |
+
+

@@ -38,7 +38,7 @@ graph TD
 * **Tarefas**:
   * **Validador de Domínio**: Interpretador genérico para avaliar a `SPECIFICATION` vinculada ao nó via JSONSchema, JSONLogic ou WASM.
   * **Ciclo de Intenção (serialização por linhagem, v4)**: Pipeline ligando a escrita otimista (comutativa) com a suspensa não-comutativa: `CONTENT:INTENT` com arestas `SPENDS` (head de origem) e `CREDITS` (entity_id de destino), aguardando `APPROVED_BY` do validador declarado da linhagem e `RESOLVES` para fechar; saldos resultantes via `MUTATES` + `RESULTED_FROM` → intent. Invariante de não-conflito no core; política (K, leader/quorum, conjunto) na SPEC do ativo. Ver caderno-4/03 §3.5.
-  * **MFA-S (Multi-Factor Audit Semantic)**: Coalescência em RAM das Changes do Automerge na tabela `pending_changes` e consolidação em nós do grafo.
+  * **[[mfa-s|MFA-S]] (Multi-Factor Audit Semantic)**: Coalescência em RAM das Changes do Automerge na tabela `pending_changes` e consolidação em nós do grafo.
   * **Viagem no Tempo e Undo**: Undo semântico via logs históricos.
 
 ### Fase 3: Camada de Dados Avançada e Sincronização
@@ -85,3 +85,5 @@ Tarefas prioritárias identificadas para consolidação da arquitetura V3.1:
 * **Defesa Sybil opt-in (P2P puro)**: `ASSET:INVITE` finito gateado por standing; staking social do convidante; irrelevância por diversidade; bond para papéis privilegiados. Módulos via SPEC, desligados em redes com autoridade.
 * **Desafios de integridade do agente (canary)**: suíte de honeypots, forte no determinístico; integridade-como-serviço nas modalidades gerenciadas. Ver caderno-2/02 §1.6.
 * **Trabalho em aberto declarado:** transferência atômica entre tipos/emissores de ativo distintos; registro canônico global para dicionarização de `type`; verificação trustless de compute não-determinístico (fica como mercado de reputação).
+
+

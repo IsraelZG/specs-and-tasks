@@ -108,3 +108,5 @@ A partir da versão 4 (`rfc-v4.md`), a aresta `SERVES` passa a exercer papel dup
 | [[agente-de-sistema]] | 10 | criado |
 | [[contribuicao-verificavel]] | 10 | criado |
 | [[standing]] | 10 | criado |
+
+

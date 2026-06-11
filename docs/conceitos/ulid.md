@@ -20,7 +20,7 @@ O sistema cria entidades em múltiplos peers sem coordenação. UUIDs v4 puros s
 - **Estrutura:** `[48 bits timestamp ms][80 bits random]` → 26 chars Crockford Base32.
 - **Ordenação:** strings ULID ordenam lexicograficamente na mesma ordem que o timestamp de criação.
 - **Unicidade:** colisão requer dois IDs gerados no mesmo milissegundo com os mesmos 80 bits aleatórios — probabilidade negligenciável sem coordenação.
-- **Encoding de tipo (VFK):** a plataforma reserva o 11º caractere (index 10, imediatamente após os 48 bits de timestamp) como discriminador de tabela: `N` → `nodes`, `E` → `edges`. Isso permite resolver Virtual Foreign Keys polimórficas em `O(1)` sem consulta extra. Detalhes em [[caderno-3-sdk/01-sqlite-and-projections-schema#21-virtual-foreign-keys-vfk-por-bitmasking-de-caractere]].
+- **Encoding de tipo ([[vfk|VFK]]):** a plataforma reserva o 11º caractere (index 10, imediatamente após os 48 bits de timestamp) como discriminador de tabela: `N` → `nodes`, `E` → `edges`. Isso permite resolver Virtual Foreign Keys polimórficas em `O(1)` sem consulta extra. Detalhes em [[caderno-3-sdk/01-sqlite-and-projections-schema#21-virtual-foreign-keys-vfk-por-bitmasking-de-caractere]].
 
 ## Implementação
 
@@ -35,3 +35,5 @@ O formato ULID 128 bits é estável. A convenção do 11º caractere como discri
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
 | `glossary.md` | `§ULID` | Substituir o corpo pelo wikilink `[[ulid]]` |
+
+

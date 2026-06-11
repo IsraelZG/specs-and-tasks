@@ -11,3 +11,5 @@ tags: [protocol, imutabilidade, auditoria]
 >
 > Definição canônica atual: `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.2`
 > Outras aparições: `glossary.md §Linhagem de Versões`; `caderno-2-protocol/04-automerge-integration-spec.md §1`; `rfc-transporte-p2p-v3.1.md §2.10.1` ★★
+
+

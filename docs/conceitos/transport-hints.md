@@ -105,3 +105,5 @@ Dados podem ser promovidos entre categorias conforme o ciclo de vida do conteúd
 | [[matriz-de-classificacao-transporte]] | 5 | criado |
 | [[sync-worker]] | 7 | criado |
 | [[tinybase]] | 7 | criado |
+
+

@@ -58,3 +58,5 @@ O fluxo completo é:
 |:---|:---|:---|
 | `caderno-2-protocol/03-set-reconciliation-protocol.md` | `§1.3` | Fonte canônica — acrescentar wikilink `[[nonce-challenge]]` |
 | `rfc-transporte-p2p-v3.1.md` | `§2.6.4` | Conteúdo quase verbatim do caderno-2/03; substituir por resumo + `[[nonce-challenge]]` |
+
+

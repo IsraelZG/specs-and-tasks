@@ -41,3 +41,5 @@ A lógica de leitura, decodificação e controle de fluxo é executada no SDK (v
 ## Aparições a consolidar
 - `docs/caderno-3-sdk/05-media-transport-plane.md` (no §3.3, §4.2, §5.3, §7 e §8.2) — Contém a especificação e mecânicas técnicas do plano de BLOBs de mídia.
 - `docs/backlog-geral.md` (no §6.2) — Lista de tarefas pendentes para a implementação do pipeline de mídia, adapters e reidratação do player no SDK.
+
+

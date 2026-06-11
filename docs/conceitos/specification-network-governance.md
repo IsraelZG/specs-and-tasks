@@ -87,3 +87,5 @@ Ver [[serialization-por-linhagem]] e [[invariante-de-core]]. Operações não-co
 | [[profile-system]] | 3 | placeholder (onda futura) |
 | [[serialization-por-linhagem]] | 9 | placeholder (onda futura) |
 | [[invariante-de-core]] | 9 | placeholder (onda futura) |
+
+

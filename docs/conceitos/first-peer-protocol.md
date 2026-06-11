@@ -100,3 +100,5 @@ Como a gênese define a identidade inicial da rede, o First Peer Protocol está 
 
 *   `docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md` §6 (Máquina de estados e comportamento técnico migrado para este verbete).
 *   `docs/glossary.md` §First Peer Protocol e §GENESIS (Definições integradas aqui).
+
+

@@ -72,3 +72,5 @@ Quando um `RangeFooter` falha, o range afetado é re-sincronizado via [[nonce-ch
 | `rfc-transporte-p2p-v3.1.md` | `§2.6.3` | Conteúdo quase verbatim do caderno-2/03; substituir por resumo + `[[range-footer]]` |
 | `docs/glossary.md` | `§RangeFooter` | Acrescentar link `[[range-footer]]` na entrada |
 | `rfc-transporte-p2p-v3.1.md` | `Apêndice B §RangeFooter` | Acrescentar link `[[range-footer]]` na entrada |
+
+

@@ -8,7 +8,7 @@ A **Plataforma V3.1** é um sistema operacional de dados distribuído, projetado
 - **Redes corporativas whitelabel**, substituindo intranets, ERPs, CRMs e sistemas de produtividade interna de empresas, com identidade gerenciada centralmente e dados isolados.
 - **Redes P2P puras**, operadas sem qualquer infraestrutura central, voltadas a usuários que priorizam soberania absoluta sobre dados e identidade.
 
-A plataforma não escolhe entre essas modalidades: ela **as suporta nativamente** através de configuração, mantendo o mesmo núcleo arquitetural. As diferenças entre uma instância pública e uma corporativa não estão em código separado, mas em `SPECIFICATION`s distintas que governam comportamento, regras de validação e políticas de governança.
+A plataforma não escolhe entre essas modalidades: ela **as suporta nativamente** através de configuração, mantendo o mesmo núcleo arquitetural. As diferenças entre uma instância pública e uma corporativa não estão em código separado, mas em `SPECIFICATION`s distintas que governam comportamento, regras de validação e políticas de governança. O mapa técnico de alto nível (cinco camadas do núcleo, papel restrito do Automerge Repo, regras de acesso ao SQLite, imutabilidade dupla, RBSR, UCAN, épocas e suíte adversarial) está em [[visao-arquitetural]].
 
 O foco prioritário de desenvolvimento e investimento é a rede pública. A rede corporativa é foco secundário, viabilizada pela mesma arquitetura. A rede P2P pura é prioridade terciária, valiosa estrategicamente como exercício de limites técnicos (segurança, privacidade, autonomia) e como veículo para comunidade open source contribuir, mais do que como produto comercial autônomo.
 
@@ -92,3 +92,5 @@ Rede sem qualquer infraestrutura central, de soberania absoluta do usuário.
 ## 5. Relações de Governança e Fundador
 
 Toda rede nasce de um ato de bootstrap conduzido por um fundador (um peer único ou um consórcio/board). O fundador opera o "peer do sistema" inicial que auxilia no onboarding seguro de novos peers. Ao longo do tempo, o fundador pode dissolver de forma irreversível seus poderes regulatórios em favor de um modelo descentralizado de quórum ou P2P puro.
+
+

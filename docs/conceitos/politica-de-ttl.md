@@ -76,3 +76,5 @@ Política `renewable_lease` com teto rígido foi introduzida para mitigar grief 
 ## Aparições a consolidar
 
 - `glossary.md §Política de TTL` — linha 157: parágrafo de definição. Substituir por [[politica-de-ttl]].
+
+

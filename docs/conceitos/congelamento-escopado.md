@@ -81,3 +81,5 @@ O congelamento escopado é a consequência operacional do [[tradeoff-liveness-va
 | [[serialization-por-linhagem]] | 9 | placeholder (onda futura) |
 | [[invariante-de-core]] | 9 | placeholder (onda futura) |
 | [[rbsr]] | 4 | criado |
+
+

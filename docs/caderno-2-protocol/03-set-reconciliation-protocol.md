@@ -94,3 +94,5 @@ Para evitar a reconciliação sub-linear de arquivos de histórico extensos que 
 
 * **Snapshot de Bootstrap**: É um arquivo estático compactado gerado pelo super peer ou peer do sistema que consolida as tabelas `nodes` e `edges` de um grupo/contexto específico em estado **Podado** (apenas metadados e assinaturas, sem payloads pesados ou sensíveis).
 * **Uso**: No login inicial de um novo dispositivo, o Sync Worker baixa o snapshot de bootstrap do contexto (Onda 1) para obter instantaneamente a estrutura topológica das arestas. O sync incremental posterior (Onda 2 e 3) reidrata os payloads necessários via chamadas pontuais `REQUEST_NODES`.
+
+

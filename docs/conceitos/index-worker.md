@@ -75,3 +75,5 @@ As seguintes definições duplicadas foram consolidadas neste verbete:
 | [[sync-worker]] | 7 | criado |
 | [[crypto-worker]] | 7 | criado |
 | [[fts5]] | fase-3 | placeholder |
+
+

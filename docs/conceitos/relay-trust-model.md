@@ -112,3 +112,5 @@ A tabela abaixo rastreia os arquivos onde o conceito é redefinido ou detalhado 
 | `docs/glossary.md` | `§RelayTrustModel` | Substituir por resumo e link `[[relay-trust-model]]` |
 | `docs/rfc-transporte-p2p-v3.1.md` | `§2.5.2` | Manter texto normativo; inserir referência wikilink `[[relay-trust-model]]` |
 | `docs/rfc-transporte-p2p-v3.1.md` | `§2.2.1` | Substituir menção genérica por referência wikilink `[[relay-trust-model]]` |
+
+

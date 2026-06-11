@@ -79,3 +79,5 @@ A interface abstrai o backend: o resto do sistema chama `notify()` agnóstico de
 | [[specification]] | 1 | criado |
 | [[asset-invite]] | 3 | criado |
 | [[peer-do-sistema]] | 12 | pendente (Foam placeholder) |
+
+

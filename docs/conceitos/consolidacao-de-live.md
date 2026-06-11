@@ -100,3 +100,5 @@ Em cenários de falhas físicas ou crash do broadcaster antes do encerramento fo
 | [[livekit]] | 11 | <!-- Foam placeholder — Onda 11 --> |
 | [[peer]] | 12 | <!-- Foam placeholder — Onda 12 (futura) --> |
 | [[modalidade-de-rede]] | 12 | <!-- Foam placeholder — Onda 12 (futura) --> |
+
+

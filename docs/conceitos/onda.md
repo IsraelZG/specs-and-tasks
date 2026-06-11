@@ -55,3 +55,5 @@ A definição normativa completa — incluindo a tabela de ondas, a meta de 100 
 - [[nonce-challenge]] — rodada de desafio acionada quando um [[range-footer]] falha
 - [[sync-worker]] — executor do pipeline de ondas
 - [[snapshot-de-bootstrap]] — atalho de bootstrap para novos peers
+
+

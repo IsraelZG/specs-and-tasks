@@ -52,3 +52,5 @@ O anel de consistent hashing é a base do protocolo `RELEASE/ACK` descrito em [[
 | [[rbsr]] | 4 | criado |
 | [[anti-entropy]] | 4 | criado |
 | [[poda-segura]] | 4 | placeholder |
+
+

@@ -37,3 +37,5 @@ Enquanto [[aggregates]] compõe permissões em papéis, `REQUIRES` expressa depe
 - [[asset-permission]] — nó de origem e de destino desta aresta
 - [[asset-role]] — nó que usa [[aggregates]] para agrupar permissões
 - [[aggregates]] — aresta irmã no mesmo subgrafo de controle de acesso
+
+

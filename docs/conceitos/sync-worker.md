@@ -119,3 +119,5 @@ As seguintes definições duplicadas foram consolidadas neste verbete:
 | [[zen-engine]] | 7 | placeholder |
 | [[sqlite-wasm]] | — | sem verbete (fase 3) |
 | [[opfs]] | — | sem verbete (fase 3) |
+
+

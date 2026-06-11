@@ -60,3 +60,5 @@ O **Push Connector** acorda dispositivos suspensos sem violar criptografia E2E (
 5. Sem chave em cache, o push é exibido em modo **mudo** ("Nova atividade") e adia a exibição do conteúdo.
 
 *Ver mais em [[push-cego]] para os limites honestos e vazamento de metadados associados.*
+
+

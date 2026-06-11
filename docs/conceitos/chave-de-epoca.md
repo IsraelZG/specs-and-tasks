@@ -17,7 +17,7 @@ O sistema precisa de confidencialidade seletiva em uma rede P2P onde os dados se
 
 ## Contrato
 
-O texto autoritativo está em [[caderno-2-protocol/02-cryptographic-lineage-and-auth#31-as-camadas-de-chaves]] (estrutura) e [[caderno-2-protocol/02-cryptographic-lineage-and-auth#33-rotacao-de-epocas-e-forward-secrecy]] (ciclo de vida).
+O texto autoritativo está em [[caderno-2-protocol/02-cryptographic-lineage-and-auth#31-as-camadas-de-chaves]] (estrutura) e [[caderno-2-protocol/02-cryptographic-lineage-and-auth#33-rotação-de-épocas-e-forward-secrecy]] (ciclo de vida).
 
 Propriedades-chave (extraídas literalmente de §3.1 e §3.3):
 
@@ -57,3 +57,5 @@ AES-256-GCM é estável. O mecanismo de rotação é descrito em [[rotacao-de-ep
 ## Aparições a consolidar
 
 Nenhuma (conceito sem redefinições espalhadas — `★` ausente no inventário).
+
+

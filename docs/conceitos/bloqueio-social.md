@@ -90,3 +90,5 @@ O bloqueio social "gateia a primeira emissão" — eleva a barra para quem está
 | `rfc-v4.md` | `§2.8` | Fonte canônica — acrescentar wikilink `[[bloqueio-social]]` onde o conceito é nomeado |
 | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md` | `§2.2.1` | Substituir referência inline por `[[bloqueio-social]]` |
 | `docs/glossary.md` | `§BLOCKS (v4)` | Acrescentar link `[[bloqueio-social]]` na entrada |
+
+

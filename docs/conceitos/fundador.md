@@ -31,7 +31,7 @@ Para viabilizar o ciclo de nascimento e a governança das redes na plataforma (v
 
 ## Contrato
 
-O texto autoritativo sobre a governança de redes e o bootstrap inicial está em [[caderno-1-vision/01-vision-and-positioning#5-relacoes-de-governanca-e-fundador]] e [[caderno-4-governance/03-specification-lifecycle-and-rfcs#3-governanca-de-redes-e-sucessao]].
+O texto autoritativo sobre a governança de redes e o bootstrap inicial está em [[caderno-1-vision/01-vision-and-positioning#5-relações-de-governança-e-fundador]] e [[caderno-4-governance/03-specification-lifecycle-and-rfcs#3-governança-de-redes-e-sucessão]].
 
 Propriedades-chave:
 - **Ato de Gênese**: Toda rede nasce de um ato de bootstrap documentado imutavelmente no grafo pelo nó `SPECIFICATION:NETWORK_BIRTH` no estado `GENESIS` (ver [[specification-network-birth]] e [[genesis-state]]).
@@ -41,7 +41,7 @@ Propriedades-chave:
 
 ## Implementação
 
-O Sync Worker gerencia regras e o ciclo de vida do fundador através de especificações declarativas. O bootstrap inicial de novos peers através do [[peer-do-sistema]] é detalhado em [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#6-inicializacao-e-first-peer-protocol]] (ver [[first-peer-protocol]]).
+O Sync Worker gerencia regras e o ciclo de vida do fundador através de especificações declarativas. O bootstrap inicial de novos peers através do [[peer-do-sistema]] é detalhado em [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#6-gênese-da-rede--first-peer-protocol]] (ver [[first-peer-protocol]]).
 
 ## Evolução
 
@@ -54,3 +54,5 @@ As transições de governança de rede e alteração do conjunto de validadores 
 | `docs/glossary.md` | `§Fundador` | Substituir pelo wikilink `[[fundador]]` |
 | `docs/caderno-4-governance/03-specification-lifecycle-and-rfcs.md` | `§3` | Referenciar canonicamente o verbete `[[fundador]]` |
 | `docs/caderno-1-vision/01-vision-and-positioning.md` | `§5` | Referenciar canonicamente o verbete `[[fundador]]` |
+
+

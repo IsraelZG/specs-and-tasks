@@ -70,3 +70,5 @@ Validadores são um conjunto K-de-N de entidades independentes. A liveness exige
 | [[consenso-emergencia]] | 8 | criado |
 | [[congelamento-escopado]] | 8 | placeholder (mesma onda) |
 | [[serialization-por-linhagem]] | 9 | placeholder (onda futura) |
+
+

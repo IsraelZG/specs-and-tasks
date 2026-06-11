@@ -13,3 +13,5 @@ tags: [protocol, ontologia, graph]
 > Outras aparições: `glossary.md §PROFILE`, `caderno-2/02 §1`
 >
 > Ver também: [[no]], [[profile-authentication]], [[chave-mestra-ed25519]], [[peer-id]]
+
+

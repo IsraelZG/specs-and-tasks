@@ -13,3 +13,5 @@ tags: [protocol, ontologia, graph]
 > Outras aparições: `glossary.md §ASSET`, `caderno-2/02 §2`
 >
 > Ver também: [[no]], [[asset-permission]], [[aresta]]
+
+

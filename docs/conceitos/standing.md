@@ -104,3 +104,5 @@ são dimensões distintas:
 - [[defesa-sybil]] — standing como gate de emissão de convites
 - [[fato-negativo-verificavel]] <!-- Foam placeholder — verbete Onda 10 --> — mau ato que impacta reputação (não standing diretamente)
 - [[desafio-canary]] <!-- Foam placeholder — verbete Onda 10 --> — auditoria da integridade do agente que mede contribuição
+
+

@@ -68,3 +68,5 @@ Módulos novos são desacoplados do núcleo de dados e UI através de contratos 
 * **Marketplaces Parametrizados**: Módulos de comércio (ex: Marketplace de Produtos, Marketplace Financeiro) utilizam a mesma engine de catálogo genérica, sendo particularizados unicamente pela `SPECIFICATION` de schema do item transacionado.
 * **Polimorfismo Visual**: Novas features de exibição de dados devem ser acopladas via slots abstratos no `SuperCard` ou formulários no `SmartForm` declarados na especificação do nó de negócio, mantendo o core visual do monorepo intacto e livre de switch-cases por tipo.
 * **Sem Contratos Rígidos**: As fronteiras de importação de um módulo para outro devem ser mediadas por interfaces declaradas em `shared/types/`, evitando imports cruzados circulares.
+
+

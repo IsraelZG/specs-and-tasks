@@ -74,3 +74,5 @@ O bundle de assinaturas de quórum de uma operação não-comutativa, quando arm
 | [[onda]] | 4 | criado |
 | [[nonce-challenge]] | 4 | placeholder |
 | [[sync-worker]] | 7 | placeholder |
+
+

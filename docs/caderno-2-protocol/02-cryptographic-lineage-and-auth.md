@@ -20,13 +20,18 @@ A identidade de um usuário humano na Plataforma V3.1 é estruturada em camadas 
 * **Definição**: Identidades operacionais visíveis aos outros peers da rede (ex: Persona Pessoal, Persona Criador, Persona Profissional).
 * **Segurança**: A ligação causal entre a `AUTHENTICATION` primária e a `PERSONA` correspondente tem visibilidade restrita no grafo local do usuário. Outros peers visualizam apenas a `PERSONA` ativa na coluna de layout.
 
-### 1.4 Identidade de Rede (`PeerId`)
+### 1.4 Identidade de Rede (`PeerId`): Duas Variantes
 
-Cada `PROFILE:PERSONA` possui um identificador de rede derivado deterministicamente de sua chave pública:
+> **Normativo (RFC-005 §A.5).** O `PeerId` existe em **duas variantes**, com papéis ortogonais. Ver [[peer-id]] e [[delegacao-de-dispositivo]].
 
-$$\text{PeerId} = \text{blake2s256}(\texttt{PROFILE:PERSONA\_PUB\_KEY})$$
+* **`DevicePeerId = blake2s256(DEVICE_PUB_KEY)`** — identidade **de transporte**, derivada da chave Ed25519 **estável e exclusiva do dispositivo**, gerada no provisionamento (§1.7) e nunca exportada. Usada no handshake Noise_XX (§1.4.1), no `SwarmRegistry`, no `RelayTrustModel` (scores e shadowbans acumulam por dispositivo), no histórico em `device_state.db` e no Graph-Based Routing morno. Por ser estável, preserva a auto-certificação e a reputação de longo prazo.
+* **`PersonaPeerId = blake2s256(PROFILE:PERSONA_PUB_KEY)`** — identidade **de aplicação** (endereçamento, arestas, UCANs), inalterada em relação à definição original.
 
-Por ser derivado da chave Ed25519, o `PeerId` é **auto-certificável**: o handshake de conexão exige um desafio-resposta provando posse da chave privada antes de qualquer troca de dados, eliminando *spoofing* de identidades existentes.
+**Vínculo dispositivo ↔ identidade.** Um dispositivo fala por uma persona apenas se existir no grafo um `ASSET:PERMISSION` (escopo de operação do dispositivo) ligado por **`DELEGATED_TO`** à chave pública do dispositivo, assinado pela identidade-âncora. Emissão e revogação de delegação **incrementam a Época de Identidade** (§3.1.1). Revogar = lápide na delegação + bump; a chave mestra e os demais dispositivos seguem intactos.
+
+**Canal único por par de dispositivos.** Uma conexão Noise_XX por par (sobre os `DevicePeerId`), multiplexada em sub-streams. Cada mensagem carrega o `PersonaPeerId` emissor e referencia o UCAN; o receptor valida, por sub-stream, a cadeia *persona → delegação de dispositivo → UCAN do escopo*. Persona sem autorização ⇒ rejeição na camada de aplicação, sem derrubar a conexão. Trocar de persona não abre conexões novas.
+
+Por serem derivados de chaves Ed25519, ambos os `PeerId` são **auto-certificáveis**: o handshake de conexão exige um desafio-resposta provando posse da chave privada antes de qualquer troca de dados, eliminando *spoofing* de identidades existentes.
 
 > **Fronteira de segurança.** Auto-certificação resolve *spoofing*, não ataques Sybil. A resistência a Sybil é responsabilidade do modelo de acesso por convite / web-of-trust da rede (custo deliberado de criação de identidade), **não** desta derivação de hash.
 
@@ -36,11 +41,11 @@ O handshake criptográfico que autentica a conexão adota o **Noise Protocol Fra
 
 1. O Noise_XX é executado **após** o estabelecimento do WebRTC Data Channel (SDP exchange concluído), utilizando o data channel como transporte subjacente.
 2. O handshake ocorre em **3 round-trips**, trocando:
-   - `PeerId = blake2s256(PROFILE:PERSONA_PUB_KEY)`
-   - `current_epoch_index` (índice da época criptográfica vigente)
-   - Nonce assinado com a chave privada Ed25519
-3. **Validação precoce de época:** Se o `current_epoch_index` divergir entre os peers durante o Noise_XX, a conexão **não é descartada** — o data channel é imediatamente desviado para o pipeline de **Catch-up de Identidades (Onda 0)**, forçando a sincronização de chaves e UCANs atualizados antes de qualquer tráfego de domínio.
-4. Com épocas alinhadas ao final do Noise_XX, o peer é registrado como **"conectado"** no `SwarmRegistry`.
+   - `DevicePeerId = blake2s256(DEVICE_PUB_KEY)` (a chave estática do Noise_XX é a **chave do dispositivo**; ver §1.4)
+   - `identity_epoch_index` (índice da Época de Identidade vigente; ver §3.1.1)
+   - Nonce assinado com a chave privada Ed25519 do dispositivo
+3. **Validação precoce de época:** Se o `identity_epoch_index` divergir entre os peers durante o Noise_XX, a conexão **não é descartada** — o data channel é imediatamente desviado para o pipeline de **Catch-up de Identidades (Onda 0)**, forçando a sincronização de chaves, delegações de dispositivo e UCANs atualizados antes de qualquer tráfego de domínio. Épocas de Conteúdo **nunca** são avaliadas no handshake (§3.1.1).
+4. Com épocas alinhadas ao final do Noise_XX, o peer é registrado como **"conectado"** no `SwarmRegistry` (indexado por `DevicePeerId`, com `device_personas` para as personas ativas/atestadas).
 5. Falhas criptográficas (assinatura inválida, chave incorreta) resultam em **shadowban de 24 h** no `RelayTrustModel` do peer local.
 
 > **Implementação de referência:** `@noise-crypto/noise` (WASM/browser) ou `noise-c.wasm` (Electron/Node). Noise_XX é o padrão de autenticação mútua do ecossistema libp2p.
@@ -60,6 +65,18 @@ O `PROFILE:SYSTEM` roda no device do humano (hardware potencialmente hostil) e a
 2. **Desafios "canary":** tarefas de gabarito conhecido, indistinguíveis do trabalho real, injetadas proativamente. Fortes para trabalho determinístico (assinatura, merge, regra Zen — gabarito re-verificável por qualquer um), storage (desafio-resposta) e banda (peer-sonda); fracos para compute não-determinístico (IA). Elevam o custo de trapacear, não o eliminam (risco "defeat device" se o desafio for distinguível).
 
 Em redes com autoridade, a suíte contínua de honeypots é um recurso gerenciado (**integridade-como-serviço**). Princípio: o agente é confiável para **orquestrar**, nunca para **afirmar** o não-verificável.
+
+### 1.7 Cerimônia de Provisionamento de Dispositivo (QR + SAS)
+
+> **Normativo (RFC-005 §A.5).** Caminho feliz multi-device, distinto da recuperação de chaves (§4). Ver [[delegacao-de-dispositivo]].
+
+1. O dispositivo novo gera seu par Ed25519 **definitivo** + um par **efêmero de pareamento** (TTL 5 min); exibe um QR com multiaddr transiente, chave pública efêmera e nonce.
+2. O dispositivo confiável escaneia o QR e abre um canal Noise_XX contra a chave efêmera (canal de cerimônia, sem persona).
+3. **SAS (Short Authentication String):** ambos os dispositivos exibem o mesmo código curto derivado do transcript do handshake; o usuário confirma visualmente — mitiga MITM no pareamento.
+4. O dispositivo confiável emite o `ASSET:PERMISSION` com `DELEGATED_TO` → chave **definitiva** do dispositivo novo, assina, grava no grafo e **incrementa a Época de Identidade** (§3.1.1). A chave mestra **nunca** atravessa o canal.
+5. As chaves efêmeras são destruídas; o QR expira. O dispositivo novo baixa o snapshot de bootstrap e opera com chave própria sob a delegação; **obtém as chaves de época naturalmente via Key Vault de Rede (§3.3.2)** — sem transferência especial (a pré-carga de chaves durante a cerimônia é apenas otimização, nunca premissa).
+
+**Por que delegar e não transferir a chave mestra:** isolamento de hardware, revogação granular por dispositivo e aderência ao capability model.
 
 ---
 
@@ -111,6 +128,15 @@ Para assegurar a soberania dos dados locais e forward secrecy contra revogaçõe
 * **Chave de Conteúdo por Época (AES-256-GCM)**: Custodiada no Cofre de Chaves (Key Vault). Cifra payloads binários de nós e payloads sensíveis de arestas de um grupo ou documento.
 * **Cache de RAM (Volátil)**: Cache em memória RAM da chave de época descriptografada pelo Key Vault, com expiração padrão (TTL) de 4 horas, para evitar chamadas de descriptografia contínuas na projeção reativa do TinyBase.
 
+#### 3.1.1 Época de Identidade vs. Épocas de Conteúdo
+
+> **Normativo (RFC-005 §A.1).** Duas camadas de época, ortogonais e com ciclos de vida independentes. Ver [[epoca-de-identidade]] e [[chave-de-epoca]].
+
+1. **Época de Identidade (`identity_epoch_index`, escalar por identidade/dispositivo).** Versiona o estado de atestação da identidade: cadeia de UCANs raiz, delegações de dispositivo (§1.4, §1.7) e material de chaves de identidade. É o **único** índice trocado no handshake Noise_XX (§1.4.1) e nos envelopes do wire protocol ([[caderno-2-protocol/05-wire-protocol]]). Divergência não derruba a conexão — desvia para o Catch-up de Identidades (Onda 0). **Eventos que incrementam (lista fechada):** rotação/substituição da chave mestra ou de persona; revogação de UCAN raiz; emissão ou revogação de delegação de dispositivo; mudança em modelo de recuperação que altere material público verificável.
+2. **Épocas de Conteúdo (escopadas por permissão).** Chaves AES-256-GCM de payload pertencem aos subgrafos; cada `ASSET:PERMISSION`/grupo tem sua própria linhagem de épocas (§3.3). **Nunca** transitam nem são avaliadas no handshake; são obtidas sob demanda do Key Vault pelo fluxo capability-based (§3.3.2).
+
+**Consequência:** `STALE_EPOCH` no wire protocol refere-se exclusivamente à Época de Identidade. Divergência de época de conteúdo manifesta-se como negativa do Key Vault ou payload ilegível pendente de reidratação de chave, na camada de aplicação.
+
 ### 3.2 Duas Camadas de Imutabilidade (Linhagem de Versões)
 Toda entidade no grafo (linha temporal de modificações conectada pelo mesmo `entity_id`) é auditada em dois níveis:
 1. **Imutabilidade do Registro (Layer 1)**: Cada nó e aresta individual possui uma assinatura digital Ed25519 universal cobrindo todos os seus campos planos e o payload cifrado.
@@ -122,7 +148,7 @@ Toda entidade no grafo (linha temporal de modificações conectada pelo mesmo `e
 ### 3.3 Rotação de Épocas e Forward Secrecy
 Quando um membro ou papel é revogado de um grupo/documento:
 1. O Cofre de Chaves (Key Vault) do grupo (gerido cooperativamente pelos validadores ou via KMS online-optional) gera uma nova chave AES para uma **nova época**.
-2. A nova chave é encapsulada em envelopes criptográficos distribuídos exclusivamente aos participantes cujos UCANs correspondentes à `ASSET:PERMISSION` ou `ASSET:ROLE` continuam ativos.
+2. A nova chave é **disponibilizada via Key Vault de Rede** (§3.3.2) exclusivamente aos participantes cujos UCANs correspondentes à `ASSET:PERMISSION` ou `ASSET:ROLE` continuam ativos — **uma** operação por escopo, não N envelopes por dispositivo.
 3. Quaisquer novos nós ou arestas gravados a partir desse instante usam a chave da nova época.
 4. O membro excluído perde o acesso às chaves das novas épocas. Contudo, mantém acesso aos dados históricos cifrados com chaves das épocas em que era participante (preservando o forward secrecy pragmático).
 *   **Acesso pós-rotação offline**: Há uma distinção importante: **`UCAN válido offline` $\neq$ `acesso ao conteúdo pós-rotação`**. Se a chave de época rotacionar enquanto um dispositivo com UCAN válido está offline, o dispositivo conseguirá ler todo o histórico anterior criptografado com as chaves de época antigas que ele possui localmente. No entanto, ele **não conseguirá descriptografar os novos nós** gravados na época recente até que restabeleça a conexão de rede para obter e reidratar a nova chave criptografada correspondente.
@@ -133,11 +159,28 @@ Sem autoridade declarada (KMS/super peer), a coordenação é determinística (n
 
 1. **Anel:** Os [[agente-de-sistema]] dos membros **online** são ordenados por menor `entity_id` (a mesma eleição de committer de caderno-2/04 §4); o menor lidera o ciclo.
 2. **Geração:** O líder gera a nova chave de época localmente.
-3. **Disponibilização:** A nova chave é publicada no Key Vault de Rede (acessível via KEK por escopo, gated por UCAN + delegação), executando **uma** operação por escopo, em vez de N envelopes por dispositivo.
+3. **Disponibilização:** A nova chave é publicada conforme §3.3.2 (modelo direto via `requestEpochKey` no Key Vault de Rede; ou KEK por escopo na variante opcional), gated por UCAN + delegação, executando **uma** operação por escopo, em vez de N envelopes por dispositivo.
 4. **Ata:** O líder emite **um** nó `CONTENT` governado por `SPECIFICATION:EPOCH_ROTATION`, com o payload `{ scope, new_epoch_index, hlc, envelope_id? }` (o `envelope_id` está presente apenas na variante KEK). Qualquer membro audita que a rotação ocorreu e que o acesso está disponível ao conjunto autorizado.
 5. **Falha do líder:** O anel se reordena; qualquer membro inicia um novo ciclo se o líder vigente estagnar. Até lá, a época corrente segue válida; expirado o TTL sem rotação, o escopo degrada a read-only para novos conteúdos (freeze escopado).
 
 **Limites declarados (Rotação Cooperativa):** Um líder malicioso pode apenas **atrasar** a rotação (mitigado por reeleição imediata) ou **omitir** a disponibilização a um membro específico (fato detectável pela ata; o membro omitido reivindica pelo canal de rede). Ele não consegue forjar a chave de outros membros nem ler o que não lhe cabe por especificação.
+
+### 3.3.2 Re-entrega de Chave de Época a Dispositivos Delegados (Key Vault de Rede)
+
+> **Normativo (RFC-005 §A.12).** Resolve o caso do dispositivo recém-pareado (com delegação, sem a chave privada da persona) que precisa ler o histórico. Esta seção **substitui qualquer menção anterior a "envelopes por dispositivo"** e ao submecanismo `K_df`/envelope público (construção descartada por inversão de key-wrapping — a KEK era derivada da própria chave que embrulhava; ver a Caixa de Revisão da RFC-005). Modelo adotado: **direto** (recomendado pela RFC-005); a variante KEK permanece registrada como opcional.
+
+**Modelo direto (adotado):**
+
+* Cada escopo mantém sua linhagem de chaves de época (§3.3).
+* O **Key Vault de Rede** expõe `requestEpochKey(ucan, scope, prova_de_delegação) → chave_de_época | DENIED`. Valida: cadeia UCAN do escopo, `DELEGATED_TO` ligando a chave do dispositivo a uma persona membro, predicado `BLOCKS`, frescor da Época de Identidade (§3.1.1). Retorna a chave da época corrente (e, sob pedido, épocas anteriores a que o membro tem direito, para histórico). Trafega **dentro** do canal Noise.
+* A API interna `requestKey(scope)` (consumo do Sync Worker local para decifrar payloads) permanece e **nunca** é exposta a peers remotos.
+* **Hot start natural:** o dispositivo novo sincroniza o grafo (RBSR), chama `requestEpochKey` com sua delegação, recebe a chave, lê. Sem transferência especial; a pré-carga no passo 5 da cerimônia QR (§1.7) é só otimização.
+* **Revogação sem urgência (perda, não comprometimento):** revogar o UCAN do dispositivo (lápide em `DELEGATED_TO` + bump de Época de Identidade). O Key Vault nega pedidos futuros; a chave em cache vale até o TTL de 4 h; novas rotações ficam ilegíveis ao dispositivo.
+* **Revogação com urgência (comprometimento):** o acima **+** rotação imediata da época nos escopos afetados (custo apenas quando o risco justifica).
+* **O(1):** uma chave de época por escopo, não pré-embrulhada por dispositivo.
+* **Limite honesto P2P puro:** sem nenhum peer online com a chave, o dispositivo novo não a obtém até alguém reconectar (limite de liveness de qualquer P2P). Na modalidade gerida, o peer do sistema elimina esse limite.
+
+**Variante KEK (opcional, só se medir gargalo de round-trip):** define-se uma **KEK por escopo, independente de qualquer chave de época**, detida/derivável só pelo Key Vault e (após buscada) pelos membros autorizados. Cada nova chave de época é embrulhada sob a KEK e publicada como `CONTENT:EPOCH_ENVELOPE` (público, RBSR). O membro busca a KEK **uma vez** (gated por UCAN + delegação) e desembrulha todas as rotações futuras localmente, com zero round-trip por rotação. **Trade-off real:** vazamento da KEK expõe as épocas embrulhadas sob ela ⇒ rotacionar a KEK (nova KEK, re-embrulhar a época corrente) e, para forward secrecy do vazamento, rotacionar também a época. Bounded e explícito.
 
 ### 3.4 Custódia Cega: Archive Cargo (encomenda cifrada)
 
@@ -257,3 +300,5 @@ Na UI, uma trava visual ("este conteúdo é privado / bloqueado") é **cortesia 
 **Risco aceito:** Revogação de privacidade é best-effort, não garantida. Apropriado para regimes de contrato (consentimento revogável em GDPR), não para dados já públicos.
 
 ---
+
+

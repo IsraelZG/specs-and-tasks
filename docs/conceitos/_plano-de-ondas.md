@@ -241,3 +241,4 @@ Por último: referenciam quase tudo, então os alvos já existem.
 ## Não são alvos de verbete na Fase 2
 
 Ficam no lugar; recebem só wikilink na Fase 3: todas as engines de UI (Onda 8 do inventário), as projeções SQL sem ★ (`entity-heads`, `active-edges`, `asset-balances`, `local-permissions`, `validator-serialization-log`, `peer-reputation-table`), `ciclo-de-commit`, `eleicao-de-committer`, `pending-changes`, `sqlite-wasm`, `opfs`, `fts5`, `rtree`, `crdt`, `bootstrap-frio-absoluto`, `bootstrap-morno`, `dht-descartada`, `link-multiaddr`, `tokens-css-hsl`, e os subtipos sem ★ (`profile-organization`, `content-document`, `content-personal-data`, `asset-balance-state`, `asset-inventory`).
+

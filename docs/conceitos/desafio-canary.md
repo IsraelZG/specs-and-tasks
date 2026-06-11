@@ -113,3 +113,5 @@ O princípio derivado: o agente é confiável para **orquestrar**, nunca para
 - [[contribuicao-verificavel]] — os regimes de trabalho que o canary amostra
 - [[standing]] — perde-se standing ao ser detectado desonesto
 - [[bond-caucao]] <!-- Foam placeholder — verbete Onda 10 --> — caução que pode ser cortada em caso de desonestidade comprovada
+
+

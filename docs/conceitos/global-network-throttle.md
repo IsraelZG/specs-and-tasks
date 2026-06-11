@@ -97,3 +97,5 @@ A tabela abaixo lista os conceitos associados ao Global Network Throttle. Depend
 | [[private-swarm]] | 5 | Foam placeholder (Onda 5) |
 | [[automerge-repo]] | 6 | Foam placeholder (Onda 6) |
 | [[sync-worker]] | 7 | Foam placeholder (Onda 7) |
+
+

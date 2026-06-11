@@ -19,11 +19,11 @@ Juntas, as duas camadas tornam qualquer falsificação, supressão ou reordenaç
 
 ## Por quê
 
-A Layer 1 sozinha protege cada versão individualmente, mas não impede que um peer mal-intencionado omita elos intermediários ou reordene a cadeia histórica. A Layer 2 fecha essa lacuna: adulterações na ordem quebram a cadeia de `previous_hash`, que é indexada e verificável sem custo de descriptografia. A justificativa de design completa está em **[[caderno-2-protocol/02-cryptographic-lineage-and-auth#3-2-duas-camadas-de-imutabilidade-linhagem-de-versoes]]**.
+A Layer 1 sozinha protege cada versão individualmente, mas não impede que um peer mal-intencionado omita elos intermediários ou reordene a cadeia histórica. A Layer 2 fecha essa lacuna: adulterações na ordem quebram a cadeia de `previous_hash`, que é indexada e verificável sem custo de descriptografia. A justificativa de design completa está em **[[caderno-2-protocol/02-cryptographic-lineage-and-auth#32-duas-camadas-de-imutabilidade-linhagem-de-versões]]**.
 
 ## Contrato
 
-> O texto normativo completo — incluindo a semântica exata do `previous_hash`, a relação com [[hlc]] e as invariantes de validação na recepção — está em **[[caderno-2-protocol/02-cryptographic-lineage-and-auth#3-2-duas-camadas-de-imutabilidade-linhagem-de-versoes]]**. Não reproduzir aqui.
+> O texto normativo completo — incluindo a semântica exata do `previous_hash`, a relação com [[hlc]] e as invariantes de validação na recepção — está em **[[caderno-2-protocol/02-cryptographic-lineage-and-auth#32-duas-camadas-de-imutabilidade-linhagem-de-versões]]**. Não reproduzir aqui.
 
 Pontos-chave:
 
@@ -38,3 +38,5 @@ Pontos-chave:
 - [[head]] — ponta da linhagem; só é confiável porque nenhum elo pode ser removido silenciosamente.
 - [[chave-mestra-ed25519]] — algoritmo de assinatura que realiza a Layer 1.
 - [[hlc]] — ordenação causal estrita entre versões; complementa a Layer 2.
+
+

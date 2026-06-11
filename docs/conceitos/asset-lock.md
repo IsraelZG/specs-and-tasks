@@ -71,3 +71,5 @@ está ativo; a confirmação do lock materializa o efeito final. Ver nota em
 - [[2pc-com-lock-ttl]] <!-- Foam placeholder — verbete Onda 9 -->
 - [[politica-de-ttl]] <!-- Foam placeholder — verbete Onda 9 -->
 - [[linhagem-de-versoes]]
+
+

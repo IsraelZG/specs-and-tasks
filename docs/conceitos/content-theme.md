@@ -76,3 +76,5 @@ Dependências de ondas futuras (Foam placeholders — não criar agora):
 |:---|:---|:---|
 | `caderno-2-protocol/01-graph-ontology.md` | `§3.2` | Substituir linha inline de `CONTENT:THEME` por `[[content-theme]]` |
 | `caderno-3-sdk/04-theme-and-i18n-data-structures.md` | `§1` (título e texto) | Adicionar referência de volta a `[[content-theme]]` |
+
+

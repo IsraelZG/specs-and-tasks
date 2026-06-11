@@ -100,3 +100,5 @@ A aresta é exclusiva de `PROFILE:SYSTEM` porque agentes humanos não contribuem
 | `caderno-2-protocol/01-graph-ontology.md` | `§2.3` | Substituir definição inline por `[[contributes-aresta]]` |
 | `glossary.md` | `§CONTRIBUTES (v4)` | Substituir por link `[[contributes-aresta]]` |
 | `rfc-v4.md` | `§3.2` e `§3.3` | Substituir menções definitórias por `[[contributes-aresta]]` |
+
+

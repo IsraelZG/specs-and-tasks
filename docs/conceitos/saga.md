@@ -98,3 +98,5 @@ Quando exige-se isolamento de snapshot **e** há coordenador confiável, usa-se 
 | [[linhagem-de-coordenacao]] | 9 | placeholder (mesma onda) |
 | [[oraculo-baas]] | 9 | placeholder (mesma onda) |
 | [[2pc-com-lock-ttl]] | 9 | placeholder (mesma onda) |
+
+

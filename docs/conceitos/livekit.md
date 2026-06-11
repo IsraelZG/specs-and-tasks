@@ -82,3 +82,5 @@ A alocação de recursos e servidores relay do LiveKit é governada com base nas
 | [[serves-aresta]] | 11 | criado |
 | [[content-file]] | 11 | criado |
 | [[peer-do-sistema]] | 12 | <!-- Foam placeholder — Onda 12 (futura) --> |
+
+

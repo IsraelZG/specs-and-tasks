@@ -42,3 +42,4 @@ Escreva um relatório curto:
 - todos os <!-- TODO(revisar) --> reportados pelos subagents
 - achados do auditor (links quebrados, definições concorrentes, órfãos)
 Então PARE. NÃO inicie a próxima onda — aguarde confirmação do usuário.
+

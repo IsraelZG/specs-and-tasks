@@ -57,7 +57,7 @@ CREATE TABLE edges (
 
 ### 2.1 Virtual Foreign Keys (VFK) por Bitmasking de Caractere
 O SQLite não oferece suporte a chaves estrangeiras polimórficas que possam apontar para tabelas distintas. No entanto, o campo `target_id` da tabela `edges` pode apontar para um nó (`nodes(id)`) ou para outra aresta (`edges(id)` - ex: aresta `WITNESSED_BY` apontando para aresta de transação).
-* **Solução**: Remoção de FK física no campo `target_id` e aplicação de **Virtual Foreign Keys** pela camada do Sync Worker e TinyBase.
+* **Solução**: Remoção de FK física no campo `target_id` e aplicação de **[[vfk|Virtual Foreign Keys]]** pela camada do Sync Worker e TinyBase.
 * **Mecanismo**: Inspeção em $O(1)$ do **11º caractere** do ULID (posição `index 10`, logo após o timestamp de 48 bits):
   * Letra **`N`**: Indica tabela `nodes`. Ex: `01J2X3Y4Z5N6Y7Z8A9BC...`
   * Letra **`E`**: Indica tabela `edges`. Ex: `01J2X3Y4Z5E6Y7Z8A9BC...`
@@ -278,3 +278,5 @@ Para viabilizar pesquisas por autocomplete e raio espacial sem vazar payloads de
 * **Segurança do Índice**: Os arquivos dessas tabelas auxiliares são criptografados localmente no dispositivo via **Chave do Dispositivo**, sendo descriptografados na RAM durante a sessão ativa.
 
 > **Nota (ranking e feed):** O resultado de feed, busca e ranking **não é hardcoded no cliente**. É executado como um **procedimento de `SPECIFICATION` (Zen Engine)**. Feed consome campos `searchable: true` projetados + arestas `INTERACTS` (likes, comments, shares) e roda a lógica de ranking/filtro declarada na SPEC. Resultado é efêmero/local, não replicado. Suporta A/B testing de ranking sem quebrar o protocolo P2P — ranking é policy da SPEC, não primitiva de core.
+
+

@@ -104,3 +104,5 @@ identidade — os demais apenas estabelecem conectividade.
 - [[defesa-sybil]] <!-- Foam placeholder — verbete Onda 10 -->
 - [[bond-caucao]] <!-- Foam placeholder — verbete Onda 10 -->
 - [[asset-reputation]] <!-- Foam placeholder — verbete Onda 10 -->
+
+

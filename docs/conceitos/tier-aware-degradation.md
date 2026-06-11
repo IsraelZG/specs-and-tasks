@@ -13,10 +13,10 @@ modo: canonical
 
 ## Por quê ([[vision]])
 
-No paradigma [[local-first]], a plataforma precisa ser executada de forma flexível em múltiplos formatos de distribuição de software (de servidores Cloud estáveis e potentes a dispositivos Mobile com restrições severas de consumo). A degradação de tier baseia-se no **Princípio da Adequação Transparente** (ver [[caderno-1-vision/01-vision-and-positioning#2-2-princípio-da-adequação-transparente]]), que estabelece:
+No paradigma [[local-first]], a plataforma precisa ser executada de forma flexível em múltiplos formatos de distribuição de software (de servidores Cloud estáveis e potentes a dispositivos Mobile com restrições severas de consumo). A degradação de tier baseia-se no **Princípio da Adequação Transparente** (ver [[caderno-1-vision/01-vision-and-positioning#22-princípio-da-adequação-transparente]]), que estabelece:
 * **Transparência e Controle:** O sistema deve se adaptar automaticamente, mas sempre comunicando essas adaptações de forma clara ao usuário, oferecendo controle direto para escolher entre performance ou funcionalidade com base em seu próprio julgamento.
 * **Proposta Ativa de Ações:** O sistema evita reduzir a qualidade silenciosamente ou forçar configurações degradadas sem consentimento. Quando necessário, propõe ativamente as ações corretivas (ex: *"Manter histórico extenso no dispositivo está prejudicando o desempenho. Liberar espaço com backup?"*).
-* **Restrições Específicas do Dispositivo:** Em formatos Mobile (ver [[caderno-1-vision/01-vision-and-positioning#3-4-mobile]]), restrições de bateria e políticas restritivas do sistema operacional (como suspensão de processos em segundo plano e limites de sockets de rede) impõem a aplicação ativa de degradação de tier para viabilizar a operação.
+* **Restrições Específicas do Dispositivo:** Em formatos Mobile (ver [[caderno-1-vision/01-vision-and-positioning#34-mobile]]), restrições de bateria e políticas restritivas do sistema operacional (como suspensão de processos em segundo plano e limites de sockets de rede) impõem a aplicação ativa de degradação de tier para viabilizar a operação.
 
 ## Contrato ([[protocol]])
 
@@ -62,3 +62,5 @@ Este conceito é redefinido ou detalhado nos seguintes arquivos, cujas passagens
 * [[tier-aware-degradation]] — Definição preliminar no glossário.
 * [01-vision-and-positioning.md](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md#L26-L32) — Seção §2.2 (Princípio da Adequação Transparente) e §3.4 (Mobile).
 * [02-sync-worker-and-memory-lifecycle.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L86) — Seção §4 (Restrição de Bateria / Tier-aware Pause do G4) e §7.3 (Degradação em Mobile do Global Network Throttle).
+
+

@@ -13,3 +13,5 @@ tags: [protocol, ontologia, graph]
 > Outras aparições: `glossary.md §Substantivo/Verbo (Princípio)` ★
 >
 > Ver também: [[no]], [[aresta]], [[verbos-raiz-canonicos]]
+
+

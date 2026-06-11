@@ -13,3 +13,4 @@ Você cria um único verbete e para. Receberá um slug.
    em dúvida, deixe <!-- TODO(revisar) --> e mencione no retorno.
 4. git add + commit "wiki: verbete <slug>".
 5. Retorne só: criado/pulado + eventuais TODOs. Não comente mais nada.
+

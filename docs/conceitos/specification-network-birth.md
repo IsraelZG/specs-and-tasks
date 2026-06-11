@@ -29,7 +29,7 @@ Em arquiteturas [[local-first|local-first]] e descentralizadas, o início de uma
 
 ## Contrato
 
-Conforme definido na especificação da camada de transporte em [[rfc-transporte-p2p-v3.1#324-—-gênese-da-rede-first-peer-protocol]], a criação do nó `SPECIFICATION:NETWORK_BIRTH` é governada pelas seguintes regras normativas:
+Conforme definido na especificação da camada de transporte em [[rfc-transporte-p2p-v3.1#324--gênese-da-rede-first-peer-protocol]], a criação do nó `SPECIFICATION:NETWORK_BIRTH` é governada pelas seguintes regras normativas:
 
 1. **Geração no Bootstrap**: Ao transitar para o estado `GENESIS` através do [[first-peer-protocol]], o peer fundador gera atomicamente no grafo os seguintes registros de bootstrap:
    - O nó de [[profile|PROFILE]] do administrador original.
@@ -40,7 +40,7 @@ Conforme definido na especificação da camada de transporte em [[rfc-transporte
 
 ## Implementação
 
-No âmbito do [[sync-worker]] e do [[crypto-worker]] (conforme detalhado em [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#6-gênese-da-rede-—-first-peer-protocol]]), a implementação segue:
+No âmbito do [[sync-worker]] e do [[crypto-worker]] (conforme detalhado em [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#6-gênese-da-rede--first-peer-protocol]]), a implementação segue:
 - O Sync Worker detecta a expiração do timer de 8 segundos no estado `WAITING_FOR_SWARM` sem peers ativos conectados no [[swarm-registry]].
 - Havendo um token de fundação (bootstrap token) ou intenção explícita do usuário, o Sync Worker aciona o Crypto Worker para validar o privilégio e assinar os registros de bootstrap.
 - O Sync Worker executa as transações locais no SQLite WASM persistido em OPFS para gravar o nó `SPECIFICATION:NETWORK_BIRTH` de forma atômica com o perfil do administrador e a especificação do workspace.
@@ -71,3 +71,5 @@ A evolução ou substituição das diretrizes contidas na especificação criada
 | [[profile]] | 1 | criado |
 | [[sync-worker]] | 7 | placeholder (onda futura) |
 | [[peer-do-sistema]] | 12 | placeholder (onda futura) |
+
+

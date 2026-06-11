@@ -76,3 +76,5 @@ As seguintes definições duplicadas foram consolidadas neste verbete:
 | [[sync-worker]] | 7 | criado |
 | [[automerge-repo]] | 6 | criado |
 | [[sqlite-wasm]] | — | sem verbete (fase 3) |
+
+

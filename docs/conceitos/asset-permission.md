@@ -13,3 +13,5 @@ tags: [protocol, acesso, criptografia]
 > Outras aparições: `glossary.md §ASSET:PERMISSION`; `caderno-2-protocol/01-graph-ontology.md §3.3` ★★
 >
 > Ver também: [[chave-de-epoca]], [[key-vault]], [[chave-mestra-ed25519]]
+
+

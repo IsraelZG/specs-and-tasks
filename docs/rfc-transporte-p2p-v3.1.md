@@ -39,6 +39,8 @@ Mesmo em P2P puro, a rede **não é, por padrão, de livre acesso**. A plataform
 | **Corporativa** | Super Peer mantém 100% íntegro | Super Peer como relay garantidor | Manifesto de retenção do Super Peer |
 | **Pública** | Sharding determinístico ([[consistent-hashing|consistent hashing]]) + peer de sistema como fallback | Mix de relays e peer de sistema | Anel de custódia + fallback de sistema |
 
+> **Capacidade modality-gated (RFC-005 §A.6):** nas modalidades com peer do sistema (Corporativa e Pública), o peer do sistema oferece o **Push Connector content-blind** ([[push-cego]]; caderno-3/06 §5) como capacidade de ingresso — acordar dispositivos suspensos sem violar E2E. Em P2P puro a capacidade não existe (não há operador de push).
+
 ---
 
 ## §2 — Protocolo (Engenheiros de Protocolo)
@@ -52,12 +54,18 @@ A camada de rede orquestra tecnologias especialistas em vez de um protocolo mono
 - **Descoberta de swarms:** Mainline DHT (Kademlia) customizável via UDP, combinada com mDNS para LAN.
 - **Sinalização WebRTC e túneis:** WebSockets e STUN integrados.
 - **Transporte de BLOBs:** protocolo WebTorrent/BitTorrent isomórfico, isolado do grafo (§3.3).
+- **Serialização e framing:** MessagePack + Length-Prefixed Framing, com versionamento e quarentena de versão futura — normativo em [[caderno-2-protocol/05-wire-protocol]] (RFC-005 §A.2).
 
 ### 2.2 Identidade Criptográfica Determinística
 
-O identificador de rede de um usuário ([[peer-id]]) não é aleatório:
+O identificador de rede ([[peer-id]]) não é aleatório e existe em **duas variantes** (RFC-005 §A.5; ver [[delegacao-de-dispositivo]]):
 
-$$\text{PeerId} = \text{blake2s256}(\texttt{PROFILE:PERSONA\_PUB\_KEY})$$
+$$\text{DevicePeerId} = \text{blake2s256}(\texttt{DEVICE\_PUB\_KEY}) \qquad \text{PersonaPeerId} = \text{blake2s256}(\texttt{PROFILE:PERSONA\_PUB\_KEY})$$
+
+* **`DevicePeerId`** — identidade **de transporte**, da chave Ed25519 **estável e exclusiva do dispositivo** (gerada no provisionamento, nunca exportada). É o identificador usado no handshake Noise_XX, no `SwarmRegistry`, no `RelayTrustModel` (scores e shadowbans acumulam por dispositivo), no histórico em `device_state.db` e no Graph-Based Routing morno. Por ser estável, preserva a reputação de longo prazo.
+* **`PersonaPeerId`** — identidade **de aplicação** (endereçamento, arestas, UCANs), inalterada.
+
+Um dispositivo fala por uma persona apenas mediante delegação no grafo (`ASSET:PERMISSION` + `DELEGATED_TO`, assinada pela identidade-âncora; caderno-2/02 §1.4). **Canal único por par de dispositivos:** uma conexão Noise_XX por par (sobre os `DevicePeerId`), multiplexada em sub-streams; cada mensagem carrega o `PersonaPeerId` emissor e referencia o UCAN, validados por sub-stream. Trocar de persona não abre conexões novas.
 
 Por ser derivado da chave pública Ed25519, o [[peer-id|PeerId]] é **auto-certificável**: uma conexão entrante pode ser ligada matematicamente à sua chave, e o handshake de socket exige um **desafio-resposta** que prova posse da chave privada antes de qualquer troca de dados. Isso elimina *spoofing* de identidades existentes.
 
@@ -70,10 +78,10 @@ O handshake de autenticação adota o Noise Protocol Framework, padrão **Noise_
 
 1. O Noise_XX roda **após** o estabelecimento do WebRTC Data Channel (SDP exchange concluído), utilizando o data channel como transporte subjacente.
 2. O handshake ocorre em **3 round-trips**, trocando:
-   - `PeerId` = `blake2s256(PROFILE:PERSONA_PUB_KEY)`
-   - `current_epoch_index` (índice da época criptográfica vigente)
-   - Nonce assinado com a chave privada Ed25519
-3. **Validação precoce de época:** Se o `current_epoch_index` trocado durante o Noise_XX divergir entre os peers, a conexão **não é descartada** — o data channel é imediatamente desviado para o pipeline de **Catch-up de Identidades (Onda 0)**, forçando a sincronização de chaves e UCANs atualizados antes de qualquer tráfego de domínio.
+   - `DevicePeerId` = `blake2s256(DEVICE_PUB_KEY)` (a chave estática do Noise_XX é a **chave do dispositivo**; §2.2)
+   - `identity_epoch_index` (índice da **Época de Identidade** vigente; caderno-2/02 §3.1.1 — Épocas de Conteúdo nunca transitam no handshake)
+   - Nonce assinado com a chave privada Ed25519 do dispositivo
+3. **Validação precoce de época:** Se o `identity_epoch_index` trocado durante o Noise_XX divergir entre os peers, a conexão **não é descartada** — o data channel é imediatamente desviado para o pipeline de **Catch-up de Identidades (Onda 0)**, forçando a sincronização de chaves, delegações de dispositivo e UCANs atualizados antes de qualquer tráfego de domínio.
 4. Concluído o Noise_XX com épocas alinhadas, o peer é registrado como **"conectado"** no SwarmRegistry.
 5. Falhas criptográficas (assinatura inválida, chave incorreta) resultam em **shadowban de 24h** no RelayTrustModel do peer local.
 
@@ -152,10 +160,12 @@ A sincronização é segmentada em um pipeline de quatro fases para garantir a f
 
 ### 2.9 Wire Protocol Consciente de Época e Relógio (Epoch + HLC)
 
+> **Normativo (RFC-005 §A.2):** a serialização, o framing físico e a evolução de versão do wire protocol estão fixados em [[caderno-2-protocol/05-wire-protocol]] (MessagePack + Length-Prefixed Framing; `LENGTH/VERSION/FRAME_TYPE/PAYLOAD`).
+
 Todo pacote de domínio carrega dois carimbos de ordenação no envelope **assinado**:
 
-1. **`current_epoch_index`** — índice da chave criptográfica vigente. Se houver *drift* temporal (a permissão de um peer expirar/rotacionar durante a transferência), a conexão interrompe o RBSR com `STALE_EPOCH`, forçando o *catch-up* de identidades antes de enviar dados de domínio potencialmente não-legíveis.
-2. [[hlc]] ([caderno-2-protocol/02-cryptographic-lineage-and-auth.md#35-hlc](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/02-cryptographic-lineage-and-auth.md#L134)) — O transporte é responsável por **transmitir** e **validar** o HLC; a lógica de seleção de head e de merge de fork vive no caderno de protocolo do grafo (Apêndice A).
+1. **`identity_epoch_index`** — índice da **Época de Identidade** vigente (caderno-2/02 §3.1.1; RFC-005 §A.1). Se houver *drift* (rotação de chave de identidade, emissão/revogação de delegação de dispositivo ou revogação de UCAN raiz durante a transferência), a conexão interrompe o RBSR com `STALE_EPOCH`, forçando o *catch-up* de identidades antes de enviar dados de domínio potencialmente não-legíveis. **`STALE_EPOCH` refere-se exclusivamente à Época de Identidade** — divergência de época de conteúdo manifesta-se como negativa do Key Vault na camada de aplicação, nunca no transporte.
+2. [[hlc]] ([caderno-2-protocol/02-cryptographic-lineage-and-auth.md#36-ordenação-causal-hlc-e-seleção-de-head](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/02-cryptographic-lineage-and-auth.md#L134)) — O transporte é responsável por **transmitir** e **validar** o HLC; a lógica de seleção de head e de merge de fork vive no caderno de protocolo do grafo (Apêndice A).
 
 ### 2.10 — Modelo de Dados e Concorrência
 
@@ -175,7 +185,9 @@ No modelo append-only, as deleções lógicas são implementadas desativando-se 
 
 ### 2.11 — Matriz de Classificação de Transporte (As 3 Perguntas)
 
-A camada de transporte adota um modelo de roteamento declarativo e baseado em regras para definir o destino físico e o protocolo de sincronização aplicável a cada nó. Este mapeamento é determinado a partir de [[matriz-de-classificacao-transporte]] (detalhado em [caderno-3-sdk/01-sqlite-and-projections-schema.md#4-matriz-de-classificacao-de-transporte](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/01-sqlite-and-projections-schema.md)).
+A camada de transporte adota um modelo de roteamento declarativo e baseado em regras para definir o destino físico e o protocolo de sincronização aplicável a cada nó. Este mapeamento é determinado a partir de [[matriz-de-classificacao-transporte]] (detalhado em [caderno-3-sdk/01-sqlite-and-projections-schema.md#4-matriz-de-classificação-de-transporte-as-3-perguntas](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/01-sqlite-and-projections-schema.md)).
+
+> **Exemplo de enquadramento (RFC-005 §A.8 — recibos de chat):** o recibo *ao vivo* (entregue/lido em sessão) classifica-se como `REPLICABLE_VOLATILE` (ephemeral message; morre com a sessão); o **marco consolidado** "lido até `last_read_hlc`" — um registro por (leitor, conversa), governado por `SPECIFICATION:CHAT_READ_RECEIPT` — classifica-se como `REPLICABLE_AUDITABLE`. Ver [[caderno-3-sdk/07-chat-reference-spec]].
 
 #### 2.11.1 — Inversão de Controle e Roteamento (Implementação)
 
@@ -251,6 +263,8 @@ Cada Sync Worker mantém uma B-Tree em memória com os `id`s ordenados e seus fi
 
 Mapa em RAM de peers ativos com latência, capacidades (tier), score de relay e estado de promoção de conexão. É a fonte para roteamento, shadowban de relay e eleição oportunística de líder de sync.
 
+> **Normativo (RFC-005 §A.5):** o `SwarmRegistry` indexa por **`DevicePeerId`** (identidade de transporte estável; §2.2) e mantém a estrutura auxiliar **`device_personas`** — as personas ativas/atestadas por dispositivo, com a Época de Identidade em que a validação ocorreu. Scores e shadowbans acumulam por dispositivo, não por persona; trocar de persona não abre conexões novas.
+
 **Heartbeat e Health Check:**
 
 O SwarmRegistry mantém a vivacidade dos peers através de um protocolo de heartbeat implícito com fallback explícito:
@@ -299,6 +313,8 @@ No estado [[genesis-state|GENESIS]], o peer fundador gera atomicamente os regist
 > ver [[global-network-throttle]]
 
 Um mesmo peer pode pertencer a múltiplos swarms simultaneamente (ex.: workspaces abertos em abas diferentes). O GlobalThrottle governa a disputa por recursos de rede entre eles:
+
+> **Normativo (RFC-005 §A.4):** o `GlobalThrottle` executa **no contexto dono do banco** (SharedWorker singleton ou aba Líder eleita por Web Locks; ver [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#14-propriedade-do-banco-multi-aba-sharedworker-com-posse-por-web-locks]]). Abas seguidoras nunca abrem sockets próprios de sync.
 
 **Alocação por Visibilidade:**
 
@@ -444,3 +460,5 @@ Esta RFC é autocontida no transporte, mas depende de mudanças pontuais nos cad
 - [[relay-trust-model|RelayTrustModel]]: score local e não-transitivo de relays, com shadowban por histerese.
 - [[swarm-registry|SwarmRegistry]]: mapa em RAM de peers ativos, latências, capacidades e estado de promoção.
 - **STALE_EPOCH:** erro que interrompe o RBSR quando a época da chave muda durante a transferência.
+
+

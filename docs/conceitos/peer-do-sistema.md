@@ -35,7 +35,7 @@ Para viabilizar o ciclo de vida e a acessibilidade inicial das redes nas modalid
 
 ## Contrato
 
-O comportamento e a semântica criptográfica do Peer do Sistema estão estabelecidos em [[caderno-2-protocol/02-cryptographic-lineage-and-auth#411-autenticacao-corporativa-sem-sso-usuariosenha--email--2fa]], [[caderno-2-protocol/03-set-reconciliation-protocol]] e [[rfc-transporte-p2p-v3.1#242-canais-out-of-band-primeira-conexao-cold-start]]:
+O comportamento e a semântica criptográfica do Peer do Sistema estão estabelecidos em [[caderno-2-protocol/02-cryptographic-lineage-and-auth#411-autenticação-corporativa-sem-sso-usuáriosenha--email--2fa]], [[caderno-2-protocol/03-set-reconciliation-protocol]] e [[rfc-transporte-p2p-v3.1#242-canais-outofband-primeira-conexão-cold-start]]:
 
 - **Bootstrap Frio Absoluto**: Quando uma identidade realiza o primeiro login no dispositivo (frio absoluto), a URL do peer do sistema, formatada com fragment (`https://suarede.com/sync#multiaddr=...`), é um dos canais válidos para o primeiro contato. O uso do fragment (`#`) impede que o endereço multiaddr do peer seja registrado nos logs do servidor web intermediário.
 - **Relay e Sinalização**: Em modalidades gerenciadas, o peer do sistema é o relay always-on responsável pelo primeiro contato em WAN direto, facilitando o estabelecimento de túneis WebRTC entre os demais peers.
@@ -45,7 +45,7 @@ O comportamento e a semântica criptográfica do Peer do Sistema estão estabele
 
 ## Implementação
 
-A integração com SDK e os conectores externos estão detalhados em [[caderno-3-sdk/06-connectors#2-propriedades-arquiteturais]] e [[rfc-transporte-p2p-v3.1#3241-os-dois-modelos-de-genese]]:
+A integração com SDK e os conectores externos estão detalhados em [[caderno-3-sdk/06-connectors#2-propriedades-arquiteturais]] e [[rfc-transporte-p2p-v3.1#3241--os-dois-modelos-de-gênese]]:
 
 - **Especificações Guiadas por Inversão de Controle (IoC)**: O peer do sistema resolve de forma spec-driven os conectores de notificação. A especificação (`SPECIFICATION`) declara o conector e o template desejado, e o peer do sistema despacha a mensagem via interface `NotificationConnector` (e-mail via SMTP, SMS via Twilio ou WhatsApp API).
 - **Isolamento de Credenciais**: As chaves de API e credenciais de servidor (ex: SMTP keys) são configuradas localmente na infraestrutura privada do operador do peer do sistema, permanecendo estritamente fora do grafo distribuído.
@@ -68,3 +68,5 @@ As responsabilidades regulatórias e os serviços do peer do sistema adaptam-se 
 | `docs/caderno-2-protocol/03-set-reconciliation-protocol.md` | `§3.1` e `§5` | Referenciar o backup e snapshot do `[[peer-do-sistema]]`. |
 | `docs/caderno-3-sdk/06-connectors.md` | `§2` | Referenciar o papel e capacidades do `[[peer-do-sistema]]`. |
 | `docs/rfc-transporte-p2p-v3.1.md` | `§2.4.2`, `§3.2.4` e `§3.2.4.1` | Referenciar o `[[peer-do-sistema]]` nos fluxos de bootstrap e gênese. |
+
+

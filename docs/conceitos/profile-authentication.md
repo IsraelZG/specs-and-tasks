@@ -13,3 +13,5 @@ tags: [protocol, identidade, criptografia]
 > Outras aparições: `glossary.md §AUTHENTICATION`; `caderno-2-protocol/01-graph-ontology.md §3.1` ★
 >
 > Ver também: [[chave-mestra-ed25519]], [[peer-id]]
+
+

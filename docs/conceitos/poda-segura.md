@@ -75,3 +75,5 @@ O protocolo é executado na camada de transporte e opera em três barreiras de p
 |:---|:---|:---|
 | `docs/rfc-transporte-p2p-v3.1.md` | `§4.3` | Fonte canônica — acrescentar link `[[poda-segura]]` no título |
 | `docs/glossary.md` | `§Poda Segura` | Substituir definição redundante por link `[[poda-segura]]` |
+
+

@@ -121,3 +121,5 @@ da economia. Ver [[economia-como-modulo]].
 - [[reputacao-local]] <!-- Foam placeholder — verbete Onda 10 --> — consequência subjetiva; scores ficam locais
 - [[fato-negativo-verificavel]] <!-- Foam placeholder — verbete Onda 10 --> — mau ato re-checável por qualquer um
 - [[profile-system]] — tipo ontológico do agente emissor da aresta CONTRIBUTES
+
+

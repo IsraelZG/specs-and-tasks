@@ -78,3 +78,5 @@ Dependências de ondas futuras (Foam placeholders — não criar agora):
 | `glossary.md` | `§CONTENT:MESSAGE` (linha 127) | Substituir definição por referência a `[[content-message]]` |
 | `glossary.md` | `§PROFILE:SYSTEM` (linha 123) | Adicionar link `[[content-message]]` na menção ao subtipo |
 | `docs/conceitos/profile-system.md` | menções inline | Substituir referências literais a `CONTENT:MESSAGE` por `[[content-message]]` |
+
+

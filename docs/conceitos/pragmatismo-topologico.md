@@ -81,3 +81,5 @@ A tabela detalha as dependências deste conceito, marcando com *placeholder* (Wi
 | [[honestidade-radical]] | 12 | placeholder |
 | [[fundador]] | 12 | placeholder |
 | [[peer-do-sistema]] | 12 | placeholder |
+
+

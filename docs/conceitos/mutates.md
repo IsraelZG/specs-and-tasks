@@ -13,11 +13,11 @@ tags: [protocol, ontologia, linhagem, arestas]
 
 ## Por quê
 
-Uma assinatura Ed25519 por nó protege a integridade de cada versão individualmente (Layer 1), mas não impede que um atacante remova silenciosamente um elo da história ou reordene versões. O `previous_hash` encadeia as assinaturas: adulterações ou omissões tornam-se detectáveis em $O(1)$ sem descriptografar payloads. A justificativa de design completa está em [[caderno-2-protocol/02-cryptographic-lineage-and-auth#3-2-duas-camadas-de-imutabilidade-linhagem-de-versoes]].
+Uma assinatura Ed25519 por nó protege a integridade de cada versão individualmente (Layer 1), mas não impede que um atacante remova silenciosamente um elo da história ou reordene versões. O `previous_hash` encadeia as assinaturas: adulterações ou omissões tornam-se detectáveis em $O(1)$ sem descriptografar payloads. A justificativa de design completa está em [[caderno-2-protocol/02-cryptographic-lineage-and-auth#32-duas-camadas-de-imutabilidade-linhagem-de-versões]].
 
 ## Contrato
 
-> Os invariantes completos de integridade da cadeia — incluindo o que `previous_hash` aponta exatamente, as regras de validação de monotonicidade [[hlc]] e a detecção estrutural de fork — estão em **[[caderno-2-protocol/02-cryptographic-lineage-and-auth#3-2-duas-camadas-de-imutabilidade-linhagem-de-versoes]]**. Não reproduzir aqui.
+> Os invariantes completos de integridade da cadeia — incluindo o que `previous_hash` aponta exatamente, as regras de validação de monotonicidade [[hlc]] e a detecção estrutural de fork — estão em **[[caderno-2-protocol/02-cryptographic-lineage-and-auth#32-duas-camadas-de-imutabilidade-linhagem-de-versões]]**. Não reproduzir aqui.
 
 Resumo dos pontos-chave:
 
@@ -41,3 +41,5 @@ O schema da tabela `edges` com a coluna `previous_hash BLOB` e o índice `idx_ed
 |:---|:---|:---|
 | `caderno-3/01` | `§1` (DDL) | Manter DDL; adicionar "ver [[mutates]]" ao comentário conceitual |
 | `rfc-transporte-p2p-v3.1.md` | `§2.10.1` | Substituir redefinição semântica por `[[mutates]]` + link caderno-2/02 §3.2 |
+
+

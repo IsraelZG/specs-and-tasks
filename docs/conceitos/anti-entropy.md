@@ -72,3 +72,5 @@ O root fingerprint é **determinístico e sem nonce** no caminho rápido, preser
 | [[onda]] | 4 | criado |
 | [[nonce-challenge]] | 4 | placeholder |
 | [[sync-worker]] | 7 | placeholder |
+
+

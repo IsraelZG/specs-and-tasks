@@ -98,3 +98,5 @@ A aprovação pelo conjunto declarado não é suficiente para materializar a fin
 | [[invariante-de-core]] | 9 | criado |
 | [[aplicador-deterministico]] | 9 | placeholder (onda 9) |
 | [[comutativo-vs-nao-comutativo]] | 9 | placeholder (onda 9) |
+
+

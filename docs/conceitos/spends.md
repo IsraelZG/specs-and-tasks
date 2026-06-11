@@ -139,3 +139,5 @@ A assimetria é deliberada: `SPENDS` serializa, `CREDITS` não. Conforme
 | `caderno-2-protocol/01-graph-ontology.md` | `§2.2` | Substituir definição inline por `[[spends]]` |
 | `glossary.md` | `§SPENDS (v4)` | Substituir por link `[[spends]]` |
 | `rfc-v4.md` | `§3.2` e `§2.4` | Substituir menções definitórias por `[[spends]]` |
+
+

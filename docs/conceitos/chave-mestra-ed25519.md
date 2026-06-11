@@ -37,3 +37,5 @@ Ed25519 é estável; não há planos de migração para outro algoritmo de assin
 ## Aparições a consolidar
 
 Nenhuma (conceito sem redefinições espalhadas — `★` ausente no inventário).
+
+

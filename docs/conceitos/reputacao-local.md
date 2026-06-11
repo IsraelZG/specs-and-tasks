@@ -108,3 +108,5 @@ Ver mecanismo de detecção em [[desafio-canary]] <!-- Foam placeholder — verb
 - [[standing]] <!-- Foam placeholder — verbete Onda 10 --> — saldo de contribuição acumulado; distinto da reputação local
 - [[relay-trust-model]] — modelo de confiança de relay que inspirou o design não-transitivo
 - [[comutativo-vs-nao-comutativo]] — escala de due-diligence depende do tipo de operação
+
+

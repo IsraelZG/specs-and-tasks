@@ -100,3 +100,5 @@ O oráculo opera como um [[profile-system]] (agente de sistema) especializado: a
 | [[profile-system]] | 3 | criado |
 | `agente-de-sistema` | 10 | onda futura |
 | `bond-caucao` | 10 | onda futura |
+
+

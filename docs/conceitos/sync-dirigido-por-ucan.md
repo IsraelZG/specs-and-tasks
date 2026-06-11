@@ -59,3 +59,5 @@ O sync dirigido por UCAN opera como **pré-condição** do protocolo [[rbsr]]: a
 |:---|:---|:---|
 | `caderno-2-protocol/03-set-reconciliation-protocol.md` | `§2` | Fonte canônica — acrescentar wikilink `[[sync-dirigido-por-ucan]]` no título da seção |
 | `rfc-transporte-p2p-v3.1.md` | `§2.7` | Substituir definição inline por referência `[[sync-dirigido-por-ucan]]`; manter o detalhe de enforcement bilateral como nota local |
+
+

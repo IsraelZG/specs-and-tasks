@@ -86,3 +86,5 @@ Se dois finalizadores produzirem evidências conflitantes válidas (ataque de du
 | [[validador-declarado]] | 9 | placeholder (mesma onda) |
 | [[aplicador-deterministico]] | 9 | placeholder (mesma onda) |
 | [[comutativo-vs-nao-comutativo]] | 9 | placeholder (mesma onda) |
+
+

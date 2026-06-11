@@ -20,3 +20,5 @@ Todo o código legado de Y.js (`crdt-manager`, `yjs_updates`, `snapshots`) é **
 
 - Nenhuma nova tarefa ou módulo introduzirá dependência de Y.js.
 - O ciclo de vida e sincronização de dados colaborativos passam a ser unificados sob o motor do Automerge.
+
+
