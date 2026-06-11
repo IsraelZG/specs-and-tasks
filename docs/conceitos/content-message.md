@@ -50,6 +50,7 @@ Mensagens operam em modo offline-first: são criadas e armazenadas localmente, s
 | `AUTHORED` | `PROFILE` → `CONTENT:MESSAGE` | quem criou a mensagem |
 | `DIRECTED_TO` | `CONTENT:MESSAGE` → `PROFILE` | destinatário (roteamento) |
 | `REPLIES_TO` | `CONTENT:MESSAGE` → `CONTENT:MESSAGE` | encadeamento de conversa |
+| `BELONGS_TO` | `CONTENT:MESSAGE` → `PROFILE:ORGANIZATION` | grupo/canal a que a mensagem pertence (ver `docs/caderno-3-sdk/07-chat-reference-spec.md`) |
 | `MUTATES` | nó novo → nó anterior | edição de mensagem (linhagem) |
 | `GOVERNED_BY` | `CONTENT:MESSAGE` → `SPECIFICATION` | schema e regras de validação aplicáveis |
 
