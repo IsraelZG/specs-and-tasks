@@ -30,6 +30,22 @@ Propriedades-chave (extraídas literalmente de §3.1 e §3.3):
 
 Separação de papéis: a [[chave-mestra-ed25519]] **assina**; a Chave de Época **cifra** (tratando-se exclusivamente de uma Época de Conteúdo, totalmente ortogonal à [[epoca-de-identidade]]). As duas camadas nunca se substituem.
 
+## Fluxo de Re-entrega (Key Vault de Rede)
+
+Para viabilizar que novos dispositivos autorizados (com delegação válida, mas sem a chave privada da persona) leiam o histórico de mensagens, a obtenção de chaves de época de conteúdo é realizada de forma sob demanda, diretamente através do Key Vault de Rede.
+
+* **API de Rede:** O Key Vault expõe de forma remota a chamada `requestEpochKey(ucan, scope, prova_de_delegação) → chave_de_época | DENIED`. Esta operação ocorre obrigatoriamente dentro de um canal seguro autenticado via Noise e realiza as seguintes validações antes de liberar a chave:
+  1. Validade da cadeia [[ucan]] para o escopo solicitado.
+  2. Presença de uma aresta `DELEGATED_TO` associando a chave do dispositivo à [[delegacao-de-dispositivo|chave de dispositivo delegada]] de uma persona membro.
+  3. Verificação de restrições do predicado `BLOCKS` (bloqueio do autor).
+  4. Frescor da [[epoca-de-identidade]] do solicitante.
+* **Modelo Direto O(1):** Existe uma única chave de época por escopo que não necessita ser pré-embrulhada individualmente por dispositivo. O Key Vault retorna a chave da época corrente (e, opcionalmente, de épocas anteriores a que o membro tem direito para ler histórico).
+* **Hot Start Natural:** O dispositivo recém-pareado sincroniza o grafo via reconciliação estrutural (RBSR), efetua a requisição `requestEpochKey` enviando sua prova de delegação, recebe a chave e descriptografa localmente o conteúdo histórico. A API local `requestKey(scope)` é estritamente privada ao Sync Worker local e nunca é exposta remotamente.
+* **Ciclo de Revogação:** 
+  * **Revogação sem urgência (perda de dispositivo):** Registra-se uma lápide na delegação (aresta `DELEGATED_TO`), forçando o incremento da [[epoca-de-identidade]]. O Key Vault nega requisições futures do dispositivo revogado; a chave existente em cache de RAM expira em até 4 horas (TTL).
+  * **Revogação com urgência (comprometimento de chave):** Executa-se a revogação da delegação somada à rotação imediata da chave de época no escopo afetado.
+* **Limite de Vivacidade em P2P Puro:** Sem a presença de pelo menos um peer online em posse da chave, o dispositivo recém-adicionado não conseguirá reidratá-la até que algum membro detentor da chave reconecte-se à rede (limite herdado de *liveness* do P2P puro).
+
 ## Implementação
 
 O [[key-vault]] — subsistema interno do Crypto Worker — entrega a chave de época decifrada após validar o UCAN do solicitante. Ver [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#12-crypto-worker]].

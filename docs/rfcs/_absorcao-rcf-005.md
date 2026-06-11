@@ -46,7 +46,7 @@
 | a11_4_32 | rcf-005.md §a11 | DESCARTE | `docs/backlog-geral.md` | Registrar resolução de B.1 para M3/M4 com T-301/T-305 | haiku | [DESCARTADA: legado] |
 | a12_1_33 | rcf-005.md §a12 | EDITA-CADERNO | `docs/caderno-2-protocol/02-cryptographic-lineage-and-auth.md` | §3.3 — Re-entrega a dispositivos delegados e substituição de envelopes | revisar-humano | [ ] |
 | a12_2_34 | rcf-005.md §a12 | NOVA-SECAO-CADERNO | `docs/caderno-3-sdk/04-key-vault.md` | Key Vault de Rede — API `requestEpochKey` | haiku | [ ] |
-| a12_3_35 | rcf-005.md §a12 | EDITA-CONCEITO | `docs/conceitos/chave-de-epoca.md` | Documentar fluxo de re-entrega no Key Vault de Rede | haiku | [ ] |
+| a12_3_35 | rcf-005.md §a12 | EDITA-CONCEITO | `docs/conceitos/chave-de-epoca.md` | Documentar fluxo de re-entrega no Key Vault de Rede | haiku | [x] |
 | a12_4_36 | rcf-005.md §a12 | DESCARTE | `docs/backlog-geral.md` | Registrar resolução de B.2 como pré-requisito de T-505 | haiku | [DESCARTADA: legado] |
 | a13_1_37 | rcf-005.md §a13 | NOVO-CADERNO | `docs/caderno-3-sdk/08-discovery-patterns.md` | Adicionar Padrões de Descoberta de Peers | revisar-humano | [ ] |
 | a13_2_38 | rcf-005.md §a13 | DESCARTE | `docs/backlog-geral.md` | Remover B.3 do core; adicionar tarefa de documentação | haiku | [DESCARTADA: legado] |
