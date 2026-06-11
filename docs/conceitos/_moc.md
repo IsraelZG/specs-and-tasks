@@ -29,9 +29,8 @@ Gerado na Fase 3 a partir do glossário consolidado.
 - [[asset-role]] — Subtipo de nó ASSET que representa uma função ou cargo organizacional, agregando múltiplas permissions concretas por meio de arestas `AGGREGATES`.
 - [[profile-authentication]] — Subtipo de PROFILE que carrega credenciais; raiz da identidade humana em uma rede.
 - [[asset-invite]] — Asset consumível que concede o direito de criar cadastro sob web‑of‑trust; embute multiaddr para primeiro contato. Distinto do link multiaddr. Ver RFC §2.4.4 e v4 §4.2.
-- [[profile]] (subtipo: peer) — Instância individual da plataforma, independente do formato (Cloud, Web, Desktop, Mobile).
+- [[profile]] — Tipo de nó que representa atores ativos com identidade criptográfica (subtipo: peer representa uma instância individual da plataforma, independente do formato: Cloud, Web, Desktop, Mobile).
 - [[profile-persona]] — Subtipo de PROFILE que serve como máscara pública operacional do humano.
-- [[profile]] — Tipo de nó que representa atores ativos com identidade criptográfica.
 - [[ucan]] — User Controlled Authorization Network. Token de autorização delegável usado para provar direitos e solicitar chaves de época do cofre de chaves. Não carrega material de chaves em seu payload.
 - [[profile-system]] — Subtipo de PROFILE dotado de chaves Ed25519 que executa funções de infraestrutura, validação (Validadores de Domínio), auditoria ou comunicação interna do sistema via nós `CONTENT:MESSAGE` roteados por arestas `DIRECTED_TO`.
 - [[peer-id]] — Identificador de rede derivado deterministicamente da chave pública de uma `PROFILE:PERSONA`: `blake2s256(PROFILE:PERSONA_PUB_KEY)`. Auto-certificável (impede *spoofing* via desafio-resposta no handshake), mas não confere resistência a Sybil por si só — essa é responsabilidade do modelo de acesso por convite. Ver caderno-2/02 §1.4.
@@ -102,7 +101,7 @@ Gerado na Fase 3 a partir do glossário consolidado.
 
 - [[notification-connector]] — Interface única de egress out‑of‑band (SMTP base + Gmail/WhatsApp/SMS); capacidade do papel de peer do sistema. Ver caderno‑3/06.
 - [[fundador]] — Pessoa ou board que dá bootstrap a uma rede. Pode dissolver superpoderes ao longo do tempo.
-- [[caderno-1-vision/01-vision-and-principles|Local-First]] — Paradigma onde dados nascem e vivem no dispositivo do usuário; sincronização é secundária e oportunística.
+- [[caderno-1-vision/01-vision-and-positioning|Local-First]] — Paradigma onde dados nascem e vivem no dispositivo do usuário; sincronização é secundária e oportunística.
 - [[modalidade-de-rede]] — Modelo de governança e infraestrutura: pública, corporativa whitelabel, P2P pura.
 - [[peer-do-sistema]] — Peer especial operado pelo fundador da rede, com função de bootstrap, signaling e snapshot.
 - [[specification]] — Tipo de nó imutável que carrega regras, schemas e procedimentos que governam o sistema. Possui natureza dual: schema declarativo e procedimento executável determinístico (interpretado por Zen Engine).
@@ -122,6 +121,6 @@ Gerado na Fase 3 a partir do glossário consolidado.
 - [[oraculo-baas]] — Validador que afirma fato externo ao grafo (ex: resultado de transação no BaaS). Única classe de afirmação aceita sem verificação criptográfica. Mitigado por bonding/redundância, não por cripto. Ver rfc-transacoes-multidominio.md §2, §7.
 - [[caderno-3-sdk/01-sqlite-and-projections-schema#5-indices-de-texto-fts5-e-busca-espacial-rtree|Qualidade Dependente de Vantagem]] — Ranking, descoberta e qualidade de dados melhoram com a **vantagem de observação** do agente (super peer > local). Tradeoff: soberania OU vantagem, não ambos. Ver caderno-3/01 §5.
 - [[crypto-worker]] — Web worker dedicado à validação de assinaturas Ed25519 em lote (Ondas 1/2) e à decifração de payloads AES-256-GCM. Hospeda o Key Vault com TTL de 4 h em RAM. Opera fora da Main Thread para não bloquear a UI.
-- [[crypto-worker]] — Web worker dedicado à reconstrução de projeções locais (FTS5, R*Tree) a partir de payloads decifrados pelo Crypto Worker. Opera fora da Main Thread para não bloquear a UI.
+- [[index-worker]] — Web worker dedicado à reconstrução de projeções locais (FTS5, R*Tree) a partir de payloads decifrados pelo Crypto Worker. Opera fora da Main Thread para não bloquear a UI.
 - [[poda-segura]] — Protocolo de três camadas para transição `integral → pruned` sem risco de perda de dados: (1) jitter aleatório de 30–300 s com reverificação de custodiantes, (2) handshake `RELEASE/ACK` com o próximo peer no anel de consistent hashing, (3) health-check dos $N-1$ peers antes de efetivar a poda. Ver RFC de Transporte §4.3.
 
