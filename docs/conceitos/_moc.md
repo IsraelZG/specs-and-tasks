@@ -19,6 +19,7 @@ Gerado na Fase 3 a partir do glossário consolidado.
 - [[consumes-aresta]] — Aresta de `PROFILE` a `CONTENT` consumido.
 - [[requires]] — Aresta estrutural permanente que liga uma `ASSET:PERMISSION` a outra, indicando dependência ou pré-requisito de acesso.
 - [[spends]] — Aresta de `CONTENT:INTENT` ao head específico do `ASSET` de origem; âncora de serialização (única referência intencional a versão específica).
+- [[credits]] — Aresta de `CONTENT:INTENT` ao `entity_id` do `ASSET` de destino; comutativa (merge aditivo); par simétrico de `SPENDS`.
 - [[content-message]] — Subtipo de CONTENT usado para toda comunicação interna de infraestrutura (como `SYSTEM_QUERY` ou `SYSTEM_RESPONSE`) e notificações entre agentes do sistema, operando de modo offline-first.
 - [[tombstone-lapide]] — Mecanismo de deleção no modelo append-only: aresta marcada com `active = 0`. Um trigger local remove a relação de `active_edges`, tornando-a invisível; o registro original permanece para auditoria. O GC pode expungir lápides após N ciclos conforme política de retenção da `SPECIFICATION`. Ver caderno-3/01 §2.2.
 - [[matriz-de-classificacao-transporte]] — Declaração na `SPECIFICATION` de um nó respondendo às 3 perguntas de classificação de transporte: `observable_by_peers`, `is_auditable`, `survives_disconnection`. A infraestrutura usa essas flags para rotear dados automaticamente ao destino físico correto (SQLite, WebRTC ephemeral, Private Swarm ou RAM). Ver caderno-3/01 §4.
