@@ -113,4 +113,18 @@ Isto resolve o regresso de mint da v4 anterior: o nó de contribuição é assin
 
 A concepção de [[economia-como-modulo]] permite que cada rede escolha sua própria estratégia de remuneração sem repercussões no core, tornando a plataforma agnóstica a modelos econômicos específicos enquanto garante auditabilidade de qualquer contribuição medida.
 
+---
+
+## §5 Defesa Sybil (P2P puro — módulos opt-in)
+
+A defesa **primária** é o **custo de criação de identidade** (v3.1 §1.4), **separado da economia**. A economia só mede contribuição; ela coludiria se fosse a defesa (Sybils contribuindo entre si). Stack para P2P puro (módulos opt-in via SPEC):
+
+- **Convite-como-`ASSET:INVITE`**: saldo finito, emissão restrita, **gateada por [[standing]]** (mais convites por ser bom cidadão). Converte "100 identidades já" em "fluxo lento gateado por contribuição real". Rate limiter, não muro.
+- **Responsabilização do convidante (staking social)**: convidou quem comete mau ato verificável → sua reputação leva o golpe.
+- **Irrelevância por diversidade**: contribuição só conta servindo contrapartes **distintas e independentemente reputadas**. 1000 Sybils servindo uns aos outros = ~0 de standing. Mata a fome, não a existência.
+- **[[bond-caucao|Bond/caução]] para papéis privilegiados** (validador/custódio): mau comportamento corta a caução. É aqui que a economia ganha papel de **segurança** legítimo — bonding, não gating de participação básica.
+- **Detecção topológica** (SybilGuard/SybilLimit): real mas pesada, exige visão quase-global — natural como add-on da **autoridade** (mais um recurso das modalidades gerenciadas).
+
+**Teto honesto:** nenhum sistema P2P puro resolve Sybil sem âncora confiável ou recurso real-escasso. A alegação correta é "resistente o bastante para ser padrão-ouro e servir deployments tolerantes a confiança", **não** "Sybil-proof". Em redes comerciais, Sybil está resolvido na porta (identidade verificada).
+
 
