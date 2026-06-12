@@ -116,6 +116,7 @@ Gerado na Fase 3 a partir do glossário consolidado.
 - [[desafio-canary]] — Tarefa de gabarito conhecido, indistinguível do trabalho real, para amostrar a integridade do agente. Forte no determinístico/storage/banda; fraco em compute não-determinístico.
 - [[contribuicao-verificavel]] — Trabalho à rede medido por um de quatro regimes: banda (recibo de contraparte), storage (desafio-resposta), compute determinístico (amostragem), compute não-determinístico (aceitação + reputação).
 - [[standing]] — Saldo de contribuição acumulado (`ASSET:BALANCE_STATE` de contribuição), medido por device e somado por peer.
+- [[asset-reputation]] — Subtipo de ASSET que representa o sinal de reputação pública acumulado de um perfil. Em redes públicas, compõe o mecanismo de verificação de identidade junto com auto-atestação, KYC opcional e curadoria.
 - [[reputacao-local]] — Avaliação de primeira mão, não-transitiva, não-replicada, que cada peer faz dos peers com que teve contato. Scores ficam locais; só fatos negativos verificáveis vão ao grafo.
 - [[fato-negativo-verificavel]] — Mau ato re-checável por qualquer um (assinatura inválida, duplo-sinal de validador), persistido como `CONTENT` autocomprovável; acusação falsa é autopunitiva via `APPEAL` re-verificado.
 - [[economia-como-modulo]] — A economia de contribuição é um `ASSET` governado por SPEC; o core **mede**, a SPEC **liquida**. Um entre vários modelos econômicos possíveis.
