@@ -69,7 +69,7 @@ Diferença fundamental: `CONTRIBUTES` é exclusiva de [[profile-system]]; `CONSU
 
 O *standing* acumulado via `CONTRIBUTES` é um [[asset-balance-state]] de contribuição governado por SPEC. A contraparte [[consumes-aresta]] registra quem usou recursos; a precificação e o matching são responsabilidade da SPEC de contribuição.
 
-O cálculo de standing e reputação está detalhado em [[standing]] e [[reputacao-local]]. <!-- TODO(revisar): a referência "caderno-3/03 §X" no caderno-2/01 §2.2 usa §X placeholder — localização definitiva pendente. -->
+O cálculo de standing e reputação está detalhado em [[standing]] e [[reputacao-local]].
 
 ## Distinção de outros verbos
 
