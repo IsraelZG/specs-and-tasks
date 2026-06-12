@@ -66,7 +66,7 @@ A função de `TRANSFERS` nesse fluxo é dupla:
 | `TRANSFERS` | nó de saldo novo → intent | `CONTENT:INTENT` | Execução — liga o resultado à sua causa |
 | `RESULTED_FROM` | nó consequente → causa | qualquer nó causal | Rastreabilidade causal genérica |
 
-<!-- TODO(revisar) A referência a TRANSFERRED_TO em caderno-2/01 §2.2 usa o nome antigo. Verificar se houve renomeação formal para TRANSFERS na v4 ou se os dois coexistem com semânticas distintas. -->
+A renomeação `TRANSFERRED_TO` → `TRANSFERS` foi formalizada pela v4 (normalização de nomes de aresta) e aplicada ao caderno-2/01 §2.2 na absorção da RFC — é o mesmo mecanismo, não dois.
 
 ## Distinção de outros verbos
 

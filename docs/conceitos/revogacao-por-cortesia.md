@@ -60,9 +60,9 @@ Revogação de privacidade é best-effort, não garantida. O mecanismo é **apro
 
 [[bloqueio-social]] é a proteção para conteúdo público (chave universal): filtro de leitura na UI sobre arestas `BLOCKS`, sem enforcement criptográfico. Revogação por cortesia e bloqueio social compartilham a mesma natureza — são instrumentos de honestidade, não de garantia material.
 
-### Menção em rfc-transacoes-multidominio.md §6.3
+### Distinção de "cortesia executável" ([[bond-caucao]])
 
-O mesmo arquivo cita "cortesia executável" no contexto de bond/caução: *"Com bond/caução: sistema corta o bond do não-cumpridor (cortesia executável)"*. Essa menção usa "cortesia" no sentido de liquidação social de default — não é o mesmo mecanismo de expurgo de privacidade. <!-- TODO(revisar) confirmar se a menção em §6 é apenas terminológica (coincidência de vocabulário) ou se há intenção de referenciar o mesmo conceito -->
+A ex-RFC de transações (§6.3, absorvida em [[bond-caucao]]) citava "cortesia executável" no contexto de bond/caução: *"Com bond/caução: sistema corta o bond do não-cumpridor (cortesia executável)"*. A coincidência é apenas terminológica: "cortesia executável" é liquidação social de default (corte de caução, compulsório); a revogação por cortesia é expurgo de privacidade (voluntário). A distinção está formalizada no verbete [[bond-caucao]].
 
 ## Aparições a consolidar
 

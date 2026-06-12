@@ -63,8 +63,6 @@ Relacionamentos:
 - A corrida confirm-vs-expira é resolvida via [[serialization-por-linhagem]].
 - A linhagem de coordenação que enquadra a saga é descrita em [[linhagem-de-coordenacao]].
 
-<!-- TODO(revisar): §5.1.2 menciona "op normal de consumo" e "sinal de morte/lápide" — confirmar terminologia exata contra rfc-transacoes-multidominio.md §5.1.2 na Fase 3. -->
-
 ## Implementação → [[caderno-3-sdk]]
 
 Nenhuma seção SDK específica para política de TTL identificada no inventário. O lock em si é projetado via [[asset-lock]] e rastreado na tabela `asset_balances` / `retention-state` (`caderno-3-sdk/01-sqlite-and-projections-schema.md §3.3`).

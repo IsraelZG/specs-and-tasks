@@ -102,9 +102,9 @@ Em futuras revisões da especificação, planeja-se a automação da auditoria d
 | [[convergent-encryption]] | 11 | criado |
 | [[rendition]] | 11 | criado |
 | [[edge-translation]] | 11 | criado |
-| [[serves-aresta]] | 11 | <!-- TODO(revisar): verbete não criado na Onda 11 — Foam placeholder --> |
-| [[content-file]] | 11 | não é alvo de verbete na Fase 2 (sem ★) |
-| [[modalidade-de-rede]] | 12 | <!-- TODO(revisar): verbete não criado na Onda 12 — Foam placeholder --> |
-| [[peer-do-sistema]] | 12 | <!-- TODO(revisar): verbete não criado na Onda 12 — Foam placeholder --> |
+| [[serves-aresta]] | 11 | criado |
+| [[content-file]] | 11 | criado |
+| [[modalidade-de-rede]] | 12 | criado |
+| [[peer-do-sistema]] | 12 | criado |
 
 

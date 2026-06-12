@@ -60,7 +60,7 @@ As três modalidades diferem em dimensões críticas de protocolo e operação:
 
 | Dimensão | P2P Puro | Pública | Corporativa |
 | :--- | :--- | :--- | :--- |
-| **Identidade / Sybil** | Autogerada; [[convite-como-asset]] + diversidade + [[bond-caucao]] | Validada por autoridade (resolvido na porta) | SSO (resolvido na porta) |
+| **Identidade / Sybil** | Autogerada; [[asset-invite|convite-como-ASSET:INVITE]] + diversidade + [[bond-caucao]] | Validada por autoridade (resolvido na porta) | SSO (resolvido na porta) |
 | **Serialização (default)** | `quorum` bizantino sobre anel de custódia | `quorum` entre validadores licenciados | `leader` = super peer |
 | **Sob partição** | [[congelamento-escopado]] à linhagem | Idem; autoridade tende a estar presente | Raro; failover por lease |
 | **Economia de contribuição** | Encorajada (essencial p/ regular abuso) | Encorajada (autoridade pode subsidiar leves) | Opcional (desligada por padrão) |

@@ -70,7 +70,7 @@ Registros marcados como `retention_state = expunged` (ver [[retention-state]]) n
 |:-----|:-----|:-------|
 | [[aresta]] | 1 | criado |
 | [[imutabilidade-dupla]] | 1.5 | criado |
-| [[retention-state]] | 7 | <!-- TODO(revisar): verbete não criado na Onda 7 — Foam placeholder --> |
+| `retention_state` | — | não é alvo de verbete na Fase 2; documentado em [[caderno-3-sdk/01-sqlite-and-projections-schema]] |
 | [[g4-garbage-collection]] | 7 | criado |
 | [[active-edges]] | — | não é alvo de verbete na Fase 2 (sem ★) |
 

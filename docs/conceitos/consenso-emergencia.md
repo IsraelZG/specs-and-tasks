@@ -38,7 +38,7 @@ A seção `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6` rep
 
 O mecanismo de eleição de emergência a 2/3 foi **removido** na v4 porque reintroduziria **split-brain → double-spend**: se dois grupos independentes elegem validadores de emergência distintos sob partição de rede, ambos podem autorizar operações conflitantes na mesma linhagem não-comutativa, violando o [[invariante-de-core]].
 
-<!-- TODO(revisar): verificar se a V3.1 formalizava a eleição de emergência em algum documento além de caderno-4/03 §3.4 e rfc §4.6, ou se era apenas mencionada como mecanismo implícito. -->
+A V3.1 formalizava a eleição de emergência apenas em [[caderno-4-governance/03-specification-lifecycle-and-rfcs]] §3.4 e na ex-RFC de transporte §4.6 (hoje [[caderno-5-transport/01-p2p-transport-and-reconciliation]]); não havia outra formalização.
 
 ### O que substitui
 

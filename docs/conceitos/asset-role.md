@@ -38,9 +38,9 @@ Um caso normativo direto de `ASSET:ROLE` é a delegação de cargo em redes corp
 | [[asset-permission]] | 2 | criado |
 | [[aresta]] | 1 | criado |
 | [[verbos-raiz-canonicos]] | 1.5 | criado |
-| `UCAN` / [[ucan]] | 2 | <!-- TODO(revisar): verbete ucan ainda não criado — placeholder Onda 2 --> |
-| `ASSET:CONSENT` / [[asset-consent]] | 2 | placeholder Onda 2 |
-| `ASSET:LOCK` / [[asset-lock]] | 3 | placeholder Onda 3 |
+| `UCAN` / [[ucan]] | 2 | criado |
+| `ASSET:CONSENT` / [[asset-consent]] | 2 | criado |
+| `ASSET:LOCK` / [[asset-lock]] | 3 | criado |
 
 ## Aparições a consolidar
 

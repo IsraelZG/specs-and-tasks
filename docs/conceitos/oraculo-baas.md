@@ -58,7 +58,7 @@ O oráculo **não é confiável por construção criptográfica**; é confiável
 |:---|:---|
 | Oráculo adultera resultado | Redundância: múltiplos bridges votam; maioria decide. |
 | Oráculo fica offline | TTL do [[asset-lock]] expira; saga aborta automaticamente. |
-| Oráculo forja autorização BaaS | Bond/caução do operador; fato negativo verificável no grafo. <!-- TODO(revisar): bond-caucao é Onda 10 — detalhar quando o verbete existir --> |
+| Oráculo forja autorização BaaS | [[bond-caucao|Bond/caução]] do operador; [[fato-negativo-verificavel|fato negativo verificável]] no grafo. |
 
 Não há mecanismo criptográfico que force o BaaS a agir corretamente; a dissuasão é ex-post (reputação, bond) conforme `rfc-transacoes-multidominio.md §6`.
 
@@ -80,7 +80,7 @@ Resultado externo (authorize / reject / timeout)
 Fato publicado na linhagem ──── consome lock / emite compensação
 ```
 
-O oráculo opera como um [[profile-system]] (agente de sistema) especializado: age em nome de um domínio mas relata fatos de outro. <!-- TODO(revisar): confirmar se oráculo deve ser modelado como profile-system ou como validador-declarado distinto quando verbete agente-de-sistema (Onda 10) for criado -->
+O oráculo opera como um [[profile-system]] especializado — um [[agente-de-sistema]] que age em nome de um domínio mas relata fatos de outro. Não se confunde com o [[validador-declarado]]: o validador serializa operações da própria linhagem; o oráculo atesta fatos externos ao domínio.
 
 ## Aparições a consolidar
 

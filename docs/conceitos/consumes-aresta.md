@@ -46,9 +46,7 @@ Diferença fundamental: `CONTRIBUTES` é exclusiva de [[profile-system]]; `CONSU
 
 ## Relação com o modelo econômico (v4)
 
-`CONSUMES` cria o lado da demanda do modelo de contribuição. Conforme `rfc-v4.md §3.3`, a contraparte `CONTRIBUTES` acumula *standing* em um `ASSET:BALANCE_STATE` de contribuição governado por SPEC — de forma análoga a como `TRANSFERRED_TO` está para saldos monetários. `CONSUMES` registra quem usou recursos; a precificação e o matching com `CONTRIBUTES` são responsabilidade da SPEC de contribuição.
-
-<!-- TODO(revisar) A relação exata entre CONSUMES e o cálculo de standing/reputação local (rfc-v4 §3.3–3.4) deve ser conferida quando os verbetes contributes-aresta e standing forem criados (Ondas 3 e 10). -->
+`CONSUMES` cria o lado da demanda do modelo de contribuição. A contraparte [[contributes-aresta|`CONTRIBUTES`]] acumula [[standing|*standing*]] em um `ASSET:BALANCE_STATE` de contribuição governado por SPEC — de forma análoga a como [[transfers-aresta|`TRANSFERS`]] está para saldos monetários. `CONSUMES` registra quem usou recursos; a precificação e o matching com `CONTRIBUTES` são responsabilidade da SPEC de contribuição. O cálculo de standing e reputação está detalhado em [[standing]] e [[reputacao-local]].
 
 ## Distinção de outros verbos
 

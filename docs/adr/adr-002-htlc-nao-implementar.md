@@ -64,7 +64,7 @@ Cada operação exige **decisão humana explícita sobre risco**. UI marca opera
 Reputação só morde quando:
 
 1. **A obrigação é estruturada no grafo com deadline** (não promessa off-graph).
-2. Registra-se como `CONTENT:INTENT` ou compromisso com prazo via [[HLC]].
+2. Registra-se como `CONTENT:INTENT` ou compromisso com prazo via [[hlc|HLC]].
 3. Não-cumprimento até deadline = **fato negativo verificável**, durável, com prova.
 4. **Com bond/caução:** sistema corta o bond (execução automática, "cortesia" estrutural).
 5. **Sem bond:** fato negativo + rate-limit (marcado no grafo, menos prioridade futura).
