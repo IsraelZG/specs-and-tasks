@@ -88,4 +88,10 @@ Em produção espera-se o uso de um Committer árbitro — **preferencialmente u
 
 Para saldos, a regra da SPECIFICATION é **aditiva**: créditos concorrentes (`CREDITS`) que bifurcam a linhagem do ativo de destino são mesclados **somando os deltas** (`base + Δ₁ + Δ₂`), nunca por Last-Write-Wins — LWW perderia valor. Apenas o **débito** (`SPENDS`) é serializado por um validador (não-comutativo); o crédito é monotônico e dispensa aprovação própria.
 
+---
+
+## 5. Estado `pending` Local vs. `finalized` Durável
+
+O `pending` vive numa projeção **local não-replicada** do proponente (e pode ser exibido à contraparte pelo canal efêmero: "A está te enviando, aguardando confirmação"). Só ao finalizar entra em `nodes`/`edges`. Com isso, a máquina de estados que a v4 anterior tentava persistir colapsa em **dois estados**: `pending` (local) | `finalized` (durável, imutável). Não há mais estado mutável numa aresta — eliminando a contradição com o append-only.
+
 
