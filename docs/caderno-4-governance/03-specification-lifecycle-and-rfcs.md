@@ -134,3 +134,38 @@ A defesa **primária** é o **custo de criação de identidade** (v3.1 §1.4), *
 A remuneração (tráfego, armazenamento, **processamento** — validações, análises, modelos de IA locais) é a liquidação da medição do §3.3, governada por SPEC. A fronteira honesta: **medir** pode ser quase-trustless; **liquidar em dinheiro** é decisão de negócio e jurídica por rede, e não deve fingir propriedade criptográfica. As duas primeiras dimensões (banda/storage) são quase-trustless; a terceira (compute determinístico) é probabilística; a quarta (compute não-determinístico) é [[reputacao-local|mercado de reputação]].
 
 
+
+---
+
+## §7 Threat Model
+
+> Origem: rfc-v4 §5.1–5.3 (absorvida em 2026-06-11). Tabelas normativas movidas literalmente.
+
+### 7.1 Coberto pelo Design
+
+| Ameaça | Proteção | Eficácia |
+| :--- | :--- | :--- |
+| Agente adultera payload | Assinatura original do usuário quebra → rejeitado | ✅ Total |
+| Agente adultera resultado verificável (merge, validação) | Auditoria + [[desafio-canary|desafio canary]] detectam | ✅ Forte |
+| Double-spend (mesma rede) | [[serialization-por-linhagem|Serialização por linhagem]]; conflitos ao mesmo validador | ✅ Total em operação normal |
+| Double-spend sob partição | [[congelamento-escopado|Congelamento escopado]] à linhagem (sem failover não-cercado) | ✅ Total (custo: liveness daquele ativo) |
+| Auditor não pode ler saldo cifrado | [[validador-declarado|Validador declarado]] já é custódio com a chave | ✅ Resolvido |
+| Validador finaliza em duplicado | [[aplicador-deterministico|Aplicador determinístico]] (não "o N-ésimo") | ✅ Total |
+| Validador mente/duplo-assina | Falta autocomprovável → [[bond-caucao|caução]] cortada | ✅ Total (responsabilização) |
+| Telemetria autorreportada falsa | Recibo de contraparte / desafio / amostra | ✅ Nas dimensões verificáveis |
+| Peer parasitário | Irrelevância por diversidade; PCR opcional | 🟡 Econômica |
+
+### 7.2 Aceito como Risco
+
+| Ameaça | Por que aceito |
+| :--- | :--- |
+| Agente substituído por versão maliciosa | TEE/TPM impediria; design optou por detecção pós-hoc (auditoria + canary) |
+| Insider que relaya conteúdo a um bloqueado | [[bloqueio-social|Bloqueio]] é criptográfico contra o bloqueado **sozinho**; nunca contra um insider colaborador |
+| Conjunto bizantino comprometido além do limiar | "A rede já está comprometida"; o quórum recomendado torna o caso normal impossível |
+| Trapaça em compute não-determinístico bem desenhada | Desafio canary é fraco aqui; vira mercado de reputação com disputa |
+
+### 7.3 Território de Pesquisa (não tratado como assentado)
+
+- **Verificação trustless de compute não-determinístico** (IA local) — fica como mercado de reputação, não ledger provado.
+- **Transferência atômica entre tipos/emissores de ativo distintos** — exige validadores de ambos os lados; modelagem futura.
+- Qualquer pretensão de **bloqueio criptográfico de conteúdo público** — declarado impossível, não a implementar.
