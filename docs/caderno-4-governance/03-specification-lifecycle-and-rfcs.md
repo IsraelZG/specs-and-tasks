@@ -127,4 +127,10 @@ A defesa **primária** é o **custo de criação de identidade** (v3.1 §1.4), *
 
 **Teto honesto:** nenhum sistema P2P puro resolve Sybil sem âncora confiável ou recurso real-escasso. A alegação correta é "resistente o bastante para ser padrão-ouro e servir deployments tolerantes a confiança", **não** "Sybil-proof". Em redes comerciais, Sybil está resolvido na porta (identidade verificada).
 
+---
+
+## §6 Remuneração e Telemetria
+
+A remuneração (tráfego, armazenamento, **processamento** — validações, análises, modelos de IA locais) é a liquidação da medição do §3.3, governada por SPEC. A fronteira honesta: **medir** pode ser quase-trustless; **liquidar em dinheiro** é decisão de negócio e jurídica por rede, e não deve fingir propriedade criptográfica. As duas primeiras dimensões (banda/storage) são quase-trustless; a terceira (compute determinístico) é probabilística; a quarta (compute não-determinístico) é [[reputacao-local|mercado de reputação]].
+
 
