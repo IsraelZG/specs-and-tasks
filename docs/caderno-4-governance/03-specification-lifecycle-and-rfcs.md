@@ -100,4 +100,17 @@ serialization:
 
 **Extensão multidomínio (v4):** Quando uma operação envolve múltiplas linhagens de domínios distintos (sagas transdomínio), a invariante de core permanece **por-perna**: cada leg respeita sua serialização conforme a SPEC do seu ativo. **Consistência cross-domínio é padrão de composição (protocolo), não primitiva de core.** Oferece-se dois tiers: Tier 1 (Saga com `ASSET:LOCK` TTL, eventual + sans-isolamento, default) e Tier 2 (2PC com coordenador confiável, isolamento de snapshot). Ver rfc-transacoes-multidominio.md §1, §7.
 
+---
+
+## §4 Economia como Módulo ASSET (Medição vs. Liquidação)
+
+A economia de contribuição é **um** modelo econômico entre vários que o ASSET viabiliza — não primitiva do core:
+
+- **Core entrega [[contribuicao-verificavel|medição verificável]]** (os quatro regimes do §3.3): recibos, provas de storage, amostras de compute → um registro assinado e auditável de trabalho feito.
+- **Liquidação** (virar crédito interno, fiat/remuneração real, ou só reputação) é decisão de SPEC por rede/módulo, via [[zen-engine|Zen Engine]]. A regra "contribuição → crédito" é procedimento na SPEC, não no core.
+
+Isto resolve o regresso de mint da v4 anterior: o nó de contribuição é assinado pelo agente e ancorado em evidência verificável sob demanda (spot-check de recibo/storage), **não** pré-auditado por K=5 recursivo. E atende ao objetivo de **múltiplas economias**: o mesmo mecanismo roda a economia de pontos de um módulo de fidelidade e a economia de contribuição da rede.
+
+A concepção de [[economia-como-modulo]] permite que cada rede escolha sua própria estratégia de remuneração sem repercussões no core, tornando a plataforma agnóstica a modelos econômicos específicos enquanto garante auditabilidade de qualquer contribuição medida.
+
 
