@@ -8,7 +8,7 @@
 ## 1. Mensagem
 
 * `CONTENT:MESSAGE` com arestas `AUTHORED`, `DIRECTED_TO` (persona na DM; organização no grupo), `REPLIES_TO`; anexos apontam para `CONTENT:FILE`. Schema governado por `SPECIFICATION:CHAT_MESSAGE`. Ver [[content-message]].
-* **Editar** = `MUTATES`; **apagar** = lápide ([[tombstone-lapide]]); **"apagar para todos"** = revogação por cortesia ([[revogacao-por-cortesia]]), com os limites honestos de [[caderno-2-protocol/02-cryptographic-lineage-and-auth#52-expurgo-revogação-por-cortesia--revogação-criptográfica]] explicitados na UX.
+* **Editar** = `MUTATES`; **apagar** = lápide ([[tombstone-lapide]]); **"apagar para todos"** = revogação por cortesia ([[revogacao-por-cortesia]]), com os limites honestos de [[caderno-2-protocol/02-cryptographic-lineage-and-auth#52-expurgo-revogação-por-cortesia-revogação-criptográfica]] explicitados na UX.
 
 ## 2. DM — Sem Nó Contêiner
 

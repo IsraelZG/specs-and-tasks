@@ -1,6 +1,6 @@
 # 05-media-transport-plane.md — Plano de Transporte de Mídia (BLOBs e Stream)
 
-Este documento especifica os dois planos de mídia da Plataforma V3.1 — o **Plano de BLOBs** (mídia durável: imagens, vídeos, arquivos, legendas, áudio) e o **Plano de Stream de Tempo Real** (áudio/vídeo síncronos) — ambos **ortogonais ao RBSR** (que reconcilia o grafo, não mídia). Substitui o stub anterior.
+Este documento especifica os dois planos de mídia da Plataforma Projeto SuperApp V0.41 — o **Plano de BLOBs** (mídia durável: imagens, vídeos, arquivos, legendas, áudio) e o **Plano de Stream de Tempo Real** (áudio/vídeo síncronos) — ambos **ortogonais ao RBSR** (que reconcilia o grafo, não mídia). Substitui o stub anterior.
 
 ---
 

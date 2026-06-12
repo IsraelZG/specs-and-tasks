@@ -28,7 +28,7 @@ dependencias:
 
 ## Definição
 
-A **Honestidade Radical** é o princípio filosófico e diretriz de design da Plataforma V3.1 que estabelece a transparência absoluta sobre as limitações inerentes aos paradigmas local-first, descentralizado e P2P. Em vez de ocultar trade-offs arquiteturais sob jargões de marketing técnico, a plataforma os assume explicitamente — como o fato de que a travessia de NAT simétrico pode falhar de forma recorrente, que a revogação de acessos não assegura a exclusão de dados já replicados em dispositivos de terceiros, e que redes transacionais descentralizadas possuem vivacidade condicionada (liveness) a validadores ativos —, permitindo escolhas de especificação conscientes e o tratamento adequado de estados de erro na interface e nos contratos de comunicação.
+A **Honestidade Radical** é o princípio filosófico e diretriz de design da Plataforma Projeto SuperApp V0.41 que estabelece a transparência absoluta sobre as limitações inerentes aos paradigmas local-first, descentralizado e P2P. Em vez de ocultar trade-offs arquiteturais sob jargões de marketing técnico, a plataforma os assume explicitamente — como o fato de que a travessia de NAT simétrico pode falhar de forma recorrente, que a revogação de acessos não assegura a exclusão de dados já replicados em dispositivos de terceiros, e que redes transacionais descentralizadas possuem vivacidade condicionada (liveness) a validadores ativos —, permitindo escolhas de especificação conscientes e o tratamento adequado de estados de erro na interface e nos contratos de comunicação.
 
 ## Por quê ([[vision]])
 

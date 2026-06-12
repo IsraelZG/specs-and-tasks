@@ -30,7 +30,7 @@ O transporte (RFC §2.9) é responsável por **transmitir e validar** o HLC; a l
 
 ## Implementação
 
-O trigger `trg_nodes_insert_entity_head` em [[caderno-3-sdk/01-sqlite-and-projections-schema#31-tabela-entity_heads]] usa o `hlc` de cada nó inserido para manter a tabela `entity_heads` com o head vigente de cada linhagem. A lógica é: ao inserir um novo nó, se `NEW.hlc > head_hlc` atual da entidade, o head é atualizado. Por ser `ON CONFLICT … DO UPDATE` com comparação de HLC, o resultado independe da ordem de chegada dos nós no sync P2P.
+O trigger `trg_nodes_insert_entity_head` em [[caderno-3-sdk/01-sqlite-and-projections-schema#31-tabela-entityheads]] usa o `hlc` de cada nó inserido para manter a tabela `entity_heads` com o head vigente de cada linhagem. A lógica é: ao inserir um novo nó, se `NEW.hlc > head_hlc` atual da entidade, o head é atualizado. Por ser `ON CONFLICT … DO UPDATE` com comparação de HLC, o resultado independe da ordem de chegada dos nós no sync P2P.
 
 A coluna `hlc` nas tabelas `nodes` e `edges` está coberta pela `signature` Ed25519 — falsificar o carimbo invalida a assinatura.
 

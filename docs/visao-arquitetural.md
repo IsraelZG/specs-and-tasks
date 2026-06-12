@@ -1,4 +1,4 @@
-# Visão Arquitetural de Alto Nível — Plataforma V3.1/v4
+# Visão Arquitetural de Alto Nível — Plataforma Projeto SuperApp V0.41
 
 > **Status:** descrição canônica de alto nível da arquitetura. Substitui qualquer descrição anterior que tratasse o Automerge Repo como núcleo central ou afirmasse que "somente TinyBase lê ou grava no SQL" — ambas imprecisas. Detalhes normativos vivem nos cadernos e verbetes linkados; este documento é o mapa.
 

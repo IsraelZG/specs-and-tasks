@@ -47,3 +47,4 @@ build/
 out/
 
 *.txt
+generate_project_summary.js

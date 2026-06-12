@@ -22,7 +22,7 @@ dependencias:
 
 ## Definição
 
-O **Pragmatismo Topológico** é o princípio arquitetural que orienta o design de rede da Plataforma V3.1. Embora o sistema seja estruturado como *P2P-first* para garantir soberania sobre dados e operação local-first, ele rejeita o purismo descentralizado. O P2P é adotado *oportunisticamente*, utilizando infraestruturas centralizadas (como servidores na nuvem, Super Peers ou BaaS) de forma transparente sempre que estas oferecem melhor desempenho, menores custos operacionais ou garantias de qualidade superiores (tais como recuperação de credenciais, snapshots de bootstrap e processamento transacional regulado), delegando à `SPECIFICATION` de cada rede a escolha do compromisso topológico ideal.
+O **Pragmatismo Topológico** é o princípio arquitetural que orienta o design de rede da Plataforma Projeto SuperApp V0.41. Embora o sistema seja estruturado como *P2P-first* para garantir soberania sobre dados e operação local-first, ele rejeita o purismo descentralizado. O P2P é adotado *oportunisticamente*, utilizando infraestruturas centralizadas (como servidores na nuvem, Super Peers ou BaaS) de forma transparente sempre que estas oferecem melhor desempenho, menores custos operacionais ou garantias de qualidade superiores (tais como recuperação de credenciais, snapshots de bootstrap e processamento transacional regulado), delegando à `SPECIFICATION` de cada rede a escolha do compromisso topológico ideal.
 
 ## Por quê ([[vision]])
 

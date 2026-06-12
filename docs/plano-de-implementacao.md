@@ -1,4 +1,4 @@
-# Plano de Implementação — Plataforma V3.1/v4
+# Plano de Implementação — Plataforma Projeto SuperApp V0.41
 ## Transporte de Dados · Descoberta de Peers · Sincronização · Auth · Segurança
 
 > **Escopo:** primeiro ciclo de desenvolvimento (Cloud + Web PWA local-first), com a base preparada para Desktop/Mobile/TV via Capacitor/Electron.
@@ -364,4 +364,4 @@ Cada item vira teste permanente na suíte (`testkit/adversarial/`):
 
 ---
 
-*Plano gerado a partir da documentação V3.1/v4 em 10/06/2026. Cada T-xxx referencia as seções normativas correspondentes; em divergência entre este plano e os cadernos, os cadernos prevalecem e o plano deve ser corrigido via PR.*
+*Plano gerado a partir da documentação V0.41 em 10/06/2026. Cada T-xxx referencia as seções normativas correspondentes; em divergência entre este plano e os cadernos, os cadernos prevalecem e o plano deve ser corrigido via PR.*

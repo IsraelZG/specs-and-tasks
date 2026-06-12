@@ -1,6 +1,6 @@
 # 03-engines-and-spec-driven-ui.md — Engines & Spec-Driven UI Reference
 
-Este documento descreve as diretrizes de composição visual (Padrão A Puro), o catálogo de Engines reutilizáveis e as especificações que orientam dinamicamente a renderização na Plataforma V3.1.
+Este documento descreve as diretrizes de composição visual (Padrão A Puro), o catálogo de Engines reutilizáveis e as especificações que orientam dinamicamente a renderização na Plataforma Projeto SuperApp V0.41.
 
 ---
 

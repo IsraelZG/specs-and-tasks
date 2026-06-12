@@ -1,6 +1,6 @@
 # 01-graph-ontology.md — Graph Ontology Specification
 
-Este documento descreve a ontologia unificada do grafo de dados da Plataforma V3.1. A decisão fundamental do sistema reside no minimalismo ontológico: toda entidade física ou abstrata do mundo é representada por um de quatro tipos de [[no|nós]], e os relacionamentos ou ações são representados por [[aresta|arestas]].
+Este documento descreve a ontologia unificada do grafo de dados da Plataforma Projeto SuperApp V0.41. A decisão fundamental do sistema reside no minimalismo ontológico: toda entidade física ou abstrata do mundo é representada por um de quatro tipos de [[no|nós]], e os relacionamentos ou ações são representados por [[aresta|arestas]].
 
 ---
 

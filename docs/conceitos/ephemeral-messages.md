@@ -37,7 +37,7 @@ As regras de contrato que regem o comportamento e os casos de uso das `Ephemeral
 
 - **Propagação de Alterações (Staging)**: Descrito em [[caderno-2-protocol/04-automerge-integration-spec#31-captura-de-changes-escrita-em-staging]], as [[changes]] em tempo real são enviadas em RAM como mensagens efêmeras para todos os peers conectados a um [[documento-casca]].
 - **Co-assinatura de Snapshots**: Conforme [[caderno-2-protocol/04-automerge-integration-spec#41-co-assinatura-via-ephemeral-messages]], quando a `SPECIFICATION` exige aprovação conjunta antes de publicar uma nova versão, o Committer proposto envia o hash do snapshot binário como mensagem efêmera em RAM via WebRTC para obter assinaturas Ed25519 dos co-editores antes de persistir o nó de versão física final.
-- **Enquadramento de Roteamento**: De acordo com a [[matriz-de-classificacao-transporte]] (especificada em [[caderno-5-transport/01-p2p-transport-and-reconciliation#211--matriz-de-classificação-de-transporte-as-3-perguntas]]), as mensagens efêmeras são classificadas como `REPLICABLE_VOLATILE` por responderem "SIM" para observabilidade de peers, "NÃO" para auditabilidade histórica e "NÃO" para sobrevivência além da sessão. O protocolo de rede associado é `EPHEMERAL_WEBRTC` (ou canal efêmero websocket/datagram) e utiliza encriptação baseada em Chave de Época.
+- **Enquadramento de Roteamento**: De acordo com a [[matriz-de-classificacao-transporte]] (especificada em [[caderno-5-transport/01-p2p-transport-and-reconciliation#211-matriz-de-classificação-de-transporte-as-3-perguntas]]), as mensagens efêmeras são classificadas como `REPLICABLE_VOLATILE` por responderem "SIM" para observabilidade de peers, "NÃO" para auditabilidade histórica e "NÃO" para sobrevivência além da sessão. O protocolo de rede associado é `EPHEMERAL_WEBRTC` (ou canal efêmero websocket/datagram) e utiliza encriptação baseada em Chave de Época.
 - **Heartbeat de Vivacidade**: Conforme [[caderno-5-transport/01-p2p-transport-and-reconciliation#322-swarmregistry]], a recepção de qualquer mensagem efêmera pelo canal de dados funciona como um heartbeat implícito, zerando o temporizador de inatividade do peer remetente no [[swarm-registry]] local.
 
 ## Implementação
@@ -46,11 +46,11 @@ A infraestrutura de roteamento e processamento das `Ephemeral Messages` está im
 
 - **[[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#11-sync-worker]]**: Onde o [[sync-worker]] gerencia o [[automerge-repo]] e despacha as mensagens efêmeras na RAM, servindo como a ponte reativa para o cache de UI.
 - **[[caderno-3-sdk/01-sqlite-and-projections-schema#4-matriz-de-classificação-de-transporte-as-3-perguntas]]**: Onde é formalizado o contrato TypeScript para o comportamento de transporte `REPLICABLE_VOLATILE` ligado ao destino físico `sqlite_pending_changes` sob o protocolo `EPHEMERAL_WEBRTC`.
-- **Plano de Mídia (`REPLICABLE_VOLATILE`)**: De acordo com [[caderno-3-sdk/05-media-transport-plane#82-gravação-de-live-em-andamento-segmentos-voláteis--blob-consolidado]], os magnets de segmentos de streaming ao vivo trafegam no canal efêmero (WebRTC / Automerge ephemeral) para evitar sobrecarregar o grafo com nós transientes de live.
+- **Plano de Mídia (`REPLICABLE_VOLATILE`)**: De acordo com [[caderno-3-sdk/05-media-transport-plane#82-gravação-de-live-em-andamento-segmentos-voláteis-blob-consolidado]], os magnets de segmentos de streaming ao vivo trafegam no canal efêmero (WebRTC / Automerge ephemeral) para evitar sobrecarregar o grafo com nós transientes de live.
 
 ## Evolução
 
-Na Plataforma V3.1, a eleição e coordenação de committers em documentos colaborativos dependiam de negociações ativas via mensagens efêmeras. 
+Na Plataforma Projeto SuperApp V0.41, a eleição e coordenação de committers em documentos colaborativos dependiam de negociações ativas via mensagens efêmeras. 
 
 A partir da **v4** (descrita em [[caderno-2-protocol/04-automerge-integration-spec#4-modos-de-eleição-de-committer]]), a mecânica evolui para uma eleição puramente determinística baseada na execução local e idêntica entre agentes de sistema ([[profile-system]]), o que elimina o overhead de tráfego de coordenação de committer por mensagens efêmeras (com exceção do recolhimento de assinaturas e propagação de changes).
 

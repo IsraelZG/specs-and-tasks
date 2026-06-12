@@ -1,4 +1,4 @@
-# Inventário de Conceitos — Plataforma V3.1
+# Inventário de Conceitos — Plataforma Projeto SuperApp V0.41
 
 Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, caderno-5-transport/01-p2p-transport-and-reconciliation.md, rfc-v4.md, rfc-transacoes-multidominio.md e backlog-geral.md. Finalidade: mapear onde cada conceito está definido canonicamente e onde está sendo **redefinido**, sinalizando alvos de consolidação para a Fase 2 (criação de verbetes em `docs/conceitos/<slug>.md`).
 

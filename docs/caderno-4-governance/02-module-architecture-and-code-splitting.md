@@ -1,6 +1,6 @@
 # 02-module-architecture-and-code-splitting.md — Module Architecture & Code Splitting
 
-Este documento descreve a organização física do monorepo da Plataforma V3.1, as políticas de code-splitting de novos módulos e os contratos de extensibilidade de negócios no Superapp.
+Este documento descreve a organização física do monorepo da Plataforma Projeto SuperApp V0.41, as políticas de code-splitting de novos módulos e os contratos de extensibilidade de negócios no Superapp.
 
 ---
 

@@ -1,4 +1,4 @@
-# Caderno 5 — Camada de Transporte P2P e Malha de Reconciliação (Plataforma V3.1)
+# Caderno 5 — Camada de Transporte P2P e Malha de Reconciliação (Plataforma Projeto SuperApp V0.41)
 
 > **Status:** Caderno consolidado (ex-RFC de Transporte v3.1, promovida a caderno em 2026-06-12)
 > **Escopo:** Camada de transporte, descoberta, reconciliação de conjuntos e ciclo de vida do swarm. **Não** cobre ontologia do grafo, modelo de chaves de conteúdo, eleição de committer de documentos colaborativos nem governança de validação — esses residem nos cadernos 2, 3 e 4 e são referenciados onde a fronteira é tocada (ver Apêndice A).

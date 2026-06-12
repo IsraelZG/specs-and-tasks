@@ -1,15 +1,22 @@
 # 03-set-reconciliation-protocol.md — Range-Based Set Reconciliation Protocol
 
-Este documento especifica o protocolo matemático de reconciliação de dados estruturados do grafo (nós e arestas das tabelas física `nodes` e `edges`) utilizado pela Plataforma V3.1. Este protocolo opera independentemente do Automerge Repo, que gerencia apenas documentos colaborativos.
+Este documento especifica o protocolo matemático de reconciliação de dados estruturados do grafo ([[no|nós]] e [[aresta|arestas]] das tabelas física `nodes` e `edges`) utilizado pela Plataforma Projeto SuperApp V0.41. Este protocolo opera independentemente do [[automerge-repo|Automerge Repo]], que gerencia apenas documentos colaborativos.
 
 ---
 
+<a id="rbsr"></a>
 ## 1. Range-Based Set Reconciliation
 
-Para sincronizar de forma eficiente conjuntos de nós e arestas entre dois peers sem transferir logs inteiros ou chaves redundantes, a plataforma adota o algoritmo de **Range-Based Set Reconciliation** executado em memória pelo Sync Worker.
+> Conceito canônico: [[rbsr]]
 
+Para sincronizar de forma eficiente conjuntos de nós e arestas entre dois peers sem transferir logs inteiros ou chaves redundantes, a plataforma adota o algoritmo de **Range-Based Set Reconciliation** executado em memória pelo [[sync-worker|Sync Worker]].
+
+<a id="fingerprint"></a>
 ### 1.1 Modelo Matemático e Fingerprints
-* **Conjunto de Elementos**: Cada nó $n$ ou aresta $e$ é representado por um par $(id, signature)$, onde ambos os IDs são ULIDs ordenáveis.
+
+> Conceito canônico: [[fingerprint]] · ver também [[anti-entropy]]
+
+* **Conjunto de Elementos**: Cada nó $n$ ou aresta $e$ é representado por um par $(id, signature)$, onde ambos os IDs são [[ulid|ULIDs]] ordenáveis.
 * **Fingerprint**: Cada elemento possui um fingerprint de 256 bits (SHA-256 completo, sem truncamento):
   $$F(x) = \text{SHA-256}(id_x \mathbin{\Vert} \text{signature}_x)$$
   > O XOR de ranges permanece linear, mas em 256 bits a busca por colisão adversarial (forjar um conjunto cujo XOR de range iguale o do peer honesto, escondendo uma diferença) exige ~$2^{128}$ operações — vs. ~$2^{32}$ do truncamento de 64 bits. O fingerprint é determinístico e **sem nonce** no caminho rápido, preservando o cache do root fingerprint usado no anti-entropy $O(1)$ da Onda 0.

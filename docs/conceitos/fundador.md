@@ -41,7 +41,7 @@ Propriedades-chave:
 
 ## Implementação
 
-O Sync Worker gerencia regras e o ciclo de vida do fundador através de especificações declarativas. O bootstrap inicial de novos peers através do [[peer-do-sistema]] é detalhado em [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#6-gênese-da-rede--first-peer-protocol]] (ver [[first-peer-protocol]]).
+O Sync Worker gerencia regras e o ciclo de vida do fundador através de especificações declarativas. O bootstrap inicial de novos peers através do [[peer-do-sistema]] é detalhado em [[caderno-3-sdk/02-sync-worker-and-memory-lifecycle#6-gênese-da-rede-first-peer-protocol]] (ver [[first-peer-protocol]]).
 
 ## Evolução
 

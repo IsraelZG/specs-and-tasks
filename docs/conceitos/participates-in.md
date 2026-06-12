@@ -38,7 +38,7 @@ A existência de uma aresta `PARTICIPATES_IN` **não implica** `ASSET:PERMISSION
 
 Conforme `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §2`:
 
-> A Plataforma V3.1 adota uma separação rigorosa entre **Fatos Sociais/Estruturais** (ex: pertencer a um grupo via aresta `PARTICIPATES_IN`) e **Autorizações Técnicas de Acesso**. A existência de uma aresta `PARTICIPATES_IN` não concede permissão criptográfica de leitura ou escrita.
+> A Plataforma Projeto SuperApp V0.41 adota uma separação rigorosa entre **Fatos Sociais/Estruturais** (ex: pertencer a um grupo via aresta `PARTICIPATES_IN`) e **Autorizações Técnicas de Acesso**. A existência de uma aresta `PARTICIPATES_IN` não concede permissão criptográfica de leitura ou escrita.
 
 O acesso efetivo é controlado por [[asset-permission]], [[asset-role]] e [[ucan]] — independentemente do pertencimento declarado pela aresta.
 

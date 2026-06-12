@@ -10,7 +10,7 @@ modo: canonical
 
 ## Definição
 
-Uma **modalidade de rede** define o modelo de governança, identidade e infraestrutura da rede de dados distribuída na Plataforma V3.1. Enquanto o formato de distribuição de software (Cloud, Web, Desktop ou Mobile) estabelece onde o código físico é executado, a modalidade de rede rege o modo como novos peers participam, como as identidades são validadas e como os dados são replicados e custodiados. O sistema suporta nativamente três modalidades de uso através de diferentes configurações de [[specification]]s: rede pública, rede corporativa whitelabel e rede P2P pura.
+Uma **modalidade de rede** define o modelo de governança, identidade e infraestrutura da rede de dados distribuída na Plataforma Projeto SuperApp V0.41. Enquanto o formato de distribuição de software (Cloud, Web, Desktop ou Mobile) estabelece onde o código físico é executado, a modalidade de rede rege o modo como novos peers participam, como as identidades são validadas e como os dados são replicados e custodiados. O sistema suporta nativamente três modalidades de uso através de diferentes configurações de [[specification]]s: rede pública, rede corporativa whitelabel e rede P2P pura.
 
 ---
 

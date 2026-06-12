@@ -80,7 +80,7 @@ As diretrizes de governança e evolução de sincronia e committer são descrita
 
 **Atualização v4 (Colapso dos Modos)**:
 Com o advento do ecossistema V4, a eleição e o papel dos committers no Automerge Repo são reestruturados:
-* **Substrato de Agentes**: Como todos os dispositivos rodam ativamente um [[agente-de-sistema]] (`PROFILE:SYSTEM`), o modelo de coordenação simplifica-se e os quatro modos da V3.1 (`first_proposer`, `system_agent`, `deterministic`, `manual`) colapsam.
+* **Substrato de Agentes**: Como todos os dispositivos rodam ativamente um [[agente-de-sistema]] (`PROFILE:SYSTEM`), o modelo de coordenação simplifica-se e os quatro modos da V3.1(`first_proposer`, `system_agent`, `deterministic`, `manual`) colapsam.
 * **Resolução Determinística**: Em documentos comutativos (mensagens e documentos de texto), a eleição de committer torna-se determinística entre os agentes (menor `entity_id` ativo no ciclo), e o CRDT nativo do Automerge assume a convergência dos dados.
 * **Roteamento de Não-Comutativos**: Estados não-comutativos (como saldos financeiros e alterações de permissões) não utilizam o fluxo distribuído e desempates do Automerge Repo, sendo roteados diretamente para o validador declarado da linhagem para serialização estrita.
 

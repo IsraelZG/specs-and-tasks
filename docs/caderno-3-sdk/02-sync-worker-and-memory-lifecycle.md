@@ -1,6 +1,6 @@
 # 02-sync-worker-and-memory-lifecycle.md — Sync Worker & Memory Lifecycle
 
-Este documento especifica a arquitetura de execução em segundo plano, a sincronização em ondas, o ciclo de vida do cache em memória e o Garbage Collection da Plataforma V3.1.
+Este documento especifica a arquitetura de execução em segundo plano, a sincronização em ondas, o ciclo de vida do cache em memória e o Garbage Collection da Plataforma Projeto SuperApp V0.41.
 
 ---
 

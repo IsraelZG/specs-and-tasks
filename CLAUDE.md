@@ -1,4 +1,4 @@
-# Wiki da Plataforma V3.1 — convenções
+# Wiki da Plataforma Projeto SuperApp V0.41 — convenções
 
 ## Estrutura
 - docs/conceitos/<slug>.md  → verbete canônico (definição única)

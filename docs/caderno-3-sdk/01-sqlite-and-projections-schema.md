@@ -1,6 +1,6 @@
 # 01-sqlite-and-projections-schema.md — SQLite & Projections Schema
 
-Este documento descreve o schema físico do banco de dados local da Plataforma V3.1 (SQLite WASM / Better-SQLite3) e as tabelas auxiliares não-replicadas mantidas por triggers de banco de dados.
+Este documento descreve o schema físico do banco de dados local da Plataforma Projeto SuperApp V0.41 (SQLite WASM / Better-SQLite3) e as tabelas auxiliares não-replicadas mantidas por triggers de banco de dados.
 
 ---
 
@@ -48,7 +48,7 @@ CREATE TABLE edges (
 
 -- Índices: idx_nodes_pub_key e idx_edges_previous_hash continuam válidos sobre BLOB.
 -- idx_edges_target (target_id, type) já cobre a detecção de conflito (intents com SPENDS → mesmo head).
--- Demais índices da V3.1 inalterados.
+-- Demais índices da Projeto SuperApp V0.41 inalterados.
 ```
 
 ---

@@ -33,7 +33,7 @@ Em redes de livre adesão — sem custo de criação de identidade — a verific
 precisa de sinais que não dependam de terceiros confiáveis únicos. `ASSET:REPUTATION`
 é esse sinal: cresce com participação verificável e decai com comportamento
 negativo, tornando identidades valiosas custosas de construir e fáceis de perder.
-É especialmente relevante na [[rede-publica]], em contraste com a
+É especialmente relevante na [[modalidade-de-rede#1-rede-pública|rede pública]], em contraste com a
 [[rede-corporativa-whitelabel]] (onde a identidade é provisionada centralmente via
 SSO/AD) e a rede P2P pura (onde não há autoridade de verificação).
 

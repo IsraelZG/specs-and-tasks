@@ -1,6 +1,6 @@
 # 04-automerge-integration-spec.md — Automerge Integration Specification
 
-Este documento descreve como a DAG de conflitos e histórico do **Automerge** se acopla à Linhagem de Versões do Grafo de dados na Plataforma V3.1, bem como as regras e modos de coordenação de commits colaborativos.
+Este documento descreve como a DAG de conflitos e histórico do **Automerge** se acopla à Linhagem de Versões do Grafo de dados na Plataforma Projeto SuperApp V0.41, bem como as regras e modos de coordenação de commits colaborativos.
 
 ---
 
@@ -63,9 +63,9 @@ Disparado o gatilho:
 > * **Comutativo** (documento, mensagem): o agente local commita; coordenação entre agentes pelo desempate determinístico (menor `entity_id` ativo no ciclo); Automerge resolve o conteúdo. Caem `first_proposer` (racy) e `manual` (político).
 > * **Não-comutativo** (saldo, permissão): roteado ao validador declarado da linhagem; ver serialização em caderno-4/03 §3.5.
 >
-> O modo `system_agent` deixa de ser uma opção e vira o substrato. A tabela abaixo permanece como referência histórica da V3.1.
+> O modo `system_agent` deixa de ser uma opção e vira o substrato. A tabela abaixo permanece como referência histórica da Projeto SuperApp V0.41.
 
-| Modo (histórico V3.1) | Mecânica de Seleção | Caso de Uso Recomendado |
+| Modo (histórico Projeto SuperApp V0.41) | Mecânica de Seleção | Caso de Uso Recomendado |
 | :--- | :--- | :--- |
 | **`first_proposer`** | O primeiro peer a atingir a heurística do gatilho assina e insere o nó-versão. Outros peers abortam e tratam o commit como histórico de entrada. | Documentos com edição assíncrona ou apenas um editor principal habitual. |
 | **`system_agent`** | Um agente automatizado `PROFILE:SYSTEM` designado na especificação atua como o Committer exclusivo. Peers enviam suas Changes ao agente. | Documentos corporativos de alta concorrência ou fluxos estruturados. |

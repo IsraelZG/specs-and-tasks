@@ -2,7 +2,7 @@
 
 ## 1. Monetização da Rede Pública
 
-A rede pública oficial da **Plataforma V3.1** monetiza-se de forma sustentável e descentralizada, sem recorrer a anúncios invasivos ou à exploração/venda de dados pessoais. O modelo de negócios apoia-se em três pilares:
+A rede pública oficial da **Plataforma Projeto SuperApp V0.41** monetiza-se de forma sustentável e descentralizada, sem recorrer a anúncios invasivos ou à exploração/venda de dados pessoais. O modelo de negócios apoia-se em três pilares:
 
 ### 1.1 Taxas de Serviço em Transações (Fintech/Marketplace)
 * **Cobrança**: Micro-taxas cobradas em transações financeiras reguladas (via Banking-as-a-Service integrado) ou vendas concluídas no Marketplace primário de bens/serviços.
@@ -22,7 +22,7 @@ A rede pública oficial da **Plataforma V3.1** monetiza-se de forma sustentável
 
 > Conceito canônico: [[rede-corporativa-whitelabel]]
 
-As [[rede-corporativa-whitelabel|redes corporativas]] operam sob um modelo comercial e técnico próprio, permitindo que empresas licenciem a tecnologia da Plataforma V3.1 para criar seus ecossistemas de colaboração privada. As características da modalidade (marca própria, infraestrutura própria, isolamento de silo) estão definidas no verbete.
+As [[rede-corporativa-whitelabel|redes corporativas]] operam sob um modelo comercial e técnico próprio, permitindo que empresas licenciem a tecnologia da Plataforma Projeto SuperApp V0.41 para criar seus ecossistemas de colaboração privada. As características da modalidade (marca própria, infraestrutura própria, isolamento de silo) estão definidas no verbete.
 
 ### 2.1 Modelos Comerciais
 * **Self-Hosted (On-Premises)**: Licença de software anual baseada no volume de usuários ativos ([[profile-authentication|`PROFILE:AUTHENTICATION`]] provisionados) ou computadores servidores na rede. A empresa cuida da custódia total das chaves de seus validadores e [[chave-de-epoca|chaves de época]].
@@ -32,7 +32,7 @@ As [[rede-corporativa-whitelabel|redes corporativas]] operam sob um modelo comer
 
 ## 3. Governança Open Source
 
-A Plataforma V3.1 é orientada por uma governança que equilibra o dinamismo comercial e a soberania tecnológica da comunidade.
+A Plataforma Projeto SuperApp V0.41 é orientada por uma governança que equilibra o dinamismo comercial e a soberania tecnológica da comunidade.
 
 ### 3.1 Licenciamento de Software
 * **Core da Plataforma**: O núcleo do motor distribuído (banco SQLite, wrappers do [[automerge-repo|Automerge Repo]], criptografia, infraestrutura base do [[sync-worker|Sync Worker]]) é de código aberto sob licenças permissivas (como MIT ou Apache 2.0). Isso incentiva a comunidade a auditar as implementações de segurança e privacidade.

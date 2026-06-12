@@ -1,4 +1,4 @@
-Este documento descreve os processos de governança, evolução e ciclo de vida das especificações (`SPECIFICATION`) da Plataforma V3.1, bem como as diretrizes de governança e sucessão de redes.
+Este documento descreve os processos de governança, evolução e ciclo de vida das especificações (`SPECIFICATION`) da Plataforma Projeto SuperApp V0.41, bem como as diretrizes de governança e sucessão de redes.
 
 ---
 
@@ -62,7 +62,7 @@ Diferente de sistemas tradicionais, a plataforma **não necessita de código esp
 O comportamento da §3.3 é **intencional e defensável** — documentado como propriedade, não tratado como defeito a mitigar.
 
 * ✅ **Operações comutativas** (leitura, gossip, RBSR, navegação, chats, rascunhos): funcionam **independentemente** de validadores. A rede nunca perde a capacidade de ler e disseminar dados.
-* ⚠️ **(Atualização v4 — congelamento escopado por linhagem.)** Operações não-comutativas são serializadas pelo validador declarado **daquela linhagem** (§3.5). Sob partição, a linhagem cujo validador/quórum está inalcançável **congela escopadamente** — apenas aquele ativo, não a rede inteira — e **não** há eleição de substituto sem cerco (a eleição de emergência a 2/3 da V3.1 é **removida**, pois reintroduziria split-brain → double-spend). Linhagens cujo validador está alcançável seguem normalmente. O freeze deixa de ser de rede e passa a ser por ativo: mais granular e estritamente mais seguro que o modelo V3.1.
+* ⚠️ **(Atualização v4 — congelamento escopado por linhagem.)** Operações não-comutativas são serializadas pelo validador declarado **daquela linhagem** (§3.5). Sob partição, a linhagem cujo validador/quórum está inalcançável **congela escopadamente** — apenas aquele ativo, não a rede inteira — e **não** há eleição de substituto sem cerco (a eleição de emergência a 2/3 da versão anterior da documentação é **removida**, pois reintroduziria split-brain → double-spend). Linhagens cujo validador está alcançável seguem normalmente. O freeze deixa de ser de rede e passa a ser por ativo: mais granular e estritamente mais seguro que o modelo anterior.
 * 🔒 **Segurança:** a degradação para read-only **não corrompe dados, não permite operações inválidas e não perde auditabilidade**. É um *freeze*, não um *crash*.
 * 📐 **Projetado para:** redes onde auditabilidade e integridade importam mais que disponibilidade transacional de 100% em cenário de desastre (corporativas, financeiras, reguladas).
 
@@ -109,7 +109,7 @@ A economia de contribuição é **um** modelo econômico entre vários que o ASS
 - **Core entrega [[contribuicao-verificavel|medição verificável]]** (os quatro regimes do §3.3): recibos, provas de storage, amostras de compute → um registro assinado e auditável de trabalho feito.
 - **Liquidação** (virar crédito interno, fiat/remuneração real, ou só reputação) é decisão de SPEC por rede/módulo, via [[zen-engine|Zen Engine]]. A regra "contribuição → crédito" é procedimento na SPEC, não no core.
 
-Isto resolve o regresso de mint da v4 anterior: o nó de contribuição é assinado pelo agente e ancorado em evidência verificável sob demanda (spot-check de recibo/storage), **não** pré-auditado por K=5 recursivo. E atende ao objetivo de **múltiplas economias**: o mesmo mecanismo roda a economia de pontos de um módulo de fidelidade e a economia de contribuição da rede.
+Isto resolve o regresso de mint da versão anterior: o nó de contribuição é assinado pelo agente e ancorado em evidência verificável sob demanda (spot-check de recibo/storage), **não** pré-auditado por K=5 recursivo. E atende ao objetivo de **múltiplas economias**: o mesmo mecanismo roda a economia de pontos de um módulo de fidelidade e a economia de contribuição da rede.
 
 A concepção de [[economia-como-modulo]] permite que cada rede escolha sua própria estratégia de remuneração sem repercussões no core, tornando a plataforma agnóstica a modelos econômicos específicos enquanto garante auditabilidade de qualquer contribuição medida.
 

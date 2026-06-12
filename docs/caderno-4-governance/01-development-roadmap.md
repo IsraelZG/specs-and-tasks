@@ -1,10 +1,10 @@
-Este documento descreve o plano de desenvolvimento e o backlog de tarefas técnicas da Plataforma V3.1, organizados em 5 fases sequenciais.
+Este documento descreve o plano de desenvolvimento e o backlog de tarefas técnicas da Plataforma Projeto SuperApp V0.41, organizados em 5 fases sequenciais.
 
 ---
 
 ## 1. Cronograma de Fases
 
-O cronograma de implementação do Superapp V3.1 está organizado de forma a consolidar a base criptográfica e a consistência do banco de dados antes de desenvolver os motores visuais avançados e a customização dinâmica:
+O cronograma de implementação do Superapp Projeto SuperApp V0.41 está organizado de forma a consolidar a base criptográfica e a consistência do banco de dados antes de desenvolver os motores visuais avançados e a customização dinâmica:
 
 ```mermaid
 graph TD
@@ -29,7 +29,7 @@ graph TD
 * **Tarefas**:
   * **Identidade Local & BIP39**: Derivação de chaves Ed25519 a partir de seed phrases (12/24 palavras). Cifragem local com a chave do dispositivo via PBKDF2.
   * **Separação UCAN / Key Vault**: Implementação do fluxo de tokens UCAN estritamente como provas de autorização (sem material de chaves no payload) e o subsistema Key Vault no Crypto Worker para entrega de chaves de época baseada no TTL do papel ativo.
-  * **Ontologia de Permissões V3.1**: Criação de `ASSET:PERMISSION` (queries de traversal com profundidade limite $\le$ 6 e restrições de mutação) e `ASSET:ROLE` com as arestas estruturais `AGGREGATES` e `REQUIRES` conectadas ao `entity_id` estável.
+  * **Ontologia de Permissões Projeto SuperApp V0.41**: Criação de `ASSET:PERMISSION` (queries de traversal com profundidade limite $\le$ 6 e restrições de mutação) e `ASSET:ROLE` com as arestas estruturais `AGGREGATES` e `REQUIRES` conectadas ao `entity_id` estável.
   * **Templates In-Spec**: Inclusão de moldes de papéis e permissões sob chaves `permission_templates` e `role_templates` embutidos nos payloads de `SPECIFICATION`s.
   * **Recuperação Shamir (SSS)**: Divisão de chaves 2-de-3 (Dispositivo, Provedor/Fundador, Canal Externo).
 
@@ -73,9 +73,9 @@ graph TD
 
 ---
 
-## 4. Backlog de Refinamento V3.1 (Trabalho em Aberto)
+## 4. Backlog de Refinamento Projeto SuperApp V0.41 (Trabalho em Aberto)
 
-Tarefas prioritárias identificadas para consolidação da arquitetura V3.1:
+Tarefas prioritárias identificadas para consolidação da arquitetura Projeto SuperApp V0.41:
 * **Auditoria de Relações em Payload**: Varredura sistemática para garantir que arestas estruturais e de controle de acesso (como `AGGREGATES` e `REQUIRES`) residam estritamente no grafo físico indexado, nunca embutidas de forma oculta nos payloads cifrados dos nós.
 * **Definição de `validation_policy` por Permissão**: Estruturação de políticas de validação associadas a cada `ASSET:PERMISSION` para parametrizar regras executadas pelo Zen Engine por permissão.
 * **Meta-SPEC para Procedimentos Zen Engine**: Definição da especificação formal dos cabeçalhos e contratos de entrada/saída para os validadores e procedimentos executáveis em WASM.
