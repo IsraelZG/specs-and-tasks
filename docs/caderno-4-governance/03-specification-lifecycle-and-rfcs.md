@@ -167,5 +167,5 @@ A remuneração (tráfego, armazenamento, **processamento** — validações, an
 ### 7.3 Território de Pesquisa (não tratado como assentado)
 
 - **Verificação trustless de compute não-determinístico** (IA local) — fica como mercado de reputação, não ledger provado.
-- **Transferência atômica entre tipos/emissores de ativo distintos** — exige validadores de ambos os lados; modelagem futura.
+- **Transferência atômica entre tipos/emissores de ativo distintos** — parcialmente resolvida pela RFC-002 (absorvida): modelada como padrão de composição com reservas temporizadas, em tiers escalonados de isolamento — Tier 1 (default) [[saga]] com `ASSET:LOCK` e TTL, Tier 2 [[2pc-com-lock-ttl]] com coordenador confiável. HTLC foi avaliado e **descartado** ([[adr/adr-002-htlc-nao-implementar]]); swap trustless de alto valor entre estranhos permanece fora de escopo.
 - Qualquer pretensão de **bloqueio criptográfico de conteúdo público** — declarado impossível, não a implementar.
