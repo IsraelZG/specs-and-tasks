@@ -54,6 +54,19 @@ Não há identidade única global nem sincronização de dados inter-redes.
 
 A governança do comportamento operacional de uma modalidade é ditada por nós do tipo [[specification]]. O modelo de protocolo e a ontologia do grafo estão descritos em **[[caderno-2-protocol/01-graph-ontology]]** e o gerenciamento de identidades em **[[caderno-2-protocol/02-cryptographic-lineage-and-auth]]**.
 
+### Variantes por Modalidade
+
+As três modalidades diferem em dimensões críticas de protocolo e operação:
+
+| Dimensão | P2P Puro | Pública | Corporativa |
+| :--- | :--- | :--- | :--- |
+| **Identidade / Sybil** | Autogerada; [[convite-como-asset]] + diversidade + [[bond-caucao]] | Validada por autoridade (resolvido na porta) | SSO (resolvido na porta) |
+| **Serialização (default)** | `quorum` bizantino sobre anel de custódia | `quorum` entre validadores licenciados | `leader` = super peer |
+| **Sob partição** | [[congelamento-escopado]] à linhagem | Idem; autoridade tende a estar presente | Raro; failover por lease |
+| **Economia de contribuição** | Encorajada (essencial p/ regular abuso) | Encorajada (autoridade pode subsidiar leves) | Opcional (desligada por padrão) |
+| **Integridade do agente** | Auditoria + [[desafio-canary]] determinísticos | + suíte de honeypots da autoridade | + honeypots; alta confiança base |
+| **Retenção forense** | Faltas de validador perpétuas | Idem, em super peers | Idem, em super peers |
+
 ---
 
 ## Implementação ([[sdk]])
