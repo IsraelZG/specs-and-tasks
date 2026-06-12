@@ -13,7 +13,7 @@ modo: canonical
 fonte-canonica: docs/caderno-3-sdk/01-sqlite-and-projections-schema.md §2.2
 aparicoes-consolidadas:
   - docs/glossary.md §Tombstone
-  - docs/rfc-transporte-p2p-v3.1.md §2.10.3
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.10.3
 dependencias:
   - [[aresta]]
   - [[imutabilidade-dupla]]
@@ -60,7 +60,7 @@ Registros marcados como `retention_state = expunged` (ver [[retention-state]]) n
 ## Aparições a consolidar
 
 - `docs/glossary.md §Tombstone (Lápide)` — definição em uma linha; consolidada neste verbete.
-- `docs/rfc-transporte-p2p-v3.1.md §2.10.3` — repete o protocolo de quatro etapas; consolidado neste verbete.
+- `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.10.3` — repete o protocolo de quatro etapas; consolidado neste verbete.
 
 ---
 

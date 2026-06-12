@@ -6,7 +6,7 @@ tags: [governance, liveness, validadores, safety, linhagem, congelamento]
 modo: hub
 fonte-canonica: docs/caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.4
 aparicoes-consolidadas:
-  - rfc-transporte-p2p-v3.1.md §4.6
+  - caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6
 dependencias:
   - [[morte-da-rede]]
   - [[congelamento-escopado]]
@@ -31,7 +31,7 @@ O texto normativo completo — incluindo as três propriedades (comutativas livr
 
 > `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.4` (Tradeoff de Liveness dos Validadores — Formalização)
 
-A seção `rfc-transporte-p2p-v3.1.md §4.6` repete esse conteúdo quase literalmente; é aparição a consolidar (ver tabela abaixo). Leia a fonte canônica diretamente para regras normativas.
+A seção `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6` repete esse conteúdo quase literalmente; é aparição a consolidar (ver tabela abaixo). Leia a fonte canônica diretamente para regras normativas.
 
 ## Resumo estrutural
 
@@ -63,7 +63,7 @@ O protocolo [[rbsr]] detecta e registra forks estruturalmente mesmo sem validado
 
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
-| `rfc-transporte-p2p-v3.1.md` | `§4.6` (tríade de liveness quase literal) | Substituir por resumo + wikilink `[[tradeoff-liveness-validadores]]` |
+| `caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§4.6` (tríade de liveness quase literal) | Substituir por resumo + wikilink `[[tradeoff-liveness-validadores]]` |
 
 ## Dependências por onda
 

@@ -12,7 +12,7 @@ modo: canonical
 fonte-canonica: docs/caderno-3-sdk/01-sqlite-and-projections-schema.md §4.2
 aparicoes-consolidadas:
   - docs/glossary.md §transport_hints
-  - docs/rfc-transporte-p2p-v3.1.md §2.11.1
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11.1
 dependencias:
   - [[specification]]
   - [[matriz-de-classificacao-transporte]]
@@ -69,7 +69,7 @@ O tipo algébrico (`Discriminated Union`) blinda o destino físico contra protoc
 
 ## Fluxo de roteamento
 
-Quando uma ação ocorre na UI, o [[sync-worker]] executa um fluxo estrito de cinco etapas (descrito em `rfc-transporte-p2p-v3.1.md §2.11.1`):
+Quando uma ação ocorre na UI, o [[sync-worker]] executa um fluxo estrito de cinco etapas (descrito em `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11.1`):
 
 1. **Intenção (UI):** o componente visual dispara uma mutação genérica no cache em RAM ([[tinybase]]).
 2. **Interceptação (Ponte Reativa):** o *Persister* intercepta a intenção e verifica o `type` do nó.
@@ -93,7 +93,7 @@ Dados podem ser promovidos entre categorias conforme o ciclo de vida do conteúd
 ## Aparições consolidadas
 
 - `docs/glossary.md §transport_hints` — definição em uma linha; consolidada neste verbete.
-- `docs/rfc-transporte-p2p-v3.1.md §2.11.1` — repete exemplo YAML, fluxo de 5 etapas e contrato TypeScript; consolidado neste verbete com referência ao canônico.
+- `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11.1` — repete exemplo YAML, fluxo de 5 etapas e contrato TypeScript; consolidado neste verbete com referência ao canônico.
 
 ---
 

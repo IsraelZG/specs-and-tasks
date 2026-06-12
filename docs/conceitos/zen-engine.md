@@ -57,7 +57,7 @@ No modelo *state-based* (saldo `ASSET:BALANCE_STATE` atualizado via [[linhagem-d
 
 O glossário usa "Validador de Domínio" como termo geral para a autoridade com jurisdição sobre um domínio de negócio específico, descrita como "implementado como uma SPECIFICATION procedural interpretada pelo motor de regras genérico (Zen Engine)". O termo é equivalente: o Zen Engine é o *runtime*; o Validador de Domínio é o papel funcional que a SPECIFICATION exerce quando executada por ele.
 
-A RFC de transporte (`rfc-transporte-p2p-v3.1.md §4.7.3`) também cita "Validador de Domínio" no contexto do Private Swarm: *"Como não há um Validador de Domínio no Private Swarm"* — referência ao fato de que o Private Swarm não executa SPECIFICATIONs procedurais, apenas CRDTs e LWW.
+A RFC de transporte (`caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.7.3`) também cita "Validador de Domínio" no contexto do Private Swarm: *"Como não há um Validador de Domínio no Private Swarm"* — referência ao fato de que o Private Swarm não executa SPECIFICATIONs procedurais, apenas CRDTs e LWW.
 
 ## Migrações procedurais
 

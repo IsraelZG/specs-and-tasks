@@ -1,7 +1,7 @@
 # 05-wire-protocol.md — Wire Protocol: MessagePack com Framing e Evolução de Versão
 
 > **Origem normativa:** RFC-005 §A.2 (resolve a ausência de serialização/framing/versionamento — lapso 1.5).
-> **Relações:** [[caderno-2-protocol/02-cryptographic-lineage-and-auth#311-época-de-identidade-vs-épocas-de-conteúdo]] (semântica do `identity_epoch_index` e do `STALE_EPOCH`); `rfc-transporte-p2p-v3.1.md §2.9` (consciência de época e relógio); [[caderno-3-sdk/01-sqlite-and-projections-schema]] (`retention_state = 3`, quarentena de órfãos).
+> **Relações:** [[caderno-2-protocol/02-cryptographic-lineage-and-auth#311-época-de-identidade-vs-épocas-de-conteúdo]] (semântica do `identity_epoch_index` e do `STALE_EPOCH`); `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.9` (consciência de época e relógio); [[caderno-3-sdk/01-sqlite-and-projections-schema]] (`retention_state = 3`, quarentena de órfãos).
 
 ---
 

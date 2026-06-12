@@ -12,7 +12,7 @@ modo: canonical
 fonte-canonica: docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.3
 aparicoes-consolidadas:
   - docs/glossary.md §Index Worker
-  - docs/rfc-transporte-p2p-v3.1.md §3.1
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.1
 dependencias:
   - [[sync-worker]]
   - [[crypto-worker]]
@@ -64,7 +64,7 @@ Fonte: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1](file:///c:/Dev
 As seguintes definições duplicadas foram consolidadas neste verbete:
 
 - `docs/glossary.md §Index Worker`
-- `docs/rfc-transporte-p2p-v3.1.md §3.1`
+- `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.1`
 
 ---
 

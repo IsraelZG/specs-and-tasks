@@ -8,7 +8,7 @@ modo: hub
 
 # Poda Segura
 
-**Modo hub** — definição normativa completa em `rfc-transporte-p2p-v3.1.md §4.3`.
+**Modo hub** — definição normativa completa em `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.3`.
 
 ---
 
@@ -73,7 +73,7 @@ O protocolo é executado na camada de transporte e opera em três barreiras de p
 
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
-| `docs/rfc-transporte-p2p-v3.1.md` | `§4.3` | Fonte canônica — acrescentar link `[[poda-segura]]` no título |
+| `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§4.3` | Fonte canônica — acrescentar link `[[poda-segura]]` no título |
 | `docs/glossary.md` | `§Poda Segura` | Substituir definição redundante por link `[[poda-segura]]` |
 
 

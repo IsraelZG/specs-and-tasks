@@ -8,13 +8,13 @@ modo: canonical
 
 # Swarm Registry
 
-**Modo canonical** — fonte normativa: `rfc-transporte-p2p-v3.1.md §3.2.2`. Glossário (`glossary.md §SwarmRegistry`) consolidado aqui.
+**Modo canonical** — fonte normativa: `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.2`. Glossário (`glossary.md §SwarmRegistry`) consolidado aqui.
 
 > Aparições consolidadas:
 > - `glossary.md §SwarmRegistry` — definição curta (canonical aqui).
-> - `rfc-transporte-p2p-v3.1.md §3.2.2` — heartbeat, health check e timers (fonte normativa principal).
-> - `rfc-transporte-p2p-v3.1.md §2.5.2` / `glossary.md §RelayTrustModel` — score local e shadowban de relays.
-> - `rfc-transporte-p2p-v3.1.md §3.2.3` — monitoramento de líder e failover de RBSR.
+> - `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.2` — heartbeat, health check e timers (fonte normativa principal).
+> - `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.5.2` / `glossary.md §RelayTrustModel` — score local e shadowban de relays.
+> - `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.3` — monitoramento de líder e failover de RBSR.
 
 ---
 
@@ -34,7 +34,7 @@ Para detalhes de produto e o papel do transporte como recurso gerido, consulte o
 
 ## Contrato ([[protocol]])
 
-O comportamento e as regras de controle do `SwarmRegistry` são regidos pela especificação de protocolo descrita em [rfc-transporte-p2p-v3.1.md](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L355-L371). Como este verbete em modo `canonical` é o lugar canônico de sua definição no wiki, o contrato normativo do protocolo de heartbeat e a máquina de estados associada estão descritos abaixo.
+O comportamento e as regras de controle do `SwarmRegistry` são regidos pela especificação de protocolo descrita em [caderno-5-transport/01-p2p-transport-and-reconciliation.md](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L355-L371). Como este verbete em modo `canonical` é o lugar canônico de sua definição no wiki, o contrato normativo do protocolo de heartbeat e a máquina de estados associada estão descritos abaixo.
 
 ### Heartbeat e Health Check (RFC §3.2.2)
 
@@ -63,7 +63,7 @@ A execução lógica reside no [[sync-worker]] rodando fora da Main Thread, comu
 * **[[global-network-throttle]] (Alocação de Banda):** Alocação de banda e recursos de soquetes locais com base na visibilidade dos swarms (70% para aba ativa, 20% para aba visível, 10% para background; mobile com bateria < 30% causa pausa de background).
 * **[[connection-promotion-engine]] (Promoção de Conexões):** Tentativas em segundo plano para perfurar NAT (STUN) e migrar túneis de relays WebRTC para conexões P2P diretas.
 
-Para a arquitetura detalhada e orquestração de workers no cliente, consulte o [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md) e a [rfc-transporte-p2p-v3.1.md §3.2.2](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L355-L371).
+Para a arquitetura detalhada e orquestração de workers no cliente, consulte o [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md) e a [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.2](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L355-L371).
 
 ---
 
@@ -71,7 +71,7 @@ Para a arquitetura detalhada e orquestração de workers no cliente, consulte o 
 
 O SwarmRegistry atua como o validador em tempo de execução da integridade da malha e dos compromissos assumidos pelos peers na rede. Tiers de capacidade e compromisso (banda, armazenamento, uptime) declarados e observados orientam a eleição de líderes e a distribuição de custódia na modalidade de rede adotada (Corporativa, Pública ou P2P Pura). Mudanças nas quotas globais, tempos de cool-off e limites de inatividade são definidos no nível de especificação de rede (`SPECIFICATION:NETWORK_GOVERNANCE`).
 
-A governança de rede e o ciclo de vida do bootstrap da rede estão descritos no [caderno-4-governance/03-specification-lifecycle-and-rfcs.md](file:///c:/Dev2026/Docs/docs/caderno-4-governance/03-specification-lifecycle-and-rfcs.md) e na [rfc-transporte-p2p-v3.1.md §3.2.4](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L386-L438).
+A governança de rede e o ciclo de vida do bootstrap da rede estão descritos no [caderno-4-governance/03-specification-lifecycle-and-rfcs.md](file:///c:/Dev2026/Docs/docs/caderno-4-governance/03-specification-lifecycle-and-rfcs.md) e na [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.4](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L386-L438).
 
 ---
 

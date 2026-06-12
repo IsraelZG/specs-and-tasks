@@ -43,6 +43,6 @@ Não há planos de substituição; o formato `(pt << 16) | c` como inteiro é es
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
 | `glossary.md` | `§HLC` | Substituir o corpo inteiro pelo wikilink `[[hlc]]` |
-| `rfc-transporte-p2p-v3.1.md` | `§2.9` | DELETAR a repetição do algoritmo; substituir por `[[hlc]]` com link explícito para `[[caderno-2-protocol/02-cryptographic-lineage-and-auth#36-ordenação-causal-hlc-e-seleção-de-head]]` |
+| `caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§2.9` | DELETAR a repetição do algoritmo; substituir por `[[hlc]]` com link explícito para `[[caderno-2-protocol/02-cryptographic-lineage-and-auth#36-ordenação-causal-hlc-e-seleção-de-head]]` |
 
 

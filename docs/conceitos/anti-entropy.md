@@ -8,7 +8,7 @@ fonte-canonica: docs/caderno-2-protocol/03-set-reconciliation-protocol.md §1.1,
 aparicoes-consolidadas:
   - glossary.md §Anti-Entropy O(1)
   - caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §3.1
-  - rfc-transporte-p2p-v3.1.md §2.8 e Apêndice B
+  - caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.8 e Apêndice B
 dependencias:
   - [[rbsr]]
   - [[fingerprint]]

@@ -6,7 +6,7 @@ tags: [protocol, sincronizacao, reconciliacao, criptografia, rbsr]
 modo: hub
 fonte-canonica: docs/caderno-2-protocol/03-set-reconciliation-protocol.md §1.1
 aparicoes-consolidadas:
-  - rfc-transporte-p2p-v3.1.md §2.6.1 (repete fórmulas e justificativa 256 bits)
+  - caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.6.1 (repete fórmulas e justificativa 256 bits)
 dependencias:
   - [[rbsr]]
   - [[range-footer]]

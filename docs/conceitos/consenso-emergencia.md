@@ -6,7 +6,7 @@ tags: [governance, liveness, validadores, consenso, emergencia, v3.1-removido, v
 modo: hub
 fonte-canonica: docs/caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.4
 aparicoes-consolidadas:
-  - rfc-transporte-p2p-v3.1.md §4.6
+  - caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6
 dependencias:
   - [[tradeoff-liveness-validadores]]
   - [[morte-da-rede]]
@@ -30,7 +30,7 @@ O raciocínio completo — incluindo por que a eleição de emergência a 2/3 é
 
 > `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.4` (Tradeoff de Liveness dos Validadores — Formalização)
 
-A seção `rfc-transporte-p2p-v3.1.md §4.6` repete esse conteúdo; é aparição a consolidar (ver abaixo).
+A seção `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6` repete esse conteúdo; é aparição a consolidar (ver abaixo).
 
 ## Resumo estrutural
 
@@ -58,7 +58,7 @@ O cenário em que **todos** os validadores de uma linhagem se tornam permanentem
 
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
-| `rfc-transporte-p2p-v3.1.md` | `§4.6` (menciona remoção da eleição de emergência a 2/3) | Substituir por resumo + wikilink `[[consenso-emergencia]]` |
+| `caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§4.6` (menciona remoção da eleição de emergência a 2/3) | Substituir por resumo + wikilink `[[consenso-emergencia]]` |
 
 ## Dependências por onda
 

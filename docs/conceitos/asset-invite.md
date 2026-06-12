@@ -7,12 +7,12 @@ tags: [protocol, asset, identidade, sybil, web-of-trust]
 
 # ASSET:INVITE
 
-**Modo canonical** — fontes normativas: `rfc-transporte-p2p-v3.1.md §2.4.4` e
+**Modo canonical** — fontes normativas: `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4.4` e
 `rfc-v4.md §4.2`. Glossário (`glossary.md §ASSET:INVITE`) consolidado aqui.
 
 > Aparições consolidadas:
 > - `glossary.md §ASSET:INVITE` — definição curta; canonical aqui.
-> - `rfc-transporte-p2p-v3.1.md §2.4.4` — payload, cerimônia de consumo e limites honestos (fonte normativa principal).
+> - `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4.4` — payload, cerimônia de consumo e limites honestos (fonte normativa principal).
 > - `rfc-v4.md §4.2` — papel na defesa Sybil e gate por standing (fonte normativa complementar).
 
 ---
@@ -35,7 +35,7 @@ rate-limiter primário contra proliferação de identidades (defesa Sybil).
 
 ## Payload (RFC §2.4.4)
 
-Texto literal da fonte normativa (`rfc-transporte-p2p-v3.1.md §2.4.4`):
+Texto literal da fonte normativa (`caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4.4`):
 
 ```
 { multiaddr/rendezvous hints, invite_code (aponta ao ASSET:INVITE no grafo),
@@ -46,7 +46,7 @@ Texto literal da fonte normativa (`rfc-transporte-p2p-v3.1.md §2.4.4`):
 
 ## Cerimônia de consumo (RFC §2.4.4)
 
-Reproduzido literalmente de `rfc-transporte-p2p-v3.1.md §2.4.4`:
+Reproduzido literalmente de `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4.4`:
 
 > invitee conecta → Noise_XX → apresenta `invite_code` → inviter/peer‑do‑sistema
 > valida que o `ASSET:INVITE` está não‑gasto → invitee cria

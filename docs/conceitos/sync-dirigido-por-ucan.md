@@ -29,7 +29,7 @@ Conforme `caderno-2-protocol/03-set-reconciliation-protocol.md §2`:
 
 > **Execução Restrita**: A troca de XORs de ranges da B-Tree ocorre estritamente nos escopos autorizados comuns. Um peer sem um UCAN ativo contendo permissão de acesso sobre um subgrafo nunca receberá, transmitirá ou verificará fingerprints de ranges pertencentes a esse subgrafo, blindando metadados na camada de transporte.
 
-A RFC de transporte (`rfc-transporte-p2p-v3.1.md §2.7`) sintetiza o enforcement bilateral:
+A RFC de transporte (`caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.7`) sintetiza o enforcement bilateral:
 
 > **Enforcement bilateral.** A validação é feita pelo lado que **fornece** o dado: ele valida assinaturas e cadeia de delegação do UCAN anexado à requisição antes de servir qualquer delta. Um peer sem UCAN ativo sobre um subgrafo **nunca** recebe, transmite ou verifica fingerprints daquele subgrafo — blindando metadados na camada de transporte.
 
@@ -58,6 +58,6 @@ O sync dirigido por UCAN opera como **pré-condição** do protocolo [[rbsr]]: a
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
 | `caderno-2-protocol/03-set-reconciliation-protocol.md` | `§2` | Fonte canônica — acrescentar wikilink `[[sync-dirigido-por-ucan]]` no título da seção |
-| `rfc-transporte-p2p-v3.1.md` | `§2.7` | Substituir definição inline por referência `[[sync-dirigido-por-ucan]]`; manter o detalhe de enforcement bilateral como nota local |
+| `caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§2.7` | Substituir definição inline por referência `[[sync-dirigido-por-ucan]]`; manter o detalhe de enforcement bilateral como nota local |
 
 

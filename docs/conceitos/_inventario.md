@@ -1,6 +1,6 @@
 # Inventário de Conceitos — Plataforma V3.1
 
-Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, rfc-transporte-p2p-v3.1.md, rfc-v4.md, rfc-transacoes-multidominio.md e backlog-geral.md. Finalidade: mapear onde cada conceito está definido canonicamente e onde está sendo **redefinido**, sinalizando alvos de consolidação para a Fase 2 (criação de verbetes em `docs/conceitos/<slug>.md`).
+Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, caderno-5-transport/01-p2p-transport-and-reconciliation.md, rfc-v4.md, rfc-transacoes-multidominio.md e backlog-geral.md. Finalidade: mapear onde cada conceito está definido canonicamente e onde está sendo **redefinido**, sinalizando alvos de consolidação para a Fase 2 (criação de verbetes em `docs/conceitos/<slug>.md`).
 
 **Legenda**:
 - Coluna "definição canônica atual": arquivo e seção com a definição mais completa e autoritativa hoje.
@@ -39,13 +39,13 @@ Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, rfc-tra
 | `asset-balance-state` | `caderno-2-protocol/01-graph-ontology.md §3.3` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §2.2` (define mecânica sem somatório) | protocol |
 | `asset-lock` | `caderno-2-protocol/01-graph-ontology.md §3.3` | `glossary.md §ASSET:LOCK como Reserva`; `rfc-transacoes-multidominio.md §2` (saga TTL); `caderno-3-sdk/01-sqlite-and-projections-schema.md §3.3` (nota v4) ★★ | protocol |
 | `asset-inventory` | `caderno-2-protocol/01-graph-ontology.md §3.3` | — | protocol |
-| `asset-invite` | `glossary.md §ASSET:INVITE` | `rfc-transporte-p2p-v3.1.md §2.4.4`; `rfc-v4.md §4.2` ★★ | protocol |
+| `asset-invite` | `glossary.md §ASSET:INVITE` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4.4`; `rfc-v4.md §4.2` ★★ | protocol |
 | `asset-reputation` | `caderno-1-vision/01-vision-and-positioning.md §4.1` | — | vision |
 | `specification` | `caderno-2-protocol/01-graph-ontology.md §3.4` | `glossary.md §SPECIFICATION`; `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §1` (redefine natureza dual) ★★ | protocol |
 | `specification-schema` | `caderno-2-protocol/01-graph-ontology.md §3.4` | — | protocol |
 | `specification-workflow` | `caderno-2-protocol/01-graph-ontology.md §3.4` | — | protocol |
 | `specification-network-governance` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3` | `caderno-2-protocol/01-graph-ontology.md §3.4`; `caderno-1-vision/01-vision-and-positioning.md §5` ★ | governance |
-| `specification-network-birth` | `rfc-transporte-p2p-v3.1.md §3.2.4` | `glossary.md §NETWORK_BIRTH`; `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §6` ★ | protocol |
+| `specification-network-birth` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.4` | `glossary.md §NETWORK_BIRTH`; `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §6` ★ | protocol |
 | `minimalismo-ontologico` | `caderno-2-protocol/01-graph-ontology.md §4` | — | protocol |
 | `discovery-by-graph` | `caderno-2-protocol/01-graph-ontology.md §4.1` | — | protocol |
 
@@ -61,7 +61,7 @@ Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, rfc-tra
 | `participates-in` | `caderno-2-protocol/01-graph-ontology.md §2` | `glossary.md §PARTICIPATES_IN` ★ | protocol |
 | `resulted-from` | `glossary.md §RESULTED_FROM` | — | protocol |
 | `resolves` | `glossary.md §RESOLVES` | — | protocol |
-| `mutates` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.2` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §1` (schema); `rfc-transporte-p2p-v3.1.md §2.10.1` | protocol |
+| `mutates` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.2` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §1` (schema); `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.10.1` | protocol |
 | `spends` | `caderno-2-protocol/01-graph-ontology.md §2.2` | `glossary.md §SPENDS`; `rfc-v4.md §3.2` ★ | protocol |
 | `credits` | `caderno-2-protocol/01-graph-ontology.md §2.2` | `glossary.md §CREDITS`; `rfc-v4.md §3.2` ★ | protocol |
 | `transfers-aresta` | `rfc-v4.md §3.2` | `caderno-2-protocol/01-graph-ontology.md §2.2` (mencionado) | protocol |
@@ -77,12 +77,12 @@ Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, rfc-tra
 
 | conceito (slug) | definição canônica atual (arquivo:seção) | outras aparições (redefinições) | nível |
 |:---|:---|:---|:---|
-| `peer-id` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §1.4` | `glossary.md §PeerId`; `rfc-transporte-p2p-v3.1.md §2.2` (repete fórmula e contexto) ★★ | protocol |
-| `ucan` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §2.2` | `glossary.md §UCAN`; `rfc-transporte-p2p-v3.1.md §2.7` (redefine no contexto de sync) ★★ | protocol |
-| `key-vault` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §2.2` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.2`; `rfc-transporte-p2p-v3.1.md §3.1` ★★ | protocol |
+| `peer-id` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §1.4` | `glossary.md §PeerId`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.2` (repete fórmula e contexto) ★★ | protocol |
+| `ucan` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §2.2` | `glossary.md §UCAN`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.7` (redefine no contexto de sync) ★★ | protocol |
+| `key-vault` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §2.2` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.2`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.1` ★★ | protocol |
 | `predicado-de-bloqueio` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §2.2.1` | `rfc-v4.md §2.8` ★ | protocol |
-| `linhagem-de-versoes` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.2` | `glossary.md §Linhagem de Versões`; `caderno-2-protocol/04-automerge-integration-spec.md §1`; `rfc-transporte-p2p-v3.1.md §2.10.1` ★★ | protocol |
-| `hlc` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.5` | `glossary.md §HLC`; `rfc-transporte-p2p-v3.1.md §2.9` (repete algoritmo completo) ★★ | protocol |
+| `linhagem-de-versoes` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.2` | `glossary.md §Linhagem de Versões`; `caderno-2-protocol/04-automerge-integration-spec.md §1`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.10.1` ★★ | protocol |
+| `hlc` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.5` | `glossary.md §HLC`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.9` (repete algoritmo completo) ★★ | protocol |
 | `head` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.5.1` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §3.1` (trigger entity_heads) | protocol |
 | `imutabilidade-dupla` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.2` | — | protocol |
 | `chave-mestra-ed25519` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.1` | — | protocol |
@@ -94,8 +94,8 @@ Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, rfc-tra
 | `shamir-sss` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §4.2` | `backlog-geral.md §Fase 1` | protocol |
 | `modelo-soberano-bip39` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §4.3` | — | governance |
 | `delegacao-persona-corporativa` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §1.5` | — | protocol |
-| `stale-epoch` | `rfc-transporte-p2p-v3.1.md §2.9` | `glossary.md §STALE_EPOCH` ★ | protocol |
-| `noise-xx` | `rfc-transporte-p2p-v3.1.md §2.2.1` | `glossary.md §Noise Protocol Framework / Noise_XX`; `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §1.4.1` ★ | protocol |
+| `stale-epoch` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.9` | `glossary.md §STALE_EPOCH` ★ | protocol |
+| `noise-xx` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.2.1` | `glossary.md §Noise Protocol Framework / Noise_XX`; `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §1.4.1` ★ | protocol |
 | `bloqueio-social` | `rfc-v4.md §2.8` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §2.2.1`; `glossary.md §Bloqueio Social` ★ | protocol |
 
 ---
@@ -104,32 +104,32 @@ Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, rfc-tra
 
 | conceito (slug) | definição canônica atual (arquivo:seção) | outras aparições (redefinições) | nível |
 |:---|:---|:---|:---|
-| `rbsr` | `caderno-2-protocol/03-set-reconciliation-protocol.md §1` | `glossary.md §RBSR`; `rfc-transporte-p2p-v3.1.md §2.6` (redefine protocolo completo) ★★ | protocol |
-| `fingerprint` | `caderno-2-protocol/03-set-reconciliation-protocol.md §1.1` | `rfc-transporte-p2p-v3.1.md §2.6.1` (repete fórmulas e justificativa 256 bits) ★ | protocol |
-| `range-footer` | `caderno-2-protocol/03-set-reconciliation-protocol.md §1.2` | `glossary.md §RangeFooter`; `rfc-transporte-p2p-v3.1.md §2.6.3` (repete struct e semântica) ★★ | protocol |
-| `nonce-challenge` | `caderno-2-protocol/03-set-reconciliation-protocol.md §1.3` | `rfc-transporte-p2p-v3.1.md §2.6.4` ★ | protocol |
-| `onda` | `caderno-2-protocol/03-set-reconciliation-protocol.md §4` | `glossary.md §Onda`; `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §3`; `rfc-transporte-p2p-v3.1.md §2.8` ★★★ | protocol |
-| `anti-entropy` | `caderno-2-protocol/03-set-reconciliation-protocol.md §1.2, §4` | `glossary.md §Anti-Entropy O(1)`; `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §3.1`; `rfc-transporte-p2p-v3.1.md §2.8` ★★ | protocol |
-| `replication-factor` | `caderno-2-protocol/03-set-reconciliation-protocol.md §3.1` | `rfc-transporte-p2p-v3.1.md §4.2.1` ★ | protocol |
-| `consistent-hashing` | `caderno-2-protocol/03-set-reconciliation-protocol.md §3.3` | `glossary.md §Consistent Hashing`; `rfc-transporte-p2p-v3.1.md §4.2.1` ★ | protocol |
-| `snapshot-de-bootstrap` | `caderno-2-protocol/03-set-reconciliation-protocol.md §5` | `rfc-transporte-p2p-v3.1.md §4.2.3` (menciona) | protocol |
-| `poda-segura` | `rfc-transporte-p2p-v3.1.md §4.3` | `glossary.md §Poda Segura` ★ | protocol |
-| `sync-dirigido-por-ucan` | `caderno-2-protocol/03-set-reconciliation-protocol.md §2` | `rfc-transporte-p2p-v3.1.md §2.7` ★ | protocol |
-| `graph-based-routing` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §3 Onda 3` | `glossary.md §Graph-Based Routing`; `rfc-transporte-p2p-v3.1.md §3.4` (indiretamente via WebTorrent) ★ | sdk |
-| `connection-promotion-engine` | `rfc-transporte-p2p-v3.1.md §2.5.1` | `glossary.md §ConnectionPromotionEngine` ★ | protocol |
-| `relay-trust-model` | `rfc-transporte-p2p-v3.1.md §2.5.2` | `glossary.md §RelayTrustModel` ★ | sdk |
-| `swarm-registry` | `rfc-transporte-p2p-v3.1.md §3.2.2` | `glossary.md §SwarmRegistry` ★ | sdk |
-| `bootstrap-hibrido` | `rfc-transporte-p2p-v3.1.md §2.4` | — | protocol |
-| `bootstrap-frio-absoluto` | `glossary.md §Bootstrap Frio Absoluto` | `rfc-transporte-p2p-v3.1.md §2.4.1` | protocol |
-| `bootstrap-morno` | `glossary.md §Bootstrap Morno` | `rfc-transporte-p2p-v3.1.md §2.4.1` | protocol |
-| `dht-descartada` | `glossary.md §DHT` | `rfc-transporte-p2p-v3.1.md §2.4` (motivação explícita) | protocol |
-| `link-multiaddr` | `glossary.md §Link Multiaddr` | `rfc-transporte-p2p-v3.1.md §2.4.4` | protocol |
-| `global-network-throttle` | `rfc-transporte-p2p-v3.1.md §3.2.5` | `glossary.md §GlobalThrottle`; `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §7` ★ | sdk |
-| `concurrent-reconciliation-guard` | `rfc-transporte-p2p-v3.1.md §3.3` | — | sdk |
-| `private-swarm` | `rfc-transporte-p2p-v3.1.md §4.7` | `glossary.md §Private Swarm` ★ | sdk |
-| `webtorrent-blobs` | `rfc-transporte-p2p-v3.1.md §3.4` | — | sdk |
-| `genesis-da-rede` | `rfc-transporte-p2p-v3.1.md §3.2.4` | — | governance |
-| `matriz-de-classificacao-transporte` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §4` | `rfc-transporte-p2p-v3.1.md §2.11` ★ | protocol |
+| `rbsr` | `caderno-2-protocol/03-set-reconciliation-protocol.md §1` | `glossary.md §RBSR`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.6` (redefine protocolo completo) ★★ | protocol |
+| `fingerprint` | `caderno-2-protocol/03-set-reconciliation-protocol.md §1.1` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.6.1` (repete fórmulas e justificativa 256 bits) ★ | protocol |
+| `range-footer` | `caderno-2-protocol/03-set-reconciliation-protocol.md §1.2` | `glossary.md §RangeFooter`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.6.3` (repete struct e semântica) ★★ | protocol |
+| `nonce-challenge` | `caderno-2-protocol/03-set-reconciliation-protocol.md §1.3` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.6.4` ★ | protocol |
+| `onda` | `caderno-2-protocol/03-set-reconciliation-protocol.md §4` | `glossary.md §Onda`; `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §3`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.8` ★★★ | protocol |
+| `anti-entropy` | `caderno-2-protocol/03-set-reconciliation-protocol.md §1.2, §4` | `glossary.md §Anti-Entropy O(1)`; `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §3.1`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.8` ★★ | protocol |
+| `replication-factor` | `caderno-2-protocol/03-set-reconciliation-protocol.md §3.1` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.2.1` ★ | protocol |
+| `consistent-hashing` | `caderno-2-protocol/03-set-reconciliation-protocol.md §3.3` | `glossary.md §Consistent Hashing`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.2.1` ★ | protocol |
+| `snapshot-de-bootstrap` | `caderno-2-protocol/03-set-reconciliation-protocol.md §5` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.2.3` (menciona) | protocol |
+| `poda-segura` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.3` | `glossary.md §Poda Segura` ★ | protocol |
+| `sync-dirigido-por-ucan` | `caderno-2-protocol/03-set-reconciliation-protocol.md §2` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.7` ★ | protocol |
+| `graph-based-routing` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §3 Onda 3` | `glossary.md §Graph-Based Routing`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.4` (indiretamente via WebTorrent) ★ | sdk |
+| `connection-promotion-engine` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.5.1` | `glossary.md §ConnectionPromotionEngine` ★ | protocol |
+| `relay-trust-model` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.5.2` | `glossary.md §RelayTrustModel` ★ | sdk |
+| `swarm-registry` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.2` | `glossary.md §SwarmRegistry` ★ | sdk |
+| `bootstrap-hibrido` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4` | — | protocol |
+| `bootstrap-frio-absoluto` | `glossary.md §Bootstrap Frio Absoluto` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4.1` | protocol |
+| `bootstrap-morno` | `glossary.md §Bootstrap Morno` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4.1` | protocol |
+| `dht-descartada` | `glossary.md §DHT` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4` (motivação explícita) | protocol |
+| `link-multiaddr` | `glossary.md §Link Multiaddr` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4.4` | protocol |
+| `global-network-throttle` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.5` | `glossary.md §GlobalThrottle`; `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §7` ★ | sdk |
+| `concurrent-reconciliation-guard` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.3` | — | sdk |
+| `private-swarm` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.7` | `glossary.md §Private Swarm` ★ | sdk |
+| `webtorrent-blobs` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.4` | — | sdk |
+| `genesis-da-rede` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.4` | — | governance |
+| `matriz-de-classificacao-transporte` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §4` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11` ★ | protocol |
 
 ---
 
@@ -139,13 +139,13 @@ Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, rfc-tra
 |:---|:---|:---|:---|
 | `crdt` | `glossary.md §CRDT` | — | protocol |
 | `automerge` | `caderno-2-protocol/04-automerge-integration-spec.md` (todo caderno) | `glossary.md §Automerge` | protocol |
-| `automerge-repo` | `caderno-2-protocol/04-automerge-integration-spec.md §2` | `glossary.md §Automerge Repo`; `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1`; `rfc-transporte-p2p-v3.1.md §2.1` ★★ | protocol |
+| `automerge-repo` | `caderno-2-protocol/04-automerge-integration-spec.md §2` | `glossary.md §Automerge Repo`; `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.1` ★★ | protocol |
 | `changes` | `caderno-2-protocol/04-automerge-integration-spec.md §3.1` | `glossary.md §Changes` ★ | protocol |
-| `ephemeral-messages` | `caderno-2-protocol/04-automerge-integration-spec.md §4.1` | `glossary.md §Ephemeral Messages`; `rfc-transporte-p2p-v3.1.md §2.1` ★ | protocol |
-| `documento-casca` | `caderno-2-protocol/04-automerge-integration-spec.md §2` | `glossary.md §Documento Casca`; `rfc-transporte-p2p-v3.1.md §2.3`; `rfc-transporte-p2p-v3.1.md Apêndice B` ★★★ | protocol |
+| `ephemeral-messages` | `caderno-2-protocol/04-automerge-integration-spec.md §4.1` | `glossary.md §Ephemeral Messages`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.1` ★ | protocol |
+| `documento-casca` | `caderno-2-protocol/04-automerge-integration-spec.md §2` | `glossary.md §Documento Casca`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.3`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md Apêndice B` ★★★ | protocol |
 | `ciclo-de-commit` | `caderno-2-protocol/04-automerge-integration-spec.md §3` | — | protocol |
 | `eleicao-de-committer` | `caderno-2-protocol/04-automerge-integration-spec.md §4` | — | protocol |
-| `fork-resolucao` | `caderno-2-protocol/04-automerge-integration-spec.md §4.2` | `rfc-transporte-p2p-v3.1.md §2.10.2`; `rfc-transporte-p2p-v3.1.md §4.6` ★ | protocol |
+| `fork-resolucao` | `caderno-2-protocol/04-automerge-integration-spec.md §4.2` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.10.2`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6` ★ | protocol |
 | `merge-aditivo` | `caderno-2-protocol/04-automerge-integration-spec.md §4.3` | `rfc-v4.md §2.4` ★ | protocol |
 | `mfa-s` | `glossary.md §MFA-S` | `caderno-4-governance/01-development-roadmap.md §Fase 2` (redefine como "Multi-Factor Audit Semantic") ★ | protocol |
 | `pending-changes` | `caderno-2-protocol/04-automerge-integration-spec.md §3.1` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §4` (menciona) | sdk |
@@ -159,7 +159,7 @@ Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, rfc-tra
 | `sqlite-wasm` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §1` | `caderno-1-vision/01-vision-and-positioning.md §3.2` (menciona) | sdk |
 | `opfs` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §1` | `caderno-1-vision/01-vision-and-positioning.md §3.2` | sdk |
 | `vfk` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §2.1` | `glossary.md §Virtual Foreign Key` ★ | sdk |
-| `retention-state` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §1` (schema `integral\|pruned\|expunged`) | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §4`; `rfc-transporte-p2p-v3.1.md §4.3` | sdk |
+| `retention-state` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §1` (schema `integral\|pruned\|expunged`) | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §4`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.3` | sdk |
 | `tombstone-lapide` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §2.2` | `glossary.md §Tombstone` ★ | sdk |
 | `transport-hints` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §4.2` | `glossary.md §transport_hints` ★ | sdk |
 | `entity-heads` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §3.1` | — | sdk |
@@ -178,11 +178,11 @@ Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, rfc-tra
 
 | conceito (slug) | definição canônica atual (arquivo:seção) | outras aparições (redefinições) | nível |
 |:---|:---|:---|:---|
-| `sync-worker` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1` | `glossary.md §Sync Worker`; `rfc-transporte-p2p-v3.1.md §3.1` ★★ | sdk |
-| `crypto-worker` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.2` | `glossary.md §Crypto Worker`; `rfc-transporte-p2p-v3.1.md §3.1` ★★ | sdk |
-| `index-worker` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.3` | `glossary.md §Index Worker`; `rfc-transporte-p2p-v3.1.md §3.1` ★ | sdk |
+| `sync-worker` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1` | `glossary.md §Sync Worker`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.1` ★★ | sdk |
+| `crypto-worker` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.2` | `glossary.md §Crypto Worker`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.1` ★★ | sdk |
+| `index-worker` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.3` | `glossary.md §Index Worker`; `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.1` ★ | sdk |
 | `tinybase` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §2` | `glossary.md §TinyBase` ★ | sdk |
-| `g4-garbage-collection` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §4` | `rfc-transporte-p2p-v3.1.md §4.5` (redefine pools LRU/Rarest-First) ★ | sdk |
+| `g4-garbage-collection` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §4` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.5` (redefine pools LRU/Rarest-First) ★ | sdk |
 | `zen-engine` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1` | `glossary.md §Validador de Domínio` (nome diferente!); `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §1.1` ★★ | sdk |
 | `first-peer-protocol` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §6` | `glossary.md §First Peer Protocol` ★ | sdk |
 | `genesis-state` | `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §6` | `glossary.md §GENESIS` ★ | sdk |
@@ -229,9 +229,9 @@ Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, rfc-tra
 | `specification-versionamento-semver` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §1.2` | — | governance |
 | `specification-extensao-extends` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §1.3` | — | governance |
 | `rfc-processo` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §2` | — | governance |
-| `tradeoff-liveness-validadores` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.4` | `rfc-transporte-p2p-v3.1.md §4.6` (repete propriedades e esclarecimento SPOF) ★ | governance |
-| `consenso-emergencia` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.4` | `rfc-transporte-p2p-v3.1.md §4.6` ★ | governance |
-| `morte-da-rede` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.3` | `rfc-transporte-p2p-v3.1.md §4.6` ★ | governance |
+| `tradeoff-liveness-validadores` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.4` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6` (repete propriedades e esclarecimento SPOF) ★ | governance |
+| `consenso-emergencia` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.4` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6` ★ | governance |
+| `morte-da-rede` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.3` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6` ★ | governance |
 | `sucessao-por-quorum` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.2` | — | governance |
 | `congelamento-escopado` | `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.4` | `rfc-v4.md §2.3` (formaliza por linhagem) ★ | governance |
 | `defesa-sybil` | `rfc-v4.md §4.2` | — | governance |
@@ -248,13 +248,13 @@ Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, rfc-tra
 | `rede-publica` | `caderno-1-vision/01-vision-and-positioning.md §4.1` | `caderno-1-vision/03-legal-and-compliance-framework.md §1.2` | vision |
 | `rede-corporativa-whitelabel` | `caderno-1-vision/01-vision-and-positioning.md §4.2` | `glossary.md §Whitelabel`; `caderno-1-vision/02-business-models-and-licensing.md §2`; `caderno-1-vision/03-legal-and-compliance-framework.md §1.1` ★ | vision |
 | `rede-p2p-pura` | `caderno-1-vision/01-vision-and-positioning.md §4.3` | `caderno-1-vision/03-legal-and-compliance-framework.md §1.3` | vision |
-| `pragmatismo-topologico` | `caderno-1-vision/01-vision-and-positioning.md §2.1` | `rfc-transporte-p2p-v3.1.md §1.2` (repete raciocínio) ★ | vision |
+| `pragmatismo-topologico` | `caderno-1-vision/01-vision-and-positioning.md §2.1` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §1.2` (repete raciocínio) ★ | vision |
 | `redes-sao-silos` | `caderno-1-vision/01-vision-and-positioning.md §4.4` | — | vision |
 | `formato-de-software` | `caderno-1-vision/01-vision-and-positioning.md §3` | — | vision |
 | `fundador` | `caderno-1-vision/01-vision-and-positioning.md §5` | `glossary.md §Fundador`; `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3` ★ | vision |
 | `peer` | `glossary.md §Peer` | `caderno-1-vision/01-vision-and-positioning.md §3` (menciona formatos) | vision |
 | `peer-do-sistema` | `glossary.md §Peer do Sistema` | `caderno-1-vision/01-vision-and-positioning.md §5` ★ | vision |
-| `honestidade-radical` | `caderno-1-vision/01-vision-and-positioning.md §2.4` | `rfc-transporte-p2p-v3.1.md §1.3` ★ | vision |
+| `honestidade-radical` | `caderno-1-vision/01-vision-and-positioning.md §2.4` | `caderno-5-transport/01-p2p-transport-and-reconciliation.md §1.3` ★ | vision |
 | `moderacao-via-profile-organization` | `caderno-2-protocol/01-graph-ontology.md §3.5` | — | protocol |
 | `expurgo-lgpd` | `caderno-1-vision/03-legal-and-compliance-framework.md §3.1` | — | governance |
 

@@ -4,7 +4,7 @@ slug: specification-network-birth
 aliases: ["NETWORK_BIRTH", "nascimento de rede", "specification-network-birth", "nó de fundação"]
 tags: [protocol, topology, bootstrap, rfc, glossary]
 modo: canonical
-fonte-canonica: docs/rfc-transporte-p2p-v3.1.md §3.2.4
+fonte-canonica: docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.4
 aparicoes-consolidadas:
   - glossary.md §NETWORK_BIRTH
   - caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §6
@@ -29,7 +29,7 @@ Em arquiteturas [[local-first|local-first]] e descentralizadas, o início de uma
 
 ## Contrato
 
-Conforme definido na especificação da camada de transporte em [[rfc-transporte-p2p-v3.1#324--gênese-da-rede-first-peer-protocol]], a criação do nó `SPECIFICATION:NETWORK_BIRTH` é governada pelas seguintes regras normativas:
+Conforme definido na especificação da camada de transporte em [[caderno-5-transport/01-p2p-transport-and-reconciliation#324--gênese-da-rede-first-peer-protocol]], a criação do nó `SPECIFICATION:NETWORK_BIRTH` é governada pelas seguintes regras normativas:
 
 1. **Geração no Bootstrap**: Ao transitar para o estado `GENESIS` através do [[first-peer-protocol]], o peer fundador gera atomicamente no grafo os seguintes registros de bootstrap:
    - O nó de [[profile|PROFILE]] do administrador original.

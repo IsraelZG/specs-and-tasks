@@ -12,15 +12,15 @@ tags:
   - protocol
   - automerge
   - transporte
-  - rfc-transporte
+  - caderno-5-transport
   - sync-worker
   - onda-6
 modo: hub
 fonte-canonica: docs/caderno-2-protocol/04-automerge-integration-spec.md §2
 aparicoes-consolidadas:
   - docs/glossary.md §Documento Casca
-  - docs/rfc-transporte-p2p-v3.1.md §2.3
-  - docs/rfc-transporte-p2p-v3.1.md Apêndice B
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.3
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md Apêndice B
 dependencias:
   - [[automerge-repo]]
   - [[changes]]
@@ -42,7 +42,7 @@ O mecanismo de Documentos Casca resolve a necessidade de coordenação de baixo 
 ## Contrato
 As especificações formais de protocolo e o comportamento matemático dos Documentos Casca estão definidos em:
 * [caderno-2-protocol/04-automerge-integration-spec.md §2](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/04-automerge-integration-spec.md#L20-L32)
-* [rfc-transporte-p2p-v3.1.md §2.3](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L81-L88)
+* [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.3](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L81-L88)
 
 **Derivação de Identificador da Sala (`RendezvousId`)**:
 Para evitar ataques de enumeração e proteger metadados, o identificador da sala no swarm não corresponde ao ID do documento ou do ativo. Ele é derivado aplicando a função de hash SHA-256 à concatenação do segredo do rendezvous com o ID de permissão do ativo:
@@ -61,7 +61,7 @@ Os canais de comunicação estabelecidos por meio do Documento Casca são estrit
 
 ## Implementação
 As diretrizes de orquestração do runtime e ciclo de vida do Documento Casca estão detalhadas em:
-* [rfc-transporte-p2p-v3.1.md §2.1 e §2.8](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L46-L55)
+* [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.1 e §2.8](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L46-L55)
 * [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L196-L200)
 
 * **Workers e Runtime**: O [[sync-worker]] gerencia o [[automerge-repo]] e monitora as conexões ativas no `SwarmRegistry`. Ele manipula as mensagens trocadas na sala efêmera em RAM e coordena o despejo das Changes de digitação salvando-as temporariamente na tabela local `pending_changes` do SQLite.
@@ -77,8 +77,8 @@ Com a evolução para a versão V4, a eleição e o papel dos committers na coor
 ## Aparições a consolidar
 As definições e referências duplicadas do termo foram unificadas sob este verbete:
 1. **`docs/glossary.md §Documento Casca (Shell Document / Rendezvous)`**: define o conceito de sala efêmera sem histórico CRDT e a derivação criptográfica do identificador.
-2. **`docs/rfc-transporte-p2p-v3.1.md §2.3`**: descreve detalhadamente o fluxo da camada de transporte e a fórmula de derivação do RendezvousId.
-3. **`docs/rfc-transporte-p2p-v3.1.md Apêndice B`**: define no glossário do transporte a sala de encontro WebRTC na RAM sem persistência.
+2. **`docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.3`**: descreve detalhadamente o fluxo da camada de transporte e a fórmula de derivação do RendezvousId.
+3. **`docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md Apêndice B`**: define no glossário do transporte a sala de encontro WebRTC na RAM sem persistência.
 
 ---
 

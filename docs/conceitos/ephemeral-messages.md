@@ -7,7 +7,7 @@ modo: canonical
 fonte-canonica: docs/caderno-2-protocol/04-automerge-integration-spec.md §4.1
 aparicoes-consolidadas:
   - glossary.md §Ephemeral Messages
-  - docs/rfc-transporte-p2p-v3.1.md §2.1
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.1
 dependencias:
   - [[automerge]]
   - [[automerge-repo]]
@@ -37,8 +37,8 @@ As regras de contrato que regem o comportamento e os casos de uso das `Ephemeral
 
 - **Propagação de Alterações (Staging)**: Descrito em [[caderno-2-protocol/04-automerge-integration-spec#31-captura-de-changes-escrita-em-staging]], as [[changes]] em tempo real são enviadas em RAM como mensagens efêmeras para todos os peers conectados a um [[documento-casca]].
 - **Co-assinatura de Snapshots**: Conforme [[caderno-2-protocol/04-automerge-integration-spec#41-co-assinatura-via-ephemeral-messages]], quando a `SPECIFICATION` exige aprovação conjunta antes de publicar uma nova versão, o Committer proposto envia o hash do snapshot binário como mensagem efêmera em RAM via WebRTC para obter assinaturas Ed25519 dos co-editores antes de persistir o nó de versão física final.
-- **Enquadramento de Roteamento**: De acordo com a [[matriz-de-classificacao-transporte]] (especificada em [[rfc-transporte-p2p-v3.1#211--matriz-de-classificação-de-transporte-as-3-perguntas]]), as mensagens efêmeras são classificadas como `REPLICABLE_VOLATILE` por responderem "SIM" para observabilidade de peers, "NÃO" para auditabilidade histórica e "NÃO" para sobrevivência além da sessão. O protocolo de rede associado é `EPHEMERAL_WEBRTC` (ou canal efêmero websocket/datagram) e utiliza encriptação baseada em Chave de Época.
-- **Heartbeat de Vivacidade**: Conforme [[rfc-transporte-p2p-v3.1#322-swarmregistry]], a recepção de qualquer mensagem efêmera pelo canal de dados funciona como um heartbeat implícito, zerando o temporizador de inatividade do peer remetente no [[swarm-registry]] local.
+- **Enquadramento de Roteamento**: De acordo com a [[matriz-de-classificacao-transporte]] (especificada em [[caderno-5-transport/01-p2p-transport-and-reconciliation#211--matriz-de-classificação-de-transporte-as-3-perguntas]]), as mensagens efêmeras são classificadas como `REPLICABLE_VOLATILE` por responderem "SIM" para observabilidade de peers, "NÃO" para auditabilidade histórica e "NÃO" para sobrevivência além da sessão. O protocolo de rede associado é `EPHEMERAL_WEBRTC` (ou canal efêmero websocket/datagram) e utiliza encriptação baseada em Chave de Época.
+- **Heartbeat de Vivacidade**: Conforme [[caderno-5-transport/01-p2p-transport-and-reconciliation#322-swarmregistry]], a recepção de qualquer mensagem efêmera pelo canal de dados funciona como um heartbeat implícito, zerando o temporizador de inatividade do peer remetente no [[swarm-registry]] local.
 
 ## Implementação
 
@@ -59,7 +59,7 @@ A partir da **v4** (descrita em [[caderno-2-protocol/04-automerge-integration-sp
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
 | `glossary.md` | `§Ephemeral Messages` | Remover a definição redundante e linkar a este verbete. |
-| `rfc-transporte-p2p-v3.1.md` | `§2.1` | Manter a especificação do stack de transporte e referenciar este verbete. |
+| `caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§2.1` | Manter a especificação do stack de transporte e referenciar este verbete. |
 | `caderno-2-protocol/04-automerge-integration-spec.md` | `§4.1` | Manter o protocolo normativo de co-assinatura e wikilinkar a este verbete. |
 
 

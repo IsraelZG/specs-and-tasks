@@ -7,7 +7,7 @@ modo: hub
 fonte-canonica: docs/caderno-2-protocol/03-set-reconciliation-protocol.md §3.3
 aparicoes-consolidadas:
   - glossary.md §Consistent Hashing
-  - rfc-transporte-p2p-v3.1.md §4.2.1
+  - caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.2.1
 dependencias:
   - [[replication-factor]]
   - [[onda]]
@@ -26,7 +26,7 @@ A definição normativa completa está em **`caderno-2-protocol/03-set-reconcili
 
 | Modalidade | Uso |
 |:-----------|:----|
-| **P2P Puro** | A custódia primária de cada chunk é eleita por consistent hashing: `custodians(chunkId) = top-K peers no anel de hash(chunkId)`, com fator [[replication-factor]] $N$ (default 3). Ver `rfc-transporte-p2p-v3.1.md §4.2.1`. |
+| **P2P Puro** | A custódia primária de cada chunk é eleita por consistent hashing: `custodians(chunkId) = top-K peers no anel de hash(chunkId)`, com fator [[replication-factor]] $N$ (default 3). Ver `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.2.1`. |
 | **Corporativa** | Não aplicável — o Super Peer garante 100 % do grafo; não há sharding. |
 | **Pública** | Sharding determinístico por consistent hashing entre peers ativos; o peer de sistema mantém o grafo íntegro como fallback definitivo de bootstrap. |
 

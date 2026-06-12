@@ -8,11 +8,11 @@ modo: canonical
 
 # Global Network Throttle
 
-**Modo canonical** — fonte normativa: `rfc-transporte-p2p-v3.1.md §3.2.5`. Glossário (`glossary.md §GlobalThrottle`) consolidado aqui.
+**Modo canonical** — fonte normativa: `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.5`. Glossário (`glossary.md §GlobalThrottle`) consolidado aqui.
 
 > Aparições consolidadas:
 > - `glossary.md §GlobalThrottle` — definição curta (canonical aqui).
-> - `rfc-transporte-p2p-v3.1.md §3.2.5` — alocação por visibilidade, topologia dinâmica e degradação em mobile (fonte normativa principal).
+> - `caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.5` — alocação por visibilidade, topologia dinâmica e degradação em mobile (fonte normativa principal).
 > - `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §7` — quotas, topologia reversa e mobile.
 
 ---
@@ -33,7 +33,7 @@ Para detalhes de produto e a visão de transporte como recurso comum gerido pela
 
 ## Contrato ([[protocol]])
 
-O comportamento e as regras de controle do `GlobalThrottle` obedecebem aos contratos descritos em [rfc-transporte-p2p-v3.1.md §3.2.5](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L448-L471). A alocação e o remanejamento seguem as seguintes especificações formais:
+O comportamento e as regras de controle do `GlobalThrottle` obedecebem aos contratos descritos em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.5](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L448-L471). A alocação e o remanejamento seguem as seguintes especificações formais:
 
 ### Cotas de Banda por Visibilidade
 

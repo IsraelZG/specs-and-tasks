@@ -6,7 +6,7 @@ tags: [vision, transporte, protocol, hub]
 modo: hub
 fonte-canonica: docs/caderno-1-vision/01-vision-and-positioning.md §2.1
 aparicoes-consolidadas:
-  - docs/rfc-transporte-p2p-v3.1.md §1.2
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §1.2
 dependencias:
   - [[modalidade-de-rede]]
   - [[rede-corporativa-whitelabel]]
@@ -37,7 +37,7 @@ O princípio responde à necessidade de viabilizar comercialmente e tecnicamente
 
 Na camada de protocolo de rede, o pragmatismo topológico molda como a malha se organiza, as identidades são validadas e os dados são roteados. O transporte opera de forma oportunística utilizando peers de maior capacidade de maneira transparente.
 
-- Canônico: [rfc-transporte-p2p-v3.1.md §1.2](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L18-L20)
+- Canônico: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §1.2](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L18-L20)
 - Mecanismos de Protocolo:
   - [[peer]] / Super Peers: Promoção de canais de relays temporários em nós de maior capacidade para contornar problemas de travessia de NAT simétrico sem prometer uma malha 100% direta.
   - [[specification]]: O comportamento de rede é governado por definições contratuais de nível de rede, não por restrições embutidas no core da plataforma.
@@ -47,7 +47,7 @@ Na camada de protocolo de rede, o pragmatismo topológico molda como a malha se 
 
 No SDK, o pragmatismo topológico é materializado pela infraestrutura de sincronização que executa a inversão de controle das leis de roteamento físicas e lógicas baseada nos metadados declarados nas specifications.
 
-- Canônico: [rfc-transporte-p2p-v3.1.md §2.11](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L223-L336)
+- Canônico: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L223-L336)
 - Componentes e Fluxo:
   - O [[sync-worker]] e o classificador interno interceptam as mutações em RAM, consultando os `transport_hints` na `SPECIFICATION` associada.
   - A [[matriz-de-classificacao-transporte]] mapeia o destino físico (tabelas SQLite locais, RAM ou barramento de rede) baseado na resposta a três perguntas fundamentais: o estado é observável por outros peers? Sua integridade precisa ser auditável? Ele deve sobreviver à sessão?
@@ -65,7 +65,7 @@ A governança da topologia é evolutiva, permitindo a transição de soberania o
 
 As definições foram extraídas e integradas a este verbete unificado, devendo ser substituídas por wikilinks nas fases seguintes de consolidação:
 - `docs/caderno-1-vision/01-vision-and-positioning.md §2.1` ("Princípio do Pragmatismo Topológico" - redefinição de visão)
-- `docs/rfc-transporte-p2p-v3.1.md §1.2` ("Pragmatismo Topológico" - redefinição de protocolo/transporte)
+- `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §1.2` ("Pragmatismo Topológico" - redefinição de protocolo/transporte)
 
 ## Dependências por onda
 

@@ -6,7 +6,7 @@ tags: [governance, liveness, validadores, rede, fisica, hub]
 modo: hub
 fonte-canonica: docs/caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.3
 aparicoes-consolidadas:
-  - rfc-transporte-p2p-v3.1.md §4.6
+  - caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6
 dependencias:
   - [[specification-network-governance]]
   - [[tradeoff-liveness-validadores]]
@@ -29,7 +29,7 @@ O texto normativo completo — incluindo a mecânica de paralisia natural, a dis
 
 > `caderno-4-governance/03-specification-lifecycle-and-rfcs.md §3.3` (Morte da Rede por Leis da Física)
 
-A seção `rfc-transporte-p2p-v3.1.md §4.6` menciona o conceito no contexto do tradeoff de liveness; é aparição a consolidar (ver abaixo).
+A seção `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6` menciona o conceito no contexto do tradeoff de liveness; é aparição a consolidar (ver abaixo).
 
 ## Resumo estrutural
 
@@ -58,7 +58,7 @@ Validadores são um conjunto K-de-N de entidades independentes. A liveness exige
 
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
-| `rfc-transporte-p2p-v3.1.md` | `§4.6` (menciona "morte natural da rede" no contexto de tradeoff de liveness) | Substituir menção por wikilink `[[morte-da-rede]]` |
+| `caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§4.6` (menciona "morte natural da rede" no contexto de tradeoff de liveness) | Substituir menção por wikilink `[[morte-da-rede]]` |
 
 ## Dependências por onda
 

@@ -31,4 +31,4 @@ Se um módulo Pattern 2 exigir privacidade dos identificadores **contra o própr
 ## 5. Relações
 
 * [[caderno-3-sdk/07-chat-reference-spec]] — descoberta do mensageiro via Pattern 3 na modalidade gerida.
-* `rfc-transporte-p2p-v3.1.md §2.4` — descoberta de peers (cold/warm) na camada de transporte (problema distinto: endereçamento de peers já conhecidos, não descoberta de usuários).
+* `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4` — descoberta de peers (cold/warm) na camada de transporte (problema distinto: endereçamento de peers já conhecidos, não descoberta de usuários).

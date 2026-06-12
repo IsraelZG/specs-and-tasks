@@ -20,7 +20,7 @@ No paradigma [[local-first]], a plataforma precisa ser executada de forma flexí
 
 ## Contrato ([[protocol]])
 
-No nível do protocolo de transporte e persistência, a degradação de tier manifesta-se por meio de regras de mitigação que garantem a segurança criptográfica e evitam a perda de consistência (ver [[rfc-transporte-p2p-v3.1]]):
+No nível do protocolo de transporte e persistência, a degradação de tier manifesta-se por meio de regras de mitigação que garantem a segurança criptográfica e evitam a perda de consistência (ver [[caderno-5-transport/01-p2p-transport-and-reconciliation]]):
 * **Desativação de Heartbeats:** Em dispositivos móveis sob economia de energia (bateria < 15%), o heartbeat explícito (mensagens periódicas PING/PONG a cada 15 s) é desativado para poupar recursos. O sistema confia apenas nos timeouts naturais do protocolo [[rbsr]] para a remoção de conexões fantasma.
 * **Limitação de Conexões:** Dispositivos sob economia de energia limitam conexões ativas a no máximo 2 peers WebRTC (limite imposto pelo SO). Como consequência, o dispositivo fica impossibilitado de executar o protocolo de gossip com quórum suficiente para atingir o Replication Factor ($N=3$) exigido para as operações de replicação e custódia.
 * **Bloqueio de Poda:** Sob essa restrição de conexão, o dispositivo móvel suspende a validação de replicação externa, o que impede a exclusão segura de dados locais para evitar que fragmentos de informações fiquem sem custódia na rede.

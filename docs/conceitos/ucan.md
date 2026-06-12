@@ -10,7 +10,7 @@ tags: [protocol, acesso, criptografia, identidade]
 **Modo hub** — definição normativa completa em
 [[caderno-2-protocol/02-cryptographic-lineage-and-auth]] §2.2.
 
-> A repetição presente em `rfc-transporte-p2p-v3.1.md §2.7` é alvo de consolidação
+> A repetição presente em `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.7` é alvo de consolidação
 > (remover redundância; manter apenas o link para este verbete).
 
 ---
@@ -65,7 +65,7 @@ restrição na CTE recursiva do SQLite; fingerprints e deltas são calculados
 **exclusivamente** sobre o subgrafo autorizado. Enforcement é bilateral: o peer
 fornecedor valida o UCAN antes de servir qualquer delta.
 
-> Detalhes do mecanismo de sync: `rfc-transporte-p2p-v3.1.md §2.7` (conteúdo
+> Detalhes do mecanismo de sync: `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.7` (conteúdo
 > redundante a ser removido — canonical aqui e em
 > `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §2.2`).
 

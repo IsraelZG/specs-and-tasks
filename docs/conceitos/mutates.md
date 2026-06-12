@@ -40,6 +40,6 @@ O schema da tabela `edges` com a coluna `previous_hash BLOB` e o índice `idx_ed
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
 | `caderno-3/01` | `§1` (DDL) | Manter DDL; adicionar "ver [[mutates]]" ao comentário conceitual |
-| `rfc-transporte-p2p-v3.1.md` | `§2.10.1` | Substituir redefinição semântica por `[[mutates]]` + link caderno-2/02 §3.2 |
+| `caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§2.10.1` | Substituir redefinição semântica por `[[mutates]]` + link caderno-2/02 §3.2 |
 
 

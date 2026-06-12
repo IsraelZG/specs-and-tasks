@@ -6,7 +6,7 @@ tags: [protocol, sincronizacao, replicacao, disponibilidade, p2p]
 modo: hub
 fonte-canonica: docs/caderno-2-protocol/03-set-reconciliation-protocol.md §3.1
 aparicoes-consolidadas:
-  - rfc-transporte-p2p-v3.1.md §4.2.1
+  - caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.2.1
 dependencias:
   - [[anti-entropy]]
   - [[rbsr]]
@@ -39,7 +39,7 @@ O protocolo de gossip é o mecanismo de enforcement do replication factor em mod
 2. Se menos de $N-1$ peers respondem confirmando posse em estado Integral → **poda adiada** (redução de rede detectada).
 3. O custódio primário só poda após receber `ACK` do próximo peer no anel (protocolo `RELEASE/ACK` descrito em [[poda-segura]]).
 
-> Para a mecânica completa do protocolo de poda segura com jitter e RELEASE/ACK, ver `rfc-transporte-p2p-v3.1.md §4.3` ([[poda-segura]]).
+> Para a mecânica completa do protocolo de poda segura com jitter e RELEASE/ACK, ver `caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.3` ([[poda-segura]]).
 
 ## Interação com o G4 e tier-aware degradation
 

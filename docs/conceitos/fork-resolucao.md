@@ -16,8 +16,8 @@ tags:
 modo: hub
 fonte-canonica: docs/caderno-2-protocol/04-automerge-integration-spec.md §4.2
 aparicoes-consolidadas:
-  - docs/rfc-transporte-p2p-v3.1.md §2.10.2
-  - docs/rfc-transporte-p2p-v3.1.md §4.6
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.10.2
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6
 dependencias:
   - [[no]]
   - [[aresta]]
@@ -52,7 +52,7 @@ A resolução de forks é essencial para manter a consistência e a integridade 
 ## Contrato
 As especificações formais de protocolo e o comportamento matemático da detecção e resolução de forks estão definidos em:
 * [caderno-2-protocol/04-automerge-integration-spec.md §4.2](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/04-automerge-integration-spec.md#L78-L86)
-* [rfc-transporte-p2p-v3.1.md §2.10.2](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L203-L213)
+* [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.10.2](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L203-L213)
 
 **Mecânica de Resolução de Fork**:
 1. **Detecção (estrutural)**: Há fork quando existem duas (ou mais) arestas [[mutates]] ativas com o mesmo `source_id`, nenhuma ancestral da outra. O HLC ordena, mas não detecta concorrência — por isso a detecção é estrutural.
@@ -63,7 +63,7 @@ As especificações formais de protocolo e o comportamento matemático da detec�
 
 ## Implementação
 As diretrizes de orquestração do runtime e ciclo de vida na camada do cliente e do transporte estão descritas em:
-* [rfc-transporte-p2p-v3.1.md §3.2 e §3.3](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L349-L385)
+* [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2 e §3.3](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L349-L385)
 
 * **Workers e Processamento**: O cálculo da B-Tree e a detecção estrutural de forks ocorrem no [[sync-worker]]. Ao isolar as pontas divergentes através do [[rbsr]], o Sync Worker local verifica se é o mergeador eleito (aplicando o desempate determinístico do menor `entity_id` ou delegando ao [[profile-system]] responsável).
 * **Criptografia e Assinatura**: O merge de documentos colaborativos utiliza as chaves criptográficas gerenciadas temporariamente em memória pelo [[key-vault]] para assinar os novos nós de merge resultantes.
@@ -71,7 +71,7 @@ As diretrizes de orquestração do runtime e ciclo de vida na camada do cliente 
 
 ## Evolução
 A governança e a evolução do mecanismo transacional sob o cenário de transição para a versão V4 estão descritas em:
-* [rfc-transporte-p2p-v3.1.md §4.6](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L560-L574)
+* [caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L560-L574)
 * [caderno-2-protocol/04-automerge-integration-spec.md §4](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/04-automerge-integration-spec.md#L61-L66)
 
 **Atualização V4 — Colapso dos Modos e Liveness dos Validadores**:
@@ -81,8 +81,8 @@ A governança e a evolução do mecanismo transacional sob o cenário de transi�
 
 ## Aparições a consolidar
 As definições e referências duplicadas do termo foram unificadas sob este verbete:
-1. **`docs/rfc-transporte-p2p-v3.1.md §2.10.2`**: detalha as etapas de detecção estrutural, eleição do mergeador e convergência em rede append-only.
-2. **`docs/rfc-transporte-p2p-v3.1.md §4.6`**: descreve o comportamento de detecção de forks em cenários de partições e o tradeoff de liveness sob validadores ausentes.
+1. **`docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.10.2`**: detalha as etapas de detecção estrutural, eleição do mergeador e convergência em rede append-only.
+2. **`docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6`**: descreve o comportamento de detecção de forks em cenários de partições e o tradeoff de liveness sob validadores ausentes.
 
 ---
 

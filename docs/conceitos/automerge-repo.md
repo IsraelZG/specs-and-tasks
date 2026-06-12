@@ -19,7 +19,7 @@ fonte-canonica: docs/caderno-2-protocol/04-automerge-integration-spec.md §2
 aparicoes-consolidadas:
   - docs/glossary.md §Automerge Repo
   - docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1
-  - docs/rfc-transporte-p2p-v3.1.md §2.1
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.1
 dependencias:
   - [[no]]
   - [[aresta]]
@@ -48,7 +48,7 @@ O Automerge Repo viabiliza a edição colaborativa em tempo real com feedback in
 ## Contrato
 A especificação de protocolo do Automerge Repo é definida em:
 * [caderno-2-protocol/04-automerge-integration-spec.md §2 e §3](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/04-automerge-integration-spec.md#L20-L57)
-* [rfc-transporte-p2p-v3.1.md §2.1 e §2.3](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L46-L55)
+* [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.1 e §2.3](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L46-L55)
 
 **Regras de Swarm e Capabilidade**:
 A formação de swarms WebRTC entre co-editores é orquestrada por meio de [[documento-casca]] (salas de encontro efêmeras em RAM, sem histórico de CRDT). O identificador da sala (`RendezvousId`) é derivado de forma não-enumerável a partir de um segredo de capabilidade:
@@ -65,7 +65,7 @@ O canal de [[ephemeral-messages]] provido pelo Automerge Repo via WebRTC é tran
 ## Implementação
 As diretrizes de implementação do Automerge Repo na arquitetura cliente estão descritas em:
 * [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L28-L36)
-* [rfc-transporte-p2p-v3.1.md §3.1 e §3.2](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L341-L370)
+* [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.1 e §3.2](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L341-L370)
 
 **Acoplamento com Workers e SQLite**:
 * **Runtime**: O Automerge Repo roda dentro do [[sync-worker]] (Web Worker secundário), isolando o processamento em segundo plano para manter a Main Thread responsiva. Ele interage reativamente com o [[tinybase]] em memória na Main Thread.
@@ -88,7 +88,7 @@ Com o advento do ecossistema V4, a eleição e o papel dos committers no Automer
 As seguintes definições duplicadas do termo foram consolidadas neste verbete:
 * `docs/glossary.md §Automerge Repo`
 * `docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1`
-* `docs/rfc-transporte-p2p-v3.1.md §2.1`
+* `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.1`
 
 ---
 

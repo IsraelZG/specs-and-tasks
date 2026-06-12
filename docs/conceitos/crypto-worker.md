@@ -13,7 +13,7 @@ modo: hub
 fonte-canonica: docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.2
 aparicoes-consolidadas:
   - docs/glossary.md §Crypto Worker
-  - docs/rfc-transporte-p2p-v3.1.md §3.1
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.1
 dependencias:
   - [[sync-worker]]
   - [[key-vault]]
@@ -75,7 +75,7 @@ No fluxo de reidratação de arquivos pesados na UI (descrito em [caderno-3-sdk/
 As seguintes definições duplicadas foram consolidadas neste verbete:
 
 - `docs/glossary.md §Crypto Worker`
-- `docs/rfc-transporte-p2p-v3.1.md §3.1`
+- `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.1`
 
 ---
 

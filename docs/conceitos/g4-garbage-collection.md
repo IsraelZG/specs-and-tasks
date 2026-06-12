@@ -13,7 +13,7 @@ tags:
 modo: hub
 fonte-canonica: docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §4
 aparicoes-consolidadas:
-  - docs/rfc-transporte-p2p-v3.1.md §4.5
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.5
 dependencias:
   - [[sync-worker]]
   - [[tinybase]]
@@ -39,7 +39,7 @@ Dispositivos móveis e navegadores têm quotas de armazenamento finitas. O G4 ga
 A especificação normativa completa está em dois locais canônicos:
 
 - **Plano local — compactação e proteções**: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §4](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)
-- **Plano de custódia — pools segmentados LRU/Rarest-First**: [rfc-transporte-p2p-v3.1.md §4.5](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md)
+- **Plano de custódia — pools segmentados LRU/Rarest-First**: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.5](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md)
 
 ### Gatilho de execução
 
@@ -66,7 +66,7 @@ O G4 também é responsável pela coleta de [[tombstone-lapide|tombstones]] expi
 
 ## Aparições a consolidar
 
-- `docs/rfc-transporte-p2p-v3.1.md §4.5` — define os pools segmentados LRU/Rarest-First para cache altruísta; consolidado acima.
+- `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.5` — define os pools segmentados LRU/Rarest-First para cache altruísta; consolidado acima.
 
 ---
 

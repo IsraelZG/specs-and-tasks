@@ -31,7 +31,7 @@ Separar transporte de aplicação resolve a tensão personas × transporte: o di
 
 ## Implementação
 
-Ver `rfc-transporte-p2p-v3.1.md §2.2` (identidade criptográfica determinística) e `§3.2.2` (`SwarmRegistry`/`device_personas`).
+Ver `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.2` (identidade criptográfica determinística) e `§3.2.2` (`SwarmRegistry`/`device_personas`).
 
 ## Evolução
 

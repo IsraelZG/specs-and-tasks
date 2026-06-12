@@ -2,7 +2,7 @@
 ## Transporte de Dados · Descoberta de Peers · Sincronização · Auth · Segurança
 
 > **Escopo:** primeiro ciclo de desenvolvimento (Cloud + Web PWA local-first), com a base preparada para Desktop/Mobile/TV via Capacitor/Electron.
-> **Fontes normativas:** `rfc-transporte-p2p-v3.1.md`, `rfc-v4.md`, `caderno-2-protocol/02..04`, `caderno-3-sdk/01..06`, verbetes em `docs/conceitos/`.
+> **Fontes normativas:** `caderno-5-transport/01-p2p-transport-and-reconciliation.md`, `rfc-v4.md`, `caderno-2-protocol/02..04`, `caderno-3-sdk/01..06`, verbetes em `docs/conceitos/`.
 > **Formato:** Marcos (M0–M9) → Épicos (E) → Tarefas atômicas (T-xxx) com dependências e critérios de aceite, dimensionadas para 1 tarefa = 1 sessão de agente = 1 PR.
 
 ---

@@ -8,12 +8,12 @@ modo: canonical
 
 # Relay Trust Model
 
-**Modo canonical** — fonte normativa: `rfc-transporte-p2p-v3.1.md §2.5.2`. Glossário (`glossary.md §RelayTrustModel`) consolidado aqui.
+**Modo canonical** — fonte normativa: `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.5.2`. Glossário (`glossary.md §RelayTrustModel`) consolidado aqui.
 
 > Aparições consolidadas:
 > - `glossary.md §RelayTrustModel` — definição curta (canonical aqui).
-> - `rfc-transporte-p2p-v3.1.md §2.5.2` — score local, shadowban de relays e mitigação de falso-positivo (fonte normativa principal).
-> - `rfc-transporte-p2p-v3.1.md §2.2.1` — shadowban de 24h por falhas criptográficas no handshake Noise_XX.
+> - `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.5.2` — score local, shadowban de relays e mitigação de falso-positivo (fonte normativa principal).
+> - `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.2.1` — shadowban de 24h por falhas criptográficas no handshake Noise_XX.
 
 ---
 
@@ -70,7 +70,7 @@ Na arquitetura do SDK, a lógica do `RelayTrustModel` reside e é computada dire
 * **Roteamento de Circuitos:** Quando a engine de conexões necessita rotear dados via relay (por impossibilidade de hole punching direto sob NAT simétrico), o `SyncWorker` consulta o `RelayTrustModel` para filtrar apenas relays com score positivo.
 * **Evicção de Peers:** Peers detectados como inativos ou banidos pelo `RelayTrustModel` são suspensos do mapeamento ativo, prevenindo que falhas consecutivas de conexão travem a fila de dispatch de mensagens do worker.
 
-Para mais detalhes da orquestração em nível de código, consulte o [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md) e a [rfc-transporte-p2p-v3.1.md §3.2.2](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L355-L371).
+Para mais detalhes da orquestração em nível de código, consulte o [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md) e a [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.2](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L355-L371).
 
 ---
 
@@ -110,7 +110,7 @@ A tabela abaixo rastreia os arquivos onde o conceito é redefinido ou detalhado 
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
 | `docs/glossary.md` | `§RelayTrustModel` | Substituir por resumo e link `[[relay-trust-model]]` |
-| `docs/rfc-transporte-p2p-v3.1.md` | `§2.5.2` | Manter texto normativo; inserir referência wikilink `[[relay-trust-model]]` |
-| `docs/rfc-transporte-p2p-v3.1.md` | `§2.2.1` | Substituir menção genérica por referência wikilink `[[relay-trust-model]]` |
+| `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§2.5.2` | Manter texto normativo; inserir referência wikilink `[[relay-trust-model]]` |
+| `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§2.2.1` | Substituir menção genérica por referência wikilink `[[relay-trust-model]]` |
 
 

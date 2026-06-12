@@ -8,7 +8,7 @@ tags: [protocol, identidade, p2p, criptografia, acesso]
 # Noise_XX (Noise Protocol Framework)
 
 **Modo hub** — definição normativa completa em
-`rfc-transporte-p2p-v3.1.md §2.2.1` e `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §1.4.1`.
+`caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.2.1` e `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §1.4.1`.
 
 ---
 
@@ -31,7 +31,7 @@ O handshake troca os seguintes elementos em 3 round-trips:
 - Nonce assinado com a chave privada Ed25519
 
 > Especificação completa (sequência exata de mensagens, campos e validações):
-> `rfc-transporte-p2p-v3.1.md §2.2.1` e
+> `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.2.1` e
 > `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §1.4.1`.
 
 ## Comportamento em caso de divergência de época

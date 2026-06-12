@@ -8,11 +8,11 @@ modo: canonical
 
 # Connection Promotion Engine
 
-**Modo canonical** — fonte normativa: `rfc-transporte-p2p-v3.1.md §2.5.1`. Glossário (`glossary.md §ConnectionPromotionEngine`) consolidado aqui.
+**Modo canonical** — fonte normativa: `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.5.1`. Glossário (`glossary.md §ConnectionPromotionEngine`) consolidado aqui.
 
 > Aparições consolidadas:
 > - `glossary.md §ConnectionPromotionEngine` — definição curta (canonical aqui).
-> - `rfc-transporte-p2p-v3.1.md §2.5.1` — nós leves, super peers como relays de circuito e promoção oportunística (fonte normativa principal).
+> - `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.5.1` — nós leves, super peers como relays de circuito e promoção oportunística (fonte normativa principal).
 > - `caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §7.2` — operação no modo reverso (fechamento de túneis diretos em background para economizar soquetes).
 
 ---
@@ -29,7 +29,7 @@ O design da plataforma adota o princípio de [[pragmatismo-topologico]], reconhe
 
 O `ConnectionPromotionEngine` resolve o trade-off entre conveniência topológica e eficiência de recursos. Ele permite que a rede inicialize conexões de forma instantânea via relays e, em segundo plano, busque caminhos diretos mais curtos (P2P). Isso reduz a latência do tráfego, diminui os custos de banda dos relays e preserva soquetes no sistema operacional, promovendo a adequação do paradigma [[local-first]] à topologia de rede física vigente.
 
-Consulte o [caderno-1-vision/01-vision-and-positioning.md](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md#L21-L24) para detalhes sobre o Princípio do Pragmatismo Topológico e a [rfc-transporte-p2p-v3.1.md §1.3](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L23-L28) sobre as limitações honestas de NAT.
+Consulte o [caderno-1-vision/01-vision-and-positioning.md](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md#L21-L24) para detalhes sobre o Princípio do Pragmatismo Topológico e a [caderno-5-transport/01-p2p-transport-and-reconciliation.md §1.3](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L23-L28) sobre as limitações honestas de NAT.
 
 ---
 
@@ -63,7 +63,7 @@ Na arquitetura do SDK, a execução da engine é gerenciada de forma assíncrona
 * **Sinalização e Túneis:** A engine se apoia nas capacidades de sinalização do Automerge Repo e em servidores STUN para conduzir o hole punching de WebRTC Data Channels.
 * **Mitigação de Recursos:** A engine é integrada com a alocação de banda do [[global-network-throttle]], suspendendo tentativas de promoção e fechando soquetes caso o dispositivo entre em modo de economia de energia (Mobile com bateria $< 30\%$).
 
-Consulte a especificação de Web Workers no [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L28-L36) e a integração com o ciclo de vida dinâmico na [rfc-transporte-p2p-v3.1.md §3.2.5](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L448-L471).
+Consulte a especificação de Web Workers no [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L28-L36) e a integração com o ciclo de vida dinâmico na [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.5](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L448-L471).
 
 ---
 
@@ -100,7 +100,7 @@ Rastreamento de arquivos e locais a consolidar nas etapas subsequentes.
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
 | `docs/glossary.md` | `§ConnectionPromotionEngine` | Substituir por resumo curto e link `[[connection-promotion-engine]]` |
-| `docs/rfc-transporte-p2p-v3.1.md` | `§2.5.1` | Preservar conteúdo normativo; inserir referência wikilink `[[connection-promotion-engine]]` |
+| `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§2.5.1` | Preservar conteúdo normativo; inserir referência wikilink `[[connection-promotion-engine]]` |
 | `docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md` | `§7.2` | Substituir menção textual por referência wikilink `[[connection-promotion-engine]]` |
 
 

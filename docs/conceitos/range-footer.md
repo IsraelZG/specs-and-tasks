@@ -69,8 +69,8 @@ Quando um `RangeFooter` falha, o range afetado é re-sincronizado via [[nonce-ch
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
 | `caderno-2-protocol/03-set-reconciliation-protocol.md` | `§1.2` | Fonte canônica — acrescentar wikilink `[[range-footer]]` |
-| `rfc-transporte-p2p-v3.1.md` | `§2.6.3` | Conteúdo quase verbatim do caderno-2/03; substituir por resumo + `[[range-footer]]` |
+| `caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§2.6.3` | Conteúdo quase verbatim do caderno-2/03; substituir por resumo + `[[range-footer]]` |
 | `docs/glossary.md` | `§RangeFooter` | Acrescentar link `[[range-footer]]` na entrada |
-| `rfc-transporte-p2p-v3.1.md` | `Apêndice B §RangeFooter` | Acrescentar link `[[range-footer]]` na entrada |
+| `caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `Apêndice B §RangeFooter` | Acrescentar link `[[range-footer]]` na entrada |
 
 

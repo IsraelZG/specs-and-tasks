@@ -6,7 +6,7 @@ tags: [protocol, sdk, transporte, roteamento, specification]
 modo: hub
 fonte-canonica: docs/caderno-3-sdk/01-sqlite-and-projections-schema.md §4
 aparicoes-consolidadas:
-  - docs/rfc-transporte-p2p-v3.1.md §2.11
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11
   - docs/glossary.md §transport_hints
 dependencias:
   - [[no]]
@@ -24,7 +24,7 @@ dependencias:
 
 Modelo de roteamento e decisão arquitetural que determina o destino físico, o protocolo de rede e o esquema criptográfico de qualquer dado na plataforma com base nas respostas a três perguntas fundamentais declaradas nos metadados de sua especificação. Ao invés de o desenvolvedor de interface decidir manualmente como um dado trafega, o sistema infere as restrições de persistência, visibilidade e auditabilidade de forma declarativa e transparente.
 
-A definição canônica e o contrato de tipos TypeScript estão descritos em [01-sqlite-and-projections-schema.md §4](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/01-sqlite-and-projections-schema.md#L190-L270) e aprofundados na especificação de protocolo em [rfc-transporte-p2p-v3.1.md §2.11](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L223-L336).
+A definição canônica e o contrato de tipos TypeScript estão descritos em [01-sqlite-and-projections-schema.md §4](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/01-sqlite-and-projections-schema.md#L190-L270) e aprofundados na especificação de protocolo em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L223-L336).
 
 ---
 
@@ -40,7 +40,7 @@ O comportamento na rede e no armazenamento local é ditado pelas respostas decla
 2. **A integridade histórica deste estado precisa ser auditada?** (Q2: Auditável)
 3. **O estado precisa sobreviver ao encerramento da sessão?** (Q3: Persistente)
 
-A partir dessas respostas, o dado é classificado em uma de quatro categorias com regras específicas de destino e protocolo, conforme definido em [rfc-transporte-p2p-v3.1.md §2.11](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L233-L239):
+A partir dessas respostas, o dado é classificado em uma de quatro categorias com regras específicas de destino e protocolo, conforme definido em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L233-L239):
 
 | Q1 (Observável) | Q2 / Q3 | Classificação Lógica | Destino Físico | Transporte / Sync | Cifra |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -50,7 +50,7 @@ A partir dessas respostas, o dado é classificado em uma de quatro categorias co
 | NÃO | (Q3) NÃO | Local + Transiente / Efêmero | [[tinybase]] / RAM | Nenhum (não trafega) | N/A |
 
 ### Transições de Estado
-Dados podem transitar entre categorias. Por exemplo, uma digitação em tempo real começa como "Replicável + Não-Auditável" (changes efêmeros) ou "Local + Persistente" (rascunho local) e, ao ser salva pelo usuário, é promovida a "Replicável + Auditável" no grafo global (ver [rfc-transporte-p2p-v3.1.md §2.11](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L249-L260)).
+Dados podem transitar entre categorias. Por exemplo, uma digitação em tempo real começa como "Replicável + Não-Auditável" (changes efêmeros) ou "Local + Persistente" (rascunho local) e, ao ser salva pelo usuário, é promovida a "Replicável + Auditável" no grafo global (ver [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L249-L260)).
 
 ## Implementação ([[sdk]])
 
@@ -82,7 +82,7 @@ function evaluateTransportHints(
 }
 ```
 
-O fluxo arquitetural segue cinco etapas: **Intenção (UI)** $\rightarrow$ **Interceptação (Ponte Reativa)** $\rightarrow$ **Consulta à Lei (Specification)** $\rightarrow$ **Classificação Estrita (Discriminated Union)** $\rightarrow$ **Execução (Sync Worker)** (ver [rfc-transporte-p2p-v3.1.md §2.11.1](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md#L279-L286)).
+O fluxo arquitetural segue cinco etapas: **Intenção (UI)** $\rightarrow$ **Interceptação (Ponte Reativa)** $\rightarrow$ **Consulta à Lei (Specification)** $\rightarrow$ **Classificação Estrita (Discriminated Union)** $\rightarrow$ **Execução (Sync Worker)** (ver [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11.1](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L279-L286)).
 
 ## Evolução ([[governance]])
 

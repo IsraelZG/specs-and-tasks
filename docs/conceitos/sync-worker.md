@@ -14,7 +14,7 @@ modo: hub
 fonte-canonica: docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1
 aparicoes-consolidadas:
   - docs/glossary.md §Sync Worker
-  - docs/rfc-transporte-p2p-v3.1.md §3.1
+  - docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.1
 dependencias:
   - [[automerge-repo]]
   - [[rbsr]]
@@ -84,7 +84,7 @@ Fonte: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1](file:///c:/Dev
 
 ## Roteamento de Transporte
 
-Quando uma ação ocorre na UI, o Sync Worker recebe a intenção via [[tinybase]] Persister, extrai os `transport_hints` da [[specification]] associada ao nó e despacha os bytes para a fila de SQLite ou WebRTC correspondente. Ver [[matriz-de-classificacao-transporte]] para o contrato de tipos (`TransportBehavior`) que governa esse roteamento. Especificação do fluxo em [rfc-transporte-p2p-v3.1.md §2.11 e §3.1](file:///c:/Dev2026/Docs/docs/rfc-transporte-p2p-v3.1.md).
+Quando uma ação ocorre na UI, o Sync Worker recebe a intenção via [[tinybase]] Persister, extrai os `transport_hints` da [[specification]] associada ao nó e despacha os bytes para a fila de SQLite ou WebRTC correspondente. Ver [[matriz-de-classificacao-transporte]] para o contrato de tipos (`TransportBehavior`) que governa esse roteamento. Especificação do fluxo em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11 e §3.1](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md).
 
 ## Invariante de Validação de Saldos (T1)
 
@@ -95,7 +95,7 @@ O [[zen-engine]] embutido no Sync Worker impõe que toda mutação de saldo carr
 As seguintes definições duplicadas foram consolidadas neste verbete:
 
 - `docs/glossary.md §Sync Worker`
-- `docs/rfc-transporte-p2p-v3.1.md §3.1`
+- `docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.1`
 
 ---
 

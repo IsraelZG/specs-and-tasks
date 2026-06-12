@@ -57,6 +57,6 @@ O fluxo completo é:
 | arquivo | seção | ação na Fase 3 |
 |:---|:---|:---|
 | `caderno-2-protocol/03-set-reconciliation-protocol.md` | `§1.3` | Fonte canônica — acrescentar wikilink `[[nonce-challenge]]` |
-| `rfc-transporte-p2p-v3.1.md` | `§2.6.4` | Conteúdo quase verbatim do caderno-2/03; substituir por resumo + `[[nonce-challenge]]` |
+| `caderno-5-transport/01-p2p-transport-and-reconciliation.md` | `§2.6.4` | Conteúdo quase verbatim do caderno-2/03; substituir por resumo + `[[nonce-challenge]]` |
 
 
