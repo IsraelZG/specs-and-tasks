@@ -31,6 +31,8 @@
 1. **Comando durável** (precisa ser fato auditável: "criar anúncio a partir deste produto") = `CONTENT:INTENT` endereçado ao profile do módulo, no grafo, validado pelo pipeline normal e assinado pela persona do usuário.
 2. **Comando efêmero** (coordenação transiente de UI: focar painel, abrir aba, destacar item) = sinal efêmero não-durável (como presença, RFC-018 A.4) — nunca nó append-only.
 3. O módulo receptor interpreta a mensagem com sua própria lógica (workflow/handlers, RFC-022). A mensagem nunca executa código no remetente; ela **propõe** uma ação que o receptor valida e realiza.
+4. **Autor efetivo no audit trail.** Todo comando durável (`CONTENT:INTENT`) registra o **autor efetivo da ação**: a persona do usuário (ação direta) ou o profile-delegado do módulo agindo por regra/automação. A linhagem/audit trail expõe essa distinção de forma cristalina, garantindo atribuição inequívoca para compliance (RH/Fisco). Ação por delegado nunca é apresentada como ação direta do usuário.
+5. **Registry de sinais de coordenação.** Os comandos efêmeros (item 2) trafegam por um **registry padronizado de sinais de coordenação de UI**: cada sinal tem tipo e contrato declarados, validados pelo módulo receptor. Coordenação lateral fora do registry (hacks ad-hoc entre iframes) é proibida — sem contrato declarado, o sinal é ignorado.
 
 ## A.3 — Profiles de sistema compartimentados (por usuário × módulo)
 
@@ -68,6 +70,7 @@
 1. O plano de comando não dá god-mode: mensagem só *propõe*; o pipeline do receptor valida e pode recusar.
 2. Compartimentação por (usuário × módulo) tem custo de orquestração de muitos delegados; é o preço da não-mistura de dados, e vale.
 3. Doc de sessão é efêmero por padrão — fechar sem persistir perde o rascunho (comportamento esperado, sinalizado), salvo opt-in de persistência.
+4. **Custo de delegados no payload.** Cada (usuário × módulo) instancia um delegado; com muitos módulos ativos o conjunto de delegados pesa no payload de sincronização inicial da conta. É custo aceito da compartimentação (cf. item 2), mitigável por **instanciação preguiçosa**: o delegado nasce só quando o usuário ativa/entra no módulo (sob demanda), não antecipadamente.
 
 ## A.6 — Preparativos no plano
 
