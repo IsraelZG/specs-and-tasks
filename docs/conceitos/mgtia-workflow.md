@@ -1,37 +1,35 @@
-# Modelo de Gestão de Tarefas Interoperável para Agentes (MGTIA)
+# Modelo de Gestão de Tarefas Interoperável para Agentes (MGTIA) v2
 
 ## 1. Visão Geral
-O MGTIA é o fluxo oficial de desenvolvimento (SDLC) para a Plataforma V3.1/v4. Ele foi desenhado para suportar um ecossistema onde múltiplos agentes de Inteligência Artificial (Antigravity, Claude, OpenCode) e desenvolvedores humanos colaboram na mesma base de código.
+O MGTIA é o fluxo oficial de desenvolvimento (SDLC) para a Plataforma V3.1/v4. Ele foi desenhado para suportar um ecossistema onde múltiplos agentes de Inteligência Artificial (Antigravity, Claude, OpenCode) e desenvolvedores humanos colaboram na mesma base de código. 
 
-O coração do modelo é que **as tarefas não são efêmeras**. Elas vivem no repositório (diretório `/tasks/T-XXX.md`), contêm todo o contexto necessário (RAG) e operam sob regras estritas de TDD (Test-Driven Development) e SDD (Spec-Driven Development).
+A V2 adiciona restrições determinísticas extremas para eliminar alucinações ("agente criativo demais") e paralisações ("agente cego").
 
 ## 2. O Ciclo de Vida da Tarefa (Fluxo Agile)
 Cada tarefa segue o pipeline de status:
 `draft` ➔ `ready` ➔ `in_progress` ➔ `review` ➔ `rework` ➔ `done`
 
-### Papéis:
-- **Task Architect (Groomer):** Pega um draft do `plano-de-implementacao.md`, lê o Wiki, e preenche o arquivo `T-XXX.md` com os links exatos da especificação (RAG). Move para `ready`.
-- **Worker (Executor):** Pega a tarefa `ready`, escreve os testes, escreve o código, altera para `review`.
-- **Agile Reviewer:** Pega a tarefa em `review`, avalia a qualidade do código, roda o TDD localmente, checa se a spec foi estritamente seguida. Aprova (`done`) ou rejeita (`rework`).
+### Papéis e Target Agents:
+As tarefas no MGTIA definem OBRIGATORIAMENTE um \`target_agent\`. O sistema possui 4 perfis estritos de agentes:
+- **`devops_agent`**: Especialista em bash, YAML, orquestração (Turborepo), containers e deploy.
+- **`logic_agent`**: Especialista TS focado no core puro. Não possui visão computacional e não lida com DOM/UI. Focado no Vitest.
+- **`crypto_agent`**: Especialista em protocolos (Noise), WebCrypto e isolamento de runtime.
+- **`frontend_agent`**: Proficiente em PWA, React, Tailwind e DOM. Requer Testes em JSDOM ou Playwright.
+- **`agile_reviewer`**: Agente de Quality Gate (QA). Ele não codifica features, ele avalia PRs, roda os testes e rejeita (`rework`) tarefas ruins.
 
-## 3. Estrutura do Arquivo de Tarefa (`T-XXX.md`)
-Toda tarefa deve possuir Frontmatter YAML e as seguintes seções estruturadas (geradas via `tools/scripts/generate-task.mjs`):
+### Modos de Execução (`execution_mode`):
+As tarefas definem como se comportam no orquestrador:
+- **`sequential`**: Modo padrão. Um agente assume a tarefa de forma exclusiva e passa o bastão para o próximo apenas quando concluir.
+- **`parallel`**: A tarefa pode ser executada ao mesmo tempo que suas tarefas irmãs (não possui \`dependencies\` que bloqueiem a atual).
+- **`broadcast`**: Múltiplos agentes (de perfis ou modelos diferentes) executam a **mesma** tarefa de forma isolada, e o `agile_reviewer` aprova apenas a melhor implementação.
 
-1. **Objetivo:** Resumo da meta.
-2. **Contexto RAG (SDD):** Links para `docs/rfcs/` ou `docs/cadernos/` relevantes. O executor **deve** ler estes links antes de codar.
-3. **Estratégia de Testes (TDD):** Como testar (Vitest, Playwright, ou CLI-only para agentes sem visão).
-4. **Referências de Código:** Pontos de injeção (`src/...`).
-5. **Instruções de Execução:** Passo a passo, sempre forçando o teste primeiro.
-6. **Feedback de Especificação (Spec Feedback Loop):** Ponto de parada. Se a spec estiver confusa ou errada, o executor não adivinha: ele marca a tarefa como `blocked` e escreve aqui.
-7. **Definition of Done (DoD):** Checklist final de aceitação.
-8. **Log de Handover e Revisão:** Espaço assíncrono de comunicação (PR review).
+## 3. Estrutura Estrita da Tarefa (`T-XXX.md` v2)
+Toda tarefa deve possuir Frontmatter YAML e as seguintes seções estruturadas:
 
-## 4. Tratamento de Agentes Sem Visão
-Nem todo LLM possui capacidades multimodais para rodar um Puppeteer/Playwright e analisar o resultado visualmente.
-Para tarefas visuais (UI), a estratégia de teste deve apontar para o uso de `@testing-library/react` com DOM virtual, ou a delegação explícita da fase `review` para um agente humano ou modelo multimodal.
-
-## 5. Fechamento de Épico (Epic Validation)
-Ao fim de cada marco (Ex: M0, M1), uma tarefa especial de "Epic Validation" é criada. O objetivo não é feature, mas sim auditoria:
-- Verificar coesão da API entre as N tarefas recém completadas.
-- Identificar necessidade de refatoração.
-- Gerar novas tarefas derivadas para polimento de dívida técnica.
+1. **Ambiente de Execução:** Define runtime (Node v20+), Test Runner, Package Manager (\`pnpm\`). Impede o uso acidental de \`npm\`.
+2. **Escopo de Arquivos (Inputs/Outputs):** A regra mais sagrada da v2. A tarefa define exatamente o que o agente deve \`[READ]\`, \`[CREATE]\` ou \`[UPDATE]\`. **É terminantemente proibido** alterar ou criar arquivos que não estejam listados nesta seção. Isso previne agentes espalhando config files inúteis.
+3. **Estratégia de Testes (TDD):** Define a cobertura, o framework, o que \`não\` testar e as limitações do ambiente (Node puro vs Headless).
+4. **Instruções de Execução (Do & Don't):** Passo a passo restritivo com foco no "Que Não Fazer".
+5. **Feedback de Especificação (Spec Loop):** Se a spec estiver confusa ou errada, o executor marca a tarefa como `blocked` e relata o gap estrutural. O agente NUNCA preenche uma lacuna inventando requisitos não documentados.
+6. **Definition of Done (DoD) & Reviewer Checklist:** Checklist focada para uso do `agile_reviewer`.
+7. **Grafo de Dependências:** O YAML define \`dependencies\` e \`blocks\`, estabelecendo DAG estrito e \`execution_mode\` (sequencial/paralelo). Agentes pulam tarefas se as dependências não estiverem em \`done\`.

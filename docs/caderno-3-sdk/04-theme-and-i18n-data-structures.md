@@ -6,10 +6,12 @@ Este documento especifica a estrutura de dados e as propriedades de tematizaçã
 
 ## 1. Sistema de Temas Dinâmicos (`CONTENT:THEME`)
 
-Os temas na plataforma baseiam-se em arquivos de dados estruturados YAML ou JSON salvos em nós do tipo `CONTENT:THEME`. O sistema injeta esses valores diretamente em variáveis CSS Custom Properties no `:root` HTML em tempo de execução, sem necessidade de recarregar a aplicação.
+Os temas na plataforma baseiam-se em arquivos de dados estruturados YAML ou JSON salvos em nós do tipo `CONTENT:THEME`. Eles representam o nível base (App) de estilização. O sistema compila e injeta esses valores através da arquitetura de tokens (Style Dictionary), convertendo as referências para variáveis CSS Custom Properties (prefixadas com `--ds-*`) no `:root` do HTML.
 
-### 1.1 Vocabulário Canônico de Tokens
-Para manter a compatibilidade e a acessibilidade, o Tailwind CSS está configurado para ler exclusivamente as seguintes variáveis CSS customizáveis:
+*Para ver como estes temas interagem com os estilos de níveis inferiores (Módulo, Página, Instância), veja [09-hierarchical-theme-customization.md](./09-hierarchical-theme-customization.md).*
+
+### 1.1 Vocabulário Canônico de Tokens e Overrides
+A estrutura abandona mapeamentos HSL antigos em prol de um sistema de chaves achatadas (Flat Key-Value). Os temas redefinem apontamentos para as primitivas de estilo (ex: `theme.intent.*` ou `component.*`).
 
 ```yaml
 # Exemplo de Payload de um nó CONTENT:THEME
@@ -18,43 +20,25 @@ content_theme:
   type: "CONTENT:THEME"
   metadata:
     name: "Ocean Breeze"
-    version: "1.0.0"
+    version: "2.0.0"
     description: "Tons azulados inspirados no oceano"
-  base_mode: "light"             # 'light' | 'dark' | 'system'
-  tokens:
-    # Cores de Fundo e Texto
-    background: "210 40% 98%"     # Formato HSL: H S% L%
-    foreground: "222 47% 11%"
+  base_mode: "light"             # 'light' | 'dark'
+  theme_overrides:
+    # Camada de Tema (reaproveitada por todos os componentes filhos):
+    "theme.surface.default":      "#f0f8ff",
+    "theme.content.default":      "#001f3f",
+    "theme.intent.primary.fill":  "{color.ocean.500}",
+    "theme.border.subtle":        "#d0e2f5",
     
-    # Cores de Destaque Semântico
-    primary: "221 83% 53%"
-    primary-foreground: "210 40% 98%"
-    secondary: "210 40% 96.1%"
-    secondary-foreground: "222 47% 11%"
-    accent: "199 89% 48%"
-    accent-foreground: "210 40% 98%"
-    destructive: "0 84.2% 60.2%"
-    destructive-foreground: "210 40% 98%"
-    
-    # Estados de Negócios/Plataforma
-    success-payment: "142 76% 36%"
-    warning-stock-low: "38 92% 50%"
-    
-    # Bordas e Raios
-    border: "214.3 31.8% 91.4%"
-    input: "214.3 31.8% 91.4%"
-    ring: "221.2 83.2% 53.3%"
-    radius: "0.5rem"
-    
-    # Espaçamento e Densidade
-    spacing-base: "0.25rem"
-    density-modifier: "1.0"      # Multiplicador decimal de paddings
+    # Camada de Componente (ajustes cirúrgicos globais):
+    "card.radius":                "12px",
+    "button.primary.bg":          "{theme.intent.primary.fill}"
 ```
 
 ### 1.2 Validação de Temas no Upload
-Quando um usuário cria ou importa um tema no marketplace corporativo ou público, o Validador de Domínio aplica o schema de conformidade da `SPECIFICATION:THEME`:
-* **Presença de Tokens Obrigatórios**: Verifica a integridade de todas as chaves básicas de cores e fontes.
-* **Validação de Contraste WCAG**: O validador calcula a razão de contraste entre pares críticos (ex: `background` vs `foreground`, `primary` vs `primary-foreground`). Se o contraste calculado for inferior a **4.5:1** para textos normais, a publicação é bloqueada ou marcada como incompatível.
+Quando um usuário cria ou importa um tema no marketplace, o Validador de Domínio atua com o schema de `SPECIFICATION:THEME`:
+* **Validação de Chaves Válidas**: Analisa se todas as chaves em `theme_overrides` estão registradas no índice canônico de tokens da plataforma.
+* **Validação de Contraste WCAG**: Um lint computado (via jsdom) resolve a cascata de componentes vitais no tema. Se pares de contraste críticos (ex: botões primários contra seu texto associado) possuírem razão inferior a **4.5:1** para textos normais, a publicação recebe advertência e, caso seja uma rede sob governança rígida, pode ser bloqueada.
 
 ---
 

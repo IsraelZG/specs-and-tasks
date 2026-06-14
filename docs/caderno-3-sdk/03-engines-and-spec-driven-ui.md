@@ -63,7 +63,7 @@ A plataforma consolida a interface em um conjunto enxuto de engines polimórfica
 
 ## 3. Lógica de Spec-Driven UI
 
-A plataforma adota o padrão de **Layout Abstrato (A2) + Comportamento Dinâmico (A3 parcial)**. A `SPECIFICATION` que governa uma entidade declara a estrutura de exibição dos campos, mas nunca define detalhes de estilo visual (como cores ou fontes, que pertencem estritamente aos Temas).
+A plataforma adota o padrão de **Layout Abstrato (A2) + Comportamento Dinâmico (A3 parcial)**. A `SPECIFICATION` que governa uma entidade declara a estrutura de exibição dos campos. O estilo visual puro base (cores, fontes) pertence ao nó global `CONTENT:THEME`, enquanto ajustes contextuais de marca ou design são definidos no bloco `theme_overrides` na própria `SPECIFICATION`.
 
 *Exemplo de Configuração de UI em SPECIFICATION:*
 ```yaml
@@ -71,6 +71,9 @@ specification:
   type: "SPECIFICATION:PRODUCT_LISTING"
   version: "1.0.0"
   ui_hints:
+    theme_overrides:
+      "theme.intent.primary.fill": "#10b981"
+      "card.radius": "8px"
     super_card:
       header:
         title_field: "name"
@@ -84,7 +87,9 @@ specification:
         secondary_actions: ["ask_question"]
 ```
 
-Quando um `SuperCard` genérico recebe um nó de produto, ele consulta a especificação associada para renderizar os campos nos slots semânticos adequados sem compilar código rígido (hardcoded).
+Quando um wrapper nomeado ou container recebe esse nó, duas ações ocorrem em runtime:
+1. **Resolução de Campos**: O `SuperCard` consulta a especificação para renderizar os campos nos slots semânticos.
+2. **Mapeamento de Tema**: O dicionário `theme_overrides` é capturado por um contexto (ex: `ThemeScope`) e renderizado como um bloco `<style>` injetado ou inline styles na respectiva camada de escopo (gerando seletores nativos vinculados aos atributos HTML como `[data-ds-module="..."]` ou `[data-ds-page="..."]`). Isso repinta a hierarquia inferior via cascata CSS sem custo extra de processamento JS para cada componente isolado. Consulte [09-hierarchical-theme-customization.md](./09-hierarchical-theme-customization.md) para detalhes.
 
 ### 3.1 Hooks de Reatividade Criptográfica e Permissões
 Para habilitar, ocultar ou modificar ações e renderizações baseando-se no modelo de segurança, os componentes da SDK consomem hooks integrados à reatividade do TinyBase e à tabela `local_permissions`:

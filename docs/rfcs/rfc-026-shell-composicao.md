@@ -1,0 +1,147 @@
+# RFC-026 — Shell de Aplicação e Composição de Módulos
+> **Status:** Proposta
+> **Precedência:** transversal; **emenda** `caderno-4-governance/02-module-architecture-and-code-splitting.md` (composição de módulos em painéis) e `caderno-3-sdk/03-engines-and-spec-driven-ui.md` (camada de composição acima das páginas). Apoia-se em RFC-008 (painel hospeda página/rota), RFC-006 (FlexLayout como engine de shell first-party), RFC-027 (painel hospeda profile de módulo; drag/share = comando) e RFC-011 (command palette → IA). **Zero tipo de nó novo.** Onde não tocada, a doc vigente prevalece.
+> **Decisões de entrada:** restrições de layout declaradas no manifesto do módulo, com gerenciador determinístico; **workspaces salvos** (`SPEC:WORKSPACE`) já no escopo; command palette + overlay parte aqui, comportamento de IA na RFC-011.
+
+## A.1 — Shell como árvore FlexLayout; `SPEC:WORKSPACE`
+
+**Onde integrar:**
+
+| Arquivo | Seção | Ação |
+| :--- | :--- | :--- |
+| `caderno-3-sdk/26-shell-e-composicao.md` | novo | Documento canônico, §1 |
+| `docs/conceitos/spec-workspace.md` | novo verbete | layout salvo vs. estado vivo |
+
+**Texto normativo:**
+
+1. O shell é uma **árvore FlexLayout** de regiões/painéis (`flexlayout-react`, MIT, como renderizador first-party — não roda código de autor, é shell confiável). Cada **painel** binda **(módulo + página/rota + params)**; regiões aninham (coluna subdividida em rows), recursivamente.
+2. **Estado vivo = efêmero** (regra da RFC-027: arranjo atual não é nó mutável replicado). **`SPEC:WORKSPACE`** é o layout **salvo** (durável, por usuário/perfil): o modelo serializável do FlexLayout vira payload de SPEC. Há um workspace **default** + **salvos nomeados** (trabalho, pessoal, por-projeto), múltiplos — no escopo do ciclo 1.
+3. Snapshot: o estado vivo pode ser materializado num `SPEC:WORKSPACE`; restaurar um workspace reidrata a árvore (sessões efêmeras não-persistidas não retornam — A.11).
+
+## A.2 — Chrome como módulo
+
+**Onde integrar:**
+
+| Arquivo | Seção | Ação |
+| :--- | :--- | :--- |
+| `caderno-3-sdk/26-shell-e-composicao.md` | §2 | Adicionar |
+
+**Texto normativo:**
+
+1. Header, menus laterais e footer **não são código de shell privilegiado** — são módulos comuns em regiões fixas do FlexLayout. São spec-driven, themeable (RFC-006), **filtrados por permissão** (o menu só mostra módulos a que o usuário tem acesso) e participam da mensageria (RFC-027). White-label troca o chrome editando spec, sem recompilar.
+2. **Menu = um módulo, reposicionado por regime:** o menu lateral (desktop) e o footer de navegação (mobile) são **o mesmo módulo de menu**, colocado em região diferente conforme a largura (A.5). Não há dois códigos de navegação.
+
+## A.3 — Restrições de layout declaradas e gerenciador determinístico
+
+**Onde integrar:**
+
+| Arquivo | Seção | Ação |
+| :--- | :--- | :--- |
+| `caderno-3-sdk/26-shell-e-composicao.md` | §3 | Adicionar |
+| `docs/conceitos/gerenciador-de-espaco.md` | novo verbete | solver determinístico de colunas |
+
+**Texto normativo:**
+
+1. Cada módulo **declara no manifesto** suas restrições de layout: largura **mínima**, **mínima-para-ser-útil**, **preferida**, se **colapsa para trilho** (só ícones), se é **empilhável como row**, e se é **pinável**.
+2. O **gerenciador de espaço é um solver determinístico**: dado (largura do viewport + painéis abertos + restrições + recência + pinos), produz um layout **reproduzível** — nada de heurística opaca. **Pino do usuário sempre vence recência.** Comportamento previsível é requisito: usuário precisa confiar em onde as coisas estão.
+3. Menu lateral em estado convencional ocupa largura mínima (trilho de ícones); expandir revela texto/submenus, aumentando a coluna — caso direto do colapso-para-trilho declarado.
+
+## A.4 — Geração dinâmica de coluna e pilha de colapsados
+
+**Onde integrar:**
+
+| Arquivo | Seção | Ação |
+| :--- | :--- | :--- |
+| `caderno-3-sdk/26-shell-e-composicao.md` | §4 | Adicionar |
+
+**Texto normativo:**
+
+1. Disposição default (desktop): menus nas extremidades; entre eles, **coluna Principal** (foco atual — social, marketplace, fintech) e **coluna Secundária** (comunicação/utilitários, subdividível em rows para mensagens, e-mail, notificações).
+2. Selecionar um item (conversa, produto) **gera uma nova coluna** de detalhe. Sem espaço útil, o gerenciador **colapsa** o painel menos recente e não-pinado para uma **pilha visível de colapsados** (reabrível) — **nada se perde silenciosamente**. A decisão usa largura-mínima-útil + recência + pinos (A.3).
+
+## A.5 — Responsividade contínua (desktop / tablet / mobile)
+
+**Onde integrar:**
+
+| Arquivo | Seção | Ação |
+| :--- | :--- | :--- |
+| `caderno-3-sdk/26-shell-e-composicao.md` | §5 | Adicionar |
+
+**Texto normativo:**
+
+1. A responsividade é **contínua, dirigida por largura** — não layouts separados. Desktop/tablet exibem múltiplas colunas conforme a largura permite; **mobile é o regime degenerado**: tipicamente **um módulo por vez + footer**.
+2. **Mobile:** os menus laterais tornam-se dinâmicos via **footer** (uma row do FlexLayout); acionar um item expande o menu para a tela inteira. Onde o desktop **abriria uma coluna lateral**, o mobile **oculta a vigente** para dar lugar ao novo conteúdo (ou **restaura uma coluna minimizada**) — foco na tarefa atual.
+
+## A.6 — Interação entre painéis: drag e share como comando
+
+**Onde integrar:**
+
+| Arquivo | Seção | Ação |
+| :--- | :--- | :--- |
+| `caderno-3-sdk/26-shell-e-composicao.md` | §6 | Adicionar |
+
+**Texto normativo:**
+
+1. **Arrastar item entre colunas (desktop)** e **compartilhar item (mobile)** são a **mesma operação**: uma **mensagem de comando** ao profile do módulo de destino (RFC-027 A.2) — durável (intent) ou efêmera, conforme o caso. O gesto difere; a semântica não.
+2. **Contrato de aceite declarado:** cada módulo declara os tipos de mensagem/payload que aceita. Assim o drag **destaca destinos válidos** e o share-sheet **lista destinatários válidos**. Mensagem não aceita = **falha controlada** (rejeição validada com feedback), nunca erro silencioso.
+
+## A.7 — Endereçabilidade e navegação
+
+**Onde integrar:**
+
+| Arquivo | Seção | Ação |
+| :--- | :--- | :--- |
+| `caderno-3-sdk/26-shell-e-composicao.md` | §7 | Adicionar |
+
+**Texto normativo:** cada painel é endereçável por **rota** (a página tem rota — RFC-008); o estado de workspace serializa para URL, habilitando **deep-link** ("abrir produto X numa coluna"), **compartilhamento de link** e **voltar/avançar** como navegação sobre estados de workspace.
+
+## A.8 — Camada de overlay e command palette
+
+**Onde integrar:**
+
+| Arquivo | Seção | Ação |
+| :--- | :--- | :--- |
+| `caderno-3-sdk/26-shell-e-composicao.md` | §8 | Adicionar |
+
+**Texto normativo:**
+
+1. Acima da árvore FlexLayout há uma **camada de overlay** (não-coluna): modais, menus de contexto, toasts/notificações, ghost de drag, e a **command palette** (Cmd/Ctrl-K).
+2. A palette é a **superfície de intenção em linguagem natural** — busca global, entrada de ação, e entrada de **geração-por-IA**. A *superfície* (palette, atalho, overlay) é desta RFC; o *comportamento de IA* (classificar intenção, gerar `SPEC:PAGE`/`SPEC:WORKFLOW`, recuperar) é da **RFC-011 A.7**.
+
+## A.9 — Ciclo de vida e multi-instância
+
+**Onde integrar:**
+
+| Arquivo | Seção | Ação |
+| :--- | :--- | :--- |
+| `caderno-3-sdk/26-shell-e-composicao.md` | §9 | Adicionar |
+
+**Texto normativo:**
+
+1. O mesmo módulo pode ocupar **N painéis** (dois produtos lado a lado, como split-editor): cada painel tem **sessão própria** (doc efêmero — RFC-027 A.4), compartilhando o **profile (usuário × módulo)** (RFC-027 A.3).
+2. Painel oculto/colapsado é **suspenso**: a sessão é preservada (efêmera local), o render é desmontado — economia de recurso com muitos painéis abertos.
+
+## A.10 — Acessibilidade
+
+**Onde integrar:**
+
+| Arquivo | Seção | Ação |
+| :--- | :--- | :--- |
+| `caderno-3-sdk/26-shell-e-composicao.md` | §10 | Adicionar |
+
+**Texto normativo:** navegação de foco entre colunas, troca de coluna/painel por teclado (paridade com editores de painéis), e regiões nomeadas para leitor de tela são requisito — herda os invariantes de acessibilidade da RFC-006 (que prevalecem sobre qualquer tema).
+
+## A.11 — Limites honestos
+
+1. O solver é determinístico, mas **restrições mal declaradas** no manifesto degradam o layout — qualidade depende de bons manifestos.
+2. Muitos painéis custam recurso; mitigado por suspensão (A.9), não eliminado.
+3. Deep-link restaura o **layout**; **sessões efêmeras não-persistidas não voltam** (comportamento esperado — persistir é opt-in, RFC-027 A.4).
+4. Mobile sacrifica simultaneidade por foco — é a natureza do regime degenerado, declarada.
+
+## A.12 — Preparativos no plano
+
+| Arquivo | Seção | Ação |
+| :--- | :--- | :--- |
+| `docs/plano-de-implementacao.md` | preparativos de módulos | Adicionar T-SHL-01..05 |
+
+**T-SHL-01** shell FlexLayout + `SPEC:WORKSPACE` (default + salvos nomeados) + painel binda (módulo+página+params) — DoD UI da Bancada; **T-SHL-02** restrições de layout no manifesto + gerenciador determinístico (recência+pinos) + pilha de colapsados; **T-SHL-03** responsividade contínua (multi-coluna ↔ mobile coluna-única+footer) + chrome-como-módulo (menu reposicionado por regime); **T-SHL-04** drag (desktop)/share (mobile) como mensagem de comando (RFC-027) + contrato de aceite + falha controlada; endereçabilidade por rota + deep-link; **T-SHL-05** camada de overlay + command palette (superfície; IA na RFC-011) + ciclo de vida de painel (suspensão); vetores (§0.1.7): item arrastado a módulo que não aceita → falha controlada, workspace vivo nunca persiste sem opt-in, layout reproduzível dado o mesmo input.

@@ -3,16 +3,14 @@ import path from 'path';
 
 /**
  * Script utilitário para converter uma string de descrição de tarefa em um
- * arquivo Markdown estruturado (MGTIA), suportando fluxo Agile completo (TDD, SDD, Code Review).
- * 
- * Uso via terminal/agente:
- * node tools/scripts/generate-task.mjs T-005 "SimNetwork v1" 2
+ * arquivo Markdown estruturado (MGTIA v2), suportando fluxo Agile e 
+ * especificações estritas de I/O e Testes.
  */
 
-const [, , taskId, taskTitle, taskComplexity] = process.argv;
+const [, , taskId, taskTitle, taskComplexity, targetAgent] = process.argv;
 
 if (!taskId || !taskTitle) {
-  console.error("Uso: node generate-task.mjs <T-XXX> <Título> <Complexidade>");
+  console.error("Uso: node generate-task.mjs <T-XXX> <Título> <Complexidade> <TargetAgent>");
   process.exit(1);
 }
 
@@ -21,64 +19,85 @@ id: ${taskId}
 title: "${taskTitle}"
 status: draft
 complexity: ${taskComplexity || 2}
-parent_task: null
-subtasks: []
-dependencies: []
-target_agent: any
-reviewer_agent: any
+target_agent: ${targetAgent || 'logic_agent'} # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+reviewer_agent: agile_reviewer
+execution_mode: sequential # parallel | sequential
+dependencies: [] # IDs de tarefas que bloqueiam esta
+blocks: [] # IDs de tarefas que esta bloqueia
 ---
 
 # ${taskId} · ${taskTitle}
+
+## 0. Ambiente de Execução Obrigatório
+- **Runtime:** Node.js v20+
+- **Package Manager:** \`pnpm\` (NÃO USE npm ou yarn)
+- **Monorepo:** Turborepo (\`pnpm build\`, \`pnpm test\`, \`pnpm lint\` na raiz afetam todos os pacotes)
+- **Test Runner:** \`vitest\` (pacotes core/protocol) e \`playwright\` (E2E/Frontend)
 
 ## 1. Objetivo
 *(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
 
 ## 2. Contexto RAG (Spec-Driven Development)
-*(A spec é a fonte da verdade. Adicione links absolutos ou relativos para as RFCs e Cadernos que regem esta funcionalidade)*
-- [ ] Especificação Principal: \`docs/...\`
+*(A spec é a fonte da verdade. Adicione links absolutos ou relativos)*
+- [ ] \`docs/...\`
 
-## 3. Estratégia de Testes (Test-Driven Development)
-*(Como esta funcionalidade será testada?)*
-- [ ] **Abordagem**: *(Unitário via Vitest? E2E via Playwright?)*
-- [ ] **Sem Visão (Para LLMs)**: Para agentes sem capacidade visual, como testar? (Ex: \`testing-library/react\` ou output JSON).
+## 3. Escopo de Arquivos (Inputs e Outputs)
+*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
+- **[READ]** \`caminho/do/arquivo/referencia.ts\` (Funções/Classes existentes a serem lidas)
+- **[CREATE]** \`caminho/novo/arquivo.ts\` (O formato esperado do output)
+- **[UPDATE]** \`caminho/existente.ts\` (Linhas X a Y, ou adicionar função Z)
 
-## 4. Referências de Código
-- Arquivos Alvo: \`src/.../...\`
+## 4. Estratégia de Testes Estrita (Test-Driven Development)
+- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
+- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
+- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
+- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
 
 ## 5. Instruções de Execução (Step-by-Step)
-1. **[TDD]** Escreva o teste na pasta \`tests/\` primeiro, afirmando o comportamento esperado na spec.
-2. Rode o teste para garantir que ele falhe.
-3. Escreva a implementação mínima para o teste passar.
-4. Refatore se necessário.
+> **⚠️ REGRAS DO QUE NÃO FAZER:**
+> - 
+> - 
+
+1. **[TDD]** Escreva o teste em \`...\`
+2. Implemente \`...\`
+3. Refatore.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **ATENÇÃO AGENTE EXECUTOR:** Se durante a execução você identificar que a especificação (RFC/Caderno) está ambígua, contraditória ou impossível de implementar de forma elegante, **PARE**. Não "invente" um comportamento. Descreva o problema técnico abaixo e altere o status desta tarefa para \`blocked\`.
-
+> **ATENÇÃO:** Se a spec (RAG) for ambígua, contraditória ou o design pattern imposto for impossível, **PARE**. Mude o status para \`blocked\` e escreva o motivo abaixo. Não alucine uma abstração não documentada.
 - *[Nenhum problema identificado]*
 
-## 7. Definition of Done (DoD)
-- [ ] Testes escritos e passando (\`npm run test\`).
-- [ ] Linter sem avisos.
-- [ ] O comportamento segue estritamente a especificação.
+## 7. Definition of Done (DoD) & Reviewer Checklist
+O agente \`agile_reviewer\` usará esta checklist para aprovar ou rejeitar o PR:
+- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
+- [ ] O \`pnpm test\` roda sem erros no ambiente especificado (Node/JSDOM)?
+- [ ] Linter (\`pnpm lint\`) não acusa problemas?
+- [ ] A implementação respeita a Regra do Que Não Fazer?
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
-*(Espaço para o agente documentar o progresso ou para o Agente Revisor adicionar comentários)*
-
 ### Handover do Executor:
 - 
 
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado** (Status vai para \`done\`)
-- [ ] **Requer Refatoração** (Status volta para \`rework\`. Explicar motivos abaixo)
+- [ ] **Aprovado**
+- [ ] **Requer Refatoração**
 - **Comentários de Revisão:** 
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando \`node tools/scripts/manage-task.mjs\`.
 `;
 
-const tasksDir = path.join(process.cwd(), 'tasks');
-if (!fs.existsSync(tasksDir)) {
-  fs.mkdirSync(tasksDir, { recursive: true });
+import { rebuildIndexes } from './rebuild-index.mjs';
+
+const isMeta = taskId.startsWith('M-');
+const targetDir = path.join(process.cwd(), isMeta ? 'meta-tasks' : 'tasks');
+
+if (!fs.existsSync(targetDir)) {
+  fs.mkdirSync(targetDir, { recursive: true });
 }
 
-const filePath = path.join(tasksDir, `${taskId}.md`);
+const filePath = path.join(targetDir, taskId + '.md');
 fs.writeFileSync(filePath, template, 'utf8');
 
-console.log(`✅ Tarefa ${taskId} (Agile/MGTIA) criada com sucesso em: ${filePath}`);
+console.log('✅ Tarefa ' + taskId + ' v2 criada com sucesso em: ' + filePath);
+
+rebuildIndexes();
