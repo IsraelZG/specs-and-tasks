@@ -43,6 +43,10 @@ A página (RFC-008) referencia os dois **pela mesma sintaxe** (nome de catálogo
 1. `ui` plugin roda **isolado**: iframe sandbox (UI completa) ou Worker + OffscreenCanvas (render headless), com bridge `postMessage`. **Sem DOM** fora da sua fronteira, **sem rede** exceto portas declaradas, **sem grafo** exceto as props recebidas.
 2. **Mesmo teto de abuso das páginas (RFC-008 A.5):** o plugin só **emite intents** pela ponte; tudo que muda o mundo passa pelo pipeline normal, assinado pela persona do usuário. Plugin malicioso no máximo *propõe* o que o pipeline rejeita.
 3. Orçamento de recurso (CPU/memória/tempo de frame) declarado e imposto pelo host; estouro suspende o plugin, não o app.
+4. **Bridge tipada e autenticada.** A bridge `postMessage` é fortemente tipada (esquema declarado no manifesto) e **bidirecionalmente autenticada**: host e plugin verificam a identidade do par a cada mensagem; mensagens fora do esquema declarado são descartadas.
+5. **Anti-flood.** A comunicação host↔plugin usa um `MessageChannel` dedicado (porta isolada, não o `window.postMessage` global) com **rate-limit por segundo** imposto pelo host; um plugin que excede o teto de mensagens é throttled e, persistindo, suspenso (item 3), protegendo a aba host de denial-of-service.
+6. **Sem canal lateral entre plugins.** Comunicação **direta entre iframes de plugins** é proibida: dois `ui` plugins na mesma tela nunca trocam mensagens entre si. A plataforma é o **broker único** — toda coordenação passa pelo state global (ZEN) e pelo pipeline de intents (item 2), eliminando exfiltração colateral entre plugins.
+7. **Origin nulo, sem persistência opaca.** O iframe sandbox é servido em **origin nulo** (`sandbox` sem `allow-same-origin`), desabilitando `localStorage`, `IndexedDB` e qualquer armazenamento persistente opaco. Todo estado do plugin atravessa a bridge via props (entrada) e intents (saída) — não há canal de persistência fora do controle do host.
 
 ## A.4 — Caminho primário: spec-page + componentes providos
 

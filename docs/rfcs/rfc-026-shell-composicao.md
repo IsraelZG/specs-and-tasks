@@ -17,6 +17,7 @@
 1. O shell é uma **árvore FlexLayout** de regiões/painéis (`flexlayout-react`, MIT, como renderizador first-party — não roda código de autor, é shell confiável). Cada **painel** binda **(módulo + página/rota + params)**; regiões aninham (coluna subdividida em rows), recursivamente.
 2. **Estado vivo = efêmero** (regra da RFC-027: arranjo atual não é nó mutável replicado). **`SPEC:WORKSPACE`** é o layout **salvo** (durável, por usuário/perfil): o modelo serializável do FlexLayout vira payload de SPEC. Há um workspace **default** + **salvos nomeados** (trabalho, pessoal, por-projeto), múltiplos — no escopo do ciclo 1.
 3. Snapshot: o estado vivo pode ser materializado num `SPEC:WORKSPACE`; restaurar um workspace reidrata a árvore (sessões efêmeras não-persistidas não retornam — A.11).
+4. **Sem broadcast multi-dispositivo.** O auto-save de `SPEC:WORKSPACE` **não** propaga broadcasts de re-render a outros dispositivos/terminais ativos do mesmo perfil: redimensionar ou rearranjar no dispositivo A **não** rearranja a sessão viva do dispositivo B (preservar foco). O workspace salvo é o **estado estático inicial** da **próxima** sessão a abri-lo — nunca um stream de mutações ao vivo entre dispositivos.
 
 ## A.2 — Chrome como módulo
 
@@ -84,6 +85,7 @@
 
 1. **Arrastar item entre colunas (desktop)** e **compartilhar item (mobile)** são a **mesma operação**: uma **mensagem de comando** ao profile do módulo de destino (RFC-027 A.2) — durável (intent) ou efêmera, conforme o caso. O gesto difere; a semântica não.
 2. **Contrato de aceite declarado:** cada módulo declara os tipos de mensagem/payload que aceita. Assim o drag **destaca destinos válidos** e o share-sheet **lista destinatários válidos**. Mensagem não aceita = **falha controlada** (rejeição validada com feedback), nunca erro silencioso.
+3. **Segurança de intent irreversível.** Para comandos **irreversíveis** (deleção, transição de estado destrutiva), o gesto de drag/share **não** emite o intent imediatamente: a UI exige confirmação via **drop zones explícitas e destacadas** e oferece **time-delay** ou **undo** antes de materializar a mensagem de comando no protocolo. Gestos acidentais são recuperáveis; o intent durável só é emitido após a janela de desfazer.
 
 ## A.7 — Endereçabilidade e navegação
 
@@ -119,7 +121,7 @@
 **Texto normativo:**
 
 1. O mesmo módulo pode ocupar **N painéis** (dois produtos lado a lado, como split-editor): cada painel tem **sessão própria** (doc efêmero — RFC-027 A.4), compartilhando o **profile (usuário × módulo)** (RFC-027 A.3).
-2. Painel oculto/colapsado é **suspenso**: a sessão é preservada (efêmera local), o render é desmontado — economia de recurso com muitos painéis abertos.
+2. Painel oculto/colapsado é **suspenso**: suspender significa **render-sleep** — o componente do painel é **desmontado** (libera GPU/RAM, relevante para painéis pesados: mapas WebGL, vídeo, gráficos), enquanto o **estado de sessão permanece em memória** (efêmero local). Painéis na **pilha de colapsados** (A.4) sofrem a mesma suspensão; reabri-los **remonta** a partir do estado preservado, sem reinicializar a sessão.
 
 ## A.10 — Acessibilidade
 

@@ -46,6 +46,7 @@
 1. **Planilha** = componente rico **first-party** com motor de fórmulas real + pontos ZEN (RFC-008 A.4) — uso convencional robusto (grade livre, fórmulas).
 2. **Base (Airtable)** = view de **dados estruturados** (registros = nós sob uma `SPEC`, views tabela/kanban/calendário = páginas sobre projeções + JSON Forms).
 3. **Fonte de dados compartilhada:** planilha e base podem ler o mesmo dado; e a **base pode ser uma view sobre a planilha** (a grade vira fonte estruturada). São duas lentes, não dois silos.
+4. **Cálculo fora da main thread.** A reatividade da planilha é N:M (uma célula pode alterar milhares): o cálculo de fórmulas resolve a **topologia de dependências** fora da main thread (worker), paralelizando a cascata, para não bloquear a sessão Automerge nem o validador ZEN. (O motor de fórmulas é JS de componente rico; os pontos ZEN ficam dentro do envelope do componente — sem conflito com o orçamento de páginas da RFC-008.)
 
 ## A.4 — Apresentações
 
@@ -90,7 +91,7 @@
 | :--- | :--- | :--- |
 | `caderno-3-sdk/25-suite-office.md` | §7 | Adicionar |
 
-**Texto normativo:** colaboração em tempo real (docs, planilha, whiteboard) é **nativa via Automerge** (CRDT já no stack); a sessão de edição segue o modelo de doc colaborativo (RFC-027 A.4). Export é conversor (docx/pptx/pdf), não formato proprietário.
+**Texto normativo:** colaboração em tempo real (docs, planilha, whiteboard) é **nativa via Automerge** (CRDT já no stack); a sessão de edição segue o modelo de doc colaborativo (RFC-027 A.4). Export é conversor (docx/pptx/pdf), não formato proprietário. Componentes ricos com camadas/objetos arrastáveis (editores de mídia, whiteboard) usam **session-locks efêmeros**: enquanto um peer manipula uma camada/objeto, ele a bloqueia para os demais; o lock é volátil (presença efêmera, RFC-018), não estado Automerge persistido. Evita conflitos de ordenação (ex.: Z-Index) que CRDTs de array convergeriam de forma visualmente incorreta.
 
 ## A.8 — Limites honestos
 

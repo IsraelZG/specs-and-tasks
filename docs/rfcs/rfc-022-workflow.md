@@ -17,6 +17,7 @@
 1. Um processo é um nó **`SPECIFICATION` (kind: `WORKFLOW`)** cujo payload é a definição da máquina de estados (formato próprio, A.4/A.5). Herda linhagem, assinatura, governança, customização por `EXTENDS` e jurisdição (RFC-009) — exatamente como a linguagem de páginas (RFC-008).
 2. **Estado de execução = projeção, não nó mutável.** Uma *instância* de workflow tem seu estado **derivado da linhagem dos eventos finalizados** daquela instância (event sourcing). Reabrir/reconstruir = re-fold dos eventos. Isso herda a regra inviolável da saga (RFC-012 A.4.6): nada de aresta com `state` mutável replicado — só pernas finalizadas vão ao grafo; o "estado atual" é leitura derivada.
 3. **Orquestrador = liveness, nunca safety.** Quem avança a instância é o validador declarado da linhagem de coordenação; a safety segue nas primitivas (A.2), não no orquestrador. Sem super-peer contrabandeado.
+4. **Pin de versão por instância.** Uma instância de workflow executa até o fim sob a versão de `SPEC:WORKFLOW` sob a qual nasceu; um supersede da SPEC **não** migra instâncias in-flight nem re-funde eventos passados sobre a nova máquina. Novas instâncias usam a versão vigente. A versão de origem é parte da linhagem da instância e é resolvida no fold.
 
 ## A.2 — Primitivas reusadas (a engine é fina porque o difícil já existe)
 
@@ -71,6 +72,7 @@ Consequência: não construímos um motor durável do zero (o que o Temporal ven
 - **Ações de entrada/saída** por estado (emissão de intent).
 - **Timers**: transição disparada por deadline HLC (timeout/SLA).
 - **Estado composto raso**: aninhamento de **um nível** (um estado pode agrupar sub-estados sequenciais), com sub-workflow por **referência** a outro `SPEC:WORKFLOW`.
+- **Escalonamento de tarefa humana**: um estado que aguarda `APPROVED_BY` declara um deadline HLC de escalonamento; ao expirar sem aprovação, a transição de timeout encaminha a tarefa ao alvo de fallback declarado na SPEC (ex.: `root`/supervisor) ou a um estado de exceção. Assim um aprovador inexistente nunca tranca a saga indefinidamente — herda a mecânica de timer dos timers acima.
 
 **Exclui** (e é isso que o mantém simples): regiões paralelas/ortogonais; history (shallow/deep); eventos internos com propagação/bubbling; transições arbitrárias entre níveis de hierarquia. A configuração ativa é, no Nível 1, essencialmente **um estado** (+ contexto), o que torna o fold de event sourcing trivial.
 
