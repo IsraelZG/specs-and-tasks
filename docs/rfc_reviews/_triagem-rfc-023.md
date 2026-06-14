@@ -27,11 +27,11 @@
 | 023-06 | §4 — Arestas: `ASSET:LOCK` reservando estoque / capacidade do entregador | JA-COBERTO | A.2.1 / A.4.2 | A.2.1 reserva estoque por `ASSET:LOCK`; A.4.2 reserva disponibilidade do entregador por `ASSET:LOCK` (TTL). | [x] |
 | 023-07 | §5 — Ciclo de vida: kickstart pelo vendedor → transições progressivas inviáveis de sobrescrever → liquidação/arquivamento | JA-COBERTO | A.2.2 / A.4.4 / A.5 | A.2/A.4 já modelam o ciclo como workflow append-only (projeção sobre eventos) e a liquidação/repasse em A.4.5; descreve o que a RFC já diz. | [x] |
 | 023-08 | §5 — "Lock de pagamento liquidado em favor do entregador no fim de vida" | REJEITAR | — | Já normado em A.4.5 (split + repasse por SPEC); como achado distinto não acrescenta requisito — apenas reafirma. Fora de escopo como nova norma. | [x] |
-| 023-09 | §3 — Layout: DispatchBoard Tático (MapCanvas à esquerda + Orders "Aguardando Coleta" à direita, drag-and-drop p/ entregador) | UI->INVENTARIO | inventario-componentes-layouts.md | Layout `DispatchBoard` (organismo composto) — módulo Logística (RFC-023); reusa MapCanvas (RFC-021) + kanban de dispatch. | [ ] |
-| 023-10 | §3 — Layout: WMS Scanner View (mobile, botões grandes, scan câmera/barcode) | UI->INVENTARIO | inventario-componentes-layouts.md | Layout `WMSScannerView` (template mobile) — módulo Logística (RFC-023). | [ ] |
-| 023-11 | §3 — Atom: `StatusTimelineDot` | UI->INVENTARIO | inventario-componentes-layouts.md | Átomo `StatusTimelineDot` — módulo Logística (RFC-023). | [ ] |
-| 023-12 | §3 — Atom: `BarcodeScannerWidget` | UI->INVENTARIO | inventario-componentes-layouts.md | Átomo `BarcodeScannerWidget` — módulo Logística (RFC-023). | [ ] |
-| 023-13 | §3 — Molecule: `DeliveryRouteStop` (card do passo-a-passo do motorista) | UI->INVENTARIO | inventario-componentes-layouts.md | Molécula `DeliveryRouteStop` — módulo Logística (RFC-023). | [ ] |
-| 023-14 | §3 — Organisms: `DispatchKanbanBoard`, `FulfillmentWaveManager` | UI->INVENTARIO | inventario-componentes-layouts.md | Organismos `DispatchKanbanBoard` e `FulfillmentWaveManager` — módulo Logística (RFC-023). | [ ] |
+| 023-09 | §3 — Layout: DispatchBoard Tático (MapCanvas à esquerda + Orders "Aguardando Coleta" à direita, drag-and-drop p/ entregador) | UI->INVENTARIO | inventario-componentes-layouts.md | Layout `DispatchBoard` (organismo composto) — módulo Logística (RFC-023); reusa MapCanvas (RFC-021) + kanban de dispatch. | [x] |
+| 023-10 | §3 — Layout: WMS Scanner View (mobile, botões grandes, scan câmera/barcode) | UI->INVENTARIO | inventario-componentes-layouts.md | Layout `WMSScannerView` (template mobile) — módulo Logística (RFC-023). | [x] |
+| 023-11 | §3 — Atom: `StatusTimelineDot` | UI->INVENTARIO | inventario-componentes-layouts.md | Átomo `StatusTimelineDot` — módulo Logística (RFC-023). | [x] |
+| 023-12 | §3 — Atom: `BarcodeScannerWidget` | UI->INVENTARIO | inventario-componentes-layouts.md | Átomo `BarcodeScannerWidget` — módulo Logística (RFC-023). | [x] |
+| 023-13 | §3 — Molecule: `DeliveryRouteStop` (card do passo-a-passo do motorista) | UI->INVENTARIO | inventario-componentes-layouts.md | Molécula `DeliveryRouteStop` — módulo Logística (RFC-023). | [x] |
+| 023-14 | §3 — Organisms: `DispatchKanbanBoard`, `FulfillmentWaveManager` | UI->INVENTARIO | inventario-componentes-layouts.md | Organismos `DispatchKanbanBoard` e `FulfillmentWaveManager` — módulo Logística (RFC-023). | [x] |
 </content>
 </invoke>
