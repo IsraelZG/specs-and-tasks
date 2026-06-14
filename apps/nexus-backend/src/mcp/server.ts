@@ -4,6 +4,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprot
 import { routeIntent } from '../services/router.js';
 import { TurboVecClient } from '../services/turbovec.client.js';
 import { HeadroomClient } from '../services/headroom.client.js';
+import { EpochDBClient } from '../services/epochdb.client.js';
 
 const mcpServer = new Server({
   name: "nexus-hub-mcp",
@@ -44,8 +45,18 @@ mcpServer.setRequestHandler(ListToolsRequestSchema, async () => {
 });
 
 mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const agentId = 'mcp-client';
+
   if (request.params.name === "nexus_read_context") {
     const query = String(request.params.arguments?.query);
+    
+    // Log to EpochDB
+    EpochDBClient.logInteraction({
+      agentId,
+      action: 'nexus_read_context',
+      query,
+      timestamp: new Date().toISOString()
+    });
     
     // 1. Semantic Routing
     const keywords = await routeIntent(query);
@@ -57,12 +68,25 @@ mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
     // 3. Compress with Headroom
     const compressedContext = await HeadroomClient.compressContext(rawContext);
     
+    EpochDBClient.logInteraction({
+      agentId,
+      action: 'nexus_read_context_completed',
+      resultSize: compressedContext.length,
+      timestamp: new Date().toISOString()
+    });
+    
     return {
       content: [{ type: "text", text: compressedContext }]
     };
   }
 
   if (request.params.name === "nexus_run_safe_script") {
+    EpochDBClient.logInteraction({
+      agentId,
+      action: 'nexus_run_safe_script',
+      query: String(request.params.arguments?.scriptId),
+      timestamp: new Date().toISOString()
+    });
     return {
       content: [{ type: "text", text: "Safe Script runner not implemented yet (T-1008)." }]
     };
