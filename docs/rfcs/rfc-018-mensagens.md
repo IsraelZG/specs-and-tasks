@@ -46,7 +46,7 @@
 | :--- | :--- | :--- |
 | `caderno-3-sdk/19-mensagens-reference-spec.md` | §4 | Adicionar |
 
-**Texto normativo:** presença (online, digitando, visto por último) é **estado efêmero não-durável** — sinal volátil, nunca nó append-only replicado (seria poluir a linhagem). Entrega best-effort; "visto por último" é cortesia honest-client, desligável.
+**Texto normativo:** presença (online, digitando, visto por último) é **estado efêmero não-durável** — sinal volátil, nunca nó append-only replicado (seria poluir a linhagem). Entrega best-effort; "visto por último" é cortesia honest-client, desligável. O sinal de presença embute **rate-limit rígido** por cliente e **auto-expiração local**: o indicador de digitação expira nativamente após ~5 s sem refresh, evitando retenção de lixo nas views ativas e limitando o spam de clientes adversários.
 
 ## A.5 — Limites honestos
 
