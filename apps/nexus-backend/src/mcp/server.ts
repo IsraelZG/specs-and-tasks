@@ -5,6 +5,11 @@ import { routeIntent } from '../services/router.js';
 import { TurboVecClient } from '../services/turbovec.client.js';
 import { HeadroomClient } from '../services/headroom.client.js';
 import { EpochDBClient } from '../services/epochdb.client.js';
+import { exec } from 'child_process';
+import util from 'util';
+import path from 'path';
+
+const execPromise = util.promisify(exec);
 
 const mcpServer = new Server({
   name: "nexus-hub-mcp",
@@ -81,15 +86,40 @@ mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 
   if (request.params.name === "nexus_run_safe_script") {
+    const scriptId = String(request.params.arguments?.scriptId);
+    
     EpochDBClient.logInteraction({
       agentId,
       action: 'nexus_run_safe_script',
-      query: String(request.params.arguments?.scriptId),
+      query: scriptId,
       timestamp: new Date().toISOString()
     });
-    return {
-      content: [{ type: "text", text: "Safe Script runner not implemented yet (T-1008)." }]
-    };
+    
+    try {
+      // Security: Only allow specific known commands or scripts in the root package.json
+      // To keep it safe, we'll prefix it with pnpm run and execute in root dir
+      if (/[^a-zA-Z0-9_-]/.test(scriptId)) {
+        throw new Error("Invalid script ID format. Only alphanumeric characters allowed.");
+      }
+      
+      const rootDir = path.resolve(__dirname, '../../../../');
+      const { stdout, stderr } = await execPromise(`pnpm run ${scriptId}`, { cwd: rootDir });
+      
+      EpochDBClient.logInteraction({
+        agentId,
+        action: 'nexus_run_safe_script_completed',
+        resultSize: stdout.length,
+        timestamp: new Date().toISOString()
+      });
+
+      return {
+        content: [{ type: "text", text: `Success:\n${stdout}\n\nErrors (if any):\n${stderr}` }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: "text", text: `Execution Failed:\n${error.message}` }]
+      };
+    }
   }
 
   throw new Error("Tool not found");
