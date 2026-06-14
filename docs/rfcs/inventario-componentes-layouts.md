@@ -102,3 +102,51 @@ Polimórficos e reutilizados por vários módulos:
 1. **Reuso domina:** ~80% de cada módulo são atoms/molecules/organisms compartilhados; o que é próprio são poucos organisms de domínio. Confirma a tese de "lente sobre o mesmo substrato".
 2. **Organisms = engines:** quase todo organism compartilhado já é uma engine do caderno-3/03 — o catálogo não inventa, formaliza.
 3. **Lacunas a decidir no catálogo:** `Wizard`/`StepperFlow` (formulário multi-etapa guiado por workflow), `DataTable` virtualizada para grandes volumes (custo de BI — RFC-013 A.6), e `GameEngine` (qual lib base — RFC-024 A.5) são os três itens que pedem decisão de implementação antes de M-design-system.
+
+## 7. Componentes nomeados pelos reviews (refinamento por módulo)
+
+> Consolida os achados de UI (§3) das revisões das RFCs. Refina os organisms genéricos do §5 com componentes nomeados e seu nível atômico. Itens já presentes no §1–§5 estão marcados *(já no catálogo)*. Nível: a=átomo · m=molécula · o=organismo.
+
+**Design System / core (RFC-006):** `Label` (a, já no catálogo), `Avatar` (a, já), `Badge` (a, já), `SkeletonLoader`/`Skeleton` (a, já), `Switch` (a, já), `Checkbox` (a, já), `CardHeader` (m), `FormGroup` (m, ≈ `FormField`), `Breadcrumb` (m, já), `MessageBubble` (m), `Dialog`/`Modal` (o), `NavigationSidebar` (o, ≈ `NavRail`), `DataGrid` (o, ≈ `DataTable`), `PageHeader` (o).
+
+**Conectores / admin (RFC-007):** `StatusBadge` (a), `ConnectorIcon` (a), `ProgressBar` de quota (a, já), `ConnectorHealthCard` (m), `RateLimitWarning` (m), `ConnectorHealthDashboard` (o), `ConnectorConfigForm` (o, JSON Forms via SPEC), `SagaExecutionLog` (o, perna de saga bloqueada).
+
+**SDK / renderizador de páginas (RFC-008):** `JSONFormWidget` (a, widget polimórfico JSON Forms), `ExpressionErrorBadge` (a, overflow/throw de ZEN), `StreamingSkeleton` (m, shimmer por seção), `OverrideLayerPanel` (m, camadas de `EXTENDS`), `NodeOutlineOverlay` (o, bordas+IDs modo design), `PageRendererEngine` (o, runtime da árvore).
+
+**IA / Shell (RFC-011):** `AgentAvatarIcon` (a), `RAGScoreChip` (a, score semântico), `AgentProvenanceBadge` (m, modelo+principal delegante), `OmnibarInput` (m), `CommandPaletteOverlay` (o, ≈ `CommandPalette`), `ProgressiveGenerationSkeleton` (o), `LovableUIPreview` (o, sandbox aceitar/recusar/editar SPEC antes do intent).
+
+**Jurisdição / Fiscal (RFC-009):** `JurisdictionBadge` (a, bandeira/UF+sigla), `TaxCompositionRow` (m, variante jurisdicional que originou o valor), `PolicyFallbackBanner` (o, modo degradado declarado), `AuditTimeMachine` (o, recálculo por competência + diff).
+
+**Marketplace / Plugins (RFC-010):** `PrivacyClassIndicator` (a, classe-de-privacidade do manifesto), `PluginRequirementChecklist` (m, GPU/Worker/Node vs perfil), `AsyncJobQueueManager` (o, progresso de renditions/embeddings da fila). Layouts: Dashboard de Ativos Computacionais (browser × server nodes), App Store segregada de plugins.
+
+**Marketplace + Fintech (RFC-012):** `CurrencyMoneyView`/`Money` (a, já), `CartItemRow` (m, polimórfica por classe de liquidação), `SagaLegStatus` (m), `CartDrawer` (o, já), `FinancialTreeTable` (o, partida dobrada `SPENDS`→N `CREDITS`), `CheckoutSagaWizard` (o, progressão das pernas).
+
+**ERP/CRM (RFC-013):** `WorkflowStateTag` (a, estado da `StateMachine`), `InventoryCountPill` (a, estoque já descontado locks), `BankReconciliationRow` (m, casamento por `external_ref`), `BIDashboardTile` (o, lê projeção analítica), `Customer360MasterDetail` (o, ≈ `Contact360`, timeline por traversal), `CRMPipelineKanban` (o, ≈ `KanbanBoard`).
+
+**Contábil/Fiscal/RH (RFC-014):** `DebitCreditBadge` (a), `TaxRatePill` (a), `EmployeePayrollRow` (m), `PeriodLockRejectionPrompt` (m, oferece intent de reabertura), `FiscalTimeMachineBar` (m, vigência por competência), `TAccountsExplorer` (o, razonetes com drill-down), `GeneralLedgerTable` (o, ≈ `LedgerTable`), `FiscalClosingWizard` (o, ≈ `PeriodCloser`).
+
+**Anúncios (RFC-015):** `SponsoredLabel` (a), `BudgetMeterBar` (a), `AdSlotPlaceholder` (a/m), `CampaignRow` (m), `AdPlacementWidget` (o, ≈ `AdSlot`), `AudienceBuilderForm` (o, ≈ `AudienceBuilder`), `CampaignManagerView` (o, Business Manager + funil workflow).
+
+**Rede Social (RFC-016):** `AvatarRing` (a), `LikeHeartToggle` (a), `FollowButton` (a, já), `StoryBubbleList` (m, ≈ `StoryBar`), `SocialActionRow` (m, ≈ `ReactionBar`), `InfiniteFeedRenderer` (o, ≈ `FeedColumn`), `ProfileHeaderArea` (o, ≈ `ProfileHeader`), Story viewer com pré-busca de arestas (o).
+
+**Streaming (RFC-017):** `PlaybackScrubber` (a, preview thumbnails), `QualitySelector` (a, rendition), `LiveBadge` (a), `VideoThumbnailCard` (m), `SuperChatTipRow` (m, tip = `CREDITS`), `MediaPlayerSurface` (o, Theatre/Mini-PiP sem reload de página), `MediaPlayerEngine` (o, ≈ `MediaPlayer`), `CreatorStudioDashboard` (o, pipeline de transcode/publicação).
+
+**Mensagens (RFC-018):** `ReadReceiptTick` (a), `OnlineDot` (a, ≈ `PresenceDot`), `TypingBubble` (a), `CallDurationTimer` (a), `ChatMessageBubble` (m, reply de contexto), `CallLogBanner` (m), `MessagesSplitView` (o, master-detail), `ChatWindow` (o, lista virtualizada), `CallPanel` (o, PiP universal, já), `VideoConferenceGrid` (o, LiveKit Room).
+
+**Email (RFC-019):** `EmailReadDot` (a), `AttachmentPill` (a), `ThreadCountBadge` (a), `EmailThreadItem` (m), `EmailContextActionBar` (m, ações sugeridas por RAG), `EmailComposeWindow` (o, editor→saga SMTP), `InboxMailboxViewer` (o, tri-pane).
+
+**Calendário (RFC-020):** `EventColorPill` (a), `RSVPIconButton` (a, ≈ `RSVPControl`), `AgendaDayBlock` (m), `AvailabilitySlot` (m), `CalendarGridCondensed` (o, colapsa faixas ociosas), `TimelineGridRenderer` (o, drag/resize eixo Y), `EventDetailsSidebar` (o).
+
+**Mapa (RFC-021):** `CustomGeoPin` (a, ícone temático da SPEC), `ZoomControl` (a), `MapOverlayCard` (m, card flutuante transparente), `PlaceAutocompleteInput` (m, RRF local + fallback Classe E), `InteractiveMapCanvas` (o, ≈ `MapCanvas`, aceita pins reativos cross-módulo).
+
+**Workflow (RFC-022):** `StatusStepIndicator` (a), `TimerCountdownBadge` (a), `TransitionArrow` (a), `WorkflowNodeBox` (m, destaque do estado ativo), `ApprovalRequestBanner` (m, `APPROVED_BY` pausando instância), `VisualWorkflowEditor` (o, ReactFlow→DSL), `WorkflowInstanceAuditLog` (o, ≈ `TransitionLog`, vista "metrô").
+
+**Logística (RFC-023):** `StatusTimelineDot` (a), `BarcodeScannerWidget` (a), `DeliveryRouteStop` (m), `DispatchKanbanBoard` (o), `FulfillmentWaveManager` (o), `DispatchBoard` (o, já — mapa+kanban), `WMSScannerView` (template mobile).
+
+**Plugins-Frontend (RFC-024):** `PermissionLockIcon` (a, estado de permissão no frame), `PluginCrashBoundary` (m, fallback de crash), `SandboxFrame` (o, wrapper de iframe com borda/affordance), `PluginPermissionManager` (o, modal de permissões estilo extensão).
+
+**Suíte Office (RFC-025):** `SlashCommandInput` (a), `CellReferencePill` (a), `ContextualToolbar` (m, barra flutuante na seleção), `RichBlockRenderer` (m, bloco rico + drag handle), `SlideDeckPreview` (o), layout `distraction-free` (chrome mínimo do perfil `documento`).
+
+**Shell / composição (RFC-026):** `ResizerBar` (a, splitter com snap magnético), `PanelGrabHandle` (a), `CollapsedPanelTab` (a), `ShortcutChip` (a), `OmnibarOmniSearch` (m, ≈ `CommandPalette`), `TransformableMobileFooter` (o, footer-rampa→menu full-screen), `FlexLayoutTreeSolver` (o, container raiz + gerenciador determinístico).
+
+**Módulos / delegação (RFC-027):** `AgentModeIndicator` (o, "sombra" do delegado em ação assistida), `DelegatePermissionCenter` (o, delegados vivos + `ASSET:ROLE` + revogação).
