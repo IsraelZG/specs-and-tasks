@@ -36,6 +36,7 @@
 1. Áudio/vídeo 1:1 e conferência via **LiveKit**: **SDK cliente embutido** (first-party), **SFU como plugin `infra`** exigido pelo LiveKit (RFC-010 A.3, modality-gated); canais WebRTC próprios, fora do reconciliador do grafo. Sem SFU (P2P puro): WebRTC bruto para 1:1/grupos pequenos, sem conferência grande. A sinalização de início/convite é intent sobre a conversa.
 2. **Gravação** (opcional, com consentimento) = segmentos efêmeros consolidados pela [[consolidacao-de-live]] (utilitário `compute` assíncrono, RFC-017 A.3) num `CONTENT:FILE` anexado à conversa.
 3. Tela compartilhada/transcrição são utilitários `compute` (RFC-010/011) sobre a sessão.
+4. **Logging durável de chamada.** Embora a mídia rode em canais WebRTC próprios fora do reconciliador, dois marcos duráveis são assentados na conversa: `CONTENT:CALL_START` e `CONTENT:CALL_END` (este carregando duração e participantes). Eles vinculam o histórico de chamadas à linhagem permanente da conversa; nenhum evento intra-chamada é logado.
 
 ## A.4 — Presença
 

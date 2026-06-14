@@ -78,6 +78,7 @@
 3. **Folha = lançamentos derivados** dos eventos de trabalho (invariante base universal — RFC-009 A.2.1). A variante jurisdicional carrega os encargos (no BR: INSS, FGTS, IRRF, etc.) com **vigência por competência**; recalcular uma competência anterior aplica a regra da época (RFC-009 A.3). A folha apurada gera provisão (`BALANCE_STATE`) e lançamentos contábeis (A.1).
 4. **Obrigações de RH** (no BR: eSocial e afins) são transmitidas por **conector** (RFC-007 C); a plataforma apura e provisiona, o conector transmite.
 5. Benefícios, ponto eletrônico, avaliações e treinamentos modelam-se como `CONTENT`/`ASSET` sobre o mesmo colaborador — RH é uma lente, não um silo.
+6. **Dado pessoal de colaborador e direitos do titular.** Dados pessoais de colaborador e eventos de trabalho são tratados sob o framework de privacidade canônico [[03-legal-and-compliance-framework]]: consentimento de primeira classe (`ASSET:CONSENT` §2.1), portabilidade/exclusão por `CONTENT:INTENT` (§2.2–2.3) e **retenção legal prevalecente** (§2.3) sobre folha/encargos sujeitos a obrigação trabalhista/fiscal — que não são passíveis de expurgo enquanto vigente a retenção.
 
 ## A.6 — Fechamento, auditoria e reabertura
 
