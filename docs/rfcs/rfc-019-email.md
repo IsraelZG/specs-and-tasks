@@ -23,8 +23,9 @@
 
 **Texto normativo:**
 
-1. Email recebido = `CONTENT` (espelho) governado por `SPEC:EMAIL`, idempotente por `Message-ID` (`external_ref`, RFC-007 A.3.2); thread = agregação por cabeçalhos. Anexos = blobs no media plane.
-2. Estados (lido, arquivado, marcado) refletem o provedor; conflito resolve a favor do provedor (RFC-007 A.4.5). Busca/RAG (RFC-011) operam sobre o espelho local.
+1. Email recebido = `CONTENT` (espelho) governado por `SPEC:EMAIL`, idempotente por `Message-ID` (`external_ref`, RFC-007 A.3.2); thread = agregação por cabeçalhos. Anexos = blobs no media plane. A agregação em thread é materializada por **arestas nativas** `IN_REPLY_TO` e `REFERENCES`, traduzidas dos cabeçalhos RFC 2822 (`In-Reply-To`/`References`) durante o ingresso; a thread é o subgrafo transitivo dessas arestas, não uma reconstrução por heurística de assunto.
+2. Estados (lido, arquivado, marcado) refletem o provedor; conflito resolve a favor do provedor (RFC-007 A.4.5). Busca/RAG (RFC-011) operam sobre o espelho local. A reflexão de estado é **bidirecional**: mutações de organização no espelho (ex.: arquivar, mover de pasta, aplicar/remover label) acionam o conector para aplicar a operação IMAP correspondente no provedor. Um **translation engine** mapeia pastas/labels do modelo do grafo para o esquema do provedor (ex.: `[Gmail]/All Mail`, labels múltiplas), preservando a resolução a favor do provedor em conflito (RFC-007 A.4.5).
+3. **Anexos sob ponteiro cego.** A importação IMAP **não materializa** automaticamente anexos acima de um limiar `N` (MB) no media plane: registra um **ponteiro cego** (referência ao anexo no provedor) e baixa o blob **on-demand**, sob solicitação explícita do cliente, com cache local. O provedor permanece autoritativo sobre o anexo até a materialização.
 
 ## A.3 — Envio
 
@@ -51,6 +52,8 @@
 1. O provedor externo é a fonte da verdade; o grafo é espelho — offline-first é parcial (envio/leitura novos sincronizam quando online).
 2. Spam, criptografia de transporte e reputação de remetente seguem o provedor; a plataforma não reescreve o protocolo de email.
 3. Perda de cursor → ressincronização completa idempotente (RFC-007 A.4 D1), custo declarado.
+4. **Falha de autenticação superficiada.** Quando o conector entra em estado **Offline-Auth** (credencial expirada ou token revogado), a falha é **superficiada imediatamente** ao usuário ("Credencial Inválida"); sagas de envio pendentes são **pausadas** (não entram em retry/compensação contínuos) até reautenticação. Falha de auth nunca é silenciosa nem confundida com falha transitória de rede.
+5. **Política de retenção do espelho.** Emails podem ser configurados para **desidratar progressivamente** (descartar corpo/anexos mantendo metadados e `external_ref`, rehidratáveis sob demanda) ou **persistir** como registros anexados a deals do CRM (RFC-013). Expurgar a conta remove o conector; os nós espelhados seguem a política de retenção configurada.
 
 ## A.6 — Preparativos no plano
 

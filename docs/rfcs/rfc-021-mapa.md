@@ -26,6 +26,8 @@
 
 1. Proximidade/dentro-de-área são consultas locais sobre o `geo_index` (sem rede).
 2. **Geocoding, places e rotas** externos = conector **Classe E** (RFC-007 A.5, consulta): resultado pode materializar como `SPEC:PLACE` com **TTL de validade** e proveniência (`provider`/`fetched_at`); a SPEC declara se é cacheável/replicável ou `LOCAL_TRANSIENT`, respeitando os termos do provedor.
+3. **Geofencing por polígono.** O `geo_index` (R*Tree) estende-se a **polígonos simples** além de pontos (Long/Lat), permitindo consulta "dentro-de-polígono" local. Isso habilita que uma `SPEC:WORKFLOW` (RFC-022/Logística) valide um *Proof of Delivery* apenas quando a coordenada cai dentro do polígono da região. A consulta de contenção é local sobre o `geo_index`, sem rede.
+4. **Proxy seguro de chave de API.** A **chave de API** de provedores externos (geocoding/places/rotas) **NUNCA** é exposta no frontend React nem a clients P2P. Por não haver backend, a chave é retida no **System Peer do Operador de Node**, que atua como *proxy seguro* para os requests Classe E ao provedor.
 
 ## A.3 — Consumo por outros módulos
 
