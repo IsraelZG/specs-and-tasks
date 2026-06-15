@@ -5,11 +5,18 @@ import { routeIntent } from '../services/router.js';
 import { TurboVecClient } from '../services/turbovec.client.js';
 import { HeadroomClient } from '../services/headroom.client.js';
 import { EpochDBClient } from '../services/epochdb.client.js';
+import { TaskService } from '../services/task.service.js';
+import { TaskController } from '../services/task.controller.js';
+import { TASK_TOOL_DEFS, TASK_TOOL_NAMES, handleTaskTool } from './task-tools.js';
 import { exec } from 'child_process';
 import util from 'util';
 import path from 'path';
 
 const execPromise = util.promisify(exec);
+
+// Raiz do repositório (dist/mcp/server.js → ../../../../ = raiz). Sobreponível por env (testes/deploy).
+const TASK_ROOT_DIR = process.env.NEXUS_ROOT_DIR ?? path.resolve(__dirname, '../../../../');
+const taskController = new TaskController(new TaskService({ rootDir: TASK_ROOT_DIR }));
 
 const mcpServer = new Server({
   name: "nexus-hub-mcp",
@@ -44,7 +51,8 @@ mcpServer.setRequestHandler(ListToolsRequestSchema, async () => {
           },
           required: ["scriptId"]
         }
-      }
+      },
+      ...TASK_TOOL_DEFS
     ]
   };
 });
@@ -120,6 +128,17 @@ mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
         content: [{ type: "text", text: `Execution Failed:\n${error.message}` }]
       };
     }
+  }
+
+  // task tools — delegam ao mesmo TaskController do REST (paridade garantida)
+  if (TASK_TOOL_NAMES.has(request.params.name)) {
+    const r = handleTaskTool(
+      taskController,
+      request.params.name,
+      (request.params.arguments ?? {}) as Record<string, unknown>,
+    );
+    // Retorna literal para casar com a união de ServerResult do SDK.
+    return r.isError ? { content: r.content, isError: true } : { content: r.content };
   }
 
   throw new Error("Tool not found");

@@ -28,13 +28,13 @@ O **Swarm Registry** (geralmente referido como `SwarmRegistry`) é o mapa em RAM
 
 A plataforma adota o paradigma [[local-first]] e opera em redes distribuídas oportunísticas. O Swarm Registry permite aos peers manterem uma visão precisa e atualizada da vivacidade e qualidade da vizinhança na malha local, sem depender de um servidor central de status ou de uma DHT lenta e ineficiente para descoberta quente. Ele otimiza a alocação de recursos de rede locais ao delegar responsabilidades apenas a peers com tiers de capacidade e conectividade compatíveis, degradando as garantias de transporte de forma transparente quando as condições físicas mudam.
 
-Para detalhes de produto e o papel do transporte como recurso gerido, consulte o [caderno-1-vision/01-vision-and-positioning.md](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md#L11-L28).
+Para detalhes de produto e o papel do transporte como recurso gerido, consulte o [caderno-1-vision/01-vision-and-positioning.md](../caderno-1-vision/01-vision-and-positioning.md#L11-L28).
 
 ---
 
 ## Contrato ([[protocol]])
 
-O comportamento e as regras de controle do `SwarmRegistry` são regidos pela especificação de protocolo descrita em [caderno-5-transport/01-p2p-transport-and-reconciliation.md](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L355-L371). Como este verbete em modo `canonical` é o lugar canônico de sua definição no wiki, o contrato normativo do protocolo de heartbeat e a máquina de estados associada estão descritos abaixo.
+O comportamento e as regras de controle do `SwarmRegistry` são regidos pela especificação de protocolo descrita em [caderno-5-transport/01-p2p-transport-and-reconciliation.md](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L355-L371). Como este verbete em modo `canonical` é o lugar canônico de sua definição no wiki, o contrato normativo do protocolo de heartbeat e a máquina de estados associada estão descritos abaixo.
 
 ### Heartbeat e Health Check (RFC §3.2.2)
 
@@ -63,7 +63,7 @@ A execução lógica reside no [[sync-worker]] rodando fora da Main Thread, comu
 * **[[global-network-throttle]] (Alocação de Banda):** Alocação de banda e recursos de soquetes locais com base na visibilidade dos swarms (70% para aba ativa, 20% para aba visível, 10% para background; mobile com bateria < 30% causa pausa de background).
 * **[[connection-promotion-engine]] (Promoção de Conexões):** Tentativas em segundo plano para perfurar NAT (STUN) e migrar túneis de relays WebRTC para conexões P2P diretas.
 
-Para a arquitetura detalhada e orquestração de workers no cliente, consulte o [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md) e a [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.2](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L355-L371).
+Para a arquitetura detalhada e orquestração de workers no cliente, consulte o [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md) e a [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.2](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L355-L371).
 
 ---
 
@@ -71,7 +71,7 @@ Para a arquitetura detalhada e orquestração de workers no cliente, consulte o 
 
 O SwarmRegistry atua como o validador em tempo de execução da integridade da malha e dos compromissos assumidos pelos peers na rede. Tiers de capacidade e compromisso (banda, armazenamento, uptime) declarados e observados orientam a eleição de líderes e a distribuição de custódia na modalidade de rede adotada (Corporativa, Pública ou P2P Pura). Mudanças nas quotas globais, tempos de cool-off e limites de inatividade são definidos no nível de especificação de rede (`SPECIFICATION:NETWORK_GOVERNANCE`).
 
-A governança de rede e o ciclo de vida do bootstrap da rede estão descritos no [caderno-4-governance/03-specification-lifecycle-and-rfcs.md](file:///c:/Dev2026/Docs/docs/caderno-4-governance/03-specification-lifecycle-and-rfcs.md) e na [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.4](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L386-L438).
+A governança de rede e o ciclo de vida do bootstrap da rede estão descritos no [caderno-4-governance/03-specification-lifecycle-and-rfcs.md](../caderno-4-governance/03-specification-lifecycle-and-rfcs.md) e na [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.4](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L386-L438).
 
 ---
 

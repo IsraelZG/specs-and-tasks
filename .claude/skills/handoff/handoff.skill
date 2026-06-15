@@ -1,0 +1,10 @@
+name: handoff
+description: >
+  Use esta skill quando o usuário quiser transferir o contexto da sessão atual para um novo agente,
+  seja para trabalhar em uma tarefa paralela sem poluir o contexto atual, para separar um bug fix
+  descoberto durante o trabalho principal, para enviar tarefas de prototipação a uma sessão dedicada,
+  ou para passar aprendizados de volta a uma sessão anterior (handoff reverso). Gatilhos: "hand off",
+  "handoff", "passa para outro agente", "cria um documento de handoff", "manda para outra sessão",
+  "abre uma nova sessão para isso", "/handoff". NÃO use para compactar a sessão atual no lugar —
+  use /compact para isso.
+location: SKILL.md

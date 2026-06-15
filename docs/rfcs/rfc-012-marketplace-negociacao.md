@@ -10,7 +10,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/13-marketplace-reference-spec.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/14-marketplace-reference-spec.md` | novo | Documento canônico, §1 |
 | `docs/conceitos/item-negociavel.md` | novo verbete | Definição canônica |
 | `docs/conceitos/anuncio-listing.md` | novo verbete | listing vs. produto canônico |
 
@@ -26,7 +26,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/13-marketplace-reference-spec.md` | §2 | Adicionar |
+| `caderno-3-sdk/14-marketplace-reference-spec.md` | §2 | Adicionar |
 | `docs/conceitos/classe-de-liquidacao.md` | novo verbete | tabela + extensibilidade |
 
 **Texto normativo:** a classe declarada na SPEC do item determina o que o `CREDITS` entrega ao comprador:
@@ -49,7 +49,7 @@ A lista é extensível: nova classe é nova SPEC + declaração de "o que o CRED
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/13-marketplace-reference-spec.md` | §3 | Adicionar |
+| `caderno-3-sdk/14-marketplace-reference-spec.md` | §3 | Adicionar |
 | `docs/conceitos/serialization-por-linhagem.md` | corpo | Editar: citar anti-oversell de marketplace como aplicação |
 
 **Texto normativo:**
@@ -65,7 +65,7 @@ A lista é extensível: nova classe é nova SPEC + declaração de "o que o CRED
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/13-marketplace-reference-spec.md` | §4 | Adicionar |
+| `caderno-3-sdk/14-marketplace-reference-spec.md` | §4 | Adicionar |
 | `docs/rfc-transacoes-multidominio.md` | (se ausente) criar | Consolidar saga/2PC/TTL como doc citável |
 | `docs/conceitos/linhagem-de-coordenacao.md` | corpo | Editar: estado de saga é orquestração efêmera, não replicada |
 
@@ -84,7 +84,7 @@ A lista é extensível: nova classe é nova SPEC + declaração de "o que o CRED
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/13-marketplace-reference-spec.md` | §5 | Adicionar |
+| `caderno-3-sdk/14-marketplace-reference-spec.md` | §5 | Adicionar |
 | `docs/conceitos/economia-como-modulo.md` | corpo | Editar: split/comissão/imposto de rede como liquidação por SPEC |
 
 **Texto normativo:**
@@ -101,7 +101,7 @@ A lista é extensível: nova classe é nova SPEC + declaração de "o que o CRED
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/13-marketplace-reference-spec.md` | §6 | Adicionar |
+| `caderno-3-sdk/14-marketplace-reference-spec.md` | §6 | Adicionar |
 
 **Texto normativo:**
 
@@ -116,7 +116,7 @@ A lista é extensível: nova classe é nova SPEC + declaração de "o que o CRED
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/13-marketplace-reference-spec.md` | §7 | Adicionar |
+| `caderno-3-sdk/14-marketplace-reference-spec.md` | §7 | Adicionar |
 
 **Texto normativo:** preço e promoção são **Zen na SPEC do item/campanha**, nunca código. Modelos previstos:
 
@@ -130,7 +130,7 @@ A lista é extensível: nova classe é nova SPEC + declaração de "o que o CRED
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/13-marketplace-reference-spec.md` | §8 | Adicionar |
+| `caderno-3-sdk/14-marketplace-reference-spec.md` | §8 | Adicionar |
 | `docs/conceitos/instrumento-financeiro.md` | novo verbete | recebível/aporte/garantia como itens |
 
 **Texto normativo:** recebíveis, aportes e garantias são **itens negociáveis classe `instrumento_financeiro`** — por isso fintech e marketplace são uma RFC só.
@@ -146,12 +146,12 @@ A lista é extensível: nova classe é nova SPEC + declaração de "o que o CRED
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/13-marketplace-reference-spec.md` | §9 | Adicionar |
+| `caderno-3-sdk/14-marketplace-reference-spec.md` | §9 | Adicionar |
 
 **Texto normativo:**
 
 1. **ERP/CRM (RFC-013):** a venda **não** "envia dados" ao ERP — é o **mesmo subgrafo** visto por outra lente. O vendedor lê pedido/estoque/financeiro da venda porque são os mesmos nós (`INTENT`, `INVENTORY`, `BALANCE_STATE`) que ele governa. Integração = projeção, não API entre módulos.
-2. **Anúncios (RFC-015):** um `SPEC:PRODUCT_LISTING` pode virar `CONTENT` de anúncio referenciando o item via aresta de promoção, sem duplicar o item. A liquidação do anúncio (impressão/clique/conversão) usa esta mesma máquina econômica.
+2. **Anúncios (rfc-015):** um `SPEC:PRODUCT_LISTING` pode virar `CONTENT` de anúncio referenciando o item via aresta de promoção, sem duplicar o item. A liquidação do anúncio (impressão/clique/conversão) usa esta mesma máquina econômica.
 
 ## A.10 — Limites honestos
 
@@ -166,7 +166,7 @@ A lista é extensível: nova classe é nova SPEC + declaração de "o que o CRED
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/13-marketplace-reference-spec.md` | apêndice | Registrar como espaço de design, marcando status |
+| `caderno-3-sdk/14-marketplace-reference-spec.md` | apêndice | Registrar como espaço de design, marcando status |
 
 Espaço completo imaginado agora, com status (modelado pela máquina atual / diferido / descartado):
 

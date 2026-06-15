@@ -6,6 +6,7 @@
 2. **1 marco = capacidade demonstrável** (um app validável de ponta a ponta), não um bloco de código solto.
 3. **Spec-first + DoD por tipo** (herda §0.2 do plano principal). Vetores adversariais (§0.1.7) fecham cada marco.
 4. **Lente sobre subgrafo:** produtos que compartilham subgrafo (012/013/014) reusam, não duplicam.
+5. **Ordem de absorção vs. Ordem de build:** A ordem em que os documentos/RFCs são absorvidos para a wiki (ordem topológica de dependência de escrita de cadernos, descrita em `ordem-de-absorcao.md`) é **diferente** da ordem dos marcos de build de engenharia/milestones descrita neste documento.
 
 ---
 

@@ -9,7 +9,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-workflow-reference-spec.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/24-workflow-reference-spec.md` | novo | Documento canônico, §1 |
 | `docs/conceitos/spec-workflow.md` | novo verbete | definição como dado + estado como projeção |
 
 **Texto normativo:**
@@ -25,7 +25,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-workflow-reference-spec.md` | §2 | Adicionar |
+| `caderno-3-sdk/24-workflow-reference-spec.md` | §2 | Adicionar |
 
 **Texto normativo:** uma engine de workflow é "execução durável + decisões + timers + ações + compensação". Cada peça já existe no projeto; a engine apenas as compõe atrás do formato:
 
@@ -47,7 +47,7 @@ Consequência: não construímos um motor durável do zero (o que o Temporal ven
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-workflow-reference-spec.md` | §3 | Adicionar |
+| `caderno-3-sdk/24-workflow-reference-spec.md` | §3 | Adicionar |
 | `caderno-3-sdk/03-engines-and-spec-driven-ui.md` | §StateMachine | Editar: a engine `StateMachine` passa a interpretar `SPEC:WORKFLOW` |
 
 **Texto normativo:**
@@ -62,7 +62,7 @@ Consequência: não construímos um motor durável do zero (o que o Temporal ven
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-workflow-reference-spec.md` | §4 | Adicionar |
+| `caderno-3-sdk/24-workflow-reference-spec.md` | §4 | Adicionar |
 | `docs/conceitos/maquina-rasa.md` | novo verbete | escopo do Nível 1 |
 
 **Texto normativo:** o **Nível 1** é uma máquina de estados finita simples, suficiente para a esmagadora maioria dos processos de negócio (pedido, despacho, cobrança, aprovação). Inclui:
@@ -70,11 +70,12 @@ Consequência: não construímos um motor durável do zero (o que o Temporal ven
 - **Estados** nomeados; um (ou poucos) estado(s) ativo(s) por vez.
 - **Transições** disparadas por evento, com **guarda Zen** opcional.
 - **Ações de entrada/saída** por estado (emissão de intent).
-- **Timers**: transição disparada por deadline HLC (timeout/SLA).
+- **Timers**: transição disparada por deadline HLC (timeout/SLA). Mesmo em cenários P2P puros, para evitar que timers fiquem órfãos quando o peer orquestrador se desconecta, os eventos de workflow temporizados (e de calendário que exigem trigger) utilizam a **esteira de processamento assíncrono (Job Queue)** da plataforma. Esses agendamentos são registrados no grafo e processados por **agentes de sistema** (rodando em peers ativos ou superpeers que agem em benefício da rede) sem vazar dados para terceiros. Se a esteira estiver offline ou inacessível no momento, o disparo ocorre retroativamente assim que qualquer peer da linhagem se conectar.
 - **Estado composto raso**: aninhamento de **um nível** (um estado pode agrupar sub-estados sequenciais), com sub-workflow por **referência** a outro `SPEC:WORKFLOW`.
-- **Escalonamento de tarefa humana**: um estado que aguarda `APPROVED_BY` declara um deadline HLC de escalonamento; ao expirar sem aprovação, a transição de timeout encaminha a tarefa ao alvo de fallback declarado na SPEC (ex.: `root`/supervisor) ou a um estado de exceção. Assim um aprovador inexistente nunca tranca a saga indefinidamente — herda a mecânica de timer dos timers acima.
+- **Escalonamento de tarefa humana**: um estado que aguarda `APPROVED_BY` declara um deadline HLC de escalonamento; ao expirar sem aprovação, a transição de timeout encaminha a tarefa ao alvo de fallback declarado na SPEC (ex.: `root`/supervisor) ou a um estado de exceção. Assim um aprovador inexistente nunca tranca a saga indefinidamente — herda a mecânica de timer dos timers acima. Qualquer tarefa humana deve declarar obrigatoriamente na `SPEC` um `timeout` e uma `política de escalonamento` (ex.: escalonar para supervisor ou emitir alerta de exceção), impedindo o bloqueio indefinido da transação.
 
 **Exclui** (e é isso que o mantém simples): regiões paralelas/ortogonais; history (shallow/deep); eventos internos com propagação/bubbling; transições arbitrárias entre níveis de hierarquia. A configuração ativa é, no Nível 1, essencialmente **um estado** (+ contexto), o que torna o fold de event sourcing trivial.
+- **Invariabilidade de Versão In-Flight**: Instâncias de workflow em execução (*in-flight*) estão permanentemente vinculadas (pin) à versão da `SPEC:WORKFLOW` sob a qual foram iniciadas. Atualizações na especificação do workflow só afetam novas instâncias, garantindo previsibilidade e consistência transacional.
 
 ## A.5 — Nível 2: Statechart Harel completo
 
@@ -82,7 +83,7 @@ Consequência: não construímos um motor durável do zero (o que o Temporal ven
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-workflow-reference-spec.md` | §5 | Adicionar |
+| `caderno-3-sdk/24-workflow-reference-spec.md` | §5 | Adicionar |
 | `docs/conceitos/statechart-harel.md` | novo verbete | escopo do Nível 2 (semântica SCXML) |
 
 **Texto normativo:** o **Nível 2** é o statechart de Harel completo, com semântica canônica do **SCXML (W3C)** — adotada como referência de algoritmo para não reinventar. Adiciona sobre o Nível 1:
@@ -101,7 +102,7 @@ Consequência: não construímos um motor durável do zero (o que o Temporal ven
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-workflow-reference-spec.md` | §6 | Adicionar |
+| `caderno-3-sdk/24-workflow-reference-spec.md` | §6 | Adicionar |
 
 **Texto normativo:**
 
@@ -127,7 +128,7 @@ Consequência: não construímos um motor durável do zero (o que o Temporal ven
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-workflow-reference-spec.md` | §7 | Adicionar |
+| `caderno-3-sdk/24-workflow-reference-spec.md` | §7 | Adicionar |
 
 **Texto normativo:** o esforço de evoluir do Nível 1 para o Nível 2 está **concentrado no interpretador** e é **aditivo** — porque tudo que é caro de construir é compartilhado e já fica pronto no Nível 1.
 
@@ -152,7 +153,7 @@ Consequência: não construímos um motor durável do zero (o que o Temporal ven
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-workflow-reference-spec.md` | §8 | Adicionar |
+| `caderno-3-sdk/24-workflow-reference-spec.md` | §8 | Adicionar |
 
 **Texto normativo:**
 

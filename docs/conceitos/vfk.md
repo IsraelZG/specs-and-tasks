@@ -55,7 +55,7 @@ O modelo de grafo exige arestas que apontem tanto para nós quanto para outras a
 
 A definição normativa completa — incluindo exemplos de DDL e raciocínio de tradeoff TEXT vs. BLOB — está em:
 
-- [caderno-3-sdk/01-sqlite-and-projections-schema.md §2.1 — Virtual Foreign Keys (VFK) por Bitmasking de Caractere](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/01-sqlite-and-projections-schema.md)
+- [caderno-3-sdk/01-sqlite-and-projections-schema.md §2.1 — Virtual Foreign Keys (VFK) por Bitmasking de Caractere](../caderno-3-sdk/01-sqlite-and-projections-schema.md)
 
 Regras derivadas:
 

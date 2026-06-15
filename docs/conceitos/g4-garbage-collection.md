@@ -38,8 +38,8 @@ Dispositivos móveis e navegadores têm quotas de armazenamento finitas. O G4 ga
 
 A especificação normativa completa está em dois locais canônicos:
 
-- **Plano local — compactação e proteções**: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §4](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)
-- **Plano de custódia — pools segmentados LRU/Rarest-First**: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.5](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md)
+- **Plano local — compactação e proteções**: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §4](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)
+- **Plano de custódia — pools segmentados LRU/Rarest-First**: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.5](../caderno-5-transport/01-p2p-transport-and-reconciliation.md)
 
 ### Gatilho de execução
 

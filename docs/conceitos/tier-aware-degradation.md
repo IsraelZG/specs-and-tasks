@@ -60,7 +60,7 @@ Abaixo estão os conceitos dos quais o `tier-aware-degradation` depende diretame
 Este conceito é redefinido ou detalhado nos seguintes arquivos, cujas passagens devem ser consolidadas em favor deste verbete:
 
 * [[tier-aware-degradation]] — Definição preliminar no glossário.
-* [01-vision-and-positioning.md](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md#L26-L32) — Seção §2.2 (Princípio da Adequação Transparente) e §3.4 (Mobile).
-* [02-sync-worker-and-memory-lifecycle.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L86) — Seção §4 (Restrição de Bateria / Tier-aware Pause do G4) e §7.3 (Degradação em Mobile do Global Network Throttle).
+* [01-vision-and-positioning.md](../caderno-1-vision/01-vision-and-positioning.md#L26-L32) — Seção §2.2 (Princípio da Adequação Transparente) e §3.4 (Mobile).
+* [02-sync-worker-and-memory-lifecycle.md](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L86) — Seção §4 (Restrição de Bateria / Tier-aware Pause do G4) e §7.3 (Degradação em Mobile do Global Network Throttle).
 
 

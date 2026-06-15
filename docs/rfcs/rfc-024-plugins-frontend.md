@@ -9,8 +9,8 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/24-plugins-frontend.md` | novo | Documento canônico, §1 |
-| `caderno-3-sdk/09-design-system.md` | §2 | Editar: componente rico é um espectro (first-party ↔ ui-plugin) |
+| `caderno-3-sdk/26-plugins-frontend.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/10-design-system.md` | §2 | Editar: componente rico é um espectro (first-party ↔ ui-plugin) |
 
 **Texto normativo:** um componente referenciável por uma página vive num espectro de confiança:
 
@@ -25,8 +25,8 @@ A página (RFC-008) referencia os dois **pela mesma sintaxe** (nome de catálogo
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/24-plugins-frontend.md` | §2 | Adicionar |
-| `caderno-3-sdk/11-plugins-e-computacao.md` | §3 (A.3 da RFC-010) | Editar: adicionar a 4ª categoria `ui` à tabela de categorias |
+| `caderno-3-sdk/26-plugins-frontend.md` | §2 | Adicionar |
+| `caderno-3-sdk/12-plugins-e-computacao.md` | §3 (A.3 da RFC-010) | Editar: adicionar a 4ª categoria `ui` à tabela de categorias |
 
 **Texto normativo:** `ui` é a quarta categoria de plugin (ao lado de `compute`, `connector`, `infra` — RFC-010 A.3): plugin tipo `browser` que **renderiza interface**. Declara no manifesto: **props de entrada** (ligadas pela página via ZEN), **intents de saída** (o que pode emitir), e **capacidades solicitadas** (ex.: media plane, WebGPU, câmera) — brokeradas, não ambientes. Distribuição marketplace-only e assinatura como qualquer plugin (RFC-010 A.2).
 
@@ -36,7 +36,7 @@ A página (RFC-008) referencia os dois **pela mesma sintaxe** (nome de catálogo
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/24-plugins-frontend.md` | §3 | Adicionar |
+| `caderno-3-sdk/26-plugins-frontend.md` | §3 | Adicionar |
 
 **Texto normativo:**
 
@@ -54,7 +54,7 @@ A página (RFC-008) referencia os dois **pela mesma sintaxe** (nome de catálogo
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/24-plugins-frontend.md` | §4 | Adicionar |
+| `caderno-3-sdk/26-plugins-frontend.md` | §4 | Adicionar |
 
 **Texto normativo:**
 
@@ -68,8 +68,8 @@ A página (RFC-008) referencia os dois **pela mesma sintaxe** (nome de catálogo
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/24-plugins-frontend.md` | §5 | Adicionar |
-| `caderno-3-sdk/09-design-system.md` | §2 | Editar: adicionar componente rico `GameEngine` (2D/3D) |
+| `caderno-3-sdk/26-plugins-frontend.md` | §5 | Adicionar |
+| `caderno-3-sdk/10-design-system.md` | §2 | Editar: adicionar componente rico `GameEngine` (2D/3D) |
 
 **Texto normativo:**
 
@@ -83,7 +83,7 @@ A página (RFC-008) referencia os dois **pela mesma sintaxe** (nome de catálogo
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/24-plugins-frontend.md` | §6 | Adicionar |
+| `caderno-3-sdk/26-plugins-frontend.md` | §6 | Adicionar |
 | `docs/conceitos/validacao-de-plugin.md` | corpo | Editar: tier estrito para `ui`/iframe pesado |
 
 **Texto normativo:** o gate de marketplace (RFC-010 A.2) aplica tiers por risco: página spec (validação leve, é segura por construção), componente rico first-party (auditoria de autoria RFC-006), `ui` plugin sandbox (validação média), **iframe de código arbitrário / 3D pesado (tier mais estrito** — análise de recurso, fingerprinting, abuso de GPU). Critérios variam por implementação ([[modalidade-de-rede]]).

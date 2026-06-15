@@ -10,8 +10,8 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/23-logistica-reference-spec.md` | novo | Documento canônico, §1 |
-| `caderno-3-sdk/14-erp-crm-reference-spec.md` | §A.3 | Editar: WMS estende o estoque básico daqui |
+| `caderno-3-sdk/25-logistica-reference-spec.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/15-erp-crm-reference-spec.md` | §A.3 | Editar: WMS estende o estoque básico daqui |
 
 **Texto normativo:**
 
@@ -26,7 +26,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/23-logistica-reference-spec.md` | §2 | Adicionar |
+| `caderno-3-sdk/25-logistica-reference-spec.md` | §2 | Adicionar |
 
 **Texto normativo:**
 
@@ -40,7 +40,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/23-logistica-reference-spec.md` | §3 | Adicionar |
+| `caderno-3-sdk/25-logistica-reference-spec.md` | §3 | Adicionar |
 
 **Texto normativo:** o transporte de um envio resolve-se por um de dois modos, escolhido por Zen (custo/SLA/disponibilidade):
 
@@ -55,7 +55,7 @@ Os dois alimentam o mesmo workflow de rastreamento (A.5); a UI não distingue a 
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/23-logistica-reference-spec.md` | §4 | Adicionar |
+| `caderno-3-sdk/25-logistica-reference-spec.md` | §4 | Adicionar |
 | `docs/conceitos/dispatch-saga.md` | novo verbete | matching de entregador como saga |
 
 **Texto normativo:**
@@ -72,7 +72,7 @@ Os dois alimentam o mesmo workflow de rastreamento (A.5); a UI não distingue a 
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/23-logistica-reference-spec.md` | §5 | Adicionar |
+| `caderno-3-sdk/25-logistica-reference-spec.md` | §5 | Adicionar |
 
 **Texto normativo:** o status de um envio é o estado de seu `SPEC:WORKFLOW`; eventos de rastreio chegam por conector (transportadora externa) ou por intents do app do entregador (operação interna), unificados na mesma linha do tempo. O comprador vê a projeção; posição ao vivo (quando disponível) é o sinal efêmero do A.4.3.
 
@@ -84,7 +84,7 @@ Os dois alimentam o mesmo workflow de rastreamento (A.5); a UI não distingue a 
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/23-logistica-reference-spec.md` | §6 | Adicionar |
+| `caderno-3-sdk/25-logistica-reference-spec.md` | §6 | Adicionar |
 
 **Texto normativo:** devolução, troca e recall são **`SPEC:WORKFLOW`** próprios (solicitado → autorizado → coletado → recebido → inspecionado → estornado/reenviado). A reentrada de estoque é `CREDITS` em `ASSET:INVENTORY` (RFC-013 A.2.3); o estorno financeiro liga-se ao checkout original via compensação (RFC-012 A.4.2). Reversa reusa o transporte (A.3/A.4) no sentido inverso.
 

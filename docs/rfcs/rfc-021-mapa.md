@@ -10,7 +10,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-mapa-reference-spec.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/23-mapa-reference-spec.md` | novo | Documento canônico, §1 |
 
 **Texto normativo:** lugar = `CONTENT` governado por `SPEC:PLACE` (coordenadas, endereço, categoria), indexado no `geo_index` (R*Tree) para consulta por proximidade/bounding box. Renderização e interação pela engine `GeoSpatial` (tiles via provedor de mapa-base).
 
@@ -20,7 +20,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-mapa-reference-spec.md` | §2 | Adicionar |
+| `caderno-3-sdk/23-mapa-reference-spec.md` | §2 | Adicionar |
 
 **Texto normativo:**
 
@@ -35,7 +35,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-mapa-reference-spec.md` | §3 | Adicionar |
+| `caderno-3-sdk/23-mapa-reference-spec.md` | §3 | Adicionar |
 
 **Texto normativo:** o mapa é consumido por referência ao `PLACE` ou por coordenada no payload: produto/loja no mapa (RFC-012), check-in social (RFC-016), geolocalização de live (RFC-017), local de evento (RFC-020), roteirização de entrega/serviço (RFC-013). Nenhum módulo reimplementa geo — todos consomem esta lente.
 
@@ -45,7 +45,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/22-mapa-reference-spec.md` | §4 | Adicionar |
+| `caderno-3-sdk/23-mapa-reference-spec.md` | §4 | Adicionar |
 
 **Texto normativo:** localização do usuário é **dado sensível** — captura sob consentimento explícito, granularidade declarada (precisa vs. aproximada), e nunca exposta a segmentação de anúncios fora do que o usuário liberou (RFC-015 A.3.2). Compartilhamento de localização em tempo real é sinal efêmero (como presença, RFC-018 A.4), não nó durável.
 

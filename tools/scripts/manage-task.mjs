@@ -14,7 +14,7 @@ import { rebuildIndexes } from './rebuild-index.mjs';
 const [, , action, taskId, agentName, ...messageParts] = process.argv;
 
 if (!action || !taskId || !agentName) {
-  console.error("Uso: node manage-task.mjs <start|pause|finish> <TaskID> <NomeDoAgente> [Mensagem...]");
+  console.error("Uso: node manage-task.mjs <start|pause|finish|approve|request_changes> <TaskID> <NomeDoAgente> [Mensagem...]");
   process.exit(1);
 }
 
@@ -46,6 +46,12 @@ if (action === 'start') {
 } else if (action === 'finish') {
   newStatus = 'review';
   logAction = '[Finalizado]';
+} else if (action === 'approve') {
+  newStatus = 'done';
+  logAction = '[Aprovado]';
+} else if (action === 'request_changes') {
+  newStatus = 'rework';
+  logAction = '[Refatoração Solicitada]';
 } else {
   console.error(`❌ Ação inválida: ${action}`);
   process.exit(1);

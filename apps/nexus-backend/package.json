@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.4.0",
@@ -13,12 +14,14 @@
     "cors": "^2.8.6",
     "express": "^4.19.2",
     "gray-matter": "^4.0.3",
+    "headroom-ai": "^0.22.4",
     "llmlingua-js": "workspace:*"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^24.13.2",
     "tsx": "^4.15.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^4.1.8"
   }
 }

@@ -8,13 +8,13 @@ modo: hub
 
 # Graph-Based Routing
 
-**Modo hub** — definição normativa baseada em [02-sync-worker-and-memory-lifecycle.md:L67-L68](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L67-L68) and [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L97-L98](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L97-L98). Glossário consolidado aqui.
+**Modo hub** — definição normativa baseada em [02-sync-worker-and-memory-lifecycle.md:L67-L68](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L67-L68) and [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L97-L98](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L97-L98). Glossário consolidado aqui.
 
 > Aparições consolidadas:
 > - [[graph-based-routing]] — definição sucinta no glossário.
-> - [02-sync-worker-and-memory-lifecycle.md:L67-L68](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L67-L68) — execução na Onda 3 de sincronização do SDK (fonte principal).
-> - [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L97-L98](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L97-L98) — roteamento quente e exclusão de DHT global (visão e protocolo).
-> - [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L478-L493](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L478-L493) — roteamento indireto de BLOBs em conformidade com o grafo.
+> - [02-sync-worker-and-memory-lifecycle.md:L67-L68](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L67-L68) — execução na Onda 3 de sincronização do SDK (fonte principal).
+> - [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L97-L98](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L97-L98) — roteamento quente e exclusão de DHT global (visão e protocolo).
+> - [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L478-L493](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L478-L493) — roteamento indireto de BLOBs em conformidade com o grafo.
 
 ---
 
@@ -30,7 +30,7 @@ No design local-first da plataforma, dados históricos são eventualmente podado
 
 O `Graph-Based Routing` baseia-se no princípio de que a própria topologia do grafo de relações é o melhor guia para encontrar dados associados (quem detém o dado, em quais swarms ele reside e quem são as identidades envolvidas). Isso substitui a DHT no estado quente (live), permitindo que a busca do payload seja direcionada e eficiente, baseando-se em contatos e relays do próprio subgrafo ao qual o nó pertence. Isso mantém a soberania dos dados do usuário e respeita o modelo de acesso sob convites.
 
-Consulte [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L89-L91](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L89-L91) para detalhes sobre a eliminação da DHT e o [caderno-1-vision/01-vision-and-positioning.md](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md) para princípios de design local-first.
+Consulte [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L89-L91](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L89-L91) para detalhes sobre a eliminação da DHT e o [caderno-1-vision/01-vision-and-positioning.md](../caderno-1-vision/01-vision-and-positioning.md) para princípios de design local-first.
 
 ---
 
@@ -42,7 +42,7 @@ O comportamento normativo e as regras operacionais do `Graph-Based Routing` são
 - **Roteamento Quente vs. Frio:** O `Graph-Based Routing` opera estritamente no estado quente (swarms ativos, peers descobertos). Não atua no *Bootstrap Frio Absoluto*, onde as coordenadas de conexão inicial com a rede devem ser obtidas fora-de-banda (como links multiaddr ou URLs de convite).
 - **Relação com o Transporte de BLOBs:** Para dados e arquivos pesados (BLOBs), o payload relacional no grafo contém a chave criptográfica e o InfoHash/Magnet Link correspondente. O roteamento identifica a fonte do nó `ASSET:FILE` através do grafo e inicia o transporte dos blocos de dados através de WebTorrent/BitTorrent isolado no Service Worker/Crypto Worker.
 
-Consulte a especificação de discovery de peers em [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L93-L108](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L93-L108) e o transporte de BLOBs em [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L478-L493](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L478-L493).
+Consulte a especificação de discovery de peers em [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L93-L108](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L93-L108) e o transporte de BLOBs em [caderno-5-transport/01-p2p-transport-and-reconciliation.md:L478-L493](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L478-L493).
 
 ---
 
@@ -54,7 +54,7 @@ Na arquitetura do SDK, a execução do roteamento baseado no grafo é gerenciada
 - **Service Worker e Zero-Copy:** Quando ativado para arquivos ou vídeos, o fluxo se integra ao Service Worker e ao Crypto Worker. Chunks decifrados via AES-256-GCM são passados para a interface usando objetos transferíveis (zero-copy) para preservar a thread principal de UI.
 - **Mitigação de Recursos:** O processo respeita as quotas do `GlobalThrottle` e é pausado automaticamente sob baterias baixas ou dados móveis para evitar degradação de bateria.
 
-Consulte a especificação de ondas de sincronização em [02-sync-worker-and-memory-lifecycle.md:L60-L73](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L60-L73) e o transporte de BLOBs em [02-sync-worker-and-memory-lifecycle.md:L189-L200](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L189-L200).
+Consulte a especificação de ondas de sincronização em [02-sync-worker-and-memory-lifecycle.md:L60-L73](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L60-L73) e o transporte de BLOBs em [02-sync-worker-and-memory-lifecycle.md:L189-L200](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L189-L200).
 
 ---
 
@@ -65,7 +65,7 @@ As políticas de roteamento e custódia evoluem sob os seguintes aspectos regula
 - **Políticas de Retenção e Replicação:** Redes sob modalidade corporativa ou pública utilizam o anel de custódia e regras de `replication-factor` governadas por `SPECIFICATION` para garantir que pelo menos $N$ peers (ou super peers dedicados) permaneçam seedando os payloads, garantindo que o roteamento baseado em grafo sempre encontre caminhos válidos e ativos para reidratação.
 - **Estratégias de Custódia:** O roteamento pode priorizar relays e super peers estáveis em vez de nós móveis efêmeros, com base no histórico de reputação local (`reputacao-local`) e nos contratos de contribuição declarados nas especificações.
 
-Consulte as especificações do anel de custódia na [caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.2](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L515-L535).
+Consulte as especificações do anel de custódia na [caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.2](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L515-L535).
 
 ---
 

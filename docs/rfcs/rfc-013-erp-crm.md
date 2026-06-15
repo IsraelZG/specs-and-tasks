@@ -10,7 +10,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/14-erp-crm-reference-spec.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/15-erp-crm-reference-spec.md` | novo | Documento canônico, §1 |
 | `docs/conceitos/lente-de-modulo.md` | novo verbete | módulo = projeção+wrapper sobre subgrafo compartilhado |
 
 **Texto normativo:**
@@ -25,7 +25,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/14-erp-crm-reference-spec.md` | §2 | Adicionar |
+| `caderno-3-sdk/15-erp-crm-reference-spec.md` | §2 | Adicionar |
 
 **Texto normativo:**
 
@@ -39,7 +39,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/14-erp-crm-reference-spec.md` | §3 | Adicionar |
+| `caderno-3-sdk/15-erp-crm-reference-spec.md` | §3 | Adicionar |
 
 **Texto normativo:**
 
@@ -53,7 +53,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/14-erp-crm-reference-spec.md` | §4 | Adicionar |
+| `caderno-3-sdk/15-erp-crm-reference-spec.md` | §4 | Adicionar |
 
 **Texto normativo:**
 
@@ -68,7 +68,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/14-erp-crm-reference-spec.md` | §5 | Adicionar |
+| `caderno-3-sdk/15-erp-crm-reference-spec.md` | §5 | Adicionar |
 | `docs/conceitos/pipeline-crm.md` | novo verbete | pipeline como StateMachine |
 
 **Texto normativo:**
@@ -77,7 +77,7 @@
 2. **Pipeline de vendas** = `StateMachine` (`SPEC:CRM_PIPELINE`): estágios configuráveis, transição como intent, probabilidade/forecast como Zen. Múltiplos pipelines (vendas, suporte, sucesso) coexistem como SPECs distintas.
 3. **Interações** (e-mail, ligação, reunião, mensagem) = `CONTENT` ligado ao contato; integra-se com os módulos de Mensagens/Email/Calendário (RFCs posteriores) pela mesma lente — uma reunião agendada é o mesmo `CONTENT:EVENT`.
 4. **Régua de relacionamento** (follow-up, nutrição, cobrança amistosa) = Zen disparando intents/notificações; disparo externo via conector classe A (RFC-007).
-5. **Dado pessoal do CRM e direitos do titular.** Contatos/leads `PROFILE` que carregam dado pessoal de pessoa física são **dado tratado sob consentimento**: cada finalidade de uso liga-se a um `ASSET:CONSENT` ([[03-legal-and-compliance-framework]] §2.1), e o pedido de exclusão segue o **expurgo por rotação de época** (§3.1) — revogada a permissão, as épocas seguintes ficam inacessíveis e as interações de CRM materializam como *Cliente Anonimizado*, preservando a integridade matemática da linhagem financeira retida (§2.3). O CRM não cria mecanismo de privacidade próprio: **invoca** as primitivas legais do caderno-1.
+5. **Dado pessoal do CRM e direitos do titular.** Contatos/leads `PROFILE` que carregam dado pessoal de pessoa física são **dado tratado sob consentimento**: cada finalidade de uso liga-se a um `ASSET:CONSENT` ([03-legal-and-compliance-framework](../caderno-1-vision/03-legal-and-compliance-framework.md) §2.1), e o pedido de exclusão segue o **expurgo por rotação de época** (§3.1) — revogada a permissão, as épocas seguintes ficam inacessíveis e as interações de CRM materializam como *Cliente Anonimizado*, preservando a integridade matemática da linhagem financeira retida (§2.3). O CRM não cria mecanismo de privacidade próprio: **invoca** as primitivas legais do caderno-1.
 
 ## A.6 — Relatórios e BI
 
@@ -85,7 +85,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/14-erp-crm-reference-spec.md` | §6 | Adicionar |
+| `caderno-3-sdk/15-erp-crm-reference-spec.md` | §6 | Adicionar |
 | `docs/conceitos/projecao-analitica.md` | novo verbete | agregados incrementais + custo do append-only cifrado |
 
 **Texto normativo:**

@@ -40,11 +40,11 @@ Um **WebSeed** é um servidor HTTP em nuvem (como S3, GCS ou Google Drive) que a
 
 ## Por quê
 
-Na [[vision]] (lente detalhada em [caderno-1-vision/01-vision-and-positioning.md](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md)), a plataforma busca acomodar múltiplas [[modalidade-de-rede]]. Em cenários corporativos ou redes gerenciadas que demandam alta confiabilidade e garantia de entrega imediata de mídias duráveis, depender exclusivamente da presença e banda de peers efêmeros pode falhar. O WebSeed permite que a infraestrutura gerenciada garanta 100% de disponibilidade dos BLOBs de forma eficiente, unificando o canal de distribuição P2P com redundância de nuvem barata e de alta performance.
+Na [[vision]] (lente detalhada em [caderno-1-vision/01-vision-and-positioning.md](../caderno-1-vision/01-vision-and-positioning.md)), a plataforma busca acomodar múltiplas [[modalidade-de-rede]]. Em cenários corporativos ou redes gerenciadas que demandam alta confiabilidade e garantia de entrega imediata de mídias duráveis, depender exclusivamente da presença e banda de peers efêmeros pode falhar. O WebSeed permite que a infraestrutura gerenciada garanta 100% de disponibilidade dos BLOBs de forma eficiente, unificando o canal de distribuição P2P com redundância de nuvem barata e de alta performance.
 
 ## Contrato
 
-O contrato do WebSeed no plano de transporte de mídia (especificado em [caderno-3-sdk/05-media-transport-plane.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/05-media-transport-plane.md)) baseia-se na especificação BEP 19 (WebSeed HTTP/FTP Seeding Extension) integrada com cifra de dados.
+O contrato do WebSeed no plano de transporte de mídia (especificado em [caderno-3-sdk/05-media-transport-plane.md](../caderno-3-sdk/05-media-transport-plane.md)) baseia-se na especificação BEP 19 (WebSeed HTTP/FTP Seeding Extension) integrada com cifra de dados.
 
 ### Fluxo de Registro e Distribuição
 O contrato operacional da integração com nuvem segue o protocolo estrito:
@@ -57,7 +57,7 @@ O contrato operacional da integração com nuvem segue o protocolo estrito:
 
 ## Implementação
 
-A integração técnica do WebSeed no SDK (lente especificada em [caderno-3-sdk/05-media-transport-plane.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/05-media-transport-plane.md)) envolve o desacoplamento de transporte e criptografia:
+A integração técnica do WebSeed no SDK (lente especificada em [caderno-3-sdk/05-media-transport-plane.md](../caderno-3-sdk/05-media-transport-plane.md)) envolve o desacoplamento de transporte e criptografia:
 
 ### Edge Translation
 
@@ -73,7 +73,7 @@ Consulte [[edge-translation]] para:
 
 ## Evolução
 
-A governança do ciclo de vida e a evolução do WebSeed (alinhada a [caderno-4-governance/01-development-roadmap.md](file:///c:/Dev2026/Docs/docs/caderno-4-governance/01-development-roadmap.md)) distinguem seu uso de acordo com a topologia da rede:
+A governança do ciclo de vida e a evolução do WebSeed (alinhada a [caderno-4-governance/01-development-roadmap.md](../caderno-4-governance/01-development-roadmap.md)) distinguem seu uso de acordo com a topologia da rede:
 
 ### Restrições por Modalidade
 O WebSeed/Edge é uma feature **modality-gated** (restrita a redes gerenciadas). Em redes puramente P2P ([[rede-p2p-pura]]) sem suporte a Edge Workers, a redundância é provida por seeders-peer tradicionais combinados com o anel de custódia gerida.

@@ -44,8 +44,8 @@ Em sistemas descentralizados e local-first, partições de rede e operações of
 
 ## Contrato
 O contrato técnico, as regras de protocolo e as fórmulas normativas que regem o Merge Aditivo estão descritos nos seguintes documentos:
-* [caderno-2-protocol/04-automerge-integration-spec.md §4.3](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/04-automerge-integration-spec.md#L87-L90)
-* [rfc-v4.md §2.4](file:///c:/Dev2026/Docs/docs/rfc-v4.md#L151-L160)
+* [caderno-2-protocol/04-automerge-integration-spec.md §4.3](../caderno-2-protocol/04-automerge-integration-spec.md#L87-L90)
+* [rfc-v4.md §2.4](../rfc-v4.md#L151-L160)
 
 **Regras de Protocolo e Raciocínio Normativo**:
 1. **Regra de Soma de Deltas**: Para saldos (`ASSET:BALANCE_STATE`), a regra da [[specification]] do ativo é aditiva. Sob créditos concorrentes, o saldo final de uma ramificação bifurcada é calculado como:
@@ -60,7 +60,7 @@ O contrato técnico, as regras de protocolo e as fórmulas normativas que regem 
 
 ## Implementação
 As especificações de armazenamento físico e orquestração do SDK do Merge Aditivo estão descritas em:
-* [rfc-v4.md §2.4 e §3.2](file:///c:/Dev2026/Docs/docs/rfc-v4.md#L134-L164)
+* [rfc-v4.md §2.4 e §3.2](../rfc-v4.md#L134-L164)
 
 * **Projeção de Saldos**: Na tabela de projeções físicas do SQLite local (`asset_balances`), a consolidação do saldo final após um fork de crédito não é computada via simples somatório recursivo de toda a DAG de transações na inicialização. Em vez disso, o aplicador determinístico do cliente avalia os deltas de créditos de cada ramo ativo na linhagem de versões (`MUTATES` + `previous_hash`) a partir do pai comum e reconcilia de forma aditiva.
 * **Arestas Envolvidas**:
@@ -70,7 +70,7 @@ As especificações de armazenamento físico e orquestração do SDK do Merge Ad
 
 ## Evolução
 O comportamento de governança do Merge Aditivo e sua relação com a evolução da Plataforma V4 estão detalhados em:
-* [rfc-v4.md §2.1, §2.3 e §2.4](file:///c:/Dev2026/Docs/docs/rfc-v4.md#L78-L133)
+* [rfc-v4.md §2.1, §2.3 e §2.4](../rfc-v4.md#L78-L133)
 
 * **Convergência Determinística**: No modelo da V4, a resolução de concorrência comutativa ocorre de forma otimista. Qualquer [[agente-de-sistema]] pode aplicar localmente a regra de merge aditivo para reidratar e atualizar o saldo. Caso ocorra um conflito de ordenação em um merge concorrente, o desempate é feito deterministicamente (pelo menor `entity_id` do agente que realiza o merge).
 * **Segurança da Invariante de Core**: A segurança contra cunhagem indevida ou gastos duplos baseia-se no isolamento: enquanto os créditos são livres para se propagarem e se fundirem aditivamente, os débitos associados são rigidamente serializados contra o head de origem pelo [[validador-declarado]] de sua linhagem, sob pena de corte de caução e responsabilização forense em caso de fraude.

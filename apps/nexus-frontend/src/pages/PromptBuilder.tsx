@@ -2,10 +2,17 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Copy, Loader2, ArrowRight } from 'lucide-react';
 
+interface PromptResult {
+  originalLength: number;
+  compressedLength: number;
+  payload: string;
+  keywords: string[];
+}
+
 export default function PromptBuilder() {
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<PromptResult | null>(null);
   const [copied, setCopied] = useState(false);
 
   const handleBuild = async () => {

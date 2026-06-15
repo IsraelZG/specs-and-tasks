@@ -11,8 +11,8 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/10-linguagem-de-paginas.md` | novo | Documento canônico, §1 |
-| `caderno-3-sdk/03-engines-and-spec-driven-ui.md` | §3 | Editar: `ui_hints` = dica de renderização *de nó*; página = documento completo nesta linguagem; linkar caderno-3/10 |
+| `caderno-3-sdk/11-linguagem-de-paginas.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/03-engines-and-spec-driven-ui.md` | §3 | Editar: `ui_hints` = dica de renderização *de nó*; página = documento completo nesta linguagem; linkar caderno-3/22 |
 | `docs/conceitos/spec-page.md` | novo verbete | Definição canônica |
 
 **Texto normativo:**
@@ -30,7 +30,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/10-linguagem-de-paginas.md` | §2 | Adicionar |
+| `caderno-3-sdk/11-linguagem-de-paginas.md` | §2 | Adicionar |
 
 **Texto normativo:**
 
@@ -68,7 +68,7 @@ Invariantes (validados estática e dinamicamente):
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/10-linguagem-de-paginas.md` | §3 | Adicionar |
+| `caderno-3-sdk/11-linguagem-de-paginas.md` | §3 | Adicionar |
 
 **Texto normativo:**
 
@@ -87,8 +87,8 @@ Invariantes (validados estática e dinamicamente):
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/10-linguagem-de-paginas.md` | §4 | Adicionar |
-| `caderno-3-sdk/09-design-system.md` | §2 | Editar: adicionar a classe "componente rico" ao catálogo |
+| `caderno-3-sdk/11-linguagem-de-paginas.md` | §4 | Adicionar |
+| `caderno-3-sdk/10-design-system.md` | §2 | Editar: adicionar a classe "componente rico" ao catálogo |
 
 **Texto normativo:**
 
@@ -105,7 +105,7 @@ Invariantes (validados estática e dinamicamente):
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/10-linguagem-de-paginas.md` | §5 | Adicionar |
+| `caderno-3-sdk/11-linguagem-de-paginas.md` | §5 | Adicionar |
 
 **Texto normativo:**
 
@@ -128,7 +128,7 @@ Consequência central: **uma página não consegue fazer nada que seu usuário n
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/10-linguagem-de-paginas.md` | §6 | Adicionar |
+| `caderno-3-sdk/11-linguagem-de-paginas.md` | §6 | Adicionar |
 
 **Texto normativo:**
 
@@ -145,7 +145,7 @@ Consequência central: **uma página não consegue fazer nada que seu usuário n
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/10-linguagem-de-paginas.md` | §7 | Adicionar |
+| `caderno-3-sdk/11-linguagem-de-paginas.md` | §7 | Adicionar |
 
 **Texto normativo:**
 

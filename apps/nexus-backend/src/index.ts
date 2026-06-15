@@ -1,69 +1,138 @@
-import express from 'express';
+import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
-import fs from 'fs/promises';
 import path from 'path';
 import { routeIntent } from './services/router.js';
 import { TurboVecClient } from './services/turbovec.client.js';
 import { HeadroomClient } from './services/headroom.client.js';
+import { TaskService } from './services/task.service.js';
+import { TaskController } from './services/task.controller.js';
+import {
+  InvalidTransitionError,
+  TaskNotFoundError,
+  TaskStatus,
+  ValidationError,
+} from './services/task.types.js';
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+// Raiz do repositório (contém tasks/ e meta-tasks/). dist/index.js → ../../../ = raiz.
+const ROOT_DIR = path.resolve(__dirname, '../../../');
 const PORT = process.env.PORT || 3001;
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'nexus-backend' });
-});
+function statusFromError(err: unknown): number {
+  if (err instanceof ValidationError) return 400;
+  if (err instanceof TaskNotFoundError) return 404;
+  if (err instanceof InvalidTransitionError) return 409;
+  return 500;
+}
 
-// Helper for absolute path to root
-const ROOT_DIR = path.resolve(__dirname, '../../../');
-
-app.get('/api/tasks', async (req, res) => {
+/** Executa uma chamada síncrona do controller e mapeia erros de domínio para HTTP. */
+function handle(res: Response, fn: () => unknown, successCode = 200): void {
   try {
-    const tasksDir = path.join(ROOT_DIR, 'tasks');
-    const files = await fs.readdir(tasksDir);
-    const mdFiles = files.filter(f => f.endsWith('.md') && f !== 'INDEX.md');
-    
-    const tasksList = await Promise.all(mdFiles.map(async file => {
-      const content = await fs.readFile(path.join(tasksDir, file), 'utf-8');
-      return { id: file.replace('.md', ''), content };
-    }));
-    res.json(tasksList);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.status(successCode).json(fn());
+  } catch (err) {
+    const code = statusFromError(err);
+    if (code === 500) console.error('[API] erro interno:', err);
+    res.status(code).json({ error: err instanceof Error ? err.message : 'Erro desconhecido' });
   }
-});
+}
 
-app.post('/api/build-prompt', async (req, res) => {
-  try {
-    const { query } = req.body;
-    if (!query) {
-      return res.status(400).json({ error: "Query is required" });
+/**
+ * Constrói o app Express SEM dar listen (testável). O entry point chama createApp().listen().
+ * Permite injetar um TaskController (ex.: com rootDir temporário) nos testes.
+ */
+export function createApp(
+  controller: TaskController = new TaskController(new TaskService({ rootDir: ROOT_DIR })),
+): Express {
+  const app = express();
+
+  const allowed = process.env.ALLOWED_ORIGINS?.split(',').map((s) => s.trim());
+  app.use(cors(allowed ? { origin: allowed } : {}));
+  app.use(express.json({ limit: '256kb' }));
+
+  app.get('/health', (_req: Request, res: Response) => {
+    res.json({ status: 'ok', service: 'nexus-backend' });
+  });
+
+  // ----------------------------------------------------------------- tasks
+  app.get('/api/tasks', (req: Request, res: Response) =>
+    handle(res, () =>
+      controller.list({
+        status: req.query.status as TaskStatus | undefined,
+        targetAgent: req.query.target_agent as string | undefined,
+      }),
+    ),
+  );
+
+  app.get('/api/tasks/:id', (req: Request, res: Response) =>
+    handle(res, () => controller.get(req.params.id)),
+  );
+
+  app.post('/api/tasks', (req: Request, res: Response) =>
+    handle(res, () => {
+      const b = req.body ?? {};
+      return controller.create({
+        id: b.id,
+        title: b.title,
+        complexity: b.complexity,
+        targetAgent: b.target_agent,
+        dependencies: b.dependencies,
+        blocks: b.blocks,
+      });
+    }, 201),
+  );
+
+  app.post('/api/tasks/:id/transition', (req: Request, res: Response) =>
+    handle(res, () => {
+      const { action, agent, message } = req.body ?? {};
+      return controller.transition(req.params.id, action, agent, message);
+    }),
+  );
+
+  app.post('/api/tasks/:id/assign', (req: Request, res: Response) =>
+    handle(res, () => {
+      const { target_agent } = req.body ?? {};
+      return controller.assign(req.params.id, target_agent);
+    }),
+  );
+
+  app.post('/api/tasks/:id/log', (req: Request, res: Response) =>
+    handle(res, () => {
+      const { agent, message } = req.body ?? {};
+      return controller.logProgress(req.params.id, agent, message);
+    }),
+  );
+
+  // ------------------------------------------- prompt builder (rewire na T-1016)
+  app.post('/api/build-prompt', async (req: Request, res: Response) => {
+    try {
+      const { query } = req.body ?? {};
+      if (!query) {
+        return res.status(400).json({ error: 'Query is required' });
+      }
+      const keywords = await routeIntent(query);
+      const searchResults = await TurboVecClient.search(keywords.join(' '));
+      const rawContext =
+        searchResults.results && searchResults.results.length > 0
+          ? searchResults.results.map((r: { content: string }) => r.content).join('\n\n')
+          : 'Contexto simulado para testes: A documentação do projeto afirma que...';
+      const compressedContext = await HeadroomClient.compressContext(rawContext);
+      res.json({
+        originalLength: rawContext.length,
+        compressedLength: compressedContext.length,
+        payload: compressedContext,
+        keywords,
+      });
+    } catch (err) {
+      console.error('[API] build-prompt:', err);
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Erro desconhecido' });
     }
+  });
 
-    // 1. Intent Routing (Keywords)
-    const keywords = await routeIntent(query);
-    
-    // 2. Fetch from Vector DB
-    const searchResults = await TurboVecClient.search(keywords.join(' '));
-    const rawContext = searchResults.results && searchResults.results.length > 0 
-      ? searchResults.results.map((r: any) => r.content).join('\n\n') 
-      : 'Contexto simulado para testes: A documentação do projeto afirma que...';
-    
-    // 3. Compress
-    const compressedContext = await HeadroomClient.compressContext(rawContext);
-    
-    res.json({
-      originalLength: rawContext.length,
-      compressedLength: compressedContext.length,
-      payload: compressedContext,
-      keywords
-    });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
+  return app;
+}
 
-app.listen(PORT, () => {
-  console.log(`Nexus Backend running on port ${PORT}`);
-});
+// Entry point (CommonJS): só dá listen quando executado diretamente, não em testes/import.
+if (typeof require !== 'undefined' && require.main === module) {
+  createApp().listen(PORT, () => {
+    console.log(`Nexus Backend running on port ${PORT}`);
+  });
+}

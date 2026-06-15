@@ -15,7 +15,7 @@ export interface AgentInteraction {
 export class EpochDBClient {
   static async logInteraction(interaction: AgentInteraction) {
     try {
-      console.log(`[EpochDB] Archiving interaction [${interaction.action}] for agent ${interaction.agentId}...`);
+      console.error(`[EpochDB] Archiving interaction [${interaction.action}] for agent ${interaction.agentId}...`);
       const response = await fetch(`${EPOCHDB_API_URL}/memory/append`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

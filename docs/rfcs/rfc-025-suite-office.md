@@ -10,8 +10,8 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/25-suite-office.md` | novo | Documento canônico, §1 |
-| `caderno-3-sdk/10-linguagem-de-paginas.md` | §novo "perfis de capacidade" | **Emendar RFC-008:** adicionar perfis |
+| `caderno-3-sdk/27-suite-office.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/11-linguagem-de-paginas.md` | §novo "perfis de capacidade" | **Emendar RFC-008:** adicionar perfis |
 | `docs/conceitos/perfil-de-capacidade.md` | novo verbete | modos de restrição do motor |
 
 **Texto normativo:**
@@ -26,7 +26,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/25-suite-office.md` | §2 | Adicionar |
+| `caderno-3-sdk/27-suite-office.md` | §2 | Adicionar |
 
 **Texto normativo:**
 
@@ -39,7 +39,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/25-suite-office.md` | §3 | Adicionar |
+| `caderno-3-sdk/27-suite-office.md` | §3 | Adicionar |
 
 **Texto normativo:**
 
@@ -54,7 +54,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/25-suite-office.md` | §4 | Adicionar |
+| `caderno-3-sdk/27-suite-office.md` | §4 | Adicionar |
 
 **Texto normativo:** apresentação = `SPEC:PAGE` perfil `slide` (mesmo motor); **export para PDF/PPTX** por conversor no final (skills pdf/pptx). Sem engine de slides separada.
 
@@ -64,7 +64,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/25-suite-office.md` | §5 | Adicionar |
+| `caderno-3-sdk/27-suite-office.md` | §5 | Adicionar |
 
 **Texto normativo:**
 
@@ -79,7 +79,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/25-suite-office.md` | §6 | Adicionar |
+| `caderno-3-sdk/27-suite-office.md` | §6 | Adicionar |
 
 **Texto normativo:** sobre o mesmo substrato: **gráficos** (componente rico alimentado por ZEN sobre projeções, geração por IA); **whiteboard/diagramação** (`ui` plugin canvas + Mermaid para diagramas estruturados, já usado em workflow RFC-022); **construtor de formulários** (especialização do page builder, JSON Forms — alimenta CRM/pesquisa); **PDF e e-signature** (componente + skill pdf — liga a contratos fintech/RH); **base de conhecimento/wiki** (docs em blocos + backlinks do grafo); **templates** (docs/slides/bases/páginas/workflows como SPEC distribuídos pelo marketplace de customizações).
 
@@ -89,7 +89,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/25-suite-office.md` | §7 | Adicionar |
+| `caderno-3-sdk/27-suite-office.md` | §7 | Adicionar |
 
 **Texto normativo:** colaboração em tempo real (docs, planilha, whiteboard) é **nativa via Automerge** (CRDT já no stack); a sessão de edição segue o modelo de doc colaborativo (RFC-027 A.4). Export é conversor (docx/pptx/pdf), não formato proprietário. Componentes ricos com camadas/objetos arrastáveis (editores de mídia, whiteboard) usam **session-locks efêmeros**: enquanto um peer manipula uma camada/objeto, ele a bloqueia para os demais; o lock é volátil (presença efêmera, RFC-018), não estado Automerge persistido. Evita conflitos de ordenação (ex.: Z-Index) que CRDTs de array convergeriam de forma visualmente incorreta.
 

@@ -24,13 +24,13 @@ dependencias:
 
 Modelo de roteamento e decisão arquitetural que determina o destino físico, o protocolo de rede e o esquema criptográfico de qualquer dado na plataforma com base nas respostas a três perguntas fundamentais declaradas nos metadados de sua especificação. Ao invés de o desenvolvedor de interface decidir manualmente como um dado trafega, o sistema infere as restrições de persistência, visibilidade e auditabilidade de forma declarativa e transparente.
 
-A definição canônica e o contrato de tipos TypeScript estão descritos em [01-sqlite-and-projections-schema.md §4](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/01-sqlite-and-projections-schema.md#L190-L270) e aprofundados na especificação de protocolo em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L223-L336).
+A definição canônica e o contrato de tipos TypeScript estão descritos em [01-sqlite-and-projections-schema.md §4](../caderno-3-sdk/01-sqlite-and-projections-schema.md#L190-L270) e aprofundados na especificação de protocolo em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L223-L336).
 
 ---
 
 ## Por quê ([[vision]])
 
-No paradigma [local-first](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md), a camada de aplicação não deve gerenciar manualmente os detalhes de sockets, replicação de banco de dados ou criptografia. A Matriz de Classificação de Transporte resolve isso por meio da **Inversão de Controle**: o desenvolvedor declara as leis semânticas do dado (através da [[specification]] do nó), e a infraestrutura deduz a topologia mais adequada (seja ela local, replicada via [[rbsr]], ou efêmera via WebRTC). Isso garante consistência de segurança e privacidade em todas as interfaces.
+No paradigma [local-first](../caderno-1-vision/01-vision-and-positioning.md), a camada de aplicação não deve gerenciar manualmente os detalhes de sockets, replicação de banco de dados ou criptografia. A Matriz de Classificação de Transporte resolve isso por meio da **Inversão de Controle**: o desenvolvedor declara as leis semânticas do dado (através da [[specification]] do nó), e a infraestrutura deduz a topologia mais adequada (seja ela local, replicada via [[rbsr]], ou efêmera via WebRTC). Isso garante consistência de segurança e privacidade em todas as interfaces.
 
 ## Contrato ([[protocol]])
 
@@ -40,7 +40,7 @@ O comportamento na rede e no armazenamento local é ditado pelas respostas decla
 2. **A integridade histórica deste estado precisa ser auditada?** (Q2: Auditável)
 3. **O estado precisa sobreviver ao encerramento da sessão?** (Q3: Persistente)
 
-A partir dessas respostas, o dado é classificado em uma de quatro categorias com regras específicas de destino e protocolo, conforme definido em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L233-L239):
+A partir dessas respostas, o dado é classificado em uma de quatro categorias com regras específicas de destino e protocolo, conforme definido em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L233-L239):
 
 | Q1 (Observável) | Q2 / Q3 | Classificação Lógica | Destino Físico | Transporte / Sync | Cifra |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -50,13 +50,13 @@ A partir dessas respostas, o dado é classificado em uma de quatro categorias co
 | NÃO | (Q3) NÃO | Local + Transiente / Efêmero | [[tinybase]] / RAM | Nenhum (não trafega) | N/A |
 
 ### Transições de Estado
-Dados podem transitar entre categorias. Por exemplo, uma digitação em tempo real começa como "Replicável + Não-Auditável" (changes efêmeros) ou "Local + Persistente" (rascunho local) e, ao ser salva pelo usuário, é promovida a "Replicável + Auditável" no grafo global (ver [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L249-L260)).
+Dados podem transitar entre categorias. Por exemplo, uma digitação em tempo real começa como "Replicável + Não-Auditável" (changes efêmeros) ou "Local + Persistente" (rascunho local) e, ao ser salva pelo usuário, é promovida a "Replicável + Auditável" no grafo global (ver [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L249-L260)).
 
 ## Implementação ([[sdk]])
 
 O [[sync-worker]] lê os [[transport-hints]] declarados na [[specification]] e despacha os dados para a fila correta de forma transparente.
 
-O contrato de tipos e a função de avaliação em TypeScript estão definidos em [01-sqlite-and-projections-schema.md §4.3](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/01-sqlite-and-projections-schema.md#L231-L255):
+O contrato de tipos e a função de avaliação em TypeScript estão definidos em [01-sqlite-and-projections-schema.md §4.3](../caderno-3-sdk/01-sqlite-and-projections-schema.md#L231-L255):
 
 ```typescript
 type TransportBehavior =
@@ -82,7 +82,7 @@ function evaluateTransportHints(
 }
 ```
 
-O fluxo arquitetural segue cinco etapas: **Intenção (UI)** $\rightarrow$ **Interceptação (Ponte Reativa)** $\rightarrow$ **Consulta à Lei (Specification)** $\rightarrow$ **Classificação Estrita (Discriminated Union)** $\rightarrow$ **Execução (Sync Worker)** (ver [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11.1](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L279-L286)).
+O fluxo arquitetural segue cinco etapas: **Intenção (UI)** $\rightarrow$ **Interceptação (Ponte Reativa)** $\rightarrow$ **Consulta à Lei (Specification)** $\rightarrow$ **Classificação Estrita (Discriminated Union)** $\rightarrow$ **Execução (Sync Worker)** (ver [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11.1](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L279-L286)).
 
 ## Evolução ([[governance]])
 

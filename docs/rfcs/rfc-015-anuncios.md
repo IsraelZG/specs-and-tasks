@@ -10,7 +10,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/16-anuncios-reference-spec.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/17-anuncios-reference-spec.md` | novo | Documento canônico, §1 |
 | `docs/conceitos/anuncio.md` | novo verbete | anúncio + campanha + promoção |
 
 **Texto normativo:**
@@ -25,7 +25,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/16-anuncios-reference-spec.md` | §2 | Adicionar |
+| `caderno-3-sdk/17-anuncios-reference-spec.md` | §2 | Adicionar |
 
 **Texto normativo:**
 
@@ -39,13 +39,14 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/16-anuncios-reference-spec.md` | §3 | Adicionar |
+| `caderno-3-sdk/17-anuncios-reference-spec.md` | §3 | Adicionar |
 
 **Texto normativo:**
 
 1. Segmentação = consulta sobre sinais que o usuário **expôs** (interesses públicos, contexto da superfície, traversal do grafo social/de consumo) e, quando aberta, recuperação semântica (RFC-011 RRF). Roda com a fronteira de permissão do usuário-alvo.
 2. **Privacidade por construção:** segmentação **nunca** acessa plaintext de classe restrita nem cruza fronteira E2E (RFC-010 A.6 / RFC-011 A.3.2). Dado privado não vira critério de anúncio. Em P2P puro, a seleção roda no device do espectador (o anunciante não vê o indivíduo, só recebe a métrica agregada).
 3. Contexto > perfil: a segmentação contextual (o que a pessoa está vendo agora) é o caminho default; perfilamento profundo é limitado pelo que foi exposto.
+4. **Garantias de Anonimato na Segmentação**: Para evitar ataques de des-anonimização em segmentações muito específicas, a plataforma implementa de forma combinada e configurável via `SPEC:AD_CAMPAIGN` (a) **k-anonimato (Coorte Mínimo)**, exigindo que uma campanha atinja um grupo mínimo de `N` usuários para iniciar a veiculação, e (b) **Privacidade Diferencial (obfuscação/ruído)** nos relatórios de clique e métricas agregadas enviados pelo device, impedindo o anunciante de correlacionar interações individuais com perfis específicos.
 
 ## A.4 — Medição e liquidação
 
@@ -53,7 +54,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/16-anuncios-reference-spec.md` | §4 | Adicionar |
+| `caderno-3-sdk/17-anuncios-reference-spec.md` | §4 | Adicionar |
 
 **Texto normativo:**
 

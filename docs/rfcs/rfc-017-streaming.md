@@ -10,7 +10,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/18-streaming-reference-spec.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/19-streaming-reference-spec.md` | novo | Documento canônico, §1 |
 
 **Texto normativo:** conteúdo = `CONTENT` (vídeo/áudio/live) governado por `SPEC` da modalidade; canal/criador = `PROFILE`; coleção (playlist, álbum, série) = `CONTENT` agregador por aresta. A modalidade só muda como os bytes chegam (§2–§4).
 
@@ -20,7 +20,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/18-streaming-reference-spec.md` | §2 | Adicionar |
+| `caderno-3-sdk/19-streaming-reference-spec.md` | §2 | Adicionar |
 | `caderno-3-sdk/05-media-transport-plane.md` | §renditions | Editar: rendition = utilitário `compute` assíncrono (link RFC-010 A.5) |
 
 **Texto normativo:**
@@ -35,7 +35,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/18-streaming-reference-spec.md` | §3 | Adicionar |
+| `caderno-3-sdk/19-streaming-reference-spec.md` | §3 | Adicionar |
 | `docs/conceitos/consolidacao-de-live.md` | corpo | Editar: link para esta seção |
 
 **Texto normativo:**
@@ -50,7 +50,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/18-streaming-reference-spec.md` | §4 | Adicionar |
+| `caderno-3-sdk/19-streaming-reference-spec.md` | §4 | Adicionar |
 
 **Texto normativo:** áudio (música, podcast) usa a maquinaria de VOD (A.2); álbum/playlist = coleção (A.1). Sem plano novo — é VOD de faixa de áudio.
 
@@ -60,7 +60,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/18-streaming-reference-spec.md` | §5 | Adicionar |
+| `caderno-3-sdk/19-streaming-reference-spec.md` | §5 | Adicionar |
 
 **Texto normativo:**
 

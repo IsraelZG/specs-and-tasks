@@ -30,7 +30,7 @@ dependencias:
 
 O **Crypto Worker** é o Web Worker isolado da plataforma dedicado ao processamento criptográfico pesado. Opera fora da Main Thread e é coordenado pelo [[sync-worker]] via `postMessage`.
 
-Definição normativa completa em: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.2](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
+Definição normativa completa em: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.2](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
 
 ## Por quê
 
@@ -38,7 +38,7 @@ Operações de cifragem em batch e validação de assinaturas são computacional
 
 ## Responsabilidades
 
-As responsabilidades canônicas estão detalhadas em [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.2](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md):
+As responsabilidades canônicas estão detalhadas em [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.2](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md):
 
 - **Encriptação e decifração em batch** — processa payloads AES-256-GCM de forma assíncrona.
 - **Validação de assinaturas Ed25519 em blocos** — executada em massa durante as [[onda|Ondas 1 e 2]] de sincronização.
@@ -64,11 +64,11 @@ As responsabilidades canônicas estão detalhadas em [caderno-3-sdk/02-sync-work
                    └───────────┘      └───────────┘
 ```
 
-Fonte: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
+Fonte: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
 
 ## Reidratação de BLOBs (zero-copy)
 
-No fluxo de reidratação de arquivos pesados na UI (descrito em [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §7](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)), o Crypto Worker recebe chunks vindos do [[sync-worker]] (após busca P2P via WebTorrent) e os decifra com AES-256-GCM usando a chave do nó `ASSET:FILE`. Os bytes são devolvidos ao Service Worker via `postMessage(buffer, [buffer])` — **Transferable Objects (zero-copy)** — transferindo a propriedade da memória sem cópia para evitar pausas do GC. Chunks decifrados residem apenas no `ReadableStream`/`SourceBuffer` e nunca são expostos ao JavaScript da página.
+No fluxo de reidratação de arquivos pesados na UI (descrito em [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §7](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)), o Crypto Worker recebe chunks vindos do [[sync-worker]] (após busca P2P via WebTorrent) e os decifra com AES-256-GCM usando a chave do nó `ASSET:FILE`. Os bytes são devolvidos ao Service Worker via `postMessage(buffer, [buffer])` — **Transferable Objects (zero-copy)** — transferindo a propriedade da memória sem cópia para evitar pausas do GC. Chunks decifrados residem apenas no `ReadableStream`/`SourceBuffer` e nunca são expostos ao JavaScript da página.
 
 ## Aparições a consolidar
 

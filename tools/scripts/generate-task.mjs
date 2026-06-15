@@ -33,6 +33,7 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Package Manager:** \`pnpm\` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (\`pnpm build\`, \`pnpm test\`, \`pnpm lint\` na raiz afetam todos os pacotes)
 - **Test Runner:** \`vitest\` (pacotes core/protocol) e \`playwright\` (E2E/Frontend)
+- **Capacidade-alvo:** haiku | sonnet | opus-spike *(ver regra "Dimensionamento de Tarefas" no CLAUDE.md: spec sem decisões em aberto, contratos explícitos, sem API externa não-fixada, verificação por comando)*
 
 ## 1. Objetivo
 *(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*

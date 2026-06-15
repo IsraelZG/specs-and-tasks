@@ -10,7 +10,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/17-social-reference-spec.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/18-social-reference-spec.md` | novo | Documento canônico, §1 |
 
 **Texto normativo:**
 
@@ -23,7 +23,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/17-social-reference-spec.md` | §2 | Adicionar |
+| `caderno-3-sdk/18-social-reference-spec.md` | §2 | Adicionar |
 
 **Texto normativo:**
 
@@ -36,7 +36,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/17-social-reference-spec.md` | §3 | Adicionar |
+| `caderno-3-sdk/18-social-reference-spec.md` | §3 | Adicionar |
 
 **Texto normativo:**
 
@@ -50,7 +50,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/17-social-reference-spec.md` | §4 | Adicionar |
+| `caderno-3-sdk/18-social-reference-spec.md` | §4 | Adicionar |
 
 **Texto normativo:**
 
@@ -64,7 +64,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/17-social-reference-spec.md` | §5 | Adicionar |
+| `caderno-3-sdk/18-social-reference-spec.md` | §5 | Adicionar |
 
 **Texto normativo:** DM é o **chat da RFC-018** visto pela lente social — mesma conversa, mesmos nós; sem mecânica própria.
 

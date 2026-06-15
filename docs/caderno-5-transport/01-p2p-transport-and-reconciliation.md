@@ -131,29 +131,29 @@ A sincronização relacional baseia-se no protocolo de reconciliação de conjun
 
 #### 2.6.1 Fingerprints (256 bits, sem truncamento)
 
-A representação criptográfica e as propriedades de cacheabilidade dos resumos de dados são geridas por [[fingerprint|fingerprints]] de 256 bits sem truncamento, cuja especificação matemática e comportamento de cacheabilidade estão descritos em [[fingerprint]] ([caderno-2-protocol/03-set-reconciliation-protocol.md#11-modelo-matematico-e-fingerprints](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/03-set-reconciliation-protocol.md#L11-L21)).
+A representação criptográfica e as propriedades de cacheabilidade dos resumos de dados são geridas por [[fingerprint|fingerprints]] de 256 bits sem truncamento, cuja especificação matemática e comportamento de cacheabilidade estão descritos em [[fingerprint]] ([caderno-2-protocol/03-set-reconciliation-protocol.md#11-modelo-matematico-e-fingerprints](../caderno-2-protocol/03-set-reconciliation-protocol.md#L11-L21)).
 
 #### 2.6.2 Protocolo de Troca
 
-A dinâmica de divisão de ranges, isolamento de IDs divergentes e reidratação cirúrgica de nós e arestas segue o algoritmo recursivo de reconciliação de dados detalhado em [[rbsr]] ([caderno-2-protocol/03-set-reconciliation-protocol.md#12-protocolo-de-troca-e-reconciliacao](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/03-set-reconciliation-protocol.md#L23-L30)).
+A dinâmica de divisão de ranges, isolamento de IDs divergentes e reidratação cirúrgica de nós e arestas segue o algoritmo recursivo de reconciliação de dados detalhado em [[rbsr]] ([caderno-2-protocol/03-set-reconciliation-protocol.md#12-protocolo-de-troca-e-reconciliacao](../caderno-2-protocol/03-set-reconciliation-protocol.md#L23-L30)).
 
 #### 2.6.3 Fechamento de Range (`RangeFooter`)
 
-Como defesa-em-profundidade, a transferência de qualquer range é acompanhada por um rodapé estruturado, cujos invariantes e regras de validação determinística de contagem e checksum estão descritos em [[range-footer]] ([caderno-2-protocol/03-set-reconciliation-protocol.md#12-protocolo-de-troca-e-reconciliacao](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/03-set-reconciliation-protocol.md#L30-L37)).
+Como defesa-em-profundidade, a transferência de qualquer range é acompanhada por um rodapé estruturado, cujos invariantes e regras de validação determinística de contagem e checksum estão descritos em [[range-footer]] ([caderno-2-protocol/03-set-reconciliation-protocol.md#12-protocolo-de-troca-e-reconciliacao](../caderno-2-protocol/03-set-reconciliation-protocol.md#L30-L37)).
 
 #### 2.6.4 Rodada de Desafio com Nonce (sob suspeita)
 
-Havendo suspeita de colisão ou marcação de risco, a sincronização do range afetado migra temporariamente para um modo que introduz nonces dinâmicos, conforme a fórmula e condições especificadas em [[nonce-challenge]] ([caderno-2-protocol/03-set-reconciliation-protocol.md#13-rodada-de-desafio-com-nonce-sob-suspeita](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/03-set-reconciliation-protocol.md#L39-L45)).
+Havendo suspeita de colisão ou marcação de risco, a sincronização do range afetado migra temporariamente para um modo que introduz nonces dinâmicos, conforme a fórmula e condições especificadas em [[nonce-challenge]] ([caderno-2-protocol/03-set-reconciliation-protocol.md#13-rodada-de-desafio-com-nonce-sob-suspeita](../caderno-2-protocol/03-set-reconciliation-protocol.md#L39-L45)).
 
 ### 2.7 Sync Dirigido por Permissions (UCAN)
 
-A sincronização e formação de B-Trees de reconciliação de dados na camada de transporte são governadas exclusivamente por [[sync-dirigido-por-ucan]], cujas regras de filtragem e restrição de subgrafos autorizados residem em [caderno-2-protocol/03-set-reconciliation-protocol.md#2-sync-dirigido-por-permissions-e-ucan](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/03-set-reconciliation-protocol.md#L49-L55).
+A sincronização e formação de B-Trees de reconciliação de dados na camada de transporte são governadas exclusivamente por [[sync-dirigido-por-ucan]], cujas regras de filtragem e restrição de subgrafos autorizados residem em [caderno-2-protocol/03-set-reconciliation-protocol.md#2-sync-dirigido-por-permissions-e-ucan](../caderno-2-protocol/03-set-reconciliation-protocol.md#L49-L55).
 
 > **Enforcement bilateral.** A validação é feita pelo lado que **fornece** o dado: ele valida assinaturas e cadeia de delegação do UCAN anexado à requisição antes de servir qualquer delta. Um peer sem UCAN ativo sobre um subgrafo **nunca** recebe, transmite ou verifica fingerprints daquele subgrafo — blindando metadados na camada de transporte.
 
 ### 2.8 Sistema de Ondas (Waves)
 
-A sincronização é segmentada em um pipeline de quatro fases para garantir a fluidez da experiência do usuário, cujos conteúdos e limites de latência estão especificados em [[onda]] ([caderno-2-protocol/03-set-reconciliation-protocol.md#4-sistema-de-ondas-waves](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/03-set-reconciliation-protocol.md#L76-L88)).
+A sincronização é segmentada em um pipeline de quatro fases para garantir a fluidez da experiência do usuário, cujos conteúdos e limites de latência estão especificados em [[onda]] ([caderno-2-protocol/03-set-reconciliation-protocol.md#4-sistema-de-ondas-waves](../caderno-2-protocol/03-set-reconciliation-protocol.md#L76-L88)).
 
 - A **Onda 0** executa o mecanismo de [[anti-entropy|anti-entropy O(1)]] mediante troca rápida do root fingerprint. A meta de `< 100 ms` aplica-se exclusivamente em malha quente (*resume*); a conexão inicial em *cold start* (envolvendo discovery, NAT traversal e Noise handshake) demanda segundos.
 - As fases subsequentes dividem a sincronização em prioridades interativas de background e reidratação lazy de payloads via [[graph-based-routing|roteamento baseado em grafo]].
@@ -165,7 +165,7 @@ A sincronização é segmentada em um pipeline de quatro fases para garantir a f
 Todo pacote de domínio carrega dois carimbos de ordenação no envelope **assinado**:
 
 1. **`identity_epoch_index`** — índice da **Época de Identidade** vigente (caderno-2/02 §3.1.1; RFC-005 §A.1). Se houver *drift* (rotação de chave de identidade, emissão/revogação de delegação de dispositivo ou revogação de UCAN raiz durante a transferência), a conexão interrompe o RBSR com `STALE_EPOCH`, forçando o *catch-up* de identidades antes de enviar dados de domínio potencialmente não-legíveis. **`STALE_EPOCH` refere-se exclusivamente à Época de Identidade** — divergência de época de conteúdo manifesta-se como negativa do Key Vault na camada de aplicação, nunca no transporte.
-2. [[hlc]] ([caderno-2-protocol/02-cryptographic-lineage-and-auth.md#36-ordenação-causal-hlc-e-seleção-de-head](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/02-cryptographic-lineage-and-auth.md#L134)) — O transporte é responsável por **transmitir** e **validar** o HLC; a lógica de seleção de head e de merge de fork vive no caderno de protocolo do grafo (Apêndice A).
+2. [[hlc]] ([caderno-2-protocol/02-cryptographic-lineage-and-auth.md#36-ordenação-causal-hlc-e-seleção-de-head](../caderno-2-protocol/02-cryptographic-lineage-and-auth.md#L134)) — O transporte é responsável por **transmitir** e **validar** o HLC; a lógica de seleção de head e de merge de fork vive no caderno de protocolo do grafo (Apêndice A).
 
 ### 2.10 — Modelo de Dados e Concorrência
 
@@ -173,25 +173,25 @@ O grafo da Plataforma V3 segue o modelo event-sourcing (append-only). Nenhum reg
 
 #### 2.10.1 — Imutabilidade e Linhagem
 
-A integridade do histórico é protegida pela imutabilidade física das tabelas `nodes` e `edges`. As atualizações lógicas são encadeadas via arestas `MUTATES` para formar a [[linhagem-de-versoes|linhagem de versões]] de cada entidade, cujas regras de validação estrutural e causalidade pelo HLC estão definidas em [caderno-2-protocol/02-cryptographic-lineage-and-auth.md#32-duas-camadas-de-imutabilidade-linhagem-de-versoes](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/02-cryptographic-lineage-and-auth.md). A detecção de concorrência é estrutural (fork), ocorrendo quando duas ou mais arestas `MUTATES` ativas compartilham o mesmo ancestral sem relação de precedência.
+A integridade do histórico é protegida pela imutabilidade física das tabelas `nodes` e `edges`. As atualizações lógicas são encadeadas via arestas `MUTATES` para formar a [[linhagem-de-versoes|linhagem de versões]] de cada entidade, cujas regras de validação estrutural e causalidade pelo HLC estão definidas em [caderno-2-protocol/02-cryptographic-lineage-and-auth.md#32-duas-camadas-de-imutabilidade-linhagem-de-versoes](../caderno-2-protocol/02-cryptographic-lineage-and-auth.md). A detecção de concorrência é estrutural (fork), ocorrendo quando duas ou mais arestas `MUTATES` ativas compartilham o mesmo ancestral sem relação de precedência.
 
 #### 2.10.2 — Resolução de Forks
 
-Quando conflitos concorrentes emergem de partições de rede, a convergência é obtida de forma determinística por meio do protocolo de [[fork-resolucao]], cuja especificação de eleição do mergeador e escrita de nós de merge reside em [caderno-2-protocol/04-automerge-integration-spec.md#42-resolucao-de-forks](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/04-automerge-integration-spec.md#L78-L86).
+Quando conflitos concorrentes emergem de partições de rede, a convergência é obtida de forma determinística por meio do protocolo de [[fork-resolucao]], cuja especificação de eleição do mergeador e escrita de nós de merge reside em [caderno-2-protocol/04-automerge-integration-spec.md#42-resolucao-de-forks](../caderno-2-protocol/04-automerge-integration-spec.md#L78-L86).
 
 #### 2.10.3 — Deleções (Tombstones)
 
-No modelo append-only, as deleções lógicas são implementadas desativando-se a aresta correspondente (`active = 0`), gerando uma lápide cuja indexação e ciclo de vida até a coleta física pelo G4 são regulados conforme [[tombstone-lapide]] ([caderno-3-sdk/01-sqlite-and-projections-schema.md#22-tombstones-e-active-edges](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/01-sqlite-and-projections-schema.md)).
+No modelo append-only, as deleções lógicas são implementadas desativando-se a aresta correspondente (`active = 0`), gerando uma lápide cuja indexação e ciclo de vida até a coleta física pelo G4 são regulados conforme [[tombstone-lapide]] ([caderno-3-sdk/01-sqlite-and-projections-schema.md#22-tombstones-e-active-edges](../caderno-3-sdk/01-sqlite-and-projections-schema.md)).
 
 ### 2.11 — Matriz de Classificação de Transporte (As 3 Perguntas)
 
-A camada de transporte adota um modelo de roteamento declarativo e baseado em regras para definir o destino físico e o protocolo de sincronização aplicável a cada nó. Este mapeamento é determinado a partir de [[matriz-de-classificacao-transporte]] (detalhado em [caderno-3-sdk/01-sqlite-and-projections-schema.md#4-matriz-de-classificação-de-transporte-as-3-perguntas](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/01-sqlite-and-projections-schema.md)).
+A camada de transporte adota um modelo de roteamento declarativo e baseado em regras para definir o destino físico e o protocolo de sincronização aplicável a cada nó. Este mapeamento é determinado a partir de [[matriz-de-classificacao-transporte]] (detalhado em [caderno-3-sdk/01-sqlite-and-projections-schema.md#4-matriz-de-classificação-de-transporte-as-3-perguntas](../caderno-3-sdk/01-sqlite-and-projections-schema.md)).
 
 > **Exemplo de enquadramento (RFC-005 §A.8 — recibos de chat):** o recibo *ao vivo* (entregue/lido em sessão) classifica-se como `REPLICABLE_VOLATILE` (ephemeral message; morre com a sessão); o **marco consolidado** "lido até `last_read_hlc`" — um registro por (leitor, conversa), governado por `SPECIFICATION:CHAT_READ_RECEIPT` — classifica-se como `REPLICABLE_AUDITABLE`. Ver [[caderno-3-sdk/07-chat-reference-spec]].
 
 #### 2.11.1 — Inversão de Controle e Roteamento (Implementação)
 
-A classificação e o roteamento físico dos dados são inferidos a partir dos [[transport-hints|transport_hints]] declarados no payload da [[specification]] do nó, permitindo que a infraestrutura selecione automaticamente o canal apropriado (como [[rbsr]], [[ephemeral-messages]] ou [[private-swarm]]) por meio de um fluxo de roteamento de cinco etapas e regras de tipos em TypeScript especificadas em [caderno-3-sdk/01-sqlite-and-projections-schema.md#42-transport_hints](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/01-sqlite-and-projections-schema.md).
+A classificação e o roteamento físico dos dados são inferidos a partir dos [[transport-hints|transport_hints]] declarados no payload da [[specification]] do nó, permitindo que a infraestrutura selecione automaticamente o canal apropriado (como [[rbsr]], [[ephemeral-messages]] ou [[private-swarm]]) por meio de um fluxo de roteamento de cinco etapas e regras de tipos em TypeScript especificadas em [caderno-3-sdk/01-sqlite-and-projections-schema.md#42-transport_hints](../caderno-3-sdk/01-sqlite-and-projections-schema.md).
 
 `typescript
 // Tipagem garantindo que Destino e Protocolo andem sempre juntos
@@ -248,9 +248,9 @@ function evaluateTransportHints(
 
 A lógica de transporte e processamento de dados roda fora da Main Thread para garantir a reatividade da interface. A coordenação baseia-se em web workers comunicando-se via Comlink:
 
-- **[[sync-worker|Sync Worker]]:** Web Worker principal de transporte responsável pela persistência durável no SQLite WASM, sincronização via [[rbsr]], orquestração do [[automerge-repo]] e governança de swarms (ver [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#11-sync-worker](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)).
-- **[[crypto-worker|Crypto Worker]]:** Web Worker secundário responsável pela criptografia e validação de assinaturas em lote, hospedando o [[key-vault|Key Vault]] para custódia de chaves em RAM com TTL estrito de 4 h (ver [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#12-crypto-worker](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)).
-- **[[index-worker|Index Worker]]:** Web Worker secundário que reconstrói índices de busca e projeções locais a partir de payloads decifrados (ver [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#13-index-worker](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)).
+- **[[sync-worker|Sync Worker]]:** Web Worker principal de transporte responsável pela persistência durável no SQLite WASM, sincronização via [[rbsr]], orquestração do [[automerge-repo]] e governança de swarms (ver [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#11-sync-worker](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)).
+- **[[crypto-worker|Crypto Worker]]:** Web Worker secundário responsável pela criptografia e validação de assinaturas em lote, hospedando o [[key-vault|Key Vault]] para custódia de chaves em RAM com TTL estrito de 4 h (ver [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#12-crypto-worker](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)).
+- **[[index-worker|Index Worker]]:** Web Worker secundário que reconstrói índices de busca e projeções locais a partir de payloads decifrados (ver [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#13-index-worker](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)).
 
 ### 3.2 Estruturas em Memória
 
@@ -294,7 +294,7 @@ Se o líder eleito falhar durante uma sessão RBSR ativa:
 
 #### 3.2.4 — Gênese da Rede (First Peer Protocol)
 
-A inicialização e o cold start da topologia P2P de um swarm são regulados por [[first-peer-protocol]] (ver [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#6-gênese-da-rede-—-first-peer-protocol](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)), que implementa a máquina de estados (JOINING $\to$ WAITING_FOR_SWARM $\to$ CONNECTED | GENESIS | OFFLINE_RETRY).
+A inicialização e o cold start da topologia P2P de um swarm são regulados por [[first-peer-protocol]] (ver [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#6-gênese-da-rede-—-first-peer-protocol](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md)), que implementa a máquina de estados (JOINING $\to$ WAITING_FOR_SWARM $\to$ CONNECTED | GENESIS | OFFLINE_RETRY).
 
 No estado [[genesis-state|GENESIS]], o peer fundador gera atomicamente os registros de bootstrap: o perfil do administrador, a especificação do workspace e a marca de nascimento de rede [[specification-network-birth|NETWORK_BIRTH]].
 
@@ -383,7 +383,7 @@ O "limite honesto" é operacionalizado como contrato: cada device **declara** ca
 
 #### 4.2.1 P2P Puro — Replication Factor por Gossip
 
-A garantia de disponibilidade do grafo em ambientes P2P baseia-se na manutenção de um fator de replicação mínimo [[replication-factor|Replication Factor]] ($N$, default 3), cujos custódios primários são eleitos de forma determinística por [[consistent-hashing|Consistent Hashing]] conforme especificado em [caderno-2-protocol/03-set-reconciliation-protocol.md#31-p2p-puro-replication-factor-por-gossip](file:///c:/Dev2026/Docs/docs/caderno-2-protocol/03-set-reconciliation-protocol.md).
+A garantia de disponibilidade do grafo em ambientes P2P baseia-se na manutenção de um fator de replicação mínimo [[replication-factor|Replication Factor]] ($N$, default 3), cujos custódios primários são eleitos de forma determinística por [[consistent-hashing|Consistent Hashing]] conforme especificado em [caderno-2-protocol/03-set-reconciliation-protocol.md#31-p2p-puro-replication-factor-por-gossip](../caderno-2-protocol/03-set-reconciliation-protocol.md).
 
 #### 4.2.2 Corporativo
 
@@ -421,7 +421,7 @@ O cache altruísta é vigiado no limite de OPFS/Disco, com cotas em **pools de e
 
 ### 4.6 Tradeoff de Liveness dos Validadores
 
-A disponibilidade transacional da rede em cenários de ausência de validadores é regulada de forma determinística pelo [[tradeoff-liveness-validadores]] (definido de forma canônica em [caderno-4-governance/03-specification-lifecycle-and-rfcs.md#34-tradeoff-de-liveness-dos-validadores-—-formalizacao](file:///c:/Dev2026/Docs/docs/caderno-4-governance/03-specification-lifecycle-and-rfcs.md)).
+A disponibilidade transacional da rede em cenários de ausência de validadores é regulada de forma determinística pelo [[tradeoff-liveness-validadores]] (definido de forma canônica em [caderno-4-governance/03-specification-lifecycle-and-rfcs.md#34-tradeoff-de-liveness-dos-validadores-—-formalizacao](../caderno-4-governance/03-specification-lifecycle-and-rfcs.md)).
 
 - **Operações comutativas** (leitura, gossip, RBSR, navegação, chats, rascunhos) continuam operando normalmente sem validadores.
 - **Operações não-comutativas** (débito, alteração de especificações, quórum) sofrem [[congelamento-escopado|congelamento escopado]] por linhagem, degradando com segurança para read-only sem perda de integridade ou auditabilidade.
@@ -431,7 +431,7 @@ A disponibilidade transacional da rede em cenários de ausência de validadores 
 
 A replicação cross-device de dados pessoais que não devem ser expostos a outros participantes do swarm (como rascunhos locais e preferências de interface) é gerenciada isoladamente via [[private-swarm]].
 
-A especificação de derivação de chaves criptográficas (`Device_Sync_Key` e `RendezvousId`), sincronização do banco isolado `device_state.db` e priorização de tráfego do canal cross-device estão consolidadas em [[private-swarm]] (ver [docs/conceitos/private-swarm.md](file:///c:/Dev2026/Docs/docs/conceitos/private-swarm.md)).
+A especificação de derivação de chaves criptográficas (`Device_Sync_Key` e `RendezvousId`), sincronização do banco isolado `device_state.db` e priorização de tráfego do canal cross-device estão consolidadas em [[private-swarm]] (ver [docs/conceitos/private-swarm.md](../conceitos/private-swarm.md)).
 
 ---
 

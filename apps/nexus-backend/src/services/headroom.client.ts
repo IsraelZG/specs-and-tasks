@@ -7,7 +7,7 @@ const HEADROOM_API_URL = process.env.HEADROOM_API_URL || 'http://127.0.0.1:8080'
 export class HeadroomClient {
   static async compressContext(text: string, contextWindow: number = 2000): Promise<string> {
     try {
-      console.log(`[Headroom] Compressing payload of size ${text.length}...`);
+      console.error(`[Headroom] Compressing payload of size ${text.length}...`);
       const response = await fetch(`${HEADROOM_API_URL}/compress`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

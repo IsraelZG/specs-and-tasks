@@ -29,6 +29,7 @@ pids
 *.pid
 *.seed
 *.pid.lock
+.turbo/
 
 # Temporary files
 .tmp/

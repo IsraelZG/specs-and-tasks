@@ -9,7 +9,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/21-calendario-reference-spec.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/22-calendario-reference-spec.md` | novo | Documento canônico, §1 |
 
 **Texto normativo:** evento = `CONTENT:EVENT` governado por `SPEC:EVENT` (início/fim, fuso, local — local podendo referenciar um `PLACE` da RFC-021). Calendário = coleção/agrupamento por aresta. Renderização pela engine `Timeline`. Lembretes/alertas de um evento **não dependem de CRON central**: num ambiente descentralizado local-first, são calculados por projeção no próprio client e empurrados para a API de notificação do SO (Notification Center) ou injetados na Command Palette/overlay nativo. Sem agendador central — o client é a fonte do disparo.
 
@@ -19,7 +19,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/21-calendario-reference-spec.md` | §2 | Adicionar |
+| `caderno-3-sdk/22-calendario-reference-spec.md` | §2 | Adicionar |
 | `docs/conceitos/recorrencia.md` | novo verbete | regra no payload, instâncias virtuais |
 
 **Texto normativo:**
@@ -33,7 +33,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/21-calendario-reference-spec.md` | §3 | Adicionar |
+| `caderno-3-sdk/22-calendario-reference-spec.md` | §3 | Adicionar |
 
 **Texto normativo:** convidar = aresta de convite ao `PROFILE` + notificação; RSVP (aceito/recusado/talvez) = intent do convidado. Capacidade limitada (sala, vagas) reusa `reserva_capacidade` (RFC-012 A.2) quando o evento é um recurso disputado.
 
@@ -43,7 +43,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/21-calendario-reference-spec.md` | §4 | Adicionar |
+| `caderno-3-sdk/22-calendario-reference-spec.md` | §4 | Adicionar |
 
 **Texto normativo:** espelhar Google Calendar/Microsoft = conector **Classe D** (RFC-007 A.4): cursor, polling/webhook, supressão de eco. O calendário externo é autoritativo sobre seus eventos; o interno sobre os que nasceram na plataforma. Convites por email trocam `.ics` (RFC-019). A sincronização Classe D é **bidirecional**: um override local sobre um evento importado (mover/cancelar uma ocorrência de recorrência) propaga o efeito de volta ao provedor — inclusive **tombstone** ao deletar uma exceção — traduzido para CalDAV ou API proprietária (Google/Microsoft), sob a mesma supressão de eco. Best-effort, sujeito à fidelidade do provedor (ver A.5.2).
 
@@ -53,7 +53,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/21-calendario-reference-spec.md` | §5 | Adicionar |
+| `caderno-3-sdk/22-calendario-reference-spec.md` | §5 | Adicionar |
 
 **Texto normativo:**
 

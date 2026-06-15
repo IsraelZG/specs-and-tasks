@@ -29,7 +29,7 @@ A plataforma adota o princípio de [[pragmatismo-topologico]], assumindo a verda
 
 O `RelayTrustModel` permite a autogestão local desses recursos comuns por meio de score individualizado. Ele adota o princípio de **não-transitividade** para evitar que peers maliciosos propaguem falsas acusações (*badmouthing*) sobre relays honestos. Com isso, garante-se a resiliência topológica sem criar pontos centralizados de reputação de transporte.
 
-Consulte o [caderno-1-vision/01-vision-and-positioning.md](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md#L18-L28) para detalhes sobre pragmatismo topológico.
+Consulte o [caderno-1-vision/01-vision-and-positioning.md](../caderno-1-vision/01-vision-and-positioning.md#L18-L28) para detalhes sobre pragmatismo topológico.
 
 ---
 
@@ -70,7 +70,7 @@ Na arquitetura do SDK, a lógica do `RelayTrustModel` reside e é computada dire
 * **Roteamento de Circuitos:** Quando a engine de conexões necessita rotear dados via relay (por impossibilidade de hole punching direto sob NAT simétrico), o `SyncWorker` consulta o `RelayTrustModel` para filtrar apenas relays com score positivo.
 * **Evicção de Peers:** Peers detectados como inativos ou banidos pelo `RelayTrustModel` são suspensos do mapeamento ativo, prevenindo que falhas consecutivas de conexão travem a fila de dispatch de mensagens do worker.
 
-Para mais detalhes da orquestração em nível de código, consulte o [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md) e a [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.2](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L355-L371).
+Para mais detalhes da orquestração em nível de código, consulte o [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md) e a [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.2](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L355-L371).
 
 ---
 
@@ -80,7 +80,7 @@ Os limites aceitáveis de latência, as janelas deslizantes de cálculo de histe
 
 Em implementações futuras da plataforma (como nas redes corporativas sob a v4), o `RelayTrustModel` poderá interagir com pools de stakers ou exigir depósitos de garantia (`[[bond-caucao]]`) dos operadores de Super Peers para mitigar ataques na camada física de transporte.
 
-Consulte o [caderno-4-governance/03-specification-lifecycle-and-rfcs.md](file:///c:/Dev2026/Docs/docs/caderno-4-governance/03-specification-lifecycle-and-rfcs.md) para detalhes sobre a evolução das especificações da plataforma.
+Consulte o [caderno-4-governance/03-specification-lifecycle-and-rfcs.md](../caderno-4-governance/03-specification-lifecycle-and-rfcs.md) para detalhes sobre a evolução das especificações da plataforma.
 
 ---
 

@@ -9,7 +9,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/26-shell-e-composicao.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/28-shell-e-composicao.md` | novo | Documento canônico, §1 |
 | `docs/conceitos/spec-workspace.md` | novo verbete | layout salvo vs. estado vivo |
 
 **Texto normativo:**
@@ -25,7 +25,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/26-shell-e-composicao.md` | §2 | Adicionar |
+| `caderno-3-sdk/28-shell-e-composicao.md` | §2 | Adicionar |
 
 **Texto normativo:**
 
@@ -38,7 +38,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/26-shell-e-composicao.md` | §3 | Adicionar |
+| `caderno-3-sdk/28-shell-e-composicao.md` | §3 | Adicionar |
 | `docs/conceitos/gerenciador-de-espaco.md` | novo verbete | solver determinístico de colunas |
 
 **Texto normativo:**
@@ -53,7 +53,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/26-shell-e-composicao.md` | §4 | Adicionar |
+| `caderno-3-sdk/28-shell-e-composicao.md` | §4 | Adicionar |
 
 **Texto normativo:**
 
@@ -66,7 +66,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/26-shell-e-composicao.md` | §5 | Adicionar |
+| `caderno-3-sdk/28-shell-e-composicao.md` | §5 | Adicionar |
 
 **Texto normativo:**
 
@@ -79,7 +79,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/26-shell-e-composicao.md` | §6 | Adicionar |
+| `caderno-3-sdk/28-shell-e-composicao.md` | §6 | Adicionar |
 
 **Texto normativo:**
 
@@ -93,7 +93,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/26-shell-e-composicao.md` | §7 | Adicionar |
+| `caderno-3-sdk/28-shell-e-composicao.md` | §7 | Adicionar |
 
 **Texto normativo:** cada painel é endereçável por **rota** (a página tem rota — RFC-008); o estado de workspace serializa para URL, habilitando **deep-link** ("abrir produto X numa coluna"), **compartilhamento de link** e **voltar/avançar** como navegação sobre estados de workspace.
 
@@ -103,7 +103,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/26-shell-e-composicao.md` | §8 | Adicionar |
+| `caderno-3-sdk/28-shell-e-composicao.md` | §8 | Adicionar |
 
 **Texto normativo:**
 
@@ -116,7 +116,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/26-shell-e-composicao.md` | §9 | Adicionar |
+| `caderno-3-sdk/28-shell-e-composicao.md` | §9 | Adicionar |
 
 **Texto normativo:**
 
@@ -129,7 +129,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/26-shell-e-composicao.md` | §10 | Adicionar |
+| `caderno-3-sdk/28-shell-e-composicao.md` | §10 | Adicionar |
 
 **Texto normativo:** navegação de foco entre colunas, troca de coluna/painel por teclado (paridade com editores de painéis), e regiões nomeadas para leitor de tela são requisito — herda os invariantes de acessibilidade da RFC-006 (que prevalecem sobre qualquer tema).
 

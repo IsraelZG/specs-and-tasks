@@ -11,7 +11,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/12-ia-rag-e-agentes.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/13-ia-rag-e-agentes.md` | novo | Documento canônico, §1 |
 | `docs/conceitos/utilitario-de-ia.md` | novo verbete | LLM/embedding/transcrição como capacidades `compute` |
 
 **Texto normativo:**
@@ -28,7 +28,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/12-ia-rag-e-agentes.md` | §2 | Adicionar |
+| `caderno-3-sdk/13-ia-rag-e-agentes.md` | §2 | Adicionar |
 | `caderno-3-sdk/01-sqlite-and-projections-schema.md` | §projeções | Editar: adicionar **7ª projeção** `vector_index` (sqlite-vec/WASM), irmã de `search_index_fts` |
 
 **Texto normativo:**
@@ -47,7 +47,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/12-ia-rag-e-agentes.md` | §3 | Adicionar |
+| `caderno-3-sdk/13-ia-rag-e-agentes.md` | §3 | Adicionar |
 | `docs/conceitos/recuperacao-hibrida.md` | novo verbete | RRF sobre FTS + vetor + traversal |
 
 **Texto normativo:**
@@ -65,7 +65,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/12-ia-rag-e-agentes.md` | §4 | Adicionar |
+| `caderno-3-sdk/13-ia-rag-e-agentes.md` | §4 | Adicionar |
 
 **Texto normativo:**
 
@@ -81,7 +81,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/12-ia-rag-e-agentes.md` | §5 | Adicionar |
+| `caderno-3-sdk/13-ia-rag-e-agentes.md` | §5 | Adicionar |
 | `docs/conceitos/agente-de-ia.md` | novo verbete | persona delegada + escopo |
 
 **Texto normativo:**
@@ -99,7 +99,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/12-ia-rag-e-agentes.md` | §6 | Adicionar |
+| `caderno-3-sdk/13-ia-rag-e-agentes.md` | §6 | Adicionar |
 
 **Texto normativo:**
 
@@ -113,7 +113,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/12-ia-rag-e-agentes.md` | §7 | Adicionar |
+| `caderno-3-sdk/13-ia-rag-e-agentes.md` | §7 | Adicionar |
 | `docs/conceitos/command-palette.md` | novo verbete | superfície única de intenção em linguagem natural |
 
 **Texto normativo:**

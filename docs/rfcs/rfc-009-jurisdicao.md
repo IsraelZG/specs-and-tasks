@@ -1,6 +1,6 @@
 # RFC-009 — Jurisdição e Regionalização de Regras
 > **Status:** Proposta
-> **Precedência:** estende `caderno-3-sdk/04-theme-and-i18n-data-structures.md` (i18n de strings) com o análogo para **regras**; apoia-se na ontologia (`EXTENDS`, `SUPERSEDED_BY`, [[linhagem-de-versoes]]). Onde não tocada, a doc vigente prevalece. Pré-requisito de **RFC-012**-Marketplace+Fintech e **RFC-013**-ERP/CRM (folha, fiscal, contábil são jurisdicionais por natureza).
+> **Precedência:** estende `caderno-3-sdk/04-theme-and-i18n-data-structures.md` (i18n de strings) com o análogo para **regras**; apoia-se na ontologia (`EXTENDS`, `SUPERSEDED_BY`, [[linhagem-de-versoes]]). Onde não tocada, a doc vigente prevalece. Pré-requisito de rfc-012 (Marketplace+Fintech) e rfc-013 (ERP/CRM) (folha, fiscal, contábil são jurisdicionais por natureza).
 > **Princípio:** assim como um componente resolve uma string pela *locale*, um validador resolve uma regra pela *jurisdição*. Tudo spec-driven, preparado para internacionalização sem reescrita.
 
 ## A.1 — Jurisdição como dimensão de resolução
@@ -89,6 +89,8 @@
 2. **Composição, não disputa:** uma venda BR→US apura imposto de saída pela variante `@BR` e imposto de entrada pela `@US`, ambos provisionados em `BALANCE_STATE` próprios (RFC-013 A.5.2) — as duas variantes coexistem na mesma operação, cada uma no seu papel. Conflito real (duas regras reivindicam o mesmo papel) é erro de modelagem da SPEC, detectado na validação.
 3. **Conectores por jurisdição:** cada âncora pode rotear um conector distinto (NF-e de saída no BR; sales-tax/3rd-party fiscal no US) — RFC-007 A.2.4 / A.4 desta RFC. Ausência de conector para qualquer âncora → modo degradado **só naquele papel**, declarado, sem contaminar os demais.
 4. A jurisdição efetiva de cada papel é registrada no fato (A.1.2), tornando a apuração multi-jurisdição auditável e reproduzível por competência (A.3).
+5. **Âncora `Merchant of Record` (MoR)**: Além das âncoras de papel tradicionais (origem, destino, prestação, titular), define-se a âncora `Merchant of Record` (MoR) para regular o intermediário legal encarregado da liquidação financeira e das obrigações fiscais perante adquirentes e bandeiras. O MoR é modelado explicitamente como um papel jurisdicional na SPEC de negociação.
+6. **Bloqueio Rígido Legal (Hard Stop) vs. Degradação com Alerta**: Em cenários de compliance estrito (ex: emissão de Nota Fiscal no Brasil para expedição física), a SPEC jurisdicional pode declarar um passo de validação como `blocking: true` (Hard Stop). Caso o conector fiscal falhe, a transição do workflow é bloqueada por padrão para evitar infração fiscal. Lojistas operando manualmente podem forçar um override para contornar o bloqueio temporariamente, o que dispara um aviso em Vermelho Escuro na UI alertando sobre a infração e registra o fato no audit trail para fins de responsabilidade.
 
 ## A.6 — Preparativos no plano
 

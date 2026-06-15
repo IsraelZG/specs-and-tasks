@@ -27,13 +27,13 @@ O **Global Network Throttle** (geralmente referido como `GlobalThrottle`) é o c
 
 A plataforma adota o paradigma [[local-first]] e opera em redes distribuídas oportunísticas. O Global Network Throttle permite aos peers gerirem eficientemente seus recursos locais ao participar de múltiplos swarms simultaneamente. Sem esse mecanismo, a competição concorrente por largura de banda saturaria a conexão de rede local, exauriria as conexões simultâneas permitidas pelo navegador (tipicamente limitadas a ~30 sockets no WebRTC) e causaria desgaste severo na bateria e consumo excessivo de dados móveis em dispositivos leves. A alocação proporcional aos estados visuais da interface do usuário garante a fluidez no espaço de trabalho ativo do usuário, mantendo a replicação em segundo plano em níveis controlados.
 
-Para detalhes de produto e a visão de transporte como recurso comum gerido pela rede, consulte o [caderno-1-vision/01-vision-and-positioning.md](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md#L11-L28).
+Para detalhes de produto e a visão de transporte como recurso comum gerido pela rede, consulte o [caderno-1-vision/01-vision-and-positioning.md](../caderno-1-vision/01-vision-and-positioning.md#L11-L28).
 
 ---
 
 ## Contrato ([[protocol]])
 
-O comportamento e as regras de controle do `GlobalThrottle` obedecebem aos contratos descritos em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.5](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L448-L471). A alocação e o remanejamento seguem as seguintes especificações formais:
+O comportamento e as regras de controle do `GlobalThrottle` obedecebem aos contratos descritos em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §3.2.5](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L448-L471). A alocação e o remanejamento seguem as seguintes especificações formais:
 
 ### Cotas de Banda por Visibilidade
 
@@ -69,7 +69,7 @@ A execução do Global Network Throttle é processada em segundo plano dentro do
 - **Coordenação com SwarmRegistry:** O throttle interage com o [[swarm-registry]] para rastrear os peers ativos e gerenciar a abertura e fechamento de sockets físicos.
 - **Sensores de Hardware:** O worker monitora o estado de energia via Battery Status API (`navigator.getBattery`) e a rede móvel via Network Information API para modular as restrições em tempo de execução.
 
-Para a arquitetura detalhada dos workers e o ciclo de vida em memória no cliente, consulte o [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §7](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L163-L187).
+Para a arquitetura detalhada dos workers e o ciclo de vida em memória no cliente, consulte o [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §7](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md#L163-L187).
 
 ---
 
@@ -77,7 +77,7 @@ Para a arquitetura detalhada dos workers e o ciclo de vida em memória no client
 
 As cotas de banda por prioridade, os limites de bateria e os temporizadores de reavaliação do Global Network Throttle são parametrizados nas especificações de governança de rede (`SPECIFICATION:NETWORK_GOVERNANCE`). Ao aderir à rede, o peer concorda em ceder seus recursos de rede de acordo com esses parâmetros em troca de conectividade e redundância dos seus próprios dados.
 
-Para a governança geral e o ciclo de vida de especificações, consulte o [caderno-4-governance/03-specification-lifecycle-and-rfcs.md](file:///c:/Dev2026/Docs/docs/caderno-4-governance/03-specification-lifecycle-and-rfcs.md).
+Para a governança geral e o ciclo de vida de especificações, consulte o [caderno-4-governance/03-specification-lifecycle-and-rfcs.md](../caderno-4-governance/03-specification-lifecycle-and-rfcs.md).
 
 ---
 

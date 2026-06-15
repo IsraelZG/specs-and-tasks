@@ -9,7 +9,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/19-mensagens-reference-spec.md` | novo | Documento canônico, §1 (envoltório) |
+| `caderno-3-sdk/20-mensagens-reference-spec.md` | novo | Documento canônico, §1 (envoltório) |
 
 **Texto normativo:** chat, chamada e presença operam sobre a mesma `conversa` (modelagem do caderno-3/07) e os mesmos participantes (`PROFILE`). A modalidade muda o transporte e a durabilidade, não o modelo de conversa.
 
@@ -19,7 +19,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/19-mensagens-reference-spec.md` | §2 | Referenciar caderno-3/07 |
+| `caderno-3-sdk/20-mensagens-reference-spec.md` | §2 | Referenciar caderno-3/07 |
 
 **Texto normativo:** chat 1:1 e em grupo segue integralmente o `caderno-3-sdk/07-chat-reference-spec.md` (`SPECIFICATION:CHAT_MESSAGE`, projeção `chat_conversations`, efêmero vs. grafo). Esta RFC não o redefine; apenas o integra. DMs da rede social (RFC-016 A.5) são esta mesma conversa.
 
@@ -29,7 +29,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/19-mensagens-reference-spec.md` | §3 | Adicionar |
+| `caderno-3-sdk/20-mensagens-reference-spec.md` | §3 | Adicionar |
 
 **Texto normativo:**
 
@@ -44,7 +44,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/19-mensagens-reference-spec.md` | §4 | Adicionar |
+| `caderno-3-sdk/20-mensagens-reference-spec.md` | §4 | Adicionar |
 
 **Texto normativo:** presença (online, digitando, visto por último) é **estado efêmero não-durável** — sinal volátil, nunca nó append-only replicado (seria poluir a linhagem). Entrega best-effort; "visto por último" é cortesia honest-client, desligável. O sinal de presença embute **rate-limit rígido** por cliente e **auto-expiração local**: o indicador de digitação expira nativamente após ~5 s sem refresh, evitando retenção de lixo nas views ativas e limitando o spam de clientes adversários.
 

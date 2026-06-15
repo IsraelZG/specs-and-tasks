@@ -4,7 +4,7 @@
 
 | ID | Título | Status | Agente Alocado | Complexidade |
 |---|---|---|---|---|
-| [T-001](./T-001.md) | Bootstrap do monorepo | `draft` | devops_agent | 2 |
+| [T-001](./T-001.md) | Bootstrap do monorepo | `draft` | devops_agent0 | 2 |
 | [T-002](./T-002.md) | Pipeline de CI (GitHub Actions) | `draft` | devops | 2 |
 | [T-003](./T-003.md) | Pacote testkit: Relógio e Random | `draft` | logic_agent | 2 |
 | [T-004](./T-004.md) | Portas fundamentais | `draft` | logic_agent | 2 |
@@ -19,7 +19,24 @@
 | [T-014](./T-014.md) | Migrar hook de metadados + skill para .claude da raiz | `draft` | devops_agent | 1 |
 | [T-015](./T-015.md) | Quality gate do design system no CI | `draft` | devops_agent | 2 |
 | [T-016](./T-016.md) | Implementar RFC de Tema Multi-Nível no Design System | `draft` | frontend_agent | 3 |
+| [T-1001](./T-1001.md) | Configuração do Monorepo Nexus (Backend e Frontend) | `done` | devops_agent | 2 |
+| [T-1002](./T-1002.md) | Integração do Indexador Semântico (TurboVec) | `done` | backend_agent | 3 |
+| [T-1003](./T-1003.md) | Roteamento Inteligente com SmolLM2 (llmlingua-js) | `done` | backend_agent | 4 |
+| [T-1004](./T-1004.md) | Interface MCP (Model Context Protocol) e Servidor Headroom | `done` | logic_agent | 5 |
+| [T-1005](./T-1005.md) | Interface do Frontend (MGTIA-v2 + Editor de Docs) | `done` | frontend_agent | 4 |
+| [T-1006](./T-1006.md) | Prompt Builder e Exportador Inteligente (UI) | `done` | frontend_agent | 3 |
+| [T-1007](./T-1007.md) | Integração do EpochDB para Agentic Memory (Lossless) | `done` | backend_agent | 4 |
+| [T-1008](./T-1008.md) | Automação via MCP Safe Runner (Pre-approved Scripts) | `done` | devops_agent | 3 |
 | [T-101](./T-101.md) | Wrappers cripto | `draft` | crypto_agent | 3 |
+| [T-1010](./T-1010.md) | Serviço de Tasks (máquina de estados MGTIA) no Nexus | `done` | logic_agent | 4 |
+| [T-1011](./T-1011.md) | Ferramentas MCP + endpoints REST de Tasks | `done` | logic_agent | 4 |
+| [T-1012](./T-1012.md) | Isolamento branch-por-task (git worktree) | `draft` | devops_agent | 3 |
+| [T-1013](./T-1013.md) | UI Board Jira + Drawer de Task + client de API | `done` | frontend_agent | 4 |
+| [T-1014](./T-1014.md) | CLAUDE.md + wrapper legado do manage-task (delega ao TaskService) | `draft` | logic_agent | 2 |
+| [T-1015](./T-1015.md) | Seletor estrutural + export (sobre a interface Compressor) | `draft` | logic_agent | 4 |
+| [T-1016](./T-1016.md) | Outlet de compressão + PromptBuilder religado + desacoplar legados | `draft` | frontend_agent | 3 |
+| [T-1017](./T-1017.md) | Spike: viabilidade do piloto automático (OpenCode) | `draft` | devops_agent | 5 |
+| [T-1018](./T-1018.md) | Spike: fixar integração Headroom (interface Compressor) | `done` | logic_agent | 4 |
 | [T-102](./T-102.md) | ULID + EntityId | `draft` | logic_agent | 2 |
 | [T-103](./T-103.md) | HLC (Hybrid Logical Clock) completo | `draft` | logic_agent | 3 |
 | [T-104](./T-104.md) | BIP39 + Derivação de Chaves + Desbloqueio | `draft` | crypto_agent | 3 |

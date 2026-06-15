@@ -28,7 +28,7 @@ O **Pragmatismo Topológico** é o princípio arquitetural que orienta o design 
 
 O princípio responde à necessidade de viabilizar comercialmente e tecnicamente três modalidades sob a mesma fundação de código: redes públicas, corporativas whitelabel e P2P puras. Ao invés de impor um dogma técnico restritivo descentralizado a cenários onde a centralização atende melhor ao usuário (como segurança, conveniência e conformidade regulatória), o sistema adota a topologia mais adequada oportunisticamente.
 
-- Canônico: [01-vision-and-positioning.md §2.1](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md#L21-L24)
+- Canônico: [01-vision-and-positioning.md §2.1](../caderno-1-vision/01-vision-and-positioning.md#L21-L24)
 - Detalhes e Relações de Visão:
   - [[modalidade-de-rede]]: O pragmatismo topológico permite suportar nativamente as três modalidades (Pública, Corporativa Whitelabel, P2P Pura).
   - [[honestidade-radical]]: Reconhece abertamente as limitações de cada topologia e o custo de operação de um sistema totalmente descentralizado.
@@ -37,7 +37,7 @@ O princípio responde à necessidade de viabilizar comercialmente e tecnicamente
 
 Na camada de protocolo de rede, o pragmatismo topológico molda como a malha se organiza, as identidades são validadas e os dados são roteados. O transporte opera de forma oportunística utilizando peers de maior capacidade de maneira transparente.
 
-- Canônico: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §1.2](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L18-L20)
+- Canônico: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §1.2](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L18-L20)
 - Mecanismos de Protocolo:
   - [[peer]] / Super Peers: Promoção de canais de relays temporários em nós de maior capacidade para contornar problemas de travessia de NAT simétrico sem prometer uma malha 100% direta.
   - [[specification]]: O comportamento de rede é governado por definições contratuais de nível de rede, não por restrições embutidas no core da plataforma.
@@ -47,7 +47,7 @@ Na camada de protocolo de rede, o pragmatismo topológico molda como a malha se 
 
 No SDK, o pragmatismo topológico é materializado pela infraestrutura de sincronização que executa a inversão de controle das leis de roteamento físicas e lógicas baseada nos metadados declarados nas specifications.
 
-- Canônico: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L223-L336)
+- Canônico: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L223-L336)
 - Componentes e Fluxo:
   - O [[sync-worker]] e o classificador interno interceptam as mutações em RAM, consultando os `transport_hints` na `SPECIFICATION` associada.
   - A [[matriz-de-classificacao-transporte]] mapeia o destino físico (tabelas SQLite locais, RAM ou barramento de rede) baseado na resposta a três perguntas fundamentais: o estado é observável por outros peers? Sua integridade precisa ser auditável? Ele deve sobreviver à sessão?
@@ -56,7 +56,7 @@ No SDK, o pragmatismo topológico é materializado pela infraestrutura de sincro
 
 A governança da topologia é evolutiva, permitindo a transição de soberania ou delegação de liveness de forma irreversível.
 
-- Canônico: [01-vision-and-positioning.md §5](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md#L92-L95)
+- Canônico: [01-vision-and-positioning.md §5](../caderno-1-vision/01-vision-and-positioning.md#L92-L95)
 - Políticas de Governança:
   - O [[fundador]] inicia a rede operando o [[peer-do-sistema]] inicial e pode dissolver seus privilégios progressivamente a favor de um modelo descentralizado de quórum ou P2P puro.
   - A rede transacional pode congelar com segurança em read-only caso validadores autoritativos estejam offline.

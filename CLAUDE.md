@@ -79,3 +79,20 @@ Nunca marque uma tarefa sua como `done` se você for o executor.
 1. **Task Architect / Manager:** Criar tarefas de implementação em `/tasks` e de organização/chat em `/meta-tasks` usando o script `node tools/scripts/generate-task.mjs`.
 2. **Worker (Executor):** Implementar tarefas Nível 1 a 3 verificando o `INDEX.md`. Aplicar SDD estritamente. Registrar seu progresso com `manage-task.mjs`.
 3. **Agile Reviewer (Revisor):** Ler o `INDEX.md` buscando tarefas em `review`, auditar o código feito pelo Worker e rodar os testes/lint.
+
+## Dimensionamento de Tarefas (regra de criação — INVIOLÁVEL)
+
+Toda task DEVE ser dimensionada para execução por um agente de capacidade
+**≤ Sonnet (preferencialmente Haiku)**. Na prática, a spec precisa ter:
+- **Zero decisões de arquitetura em aberto** (sem "faça X **OU** Y" — escolha e pine).
+- **Assinaturas e contratos de dados explícitos** (tipos, formato de entrada/saída).
+- **Nenhuma API externa não-fixada** — se um pacote/serviço externo for usado e sua
+  interface não estiver documentada/estável, isole a descoberta num **spike** antes.
+- **Verificação por comando** (testes/CLI), não por julgamento subjetivo.
+
+O que exigir nível **Opus** (pesquisa, design aberto, integração externa incerta)
+NÃO vira uma task comum: defina como **spike** (entregável = relatório/PoC/ADR, com
+critério de sucesso claro) ou como **épico** a ser subdividido em tasks ≤ Sonnet.
+
+Inclua no corpo da task a linha **`Capacidade-alvo: haiku | sonnet | opus-spike`**.
+O **Task Architect** é responsável por aplicar esta regra ao criar/editar tasks.

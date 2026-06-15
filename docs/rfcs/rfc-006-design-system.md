@@ -10,8 +10,8 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/09-design-system.md` | novo | Criar documento canônico com §1 (este texto) |
-| `docs/conceitos/design-token.md` | novo verbete | Definição canônica + link para caderno-3/09 |
+| `caderno-3-sdk/10-design-system.md` | novo | Criar documento canônico com §1 (este texto) |
+| `docs/conceitos/design-token.md` | novo verbete | Definição canônica + link para caderno-3/22 |
 | `caderno-3-sdk/04-theme-and-i18n-data-structures.md` | §Temas | Editar: `CONTENT:THEME` sobrescreve a **camada de tema**, nunca a semântica diretamente; linkar [[design-token]] |
 
 **Texto normativo:**
@@ -40,7 +40,7 @@ Os componentes são shadcn-based, mas o vínculo com Tailwind é mediado: **Styl
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/09-design-system.md` | §2 | Adicionar |
+| `caderno-3-sdk/10-design-system.md` | §2 | Adicionar |
 | `caderno-3-sdk/03-engines-and-spec-driven-ui.md` | §1 | Editar: adicionar a camada "componentes do design system" abaixo das engines no Padrão A |
 
 **Texto normativo:**
@@ -66,7 +66,7 @@ módulo (wrapper nomeado)
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/09-design-system.md` | §3 | Adicionar |
+| `caderno-3-sdk/10-design-system.md` | §3 | Adicionar |
 | `docs/conceitos/catalogo-de-componentes.md` | novo verbete | Definir catálogo + índice de descoberta |
 
 **Texto normativo:**
@@ -81,8 +81,8 @@ Cada componente publica um arquivo de metadados conforme o schema TypeScript can
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/09-design-system.md` | §4 | Adicionar |
-| `caderno-3-sdk/03-engines-and-spec-driven-ui.md` | §3 | Editar: linkar caderno-3/09 §4 como enunciado canônico |
+| `caderno-3-sdk/10-design-system.md` | §4 | Adicionar |
+| `caderno-3-sdk/03-engines-and-spec-driven-ui.md` | §3 | Editar: linkar caderno-3/22 §4 como enunciado canônico |
 
 **Texto normativo:**
 

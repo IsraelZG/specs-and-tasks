@@ -11,7 +11,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/11-plugins-e-computacao.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/12-plugins-e-computacao.md` | novo | Documento canônico, §1 |
 | `docs/conceitos/plugin.md` | novo verbete | Definição canônica |
 | `docs/conceitos/capacidade-de-runtime.md` | novo verbete | `browser` vs `node`, anúncio por peer |
 
@@ -30,7 +30,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/11-plugins-e-computacao.md` | §2 | Adicionar |
+| `caderno-3-sdk/12-plugins-e-computacao.md` | §2 | Adicionar |
 | `docs/conceitos/validacao-de-plugin.md` | novo verbete | Gate de oferta + critérios por modalidade |
 
 **Texto normativo:**
@@ -48,7 +48,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/11-plugins-e-computacao.md` | §3 | Adicionar |
+| `caderno-3-sdk/12-plugins-e-computacao.md` | §3 | Adicionar |
 | `caderno-3-sdk/06-connectors.md` | §0 | Editar: declarar que conector é um plugin (tipo `node`, categoria `connector`) entregue/sandboxed por esta RFC |
 
 **Texto normativo:**
@@ -78,7 +78,7 @@ Consequências:
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/11-plugins-e-computacao.md` | §4 | Adicionar |
+| `caderno-3-sdk/12-plugins-e-computacao.md` | §4 | Adicionar |
 | `caderno-4-governance/02-module-architecture-and-code-splitting.md` | §portas | Editar: adicionar `ComputePort` à lista de portas nomeadas |
 
 **Texto normativo:**
@@ -99,7 +99,7 @@ Consequências:
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/11-plugins-e-computacao.md` | §5 | Adicionar |
+| `caderno-3-sdk/12-plugins-e-computacao.md` | §5 | Adicionar |
 | `docs/conceitos/fila-de-computacao.md` | novo verbete | task=nó + claim por lock |
 | `caderno-3-sdk/05-media-transport-plane.md` | §renditions | Editar: rendition é instância de utilitário `compute` assíncrono (linkar) |
 | `docs/conceitos/consolidacao-de-live.md` | corpo | Editar: consolidação é utilitário `compute` assíncrono (linkar) |
@@ -119,14 +119,14 @@ Consequências:
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/11-plugins-e-computacao.md` | §6 | Adicionar |
+| `caderno-3-sdk/12-plugins-e-computacao.md` | §6 | Adicionar |
 | `docs/conceitos/classe-de-privacidade.md` | novo verbete | Matriz classe × site elegível |
 
 **Texto normativo:**
 
 1. **Sem autoridade ambiente.** Browser plugin roda em Worker/WASM isolado: sem DOM (exceto via bridge de componente declarado — RFC-008 A.4), sem rede (exceto portas declaradas), sem storage direto. Node plugin roda em processo/isolate com capacidades escopadas por `ASSET:ROLE` da sua persona; acesso a grafo, rede e FS só pelas portas concedidas.
 2. **Entrada e saída só pelo contrato:** o plugin recebe exatamente o schema de entrada declarado e devolve o de saída; não enxerga o grafo além do que a capacidade pede.
-3. **Classe de privacidade × site:** o contrato declara se a capacidade vê plaintext sensível; cruzar a fronteira E2E (site `external`, ou `peer` fora do círculo de confiança) com dado de classe restrita é **proibido por construção** e exige consentimento explícito quando permitido. Exemplo normativo: cálculo de folha (consumidora — RFC-014) jamais elegível a site `external`; transcode de vídeo público elegível a qualquer site.
+3. **Classe de privacidade × site:** o contrato declara se a capacidade vê plaintext sensível; cruzar a fronteira E2E (site `external`, ou `peer` fora do círculo de confiança) com dado de classe restrita é **proibido por construção** e exige consentimento explícito quando permitido. Exemplo normativo: cálculo de folha (rfc-014) jamais elegível a site `external`; transcode de vídeo público elegível a qualquer site.
 
 ## A.7 — Economia da computação (governada por SPEC)
 
@@ -136,7 +136,7 @@ Consequências:
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/11-plugins-e-computacao.md` | §7 | Adicionar |
+| `caderno-3-sdk/12-plugins-e-computacao.md` | §7 | Adicionar |
 | `docs/conceitos/economia-como-modulo.md` | corpo | Editar: computação servida e listagem de plugin são eventos econômicos governados por SPEC |
 
 **Texto normativo:**

@@ -25,7 +25,7 @@ dependencias:
 
 O **Index Worker** é o Web Worker dedicado a reconstruir e manter as projeções locais de busca a partir dos payloads já decifrados pelo [[crypto-worker]]. Opera fora da Main Thread para não bloquear a UI.
 
-Fonte canônica: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.3](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
+Fonte canônica: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.3](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
 
 ## Por quê
 
@@ -33,7 +33,7 @@ A reconstrução de índices de busca sobre payloads decifrados pode envolver va
 
 ## Responsabilidades
 
-Conforme [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.3](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md):
+Conforme [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.3](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md):
 
 - **Reconstrução da tabela FTS5** (`search_index_fts`) — indexação de texto completo sobre payloads decifrados recebidos do [[crypto-worker]].
 - **Atualização do índice geográfico** (`geo_index`, R*Tree) — mantém dados geoespaciais indexados para consultas de proximidade.
@@ -57,7 +57,7 @@ Conforme [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.3](file:///c:
                    └───────────┘      └───────────┘
 ```
 
-Fonte: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
+Fonte: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
 
 ## Aparições a consolidar
 

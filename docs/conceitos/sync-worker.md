@@ -40,7 +40,7 @@ dependencias:
 
 O **Sync Worker** é o Web Worker central da camada de transporte da plataforma. Opera fora da Main Thread (comunicação via [Comlink](https://github.com/GoogleChromeLabs/comlink)) e concentra todas as responsabilidades de sincronização, persistência durável e orquestração dos demais workers.
 
-Definição normativa completa em: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
+Definição normativa completa em: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
 
 ## Por quê
 
@@ -48,7 +48,7 @@ Manter a Main Thread (React UI) responsiva exige deslocar toda E/S de rede, crip
 
 ## Responsabilidades
 
-As responsabilidades canônicas estão detalhadas em [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md):
+As responsabilidades canônicas estão detalhadas em [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md):
 
 - **Orquestrar o [[automerge-repo]]** — carregamento de snapshots, aplicação de [[changes]] e controle de conexões WebRTC entre co-editores.
 - **Manter o loop de [[rbsr]]** — sincronização de dados estruturados por Range-Based Set Reconciliation.
@@ -80,15 +80,15 @@ As responsabilidades canônicas estão detalhadas em [caderno-3-sdk/02-sync-work
                    └───────────┘      └───────────┘
 ```
 
-Fonte: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
+Fonte: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
 
 ## Roteamento de Transporte
 
-Quando uma ação ocorre na UI, o Sync Worker recebe a intenção via [[tinybase]] Persister, extrai os `transport_hints` da [[specification]] associada ao nó e despacha os bytes para a fila de SQLite ou WebRTC correspondente. Ver [[matriz-de-classificacao-transporte]] para o contrato de tipos (`TransportBehavior`) que governa esse roteamento. Especificação do fluxo em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11 e §3.1](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md).
+Quando uma ação ocorre na UI, o Sync Worker recebe a intenção via [[tinybase]] Persister, extrai os `transport_hints` da [[specification]] associada ao nó e despacha os bytes para a fila de SQLite ou WebRTC correspondente. Ver [[matriz-de-classificacao-transporte]] para o contrato de tipos (`TransportBehavior`) que governa esse roteamento. Especificação do fluxo em [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.11 e §3.1](../caderno-5-transport/01-p2p-transport-and-reconciliation.md).
 
 ## Invariante de Validação de Saldos (T1)
 
-O [[zen-engine]] embutido no Sync Worker impõe que toda mutação de saldo carregue, em seu payload criptografado: (a) o delta de alteração e (b) a referência causal à transação ou aresta correspondente. Em contextos de fintech regulada, a validação aritmética `saldo_anterior + delta == saldo_novo` é executada obrigatoriamente no momento do commit. Definição normativa em [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
+O [[zen-engine]] embutido no Sync Worker impõe que toda mutação de saldo carregue, em seu payload criptografado: (a) o delta de alteração e (b) a referência causal à transação ou aresta correspondente. Em contextos de fintech regulada, a validação aritmética `saldo_anterior + delta == saldo_novo` é executada obrigatoriamente no momento do commit. Definição normativa em [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1.1](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
 
 ## Aparições a consolidar
 

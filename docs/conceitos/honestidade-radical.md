@@ -34,7 +34,7 @@ A **Honestidade Radical** é o princípio filosófico e diretriz de design da Pl
 
 Na dimensão do produto e posicionamento de mercado, a Honestidade Radical afasta as promessas utópicas de descentralização e assume as complexidades do mundo real para construir confiança técnica duradoura. Ela norteia como o sistema deve apresentar as limitações arquiteturais ao usuário final.
 
-- Canônico: [01-vision-and-positioning.md §2.4](file:///c:/Dev2026/Docs/docs/caderno-1-vision/01-vision-and-positioning.md#L35-L42)
+- Canônico: [01-vision-and-positioning.md §2.4](../caderno-1-vision/01-vision-and-positioning.md#L35-L42)
 - Detalhes e Princípios Associados:
   - **Revogação de acesso ≠ exclusão retroativa:** Reconhece que dados que já foram acessados legitimamente por terceiros no passado não podem ser garantidamente destruídos. Para gerenciar esse risco, a plataforma adota técnicas como a [[linhagem-de-versoes]] e a [[rotacao-de-epocas]] para conter exposições futuras.
   - **Trade-offs de P2P puro:** Assume os custos reais de bootstrap inicial lento, a latência de tráfego e a indisponibilidade ocasional de dados caso os peers do grupo fiquem offline.
@@ -45,7 +45,7 @@ Na dimensão do produto e posicionamento de mercado, a Honestidade Radical afast
 
 Na camada de protocolo e malha de transporte P2P, a Honestidade Radical é aplicada sob a forma de restrições matemáticas e topológicas intransponíveis, exigindo soluções de contorno realistas em vez de promessas de conectividade total.
 
-- Canônico: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §1.3](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L22-L29)
+- Canônico: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §1.3](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L22-L29)
 - Contratos e Limitações do Protocolo:
   - **Falha de travessia de NAT simétrico:** Aceita que o hole punching falha frequentemente e que relays como o [[noise-xx]] (Noise_XX) e Super Peers desempenharão papel permanente na infraestrutura real.
   - **Acesso controlado:** O identificador [[peer-id]] derivado da chave pública não confere imunidade a ataques Sybil por si só. A verdadeira resistência contra Sybil baseia-se na web-of-trust por meio de convites ([[asset-invite]]) e staking reputacional.
@@ -55,7 +55,7 @@ Na camada de protocolo e malha de transporte P2P, a Honestidade Radical é aplic
 
 No SDK e na interface reativa do cliente, a Honestidade Radical manifesta-se através de estados de erro explícitos e da alocação de recursos com base em limites de capacidade física declarados.
 
-- Caderno de Referência: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md#L89-L108) (Descoberta e fallback off-line)
+- Caderno de Referência: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.4](../caderno-5-transport/01-p2p-transport-and-reconciliation.md#L89-L108) (Descoberta e fallback off-line)
 - Mecanismos de Implementação:
   - O estado `OFFLINE_RETRY` do *First Peer Protocol* interrompe buscas ativas e comunica explicitamente a perda de conectividade com a rede na UI, em vez de gerar loops infinitos.
   - A interface reativa expõe ativamente alertas de degradação de desempenho para que o usuário tome decisões informadas sobre performance vs. consumo de hardware.
@@ -64,7 +64,7 @@ No SDK e na interface reativa do cliente, a Honestidade Radical manifesta-se atr
 
 A governança do ecossistema reconhece que a soberania sobre o ciclo de vida da rede e a resiliência a falhas graves dependem do alinhamento de incentivos sociais e de segurança, e não de mecanismos automáticos mágicos.
 
-- Caderno de Referência: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6](file:///c:/Dev2026/Docs/docs/caderno-5-transport/01-p2p-transport-and-reconciliation.md) (Liveness e congelamento)
+- Caderno de Referência: [caderno-5-transport/01-p2p-transport-and-reconciliation.md §4.6](../caderno-5-transport/01-p2p-transport-and-reconciliation.md) (Liveness e congelamento)
 - Vetores de Governança:
   - O stake reputacional e a [[defesa-sybil]] baseada em tokens limitam o abuso social.
   - A soberania reside na capacidade dos peers de executar quóruns e conselhos emergenciais caso o [[peer-do-sistema]] ou o [[fundador]] original desapareçam.

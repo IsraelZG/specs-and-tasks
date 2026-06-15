@@ -30,7 +30,7 @@ TinyBase **nunca é a fonte de verdade**; essa função pertence ao SQLite (via 
 
 ## Como funciona
 
-Definição normativa completa em: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §2](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
+Definição normativa completa em: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §2](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
 
 ### Cache em Memória (Espelhamento Parcial)
 
@@ -53,7 +53,7 @@ Um persister customizado do TinyBase intercepta escritas na Store e envia os del
 └─────────────────────────────────────┘
 ```
 
-Fonte: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1 e §2](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
+Fonte: [caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md §1 e §2](../caderno-3-sdk/02-sync-worker-and-memory-lifecycle.md).
 
 A UI escreve na Store do TinyBase; o Persister propaga para o [[sync-worker]] via `postMessage` (Comlink). O Sync Worker grava no SQLite e, mediante triggers em `entity_heads`, devolve atualizações que o Persister injeta de volta na Store, disparando renders reativos na UI.
 

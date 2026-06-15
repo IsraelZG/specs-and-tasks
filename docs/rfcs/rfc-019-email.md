@@ -9,7 +9,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/20-email-reference-spec.md` | novo | Documento canônico, §1 |
+| `caderno-3-sdk/21-email-reference-spec.md` | novo | Documento canônico, §1 |
 
 **Texto normativo:** cada conta de email do usuário é uma instância de **conector Classe D** (RFC-007 A.4): cursor durável (UIDVALIDITY/UIDNEXT), ingresso por polling + IDLE, credenciais fora do grafo no system-peer. O provedor externo é autoritativo sobre o estado da caixa.
 
@@ -19,7 +19,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/20-email-reference-spec.md` | §2 | Adicionar |
+| `caderno-3-sdk/21-email-reference-spec.md` | §2 | Adicionar |
 
 **Texto normativo:**
 
@@ -33,7 +33,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/20-email-reference-spec.md` | §3 | Adicionar |
+| `caderno-3-sdk/21-email-reference-spec.md` | §3 | Adicionar |
 
 **Texto normativo:** enviar = `CONTENT:INTENT` → conector executa SMTP como perna de saga (RFC-007 A.4 D3); marcador de origem (`X-Plataforma-Ref`) faz **supressão de eco** (D4) para o envio não voltar como ingresso novo. Falha de envio = compensação/retry, nunca "enviado" falso.
 
@@ -43,7 +43,7 @@
 
 | Arquivo | Seção | Ação |
 | :--- | :--- | :--- |
-| `caderno-3-sdk/20-email-reference-spec.md` | §4 | Adicionar |
+| `caderno-3-sdk/21-email-reference-spec.md` | §4 | Adicionar |
 
 **Texto normativo:** email integra CRM (RFC-013 A.5: interação com contato), Calendário (RFC-020: convites .ics) e a régua de cobrança (RFC-012 A.8.3) — todos a mesma lente sobre os mesmos nós.
 
