@@ -6,6 +6,7 @@ import { TurboVecClient } from './services/turbovec.client.js';
 import { HeadroomClient } from './services/headroom.client.js';
 import { TaskService } from './services/task.service.js';
 import { TaskController } from './services/task.controller.js';
+import { buildExport } from './services/export.service.js';
 import {
   InvalidTransitionError,
   TaskNotFoundError,
@@ -24,10 +25,10 @@ function statusFromError(err: unknown): number {
   return 500;
 }
 
-/** Executa uma chamada síncrona do controller e mapeia erros de domínio para HTTP. */
-function handle(res: Response, fn: () => unknown, successCode = 200): void {
+/** Executa uma chamada do controller e mapeia erros de domínio para HTTP. */
+async function handle(res: Response, fn: () => unknown, successCode = 200): Promise<void> {
   try {
-    res.status(successCode).json(fn());
+    res.status(successCode).json(await Promise.resolve(fn()));
   } catch (err) {
     const code = statusFromError(err);
     if (code === 500) console.error('[API] erro interno:', err);
@@ -100,6 +101,18 @@ export function createApp(
       return controller.logProgress(req.params.id, agent, message);
     }),
   );
+
+  // ------------------------------------------- export (T-1015)
+  app.post('/api/export', async (req: Request, res: Response) => {
+    try {
+      const { slugs, tags, depth } = req.body ?? {};
+      const result = await buildExport({ slugs, tags }, { rootDir: ROOT_DIR, depth });
+      res.json(result);
+    } catch (err) {
+      console.error('[API] export:', err);
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Erro desconhecido' });
+    }
+  });
 
   // ------------------------------------------- prompt builder (rewire na T-1016)
   app.post('/api/build-prompt', async (req: Request, res: Response) => {

@@ -10,6 +10,19 @@ Para assegurar previsibilidade de código e legibilidade, a camada de interface 
 * **Motores Genéricos (Core Engines)**: Vivem no core compartilhado da aplicação (`packages/core/src/engines/`). São polimórficos, genéricos e totalmente agnósticos a regras de negócios específicas (não conhecem os tipos de chat, transações ou marketplaces).
 * **Wrappers Nomeados (Application Components)**: Vivem nos respectivos módulos de negócio (ex: `modules/chat/components/`). Eles instanciam a core engine genérica passando renderizadores especializados para os nós de negócio.
 
+**Hierarquia de composição (RFC-006 §A.2 — estrita, sem atalhos):**
+
+```
+módulo (wrapper nomeado)
+  └─ engine genérica (core/engines)
+       └─ componentes do design system (core/design-system)
+            └─ tokens semânticos
+```
+
+- **Componentes** são shadcn-based, sem regra de negócio, identificados por nome estável no [[catalogo-de-componentes]]. Conjunto piloto: `Button`, `Input`, `Card`, `Message`, `NavItem`, `Toast`.
+- **Engines** compõem componentes e expõem slots/renderers; **módulos** compõem engines via wrappers e jamais importam primitivos visuais por fora do design system.
+- Os `ui_hints` de uma `SPECIFICATION` referenciam **slots semânticos de engines** (ex.: slots do `SuperCard`) e, quando precisarem nomear um bloco visual, usam o **nome de catálogo do componente** — nunca classes CSS ou estilos.
+
 *Exemplo de Composição:*
 ```typescript
 // Core Engine (packages/core/src/engines/timeline.tsx)
@@ -49,7 +62,7 @@ A plataforma consolida a interface em um conjunto enxuto de engines polimórfica
 ### 2.2 Interação e Processos
 * **Composer**: Caixa de entrada de texto rica (rich-text) com plugins integrados para suporte a autocomplete de menções (`@`), comandos de sistema (`/`) e upload assíncrono de arquivos.
 * **ContextMenu & BottomSheet**: Componentes modais mobile-first com animações spring baseadas em gestos físicos de arraste (drag-to-dismiss) e integração com feedback háptico dos dispositivos móveis.
-* **StateMachine**: Renderizador de processos estruturados exibido como Kanban de colunas arrastáveis ou Stepper de etapas. As transações são validadas contra as regras declaradas na especificação do workflow antes de executarem localmente.
+* **StateMachine**: Renderizador de processos estruturados exibido como Kanban de colunas arrastáveis ou Stepper de etapas. A engine interpreta nós `SPEC:WORKFLOW` (RFC-022 / [[spec-workflow]]), validando as transações contra as regras e procedimentos Zen declarados no workflow antes de executá-las localmente sob o regime de event sourcing.
 * **AuditTrail**: Visualizador especializado na Linhagem de Versões [[mfa-s|MFA-S]] de um documento Automerge. Reconstrói os diffs semânticos e permite a viagem no tempo (Time Travel) carregando e reidratando snapshots passados via Graph-Based Routing.
 
 ### 2.3 Motores Especializados
@@ -64,6 +77,9 @@ A plataforma consolida a interface em um conjunto enxuto de engines polimórfica
 ## 3. Lógica de Spec-Driven UI
 
 A plataforma adota o padrão de **Layout Abstrato (A2) + Comportamento Dinâmico (A3 parcial)**. A `SPECIFICATION` que governa uma entidade declara a estrutura de exibição dos campos. O estilo visual puro base (cores, fontes) pertence ao nó global `CONTENT:THEME`, enquanto ajustes contextuais de marca ou design são definidos no bloco `theme_overrides` na própria `SPECIFICATION`.
+
+> **Enunciado canônico da fronteira spec / tema / token** (ver `caderno-3-sdk/10-design-system.md §4`):
+> **SPECIFICATION declara estrutura** (quais campos, em quais slots, quais ações). **Tema declara estilo** (valores da camada de tema). **Tokens são o vocabulário** que torna as duas declarações independentes. Nenhuma das três camadas invade a outra; qualquer necessidade que pareça exigir invasão é, por definição, um componente ou slot faltante no [[catalogo-de-componentes]] — e segue o fluxo de autoria de `caderno-3-sdk/10-design-system.md §3`.
 
 *Exemplo de Configuração de UI em SPECIFICATION:*
 ```yaml

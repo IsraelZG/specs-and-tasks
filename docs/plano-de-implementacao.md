@@ -337,6 +337,76 @@ Cada item vira teste permanente na suíte (`testkit/adversarial/`):
 
 ---
 
+## 12.1 Preparativos do Design System (RFC-006 §A.5)
+
+> Estas tarefas seguem o DoD "UI da Bancada" (§0.2) onde aplicável; T-DS-01/02 seguem DoD "Protocolo/core" (build determinístico + tipos exportados). Fonte normativa: `caderno-3-sdk/10-design-system.md §1–§3`.
+
+- **T-DS-01 · Importar pacote de tokens + build multi-plataforma.** Mover os artefatos de tokens JSON e `style-dictionary.config.js` do protótipo para `core/design-system`. Configurar build Style Dictionary gerando CSS custom properties, JS/TS, React Native, iOS Swift, Android XML e variante TV. *Aceite:* `pnpm --filter @plataforma/design-system build` verde; tipos exportados; nenhuma variável literal hardcoded.
+- **T-DS-02 · Importar schema de metadados + índice + CI.** Mover o schema TypeScript canônico (`ComponentIdentity`, `Usage`, etc.) e o gerador de `components.index.json` para o pacote. Integrar ao CI validação de drift de schema, tokens mal classificados e anti-patterns malformados. *Aceite:* CI verde com testes de validação automáticos.
+- **T-DS-03 · Portar componentes-piloto para `core/design-system` consumindo tokens semânticos.** Migrar `Button`, `Input`, `Card`, `Message`, `NavItem`, `Toast` (shadcn-based) para consumir exclusivamente tokens semânticos exportados pelo build do T-DS-01. Nenhum componente consome primitivos diretamente nem valores literais. *Aceite:* lint anti-literal (I3) verde; teste Playwright de smoke para cada componente.
+- **T-DS-04 · Lint anti-literal (I3).** Implementar regra de lint de CI que bloqueia qualquer declaração de cor/fonte/dimensão literal em qualquer módulo. Integrar ao pipeline de build do monorepo. *Aceite:* `pnpm lint` falha em caso de literal hardcoded; passe no código limpo.
+
+---
+
+## 12.2 Preparativos de IA e RAG (RFC-011 §A.8)
+
+> Estas tarefas integram o substrato de IA e RAG como capacidades do monorepo, estendendo o motor SQLite e o Crypto Worker. Fonte normativa: `docs/caderno-3-sdk/14-ia-rag-e-agentes.md`.
+
+- **T-IA-01 · Projeção vector_index + Crypto Worker.** Implementar a 7ª projeção `vector_index` usando sqlite-vec (WASM/nativo) e integrá-la ao pipeline do Crypto Worker para disparar geração de embedding ao decifrar payloads com campos `embeddable: true`. *Aceite:* banco local cria e atualiza vetores nas mutations; testes de integridade da projeção.
+- **T-IA-02 · Capacidades compute de IA como plugins.** Registrar LLM e embedding como capacidades `compute` do protocolo de plugins da RFC-010, permitindo execução local (on-device), remota (peer serves) ou external (APIs de provedores via conector Classe E). *Aceite:* chamada unificada via ComputePort resolvendo modelo/site corretamente.
+- **T-IA-03 · Recuperação Híbrida (RRF).** Desenvolver a lógica de Reciprocal Rank Fusion (RRF) combinando busca léxica (FTS5), semântica (sqlite-vec) e estrutural (arestas de travessia do grafo), aplicando filtros de permissão baseados nas UCANs do principal. *Aceite:* queries RRF retornam apenas nós que o usuário logado tem permissão para visualizar.
+- **T-IA-04 · Persona de Agente de IA com escopo.** Modelar a persona do agente de IA com `ASSET:ROLE` delegado e escopado pelo usuário principal, permitindo propor `CONTENT:INTENT` e gerar código declarativo `SPEC:PAGE` validado na autoria/ingestão. *Aceite:* intents propostos fora do escopo do ASSET:ROLE são rejeitados na validação.
+- **T-IA-05 · Command Palette e resoluções de IA.** Implementar a command palette no shell com classificação de intenção (busca, ação ou geração), suporte a render progressivo por streaming de páginas geradas por IA. *Aceite:* classificação barata on-device e UI Lovable streams corretamente.
+- **T-IA-06 · Vetores adversariais de IA.** Baterias de teste provando contenção: agente agindo fora do escopo, tentativa de furar bloqueio (UCAN), embedding de campo restrito roteado a external, agente agindo sobre fato superado (supersessão heads-only), command palette executando ação acima do privilégio. *Aceite:* todos os testes adversariais resultam em recusa/bloqueio ou fato-negativo-verificável.
+
+---
+
+## 12.3 Preparativos do Workflow (RFC-022 §A.10)
+
+> Estas tarefas integram o interpretador e a máquina de estados rasa de workflows na engine da plataforma. Fonte normativa: `docs/caderno-3-sdk/24-workflow-reference-spec.md`.
+
+- **T-WF-01 · Formato SPEC:WORKFLOW Nível 1 + Validador.** Definir a estrutura do nó `SPECIFICATION` (kind: `WORKFLOW`) e implementar o validador estático de boa-formação (unidade de guarda, envelope de segurança contra JS inline, limites de recursos ZEN). *Aceite:* validador bloqueia workflows malformados ou com JS inline; build determinístico.
+- **T-WF-02 · Interpretador Nível 1 sobre Event Sourcing.** Desenvolver o interpretador de mestre rasa de estados (estados, transições simples com guardas Zen, entry/exit, timers baseados em deadlines HLC com processamento assíncrono via Job Queue/agentes de sistema). *Aceite:* reconstrução de estado via re-fold da linhagem de eventos finalizados; testes unitários.
+- **T-WF-03 · Integração com Saga (ASSET:LOCK) + Escalabilidade Humana.** Integrar o interpretador com a saga de compensação da RFC-012 A.4 e criar suporte para tarefas de aprovação (`APPROVED_BY`) com SLAs de escalonamento. *Aceite:* tarefas humanas estourando SLA ativam a política de escalonamento; reversão de locks limpa estados.
+- **T-WF-04 · Geração Mermaid e Leitura Visual.** Implementar gerador determinístico que lê a definição da máquina e reconstrói o diagrama em Mermaid para exibição no shell e na suíte office. *Aceite:* diagramas refletem fielmente estados e transições em runtime.
+- **T-WF-05 · Vetores adversariais de Workflow.** Testes provando contenção de segurança: guarda fora do registro Zen rejeitada, ação proposta acima do privilégio da persona do autor bloqueada, tentativa de mutar e replicar o nó de estado do workflow recusada, e aborto automático ao estourar orçamento de recursos. *Aceite:* testes adversariais de segurança executados com 100% de sucesso.
+
+---
+
+## 12.4 Preparativos dos Plugins de Frontend (RFC-024 §A.8)
+
+> Estas tarefas definem o suporte à categoria `ui` de plugins isolados em sandbox de iframe e o motor de jogos data-driven. Fonte normativa: `docs/caderno-3-sdk/26-plugins-frontend.md`.
+
+- **T-UI-01 · Categoria ui no modelo de plugins.** Adicionar a categoria `ui` na especificação do manifesto do plugin (props de entrada, intents de saída, capacidades requeridas), estendendo as tarefas do protocolo de computação. *Aceite:* manifesto validado no marketplace e assinatura verificada; build determinístico.
+- **T-UI-02 · Host de Sandbox e Bridge postMessage.** Criar o host de sandbox para execução do plugin via iframe sandbox (ou Worker com OffscreenCanvas para renderização headless), implementando a bridge postMessage tipada e autenticada com rate-limit anti-flood. *Aceite:* execução sem acesso ao DOM externo, rede restrita e comunicação controlada pela ponte; testes Playwright.
+- **T-UI-03 · Componente rico GameEngine.** Desenvolver o componente rico `GameEngine` no catálogo de componentes para rodar jogos 2D/3D data-driven estruturados como especificação baseada em dados + ZEN. *Aceite:* componentes Phaser/PixiJS/three.js interpretam specs de cena e interagem via intents com a plataforma.
+- **T-UI-04 · Validação estrita e Vetores adversariais de UI.** Implementar regras estritas de análise estática e de runtime e criar testes provando contenção: plugin tentando tocar o DOM externo ou rede não declarada, intents acima do privilégio do usuário rejeitados, e suspensão do plugin ao exceder a cota de CPU/memória/mensagens. *Aceite:* tentativas de quebra da sandbox resultam em bloqueio imediato e alertas na UI.
+
+---
+
+## 12.5 Preparativos de Módulos (RFC-027 §A.6)
+
+> Estas tarefas definem o plano de comando e a compartimentação de profiles de módulos e mensageria. Fonte normativa: `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md`.
+
+- **T-MOD-01 · Profile de Módulo e Mensageria de Comando.** Implementar a entidade de profile de módulo e o barramento de mensagens de comando (intents duráveis `CONTENT:INTENT` e sinais efêmeros de coordenação em canal isolado). *Aceite:* envio e processamento síncrono/assíncrono de intents/sinais tipados; barramento no CI.
+- **T-MOD-02 · Delegados Compartimentados e Operações Cross-User.** Criar o mecanismo de profile-delegado instanciado preguiçosamente por par (usuário × módulo) e escopado pelo `ASSET:ROLE` do usuário, garantindo que operações cross-user rodem estritamente com as permissões de leitura do próprio usuário. *Aceite:* isolamento de dados entre usuários no mesmo módulo comprovado via testes.
+- **T-MOD-03 · Sessões Colaborativas CRDT.** Desenvolver sessões editoriais como documentos CRDT Automerge efêmeros e local-first, integrando o profile do módulo como co-editor via intents de proposta e implementando fluxo de opt-in para persistência. *Aceite:* sincronização em tempo real de rascunhos de edição e salvamento definitivo sob comando manual.
+- **T-MOD-04 · Vetores Adversariais de Módulos.** Testar contenção adversária: delegado de módulo tentando acessar dados fora da área do usuário (recusa), mensagem de comando com privilégio superior ao remetente (recusa), e agregação de dados restrita ao escopo público. *Aceite:* todos os acessos indevidos são bloqueados e logados com alertas.
+
+---
+
+## 12.6 Preparativos do Shell e Composição (RFC-026 §A.12)
+
+> Estas tarefas definem a árvore FlexLayout do shell, gerenciamento de espaço e a composição visual de painéis de módulos. Fonte normativa: `docs/caderno-3-sdk/28-shell-e-composicao.md`.
+
+- **T-SHL-01 · Shell FlexLayout + SPEC:WORKSPACE.** Construir o shell baseado em árvore FlexLayout polimórfica ligando cada painel a uma tupla (módulo, rota, params), implementando o nó `SPEC:WORKSPACE` para serializar e salvar os layouts de workspaces. *Aceite:* layouts de colunas aninhadas renderizam corretamente na Bancada e salvam/restauram dinamicamente.
+- **T-SHL-02 · Solver de Layout e Pilha de Colapsados.** Implementar o gerenciador de espaço determinístico resolvendo as restrições declaradas nos manifestos (larguras, colapso) e empilhando painéis excedentes em uma pilha visível de colapsados. *Aceite:* redimensionamentos recalculam e colapsam painéis sem perda silenciosa de estado.
+- **T-SHL-03 · Responsividade Contínua e Chrome como Módulo.** Adaptar o shell para transição contínua (multi-colunas no desktop ↔ tela única com footer no mobile) e modelar os menus/headers/footers (chrome) como módulos comuns spec-driven reconfiguráveis. *Aceite:* layouts mobile e desktop usam a mesma lógica unificada de navegação; themeable.
+- **T-SHL-04 · Drag-and-Drop e Compartilhamento como Comandos.** Implementar gestos de arrastar (desktop) e compartilhar (mobile) como mensagens de comando dirigidas ao profile do módulo de destino, com regras de drop zones e undo para intents irreversíveis. *Aceite:* arrastar itens destaca alvos válidos; confirmações barram intents irreversíveis acidentais.
+- **T-SHL-05 · Command Palette, Camada de Overlay e Suspense.** Implementar a command palette (Cmd/Ctrl-K) como overlay do shell, e o render-sleep para desmontagem de painéis ocultos ou colapsados mantendo o estado de sessão em memória. *Aceite:* desmontagem de painéis WebGL/mídia libera RAM/GPU; palette binda buscas e ações de IA.
+
+---
+
 ## 13. Tabela-Resumo de Dependências entre Marcos
 
 | Marco | Depende de | Entrega demo-ável |

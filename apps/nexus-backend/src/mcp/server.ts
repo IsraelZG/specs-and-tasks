@@ -8,9 +8,27 @@ import { EpochDBClient } from '../services/epochdb.client.js';
 import { TaskService } from '../services/task.service.js';
 import { TaskController } from '../services/task.controller.js';
 import { TASK_TOOL_DEFS, TASK_TOOL_NAMES, handleTaskTool } from './task-tools.js';
+import { buildExport } from '../services/export.service.js';
 import { exec } from 'child_process';
 import util from 'util';
 import path from 'path';
+
+const EXPORT_TOOL_DEFS = [
+  {
+    name: 'nexus_build_export',
+    description: 'Selects relevant docs by slugs/tags, expands via wikilinks up to depth, and returns a compressed artifact + original sections for local recovery.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        slugs: { type: 'array', items: { type: 'string' } },
+        tags: { type: 'array', items: { type: 'string' } },
+        depth: { type: 'number', description: 'Expansion depth via wikilinks (default 1)' },
+      },
+    },
+  },
+] as const;
+
+const EXPORT_TOOL_NAMES = new Set<string>(EXPORT_TOOL_DEFS.map((t) => t.name));
 
 const execPromise = util.promisify(exec);
 
@@ -52,7 +70,8 @@ mcpServer.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["scriptId"]
         }
       },
-      ...TASK_TOOL_DEFS
+      ...TASK_TOOL_DEFS,
+      ...EXPORT_TOOL_DEFS,
     ]
   };
 });
@@ -132,13 +151,30 @@ mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   // task tools — delegam ao mesmo TaskController do REST (paridade garantida)
   if (TASK_TOOL_NAMES.has(request.params.name)) {
-    const r = handleTaskTool(
+    const r = await handleTaskTool(
       taskController,
       request.params.name,
       (request.params.arguments ?? {}) as Record<string, unknown>,
     );
     // Retorna literal para casar com a união de ServerResult do SDK.
     return r.isError ? { content: r.content, isError: true } : { content: r.content };
+  }
+
+  // export tool
+  if (EXPORT_TOOL_NAMES.has(request.params.name)) {
+    const args = (request.params.arguments ?? {}) as Record<string, unknown>;
+    try {
+      const result = await buildExport(
+        { slugs: args.slugs as string[] | undefined, tags: args.tags as string[] | undefined },
+        { rootDir: TASK_ROOT_DIR, depth: args.depth as number | undefined },
+      );
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error) {
+      return {
+        content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+        isError: true,
+      };
+    }
   }
 
   throw new Error("Tool not found");

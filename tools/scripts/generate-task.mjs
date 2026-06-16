@@ -53,11 +53,21 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
 - [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
 - [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+> **Se a task afeta UI** (frontend_agent ou escopo em \`apps/*-frontend/**\`): unit/JSDOM NÃO
+> basta. Especifique aqui um **smoke Playwright** (browser real) OU exija a verificação manual
+> do revisor (subir o app e exercitar o fluxo) — o \`agile-reviewer\` trata isso como BLOCKER de
+> processo. Marque \`ui: true\` no frontmatter para deixar explícito.
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ REGRAS DO QUE NÃO FAZER:**
-> - 
-> - 
+> -
+> -
+
+### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
+*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para \`async\`*
+*exige \`await\` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear \`A.foo → bar\`*
+*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
+- *[Nenhuma identificada]*
 
 1. **[TDD]** Escreva o teste em \`...\`
 2. Implemente \`...\`
@@ -74,6 +84,14 @@ O agente \`agile_reviewer\` usará esta checklist para aprovar ou rejeitar o PR:
 - [ ] Linter (\`pnpm lint\`) não acusa problemas?
 - [ ] A implementação respeita a Regra do Que Não Fazer?
 
+### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+\`\`\`bash
+pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
+pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+\`\`\`
+> **GATE DE EVIDÊNCIA:** nem o \`finish\` (worker) nem o veredito (reviewer) são válidos sem a
+> saída literal desses comandos colada na seção 8. Marcar \`[x]\` sem evidência é violação.
+
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
 - 
@@ -81,7 +99,11 @@ O agente \`agile_reviewer\` usará esta checklist para aprovar ou rejeitar o PR:
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Comentários de Revisão:** 
+- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+\`\`\`
+(cole aqui a saída real de pnpm build e pnpm test)
+\`\`\`
+- **Comentários de Revisão:**
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando \`node tools/scripts/manage-task.mjs\`.

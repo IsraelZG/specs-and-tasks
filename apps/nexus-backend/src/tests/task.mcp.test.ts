@@ -38,8 +38,8 @@ describe('MCP task tools (handleTaskTool)', () => {
     expect(TASK_TOOL_NAMES.has('nexus_create_task')).toBe(true);
   });
 
-  it('create + list operam no rootDir do controller', () => {
-    const created = handleTaskTool(controller, 'nexus_create_task', {
+  it('create + list operam no rootDir do controller', async () => {
+    const created = await handleTaskTool(controller, 'nexus_create_task', {
       id: 'T-700',
       title: 'Via MCP',
       complexity: 2,
@@ -49,13 +49,13 @@ describe('MCP task tools (handleTaskTool)', () => {
     expect(created.content[0].text).toContain('"id": "T-700"');
     expect(fs.existsSync(path.join(rootDir, 'tasks', 'T-700.md'))).toBe(true);
 
-    const listed = handleTaskTool(controller, 'nexus_list_tasks', {});
+    const listed = await handleTaskTool(controller, 'nexus_list_tasks', {});
     expect(listed.content[0].text).toContain('T-700');
   });
 
-  it('fluxo de transição start via MCP', () => {
-    handleTaskTool(controller, 'nexus_create_task', { id: 'T-701', title: 'X' });
-    const started = handleTaskTool(controller, 'nexus_transition_task', {
+  it('fluxo de transição start via MCP', async () => {
+    await handleTaskTool(controller, 'nexus_create_task', { id: 'T-701', title: 'X' });
+    const started = await handleTaskTool(controller, 'nexus_transition_task', {
       id: 'T-701',
       action: 'start',
       agent: 'dev',
@@ -63,9 +63,9 @@ describe('MCP task tools (handleTaskTool)', () => {
     expect(started.content[0].text).toContain('"status": "in_progress"');
   });
 
-  it('transição inválida vira isError com mensagem', () => {
-    handleTaskTool(controller, 'nexus_create_task', { id: 'T-702', title: 'X' });
-    const res = handleTaskTool(controller, 'nexus_transition_task', {
+  it('transição inválida vira isError com mensagem', async () => {
+    await handleTaskTool(controller, 'nexus_create_task', { id: 'T-702', title: 'X' });
+    const res = await handleTaskTool(controller, 'nexus_transition_task', {
       id: 'T-702',
       action: 'approve',
       agent: 'qa',
@@ -74,8 +74,8 @@ describe('MCP task tools (handleTaskTool)', () => {
     expect(res.content[0].text).toContain('Transição inválida');
   });
 
-  it('get inexistente vira isError', () => {
-    const res = handleTaskTool(controller, 'nexus_get_task', { id: 'T-404' });
+  it('get inexistente vira isError', async () => {
+    const res = await handleTaskTool(controller, 'nexus_get_task', { id: 'T-404' });
     expect(res.isError).toBe(true);
     expect(res.content[0].text).toContain('não encontrada');
   });

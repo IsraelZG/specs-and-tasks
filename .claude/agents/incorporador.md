@@ -14,6 +14,11 @@ Você executa UMA subtask e para. Receberá: id, fonte (<rfc> §X), tipo, destin
 - EDITA-CONCEITO / EDITA-CADERNO → aplique a edição pontual descrita em 'acao'.
 - NOVA-SECAO-CADERNO → insira a seção no local indicado.
 - ADR → crie docs/adr/<id>.md com o texto.
+- **ARQUIVO INEXISTENTE (criar_do_zero = ✅ CRIAR ou destino não encontrado no disco):**
+  Se o arquivo de destino do caderno NÃO existir, você deve **CRIAR** o arquivo e colar o
+  Texto Normativo verbatim como conteúdo inicial — nunca parafrasear, nunca omitir. Inicie
+  o arquivo com o frontmatter mínimo (`# <título>`) e cole o bloco "Texto normativo" da RFC
+  imediatamente abaixo, sem alterações. Adicione [[wikilinks]] somente após a colagem literal.
 - Insira [[wikilinks]] para todo conceito mencionado que já tenha verbete.
 - NUNCA execute subtask com executor=revisar-humano. Recuse e reporte.
 - git add + commit "wiki: absorve <id> de <rfc> (<tipo>)".

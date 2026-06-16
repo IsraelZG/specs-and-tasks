@@ -82,11 +82,11 @@ export const TASK_TOOL_DEFS = [
 export const TASK_TOOL_NAMES = new Set<string>(TASK_TOOL_DEFS.map((t) => t.name));
 
 /** Executa uma tool de task. Erros (validação/transição/não-encontrada) viram isError. */
-export function handleTaskTool(
+export async function handleTaskTool(
   controller: TaskController,
   name: string,
   args: Record<string, unknown>,
-): McpToolResult {
+): Promise<McpToolResult> {
   try {
     let result: unknown;
     switch (name) {
@@ -110,7 +110,7 @@ export function handleTaskTool(
         });
         break;
       case 'nexus_transition_task':
-        result = controller.transition(
+        result = await controller.transition(
           String(args.id),
           String(args.action),
           String(args.agent),

@@ -167,6 +167,9 @@ for (let i = 0; i < headings.length - 1; i++) {
       let finalDest = rawFile;
       let type = "EDITA-CADERNO";
       let status = "[ ]";
+      // Flag: sinaliza que o arquivo destino precisa ser CRIADO DO ZERO.
+      // Ativada quando rawSec (coluna "Seção") contém a palavra "novo" (case-insensitive).
+      const criar_do_zero = /\bnovo\b/i.test(rawSec);
 
       // Verificar descarte
       if (rawFile === "backlog-geral.md") {
@@ -201,6 +204,7 @@ for (let i = 0; i < headings.length - 1; i++) {
         rawFile,
         rawSec,
         status,
+        criar_do_zero,
       });
     }
     rowIdx++;
@@ -278,14 +282,17 @@ let outContent = `# Absorção ${rfcName}.md
 
 ## Tabela de Subtasks
 
-| id | fonte | tipo | destino | acao | executor | status |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| id | fonte | tipo | destino | acao | executor | status | criar_do_zero |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 `;
 
 for (const task of subtasks) {
   // Limpar links e caracteres
   const destClean = task.destino.replace(/\\/g, "/");
-  outContent += `| ${task.id} | ${task.fonte} | ${task.tipo} | \`${destClean}\` | ${task.acao.replace(/\|/g, "\\|")} | ${task.executor} | ${task.status} |\n`;
+  // criar_do_zero: flag que sinaliza que o arquivo destino NÃO existe e deve ser CRIADO DO ZERO.
+  // Presente nos tipos de caderno (Caso 3). Para NOVO-CONCEITO/ADR/DESCARTE a coluna exibe "N/A".
+  const criarFlag = task.criar_do_zero === true ? "✅ CRIAR" : (task.criar_do_zero === false ? "—" : "N/A");
+  outContent += `| ${task.id} | ${task.fonte} | ${task.tipo} | \`${destClean}\` | ${task.acao.replace(/\|/g, "\\|")} | ${task.executor} | ${task.status} | ${criarFlag} |\n`;
 }
 
 writeFileSync(outPath, outContent, "utf8");

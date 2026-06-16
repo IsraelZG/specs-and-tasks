@@ -26,6 +26,7 @@ import {
   TaskStatus,
   TRANSITIONS,
 } from './task.types.js';
+import { ensureTaskWorktree, pushTaskBranch, mergeTaskBranch } from './worktree.service.js';
 
 export interface TaskServiceOptions {
   /** Raiz do repositório (contém tasks/ e meta-tasks/). Default: NEXUS_ROOT_DIR ou cwd. */
@@ -130,7 +131,7 @@ export class TaskService {
   }
 
   /** Aplica uma transição da máquina de estados, grava log e regenera o INDEX. */
-  transition(id: string, action: TaskAction, agent: string, message = ''): TaskRecord {
+  async transition(id: string, action: TaskAction, agent: string, message = ''): Promise<TaskRecord> {
     const rule = TRANSITIONS[action];
     if (!rule) throw new TaskError(`Ação inválida: ${action}`);
 
@@ -147,6 +148,37 @@ export class TaskService {
     content = this.replaceStatus(content, rule.to);
     content = this.appendLog(content, agent, rule.logLabel, message);
     fs.writeFileSync(filePath, content, 'utf8');
+
+    if (action === 'start' && process.env.NEXUS_WORKTREE_ENABLED === '1') {
+      try {
+        const info = await ensureTaskWorktree(id, { rootDir: this.rootDir });
+        this.setMeta(id, { branch: info.branch, worktreePath: info.path });
+        await pushTaskBranch(id, { rootDir: this.rootDir });
+      } catch (err) {
+        console.warn(`[worktree] não foi possível provisionar worktree para ${id}:`, err);
+      }
+    }
+
+    if (action === 'approve' && process.env.NEXUS_WORKTREE_ENABLED === '1') {
+      try {
+        const title = this.getTask(id).frontmatter.title;
+        await mergeTaskBranch(id, {
+          rootDir: this.rootDir,
+          commitMessage: `feat(${id}): ${title}`,
+        });
+      } catch (err) {
+        const fallback = fs.readFileSync(filePath, 'utf8');
+        const afterBlock = this.replaceStatus(fallback, 'blocked');
+        const finalContent = this.appendLog(
+          afterBlock,
+          'system',
+          '[Bloqueado]',
+          'merge falhou — conflito, resolução manual necessária',
+        );
+        fs.writeFileSync(filePath, finalContent, 'utf8');
+      }
+    }
+
     this.rebuildIndexes();
     return this.getTask(id);
   }
@@ -171,6 +203,23 @@ export class TaskService {
     }
     fs.writeFileSync(filePath, content, 'utf8');
     this.rebuildIndexes();
+    return this.getTask(id);
+  }
+
+  /** Persiste campos `branch`/`worktreePath` no frontmatter da task. NÃO regenera o INDEX. */
+  setMeta(id: string, fields: { branch?: string; worktreePath?: string }): TaskRecord {
+    const filePath = this.resolvePath(id);
+    let content = fs.readFileSync(filePath, 'utf8');
+    for (const [key, value] of Object.entries(fields)) {
+      if (value === undefined) continue;
+      const re = new RegExp(`^${key}:\\s*.*$`, 'm');
+      if (re.test(content)) {
+        content = content.replace(re, `${key}: ${value}`);
+      } else {
+        content = content.replace(/^id:.*$/m, (match) => `${match}\n${key}: ${value}`);
+      }
+    }
+    fs.writeFileSync(filePath, content, 'utf8');
     return this.getTask(id);
   }
 

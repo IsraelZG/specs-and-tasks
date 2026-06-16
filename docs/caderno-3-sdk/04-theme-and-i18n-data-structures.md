@@ -8,6 +8,8 @@ Este documento especifica a estrutura de dados e as propriedades de tematizaçã
 
 Os temas na plataforma baseiam-se em arquivos de dados estruturados YAML ou JSON salvos em nós do tipo `CONTENT:THEME`. Eles representam o nível base (App) de estilização. O sistema compila e injeta esses valores através da arquitetura de tokens (Style Dictionary), convertendo as referências para variáveis CSS Custom Properties (prefixadas com `--ds-*`) no `:root` do HTML.
 
+> **Regra de ouro (RFC-006 §A.1):** `CONTENT:THEME` sobrescreve a **camada de tema** do contrato de [[design-token]], **nunca** a semântica diretamente. Um tema é *dados do grafo redefinindo a camada de tema do contrato de tokens* — nada além disso. Acessibilidade do usuário (fonte ampliada, contraste, redução de movimento) prevalece sobre qualquer tema forçado. Ver contrato completo em `caderno-3-sdk/10-design-system.md §1`.
+
 *Para ver como estes temas interagem com os estilos de níveis inferiores (Módulo, Página, Instância), veja [09-hierarchical-theme-customization.md](./09-hierarchical-theme-customization.md).*
 
 ### 1.1 Vocabulário Canônico de Tokens e Overrides

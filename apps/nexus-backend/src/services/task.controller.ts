@@ -113,7 +113,7 @@ export class TaskController {
     );
   }
 
-  transition(id: string, action: string, agent: string, message = ''): TaskDetailDTO {
+  async transition(id: string, action: string, agent: string, message = ''): Promise<TaskDetailDTO> {
     requireString(id, 'id');
     requireString(agent, 'agent');
     if (!VALID_ACTIONS.includes(action as TaskAction)) {
@@ -122,7 +122,7 @@ export class TaskController {
       );
     }
     const msg = message !== undefined && message !== null ? String(message) : '';
-    return toDetail(this.svc.transition(id, action as TaskAction, agent, msg));
+    return toDetail(await this.svc.transition(id, action as TaskAction, agent, msg));
   }
 
   assign(id: string, targetAgent: string): TaskDetailDTO {

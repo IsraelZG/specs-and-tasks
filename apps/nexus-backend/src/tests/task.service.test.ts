@@ -43,9 +43,9 @@ describe('TaskService (máquina de estados MGTIA)', () => {
     fs.writeFileSync(path.join(rootDir, 'tasks', `${id}.md`), makeTask(id, status, extra), 'utf8');
   }
 
-  it('start: draft → in_progress e grava log datado', () => {
+  it('start: draft → in_progress e grava log datado', async () => {
     write('T-900', 'draft');
-    const rec = svc.transition('T-900', 'start', 'claude', 'começando');
+    const rec = await svc.transition('T-900', 'start', 'claude', 'começando');
     expect(rec.frontmatter.status).toBe('in_progress');
     const last = rec.log.at(-1)!;
     expect(last.agent).toBe('claude');
@@ -54,39 +54,39 @@ describe('TaskService (máquina de estados MGTIA)', () => {
     expect(last.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
   });
 
-  it('fluxo completo start → finish → approve', () => {
+  it('fluxo completo start → finish → approve', async () => {
     write('T-901', 'ready');
-    svc.transition('T-901', 'start', 'dev');
-    svc.transition('T-901', 'finish', 'dev', 'pronto p/ review');
+    await svc.transition('T-901', 'start', 'dev');
+    await svc.transition('T-901', 'finish', 'dev', 'pronto p/ review');
     const reviewed = svc.getTask('T-901');
     expect(reviewed.frontmatter.status).toBe('review');
-    const done = svc.transition('T-901', 'approve', 'qa', 'ok');
+    const done = await svc.transition('T-901', 'approve', 'qa', 'ok');
     expect(done.frontmatter.status).toBe('done');
   });
 
-  it('transição inválida lança TaskError sem alterar o arquivo', () => {
+  it('transição inválida lança TaskError sem alterar o arquivo', async () => {
     write('T-902', 'draft');
-    expect(() => svc.transition('T-902', 'approve', 'qa')).toThrow(TaskError);
+    await expect(svc.transition('T-902', 'approve', 'qa')).rejects.toThrow(TaskError);
     expect(svc.getTask('T-902').frontmatter.status).toBe('draft');
   });
 
-  it('request_changes: review → rework e recomeço via start: rework → in_progress', () => {
+  it('request_changes: review → rework e recomeço via start: rework → in_progress', async () => {
     write('T-903', 'review');
-    let rec = svc.transition('T-903', 'request_changes', 'qa', 'faltou teste');
+    let rec = await svc.transition('T-903', 'request_changes', 'qa', 'faltou teste');
     expect(rec.frontmatter.status).toBe('rework');
-    rec = svc.transition('T-903', 'start', 'dev', 'corrigindo');
+    rec = await svc.transition('T-903', 'start', 'dev', 'corrigindo');
     expect(rec.frontmatter.status).toBe('in_progress');
   });
 
-  it('block de qualquer estado e unblock → ready', () => {
+  it('block de qualquer estado e unblock → ready', async () => {
     write('T-904', 'in_progress');
-    expect(svc.transition('T-904', 'block', 'claude', 'spec ambígua').frontmatter.status).toBe('blocked');
-    expect(svc.transition('T-904', 'unblock', 'claude').frontmatter.status).toBe('ready');
+    expect((await svc.transition('T-904', 'block', 'claude', 'spec ambígua')).frontmatter.status).toBe('blocked');
+    expect((await svc.transition('T-904', 'unblock', 'claude')).frontmatter.status).toBe('ready');
   });
 
-  it('handoff: pause grava nota e getTask a expõe (status segue in_progress)', () => {
+  it('handoff: pause grava nota e getTask a expõe (status segue in_progress)', async () => {
     write('T-905', 'in_progress');
-    svc.transition('T-905', 'pause', 'dev1', 'parei na metade: falta o teste X');
+    await svc.transition('T-905', 'pause', 'dev1', 'parei na metade: falta o teste X');
     const rec = svc.getTask('T-905');
     expect(rec.frontmatter.status).toBe('in_progress');
     const handoff = rec.log.at(-1)!;
@@ -107,6 +107,14 @@ describe('TaskService (máquina de estados MGTIA)', () => {
     expect(rec.frontmatter.target_agent).toBe('frontend_agent');
   });
 
+  it('setMeta persiste branch e worktreePath no frontmatter', () => {
+    write('T-911', 'in_progress');
+    svc.setMeta('T-911', { branch: 'task/T-911', worktreePath: '/tmp/wt/T-911' });
+    const rec = svc.getTask('T-911');
+    expect(rec.frontmatter.branch).toBe('task/T-911');
+    expect(rec.frontmatter.worktreePath).toBe('/tmp/wt/T-911');
+  });
+
   it('createTask cria draft e listTasks/filtros funcionam', () => {
     svc.createTask({ id: 'T-908', title: 'Nova', complexity: 4, targetAgent: 'devops_agent' });
     const rec = svc.getTask('T-908');
@@ -116,9 +124,9 @@ describe('TaskService (máquina de estados MGTIA)', () => {
     expect(svc.listTasks({ status: 'done' }).map((t) => t.id)).toEqual(['T-909']);
   });
 
-  it('cada mutação regenera o INDEX.md', () => {
+  it('cada mutação regenera o INDEX.md', async () => {
     write('T-910', 'draft');
-    svc.transition('T-910', 'start', 'claude');
+    await svc.transition('T-910', 'start', 'claude');
     const index = fs.readFileSync(path.join(rootDir, 'tasks', 'INDEX.md'), 'utf8');
     expect(index).toContain('| [T-910](./T-910.md) |');
     expect(index).toContain('`in_progress`');

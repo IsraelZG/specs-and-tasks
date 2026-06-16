@@ -269,12 +269,13 @@ Dados podem ser promovidos entre categorias. Uma edição começa como "Local + 
 
 ---
 
-## 5. Índices de Texto (FTS5) e Busca Espacial (R*Tree)
+## 5. Índices de Texto (FTS5), Busca Espacial (R*Tree) e Vetores (sqlite-vec)
 
-Para viabilizar pesquisas por autocomplete e raio espacial sem vazar payloads descriptografados em arquivos desprotegidos:
+Para viabilizar pesquisas por autocomplete, raio espacial e similaridade sem vazar payloads descriptografados em arquivos desprotegidos:
 
 * **Índice FTS5 local (`search_index_fts`)**: Preenchido apenas para campos marcados como `searchable: true` pela `SPECIFICATION` do nó no momento em que o payload é descriptografado pelo Crypto Worker.
 * **Índice R*Tree local (`geo_index`)**: Permite buscas espaciais baseadas em coordenadas geográficas de texto plano para módulos com suporte geolocalizado.
+* **Índice Vetorial local (`vector_index`)**: A 7ª projeção, mantida pelo mesmo regime das demais (derivada, reconstruível, local) via sqlite-vec (WASM/nativo). Preenchido para campos `embeddable: true` definidos na `SPECIFICATION` do nó no momento em que o payload é decifrado (Crypto Worker), chamando a capacidade `compute` de embedding correspondente (RFC-011 §2).
 * **Segurança do Índice**: Os arquivos dessas tabelas auxiliares são criptografados localmente no dispositivo via **Chave do Dispositivo**, sendo descriptografados na RAM durante a sessão ativa.
 
 > **Nota (ranking e feed):** O resultado de feed, busca e ranking **não é hardcoded no cliente**. É executado como um **procedimento de `SPECIFICATION` (Zen Engine)**. Feed consome campos `searchable: true` projetados + arestas `INTERACTS` (likes, comments, shares) e roda a lógica de ranking/filtro declarada na SPEC. Resultado é efêmero/local, não replicado. Suporta A/B testing de ranking sem quebrar o protocolo P2P — ranking é policy da SPEC, não primitiva de core.

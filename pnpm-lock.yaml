@@ -42,6 +42,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/llmlingua-js
     devDependencies:
+      '@rolldown/binding-linux-arm64-gnu':
+        specifier: ^1.1.1
+        version: 1.1.1
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
@@ -746,6 +749,12 @@ packages:
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
+
+  '@rolldown/binding-linux-arm64-gnu@1.1.1':
+    resolution: {integrity: sha512-at2EO4o7D/PJLC4Xik16bU4CcjQE2tSv1LfqMA0TRYQYQihRm3gZeDB8xaX28A9SFedibcAk5DeMCKt4REKG0A==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [arm64]
+    os: [linux]
 
   '@rolldown/binding-linux-arm64-musl@1.0.3':
     resolution: {integrity: sha512-VWkUHwWriDciit80wleYwKILoR/KMvxh/IdwS/paX+ZgpuRpCrKLUdadJbc0NpBEiyhpYawsJ73j9aCvOH+f7Q==}
@@ -2967,6 +2976,8 @@ snapshots:
 
   '@rolldown/binding-linux-arm64-gnu@1.0.3':
     optional: true
+
+  '@rolldown/binding-linux-arm64-gnu@1.1.1': {}
 
   '@rolldown/binding-linux-arm64-musl@1.0.3':
     optional: true

@@ -24,6 +24,9 @@ Se `$ARGUMENTS` estiver vazio:
 Despache o subagent `agile-reviewer` com o ID da task como argumento.
 
 O subagent retornará o **QA Report completo** (seções BLOCKER/MAJOR/MINOR/INFO + veredicto).
+Um relatório **sem a Evidência de Execução** (saída real de build/tsc + test, com o placar
+`N passed`) é inválido — devolva ao `agile-reviewer` para rodar e colar a saída antes de
+consolidar. Nunca apresente um veredito baseado só em inspeção.
 
 ## 3. Consolidar e apresentar
 

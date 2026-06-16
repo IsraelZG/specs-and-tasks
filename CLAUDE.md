@@ -58,7 +58,7 @@ As ações disponíveis são `start`, `pause`, e `finish`.
 
 Para encontrar a próxima tarefa a fazer, **NÃO** inspecione os arquivos individuais. Leia SEMPRE o Dashboard em `tasks/INDEX.md` ou `meta-tasks/INDEX.md`.
 
-## As 3 Regras de Execução de Tarefas
+## As 4 Regras de Execução de Tarefas
 
 ### 1. Spec-Driven Development (SDD) e Spec Feedback Loop
 Toda tarefa em `ready` contém um bloco "Contexto RAG". Você **DEVE** ler os arquivos linkados ali antes de codar. A Spec é a fonte absoluta da verdade.
@@ -69,10 +69,27 @@ Ao iniciar uma tarefa, chame `manage-task.mjs start <TaskID> <SeuNome>`.
 Se você atingir o limite de tokens, perceber que não conseguirá terminar a tarefa na mesma sessão, ou precisar de ajuda do usuário, chame `manage-task.mjs pause <TaskID> <SeuNome> "sua mensagem"` com um resumo claro do que você fez e do que o próximo agente deve fazer para continuar de onde você parou.
 **Isto é essencial para que outro agente possa assumir a tarefa.**
 
-### 3. O Fluxo de Code Review (PR Assíncrono)
+### 3. O Fluxo de Code Review (PR Assíncrono) — com GATE DE EVIDÊNCIA
 Nunca marque uma tarefa sua como `done` se você for o executor.
-- Quando terminar a feature e os testes passarem, chame `manage-task.mjs finish <TaskID> <SeuNome> "log final"`.
+- Quando terminar a feature, rode **você mesmo** os comandos de verificação do DoD (seção 7)
+  e da seção "Verificação automática" da spec — tipicamente `pnpm --filter <pacote> build`
+  (tsc) e `pnpm --filter <pacote> test`.
+- **GATE DE EVIDÊNCIA (INVIOLÁVEL):** é proibido chamar `finish` sem **colar a saída literal**
+  desses comandos na mensagem do `finish` (ex.: `"... build OK; test: 45 passed"`). Veredito
+  sem evidência de execução = você **não** terminou. Se algum comando falhar, conserte antes —
+  não finalize "no escuro".
+- Com a verificação verde, chame `manage-task.mjs finish <TaskID> <SeuNome> "log final + evidência"`.
 - O script mudará o status para `review`. Outro agente (o `agile_reviewer`) validará seu código.
+
+### 4. Protocolo de Rework (auto-contido — NÃO espere um prompt novo)
+Se você assume uma tarefa em status `rework`, **todo o necessário já está no arquivo da task**:
+- Leia a seção 8 "### Parecer do Agente Revisor" e as últimas entradas da seção 9 (Log). Cada
+  achado `[Bn]` (blocker), `[Mn]` (major) ou `[mn]` (minor) traz **Evidência + Ação Corretiva**.
+- Chame `manage-task.mjs start <TaskID> <SeuNome>` e corrija **EXATAMENTE** esses itens — nada
+  além do que o Parecer aponta (não refatore o que não foi pedido).
+- Re-rode a verificação, aplique o **Gate de Evidência** da Regra 3 e chame `finish`.
+- O ciclo `worker → review → rework → worker` roda **sem intervenção humana**: a comunicação
+  acontece dentro do arquivo da task, não por prompts avulsos.
 
 ## Seus Possíveis Papéis (Skills) neste Modelo
 

@@ -1,3 +1,5 @@
+> **Runbook:** "por RFC, na ordem: /absorver-rfc docs/rfcs/rfc-NNN-*.md → portão (só revisar-humano) → incorporador → auditor-wiki → git rm a RFC → atualizar _status.md → commit. Uma RFC por invocação."
+
 # Ordem de Absorção das RFCs (`/absorver-rfc`)
 > Sequência topológica respeitando dependências: **transversais antes dos produtos**, e dentro de cada bloco a ordem em que cada RFC depende das anteriores. Cada `/absorver-rfc` gera os verbetes e aplica as edições de caderno descritas nas tabelas "Onde integrar" da RFC, **honrando as notas "a aplicar na absorção"** dos cabeçalhos de produto (precedência cruzada).
 
