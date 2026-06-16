@@ -20,7 +20,7 @@ aparicoes-consolidadas:
 dependencias:
   - [[specification]]
   - [[content]]
-  - [[perfil]]
+  - [[profile]]
 ---
 
 # Perfil de Capacidade do Motor

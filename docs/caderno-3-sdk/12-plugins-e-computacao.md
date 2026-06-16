@@ -31,7 +31,7 @@ Um plugin fornece uma de quatro categorias de capacidade:
 | `compute` | função invocável (determinística ou não) | LLM, embedding, transcrição, codec/transcode, efeito, OCR, função pura | `ComputePort` (A.4) |
 | `connector` | ponte ao mundo externo (classes A–E da RFC-007) | BaaS, NF-e, email IMAP, geo | consome `NetworkAdapterPort` no site `external` |
 | `infra` | serviço de infra que **carrega seus próprios canais de rede** (ou consome um adapter existente) | **signaling/rendezvous, SFU LiveKit, seeder/tracker WebTorrent, relay** | canais próprios do serviço |
-| `ui` | interface renderizável | componentes de UI de terceiros, widgets em sandbox, games | bridge postMessage isolada (RFC-024 / [[plugins-frontend]]) |
+| `ui` | interface renderizável | componentes de UI de terceiros, widgets em sandbox, games | bridge postMessage isolada (RFC-024 / [[caderno-3-sdk/26-plugins-frontend]]) |
 
 **NetworkAdapter ≠ plugin.** São abstrações distintas e nenhuma contém a outra: NetworkAdapter é concern de **transporte** (como o *sync do grafo* — RBSR/Automerge — alcança peers), em larga medida **nativo** (o WebRTC do automerge-repo é nativo; o transporte base RBSR sobre WebSocket ao [[peer-do-sistema]] também). Plugin é concern de **capacidade**. Um plugin pode *consumir* um NetworkAdapter existente **ou abrir seus próprios canais** (dentro das portas de rede que o sandbox concede — A.6).
 
@@ -49,8 +49,8 @@ Consequências:
 1. Capacidade `compute` é invocada por `id` através da **`ComputePort`**, que resolve **site** e **modo** sem o chamador conhecer o backend (IoC, como o roteamento de conectores).
 2. **Três sites:**
    - `local` — no dispositivo (browser plugin na aba/Worker; node plugin no Electron). Default local-first.
-   - `peer` — peer remoto da malha que **anuncia** a capacidade via aresta [[serves]] e cujo perfil de runtime/recurso satisfaz o plugin (computação síncrona "em outro peer").
-   - `external` — endpoint não-peer alcançado por **qualquer NetworkAdapter** declarado (não só REST: WS, datachannel, custom) — é o território dos conectores RFC-007.
+   - `peer` — peer remoto da malha que **anuncia** a capacidade via aresta [[serves-aresta]] e cujo perfil de runtime/recurso satisfaz o plugin (computação síncrona "em outro peer").
+   - `external` — endpoint não-peer alcançado por **ququer NetworkAdapter** declarado (não só REST: WS, datachannel, custom) — é o território dos conectores RFC-007.
 3. **Legalidade por casamento de runtime:** cada peer anuncia seus runtimes (`browser`, `node`) e perfil de recurso. O escalonador só elege um site onde `plugin.runtime ⊆ site.runtimes` **e** o recurso cabe. Peer cloud headless oferece só `node`; Electron oferece ambos; peer web puro só `browser`. Não há combinação ilegal possível — a indisponibilidade de runtime simplesmente remove o site do conjunto elegível.
 4. **A SPEC do fluxo chamador pode fixar restrições** (site permitido, modo, classe de privacidade máxima). Sem site elegível e sem fallback → `fato-negativo-verificável`, nunca execução em site proibido.
 

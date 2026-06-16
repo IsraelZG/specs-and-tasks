@@ -38,7 +38,7 @@ módulo (wrapper nomeado)
 - **Componentes** são shadcn-based, sem regra de negócio, identificados por nome estável no catálogo. Conjunto piloto já autorado: `Button`, `Input`, `Card`, `Message`, `NavItem`, `Toast`; o catálogo cresce pelo fluxo de autoria do §3.
 - **Espectro de Componentes e Confiança:** componentes referenciáveis por páginas vivem num espectro:
   1. **First-party (catálogo, RFC-006):** compilado com o app, auditado, confiável. Inclui componentes ricos centrais (planilha, charts, player, e o componente `GameEngine`).
-  2. **`ui` plugin de terceiro (RFC-024 / [[plugins-frontend]]):** código opaco de terceiro, distribuído por marketplace, isolado em iframe sandbox (ou Worker+OffscreenCanvas) com rate-limit, bridge tipada, rate-limit anti-flood e sem canal lateral.
+  2. **`ui` plugin de terceiro (RFC-024 / [[caderno-3-sdk/26-plugins-frontend]]):** código opaco de terceiro, distribuído por marketplace, isolado em iframe sandbox (ou Worker+OffscreenCanvas) com rate-limit, bridge tipada, rate-limit anti-flood e sem canal lateral.
   Ambos são referenciados pela mesma sintaxe (nome no catálogo) no documento de página, ocultando o isolamento do autor da página.
 - **Componente Rico `GameEngine`:** motor de jogos 2D/3D data-driven (baseado em engines opensource como Phaser/PixiJS/three.js/Babylon). Cenas, entidades, regras e níveis são especificados via dados + ZEN; o loop pesado roda nativamente no componente. Ele expõe pontos de customização ZEN e emite intents (pontuação, compras in-game) pelo canal normal.
 - **Engines** compõem componentes e expõem slots/renderers; **módulos** compõem engines via wrappers e jamais importam primitivos visuais por fora do design system.

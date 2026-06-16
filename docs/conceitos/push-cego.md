@@ -17,7 +17,7 @@ Dispositivos suspensos precisam ser acordados para sincronizar dados em backgrou
 
 ## Contrato
 
-O contrato técnico de [[caderno-3-sdk/06-connectors#5-push-connector-content-blind-conector-de-ingresso]] define o fluxo de funcionamento:
+O contrato técnico de [[caderno-3-sdk/06-connectors#b-classe-b-ingresso-content-blind-herdado]] define o fluxo de funcionamento:
 
 1. **Registro:** O cliente registra seu token Web Push associado ao seu `DevicePeerId` no peer do sistema, **fora do grafo**.
 2. **Disparo:** Ao replicar um registro destinado a um escopo do dispositivo, o peer do sistema dispara o push.

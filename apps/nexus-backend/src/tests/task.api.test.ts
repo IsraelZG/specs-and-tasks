@@ -168,4 +168,10 @@ describe('Tasks REST API (createApp)', () => {
     expect(dto.status).toBe('in_progress');
     expect(dto.log.at(-1).label).toBe('[Progresso]');
   });
+
+  it('POST transition approve com agent != reviewer_agent → 403', async () => {
+    write('T-811', 'review');
+    const res = await post('/api/tasks/T-811/transition', { action: 'approve', agent: 'dev', message: 'ok' });
+    expect(res.status).toBe(403);
+  });
 });

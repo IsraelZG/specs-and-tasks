@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat pnpm-workspace.yaml)",
+      "Bash(ls packages *)",
+      "Bash(grep -E '^T-10[0-9]{2}\\\\.md$')",
+      "Bash(node tools/scripts/generate-task.mjs T-1025 \"Role gate nas transições: approve/request_changes restritos ao Reviewer\" 2 logic_agent)",
+      "Bash(node tools/scripts/manage-task.mjs start T-1017 claude \"Retomando spike: pesquisa empírica de outra instância \\(opus\\) trouxe respostas às 6 perguntas + templates de comando + decisão Headroom/OpenCode. Incorporado em docs/adr/ADR-piloto-automatico.md.\")",
+      "Bash(node -e \"import\\('./dist/services/task.service.js'\\).then\\(m=>console.log\\(Object.keys\\(m\\)\\)\\).catch\\(e=>console.error\\(e\\)\\)\")",
+      "Bash(echo \"exit:$?\")",
+      "Bash(node -e \"console.log\\(require.resolve\\('section-matter', {paths:['node_modules/.pnpm/gray-matter@4.0.3/node_modules']}\\)\\)\")",
+      "PowerShell(Get-Item \"node_modules\\\\.pnpm\\\\gray-matter@4.0.3\\\\node_modules\\\\section-matter\" -Force | Format-List Name,Attributes,LinkType,Target,Mode; Write-Host \"---\"; \\(Get-Item \"node_modules\\\\.pnpm\\\\gray-matter@4.0.3\\\\node_modules\\\\section-matter\" -Force\\).GetType\\(\\).Name)",
+      "PowerShell($tmp = \"$env:TEMP\\\\secpol_check.cfg\"; secedit /export /cfg $tmp /areas USER_RIGHTS | Out-Null; Select-String -Path $tmp -Pattern \"SeCreateSymbolicLinkPrivilege\"; Remove-Item $tmp -Force)",
+      "PowerShell(Remove-Item \"$env:TEMP\\\\symlink_test\" -Force -ErrorAction SilentlyContinue; try { New-Item -ItemType SymbolicLink -Path \"$env:TEMP\\\\symlink_test\" -Target \"$env:TEMP\" -ErrorAction Stop | Out-Null; Write-Host \"SYMLINK CRIADO COM SUCESSO\"; Remove-Item \"$env:TEMP\\\\symlink_test\" -Force } catch { Write-Host \"FALHOU: $\\($_.Exception.Message\\)\" })"
+    ]
+  }
+}

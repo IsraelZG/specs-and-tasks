@@ -21,7 +21,7 @@ aparicoes-consolidadas:
 dependencias:
   - [[content]]
   - [[specification]]
-  - [[timeline]]
+  - [[timeline-engine]]
 ---
 
 # Recorrência e Exceções

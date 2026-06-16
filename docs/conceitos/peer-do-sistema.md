@@ -45,7 +45,7 @@ O comportamento e a semântica criptográfica do Peer do Sistema estão estabele
 
 ## Implementação
 
-A integração com SDK e os conectores externos estão detalhados em [[caderno-3-sdk/06-connectors#2-propriedades-arquiteturais]] e [[caderno-5-transport/01-p2p-transport-and-reconciliation#3241-os-dois-modelos-de-gênese]]:
+A integração com SDK e os conectores externos estão detalhados em [[caderno-3-sdk/06-connectors#1-contrato-comum-rfc-007-a2]] e [[caderno-5-transport/01-p2p-transport-and-reconciliation#3241-os-dois-modelos-de-gênese]]:
 
 - **Especificações Guiadas por Inversão de Controle (IoC)**: O peer do sistema resolve de forma spec-driven os conectores de notificação. A especificação (`SPECIFICATION`) declara o conector e o template desejado, e o peer do sistema despacha a mensagem via interface `NotificationConnector` (e-mail via SMTP, SMS via Twilio ou WhatsApp API).
 - **Isolamento de Credenciais**: As chaves de API e credenciais de servidor (ex: SMTP keys) são configuradas localmente na infraestrutura privada do operador do peer do sistema, permanecendo estritamente fora do grafo distribuído.

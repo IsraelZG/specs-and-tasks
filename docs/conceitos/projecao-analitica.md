@@ -13,4 +13,4 @@ Uma **projeção analítica** é o agregado incremental gerado após a descripto
 
 ## Contrato
 
-Os limites dimensionais e especificações de relatórios e BI estão documentados em [[caderno-3-sdk/16-erp-crm-reference-spec#6-relatorios-e-bi]].
+Os limites dimensionais e especificações de relatórios e BI estão documentados em [[caderno-3-sdk/16-erp-crm-reference-spec#6-relatórios-e-bi]].

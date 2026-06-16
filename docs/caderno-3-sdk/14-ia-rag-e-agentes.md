@@ -7,7 +7,7 @@
 ## §1 — Inferência como Utilitário de Computação (sem mecânica nova)
 
 1. Todo modelo (LLM, embedding, transcrição, classificação, visão) é uma **capacidade `compute`** da RFC-010: contrato tipado, flag de determinismo (IA = não-determinística → confiança por assinatura, RFC-010 A.5.4), classe de privacidade (RFC-010 A.6).
-2. Os três sites e os dois modos vêm prontos da RFC-010: IA on-device quando o runtime permite; síncrona em peer que anuncia o modelo via [[serves]]; via conector `external` (classe E) para API de provedor; ou na fila assíncrona para lotes (embeddings em massa, sumarização de acervo).
+2. Os três sites e os dois modos vêm prontos da RFC-010: IA on-device quando o runtime permite; síncrona em peer que anuncia o modelo via [[serves-aresta]]; via conector `external` (classe E) para API de provedor; ou na fila assíncrona para lotes (embeddings em massa, sumarização de acervo).
 3. IA **não é privilégio especial**: convive com utilitários determinísticos (codec, OCR de regra fixa) no mesmo paradigma — esta RFC só acrescenta o que é específico de *recuperação* e *agência*.
 
 ---

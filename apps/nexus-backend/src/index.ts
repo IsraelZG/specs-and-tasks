@@ -8,6 +8,7 @@ import { TaskService } from './services/task.service.js';
 import { TaskController } from './services/task.controller.js';
 import { buildExport } from './services/export.service.js';
 import {
+  ForbiddenRoleError,
   InvalidTransitionError,
   TaskNotFoundError,
   TaskStatus,
@@ -21,6 +22,7 @@ const PORT = process.env.PORT || 3001;
 function statusFromError(err: unknown): number {
   if (err instanceof ValidationError) return 400;
   if (err instanceof TaskNotFoundError) return 404;
+  if (err instanceof ForbiddenRoleError) return 403;
   if (err instanceof InvalidTransitionError) return 409;
   return 500;
 }

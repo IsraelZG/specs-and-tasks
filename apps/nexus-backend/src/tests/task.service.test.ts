@@ -3,7 +3,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { TaskService } from '../services/task.service.js';
-import { TaskError } from '../services/task.types.js';
+import { TaskError, ForbiddenRoleError } from '../services/task.types.js';
 
 function makeTask(id: string, status: string, extra = ''): string {
   return `---
@@ -60,7 +60,7 @@ describe('TaskService (máquina de estados MGTIA)', () => {
     await svc.transition('T-901', 'finish', 'dev', 'pronto p/ review');
     const reviewed = svc.getTask('T-901');
     expect(reviewed.frontmatter.status).toBe('review');
-    const done = await svc.transition('T-901', 'approve', 'qa', 'ok');
+    const done = await svc.transition('T-901', 'approve', 'agile_reviewer', 'ok');
     expect(done.frontmatter.status).toBe('done');
   });
 
@@ -72,7 +72,7 @@ describe('TaskService (máquina de estados MGTIA)', () => {
 
   it('request_changes: review → rework e recomeço via start: rework → in_progress', async () => {
     write('T-903', 'review');
-    let rec = await svc.transition('T-903', 'request_changes', 'qa', 'faltou teste');
+    let rec = await svc.transition('T-903', 'request_changes', 'agile_reviewer', 'faltou teste');
     expect(rec.frontmatter.status).toBe('rework');
     rec = await svc.transition('T-903', 'start', 'dev', 'corrigindo');
     expect(rec.frontmatter.status).toBe('in_progress');
@@ -130,5 +130,40 @@ describe('TaskService (máquina de estados MGTIA)', () => {
     const index = fs.readFileSync(path.join(rootDir, 'tasks', 'INDEX.md'), 'utf8');
     expect(index).toContain('| [T-910](./T-910.md) |');
     expect(index).toContain('`in_progress`');
+  });
+
+  it('approve com agent diferente do reviewer_agent lança ForbiddenRoleError e não altera status', async () => {
+    write('T-1000', 'review');
+    await expect(svc.transition('T-1000', 'approve', 'dev', 'ok')).rejects.toThrow(ForbiddenRoleError);
+    expect(svc.getTask('T-1000').frontmatter.status).toBe('review');
+  });
+
+  it('approve com agent === reviewer_agent sucede, status vira done', async () => {
+    write('T-1001', 'review');
+    const done = await svc.transition('T-1001', 'approve', 'agile_reviewer', 'ok');
+    expect(done.frontmatter.status).toBe('done');
+  });
+
+  it('comparação de agent é case-insensitive: Agile_Reviewer vs agile_reviewer sucede', async () => {
+    write('T-1002', 'review');
+    const done = await svc.transition('T-1002', 'approve', 'Agile_Reviewer', 'ok');
+    expect(done.frontmatter.status).toBe('done');
+  });
+
+  it('request_changes com agent diferente do reviewer lança ForbiddenRoleError', async () => {
+    write('T-1003', 'review');
+    await expect(svc.transition('T-1003', 'request_changes', 'dev', 'faltou')).rejects.toThrow(ForbiddenRoleError);
+    expect(svc.getTask('T-1003').frontmatter.status).toBe('review');
+  });
+
+  it('task sem reviewer_agent no frontmatter: approve só sucede com agent agile_reviewer (default)', async () => {
+    write('T-1004', 'review');
+    const filePath = path.join(rootDir, 'tasks', 'T-1004.md');
+    let content = fs.readFileSync(filePath, 'utf8');
+    content = content.replace(/^reviewer_agent:.*\n/m, '');
+    fs.writeFileSync(filePath, content, 'utf8');
+    await expect(svc.transition('T-1004', 'approve', 'qa', 'ok')).rejects.toThrow(ForbiddenRoleError);
+    const done = await svc.transition('T-1004', 'approve', 'agile_reviewer', 'ok');
+    expect(done.frontmatter.status).toBe('done');
   });
 });

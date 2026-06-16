@@ -28,12 +28,15 @@ Tasks em `/tasks/` (implementação) e `/meta-tasks/` (gestão). Dashboard: `tas
 
 A fonte canônica de gestão de tarefas é o Nexus (tool MCP nexus_transition_task ou
 POST /api/tasks/:id/transition). A CLI node tools/scripts/manage-task.mjs <action>   <taskId> <SeuNome> [mensagem] é um atalho legado que delega ao mesmo serviço — use-a
-quando o backend não estiver no ar. NUNCA edite status ou Log manualmente no Markdown.
+quando o backend não estiver no ar. NUNCA edite status, INDEX.md ou Log manualmente no Markdown,
+**mesmo se o comando falhar ou o ambiente estiver quebrado** (build travado, EACCES, file lock).
+Falha de ambiente durante uma transição é ela mesma um BLOCKER — registre como tal (`pause` ou
+`request_changes`), nunca contorne escrevendo o arquivo na mão.
 Ações: start, pause, finish, approve, request_changes, block, unblock.
 Ciclo: draft → ready → in_progress → review → rework → done (+ blocked).
 Cada task iniciada ganha uma branch task/<ID> (isolamento).
 
-### As 5 Regras
+### As 6 Regras
 
 **1. SDD — Spec é a fonte absoluta.** Leia o bloco "Contexto RAG" da task antes de codar. Se a spec estiver ambígua ou impossível → `pause` com o bloqueio descrito.
 
@@ -45,11 +48,20 @@ Cada task iniciada ganha uma branch task/<ID> (isolamento).
 
 **5. Automação.** Tarefas repetitivas viram scripts, subagents (`.claude/agents/`) ou skills (`.claude/skills/`). Idempotência obrigatória.
 
+**6. Separação de papéis nas transições (INVIOLÁVEL).** `approve`/`request_changes` são exclusivos
+do Reviewer (`frontmatter.reviewer_agent` da própria task). Worker NUNCA chama essas duas ações —
+nem para "destravar" uma task que ficou presa em `review` por uma rodada anterior incompleta. Se
+`finish` falhar porque a task já está em `review`/`done`, o Worker PARA e usa `pause` para
+registrar o que encontrou; não tenta o próximo verbo só porque o serviço aceitaria. (Ver
+`tasks/T-1025.md` — esta regra está sendo reforçada no `TaskService`, não só em prosa.)
+
 ### Papéis
 
 - **Architect:** cria tasks via `node tools/scripts/generate-task.mjs`.
-- **Worker:** executa tasks ≤ Sonnet seguindo SDD + Gate de Evidência.
-- **Reviewer:** audita tasks em `review` via `/qa-review <ID>`.
+- **Worker:** executa tasks ≤ Sonnet seguindo SDD + Gate de Evidência. Nunca chama `approve`/`request_changes`.
+- **Reviewer:** audita tasks em `review` via `/qa-review <ID>`. Só escreve no Markdown a Seção 8
+  (Parecer) da própria task; o status/log/INDEX só mudam via `approve`/`request_changes` do
+  serviço — mesmo quando build/lint falha por problema de ambiente.
 
 ### Dimensionamento (INVIOLÁVEL)
 

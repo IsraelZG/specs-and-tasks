@@ -25,7 +25,7 @@
 1. Estoque = `ASSET:INVENTORY` por SKU **por depósito** (múltiplos locais = múltiplas linhagens de inventário). Transferência entre depósitos = saga de duas pernas (RFC-012 A.4) — sai de um head, entra noutro.
 2. **Custeio (custo médio, PEPS) é projeção/Zen**, não estado mutável: derivado da linhagem de entradas; o relatório de custo lê a história, não um campo sobrescrito.
 3. Reserva de estoque para pedido em aberto = `ASSET:LOCK` com TTL (mesma primitiva do checkout); cancelou/expirou → libera. Em rede P2P pura não há CRON central que dispare a liberação; portanto a **expiração do TTL é avaliada na projeção**, não materializada por um agente server-side. O motor de timeline trata um `ASSET:LOCK` com TTL vencido como **estoque disponível** na leitura imediata (`available = on_hand − locks_com_ttl_vigente`), mesmo antes de a tombstone de liberação materializar no SQLite local — evitando *ghost reservations* que travam o último item.
-4. **Extensão de Armazém (WMS):** As operações de armazém (endereçamento, picking, packing, expedição e contagens cíclicas) estendem esse modelo básico de estoque, sendo descritas como [[docs/caderno-3-sdk/25-logistica-reference-spec|SPEC:WORKFLOW]]s (RFC-023) sobre o mesmo `ASSET:INVENTORY`.
+4. **Extensão de Armazém (WMS):** As operações de armazém (endereçamento, picking, packing, expedição e contagens cíclicas) estendem esse modelo básico de estoque, sendo descritas como [[caderno-3-sdk/25-logistica-reference-spec|SPEC:WORKFLOW]]s (RFC-023) sobre o mesmo `ASSET:INVENTORY`.
 
 
 ---

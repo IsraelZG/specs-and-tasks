@@ -137,7 +137,7 @@ Origem: [[caderno-4-governance/02b-modulos-profiles-mensageria]]
 - **T-MOD-04** vetores: delegado lendo dado de outro usuário, comando acima do privilégio, sessão efêmera sem opt-in, agregação cross-user só pública.
 
 #### P0.10 — Shell & Composição · DoD UI da Bancada
-Origem: [[caderno-3-sdk/18-shell-composicao]]
+Origem: [[caderno-3-sdk/28-shell-e-composicao]]
 
 - **T-SHL-01** shell FlexLayout + `SPEC:WORKSPACE` (default + salvos nomeados) + painel binda (módulo+página+params).
 - **T-SHL-02** restrições de layout no manifesto + gerenciador determinístico (recência+pinos) + pilha de colapsados.### P1 — Produtos

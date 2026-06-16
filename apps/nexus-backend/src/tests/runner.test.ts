@@ -39,11 +39,11 @@ function reviewerAdapter(behavior: 'approve' | 'request_changes' | 'timeout' | '
     if (behavior === 'timeout') return { exit: null, timedOut: true, tail: '' };
     if (behavior === 'crash') return { exit: 1, timedOut: false, tail: 'reviewer crashed' };
     if (behavior === 'request_changes') {
-      await taskService.transition(opts.taskId, 'request_changes', 'reviewer-agent', 'precisa melhorar cobertura');
+      await taskService.transition(opts.taskId, 'request_changes', 'agile_reviewer', 'precisa melhorar cobertura');
       return { exit: 0, timedOut: false, tail: 'changes requested' };
     }
     // approve
-    await taskService.transition(opts.taskId, 'approve', 'reviewer-agent', 'LGTM');
+    await taskService.transition(opts.taskId, 'approve', 'agile_reviewer', 'LGTM');
     return { exit: 0, timedOut: false, tail: 'approved' };
   };
 }

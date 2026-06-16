@@ -116,7 +116,7 @@ export class WaveRunner {
         await taskService.transition(
           taskId,
           'request_changes',
-          'runner',
+          'agile_reviewer',
           `gate: build/test falhou\n${truncated}`,
         );
         this.log(`[${taskId}] gate falhou → request_changes`);

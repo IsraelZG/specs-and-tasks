@@ -14,6 +14,7 @@ import path from 'path';
 import matter from 'gray-matter';
 import {
   CreateTaskInput,
+  ForbiddenRoleError,
   InvalidTransitionError,
   LogEntry,
   PROGRESS_LABEL,
@@ -143,6 +144,18 @@ export class TaskService {
       throw new InvalidTransitionError(
         `Transição inválida: '${action}' requer status ${rule.from.join('|')}, mas a task ${id} está em '${current}'.`,
       );
+    }
+
+    if (action === 'approve' || action === 'request_changes') {
+      const reviewerAgent = (
+        this.parseFrontmatterNaive(content).reviewer_agent || 'agile_reviewer'
+      ).trim().toLowerCase();
+      if (agent.trim().toLowerCase() !== reviewerAgent) {
+        throw new ForbiddenRoleError(
+          `Ação '${action}' é exclusiva do Reviewer ('${reviewerAgent}'). O agente '${agent}' ` +
+            `não pode aprovar/rejeitar a própria tarefa — use 'pause' para handoff e aguarde o /qa-review.`,
+        );
+      }
     }
 
     content = this.replaceStatus(content, rule.to);

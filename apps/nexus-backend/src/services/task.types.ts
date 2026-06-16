@@ -123,3 +123,11 @@ export class ValidationError extends TaskError {
     this.name = 'ValidationError';
   }
 }
+
+/** Ação restrita ao Reviewer chamada por outro agente (mapeada para HTTP 403). */
+export class ForbiddenRoleError extends TaskError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ForbiddenRoleError';
+  }
+}

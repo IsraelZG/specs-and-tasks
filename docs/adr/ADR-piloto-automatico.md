@@ -1,7 +1,9 @@
 # ADR — Piloto Automático (Runner de Ondas / Torre de Controle)
 
-- **Status:** Aceito (arquitetura) · invocação de agente externo a validar via PoC (spike T-1017)
-- **Data:** 2026-06-15
+- **Status:** Aceito (arquitetura) · recipe de invocação **resolvida pela pesquisa da spike
+  T-1017** (2026-06-16) · falta só a **validação empírica** (1 task ponta-a-ponta rodada de
+  verdade — T-1017 continua `draft`/em andamento até essa evidência existir)
+- **Data:** 2026-06-15 (atualizado 2026-06-16)
 - **Contexto-fonte:** vínculo com T-1010..T-1019 (ledger MGTIA, REST/MCP, worktree, merge cycle)
 
 ## Contexto
@@ -88,11 +90,75 @@ estado esperado. 6. Task `opus-spike` na fila (política: modelo forte/humano).
 | 3 — Paralelo | pool K>1, ready-set por escopo, rebase pós-merge | Fase 2 |
 | 4 — Roteamento multi-modelo | adapters Claude+OpenCode por Capacidade-alvo | Fase 1 |
 
-## Questões abertas (deferidas à PoC da T-1017)
-1. OpenCode tem modo headless/scriptável? Como invocar? 2. Como setar o modelo por execução?
-3. Provedores (DeepSeek/Gemini) disponíveis/contratados? 4. Roda com `cwd` num worktree dado?
-5. Como o agente reporta de volta (exit code? chama o ledger via API/CLI?)?
-6. Recomendação final: seguir/ajustar/bloquear.
+## Recipe de invocação OpenCode (resolvida pela pesquisa da T-1017 em 2026-06-16)
+
+As 6 perguntas abertas têm resposta. **Falta a validação empírica** (instalar, autenticar,
+rodar 1 task ponta-a-ponta) — isso é o que resta para fechar a T-1017; o design abaixo não é
+mais incerto.
+
+1. **Modo headless?** Sim — `opencode run "<prompt>"` (scriptável, sem TUI).
+2. **Modelo por execução?** `--model provider/model`.
+3. **DeepSeek/Gemini disponíveis?** Sim, via `opencode auth login` (75+ provedores, credenciais
+   locais). **Ressalva crítica:** o OpenCode removeu login via Claude Pro/Max (disputa com a
+   Anthropic) — o papel **architect** em Claude via OpenCode exige **chave de API Anthropic
+   direta**, não a sessão Pro/Max. Worker/reviewer em DeepSeek/Gemini não são afetados.
+4. **`cwd` num worktree?** Sim — `--dir <worktree>`.
+5. **Como reporta de volta?** Não há protocolo de report nativo do OpenCode que case com o
+   ledger. **Confirma o "estado híbrido" já decidido:** o agente continua se autoreportando via
+   ledger (MCP `nexus_transition_task`/`manage-task.mjs`); o runner não confia nisso — o exit
+   code do processo só diz que ele terminou, e o **Gate de verificação re-roda build+test** de
+   qualquer forma (princípio central desta ADR, inalterado).
+6. **Recomendação:** seguir. O bloco de design não é mais incerto; falta só prova empírica.
+
+### Templates de comando (para `NEXUS_AGENT_CMD_WORKER/REVIEWER/ARCHITECT`, consumidos pelo `CommandAdapter` da T-1022)
+```bash
+NEXUS_AGENT_CMD_WORKER='opencode run --model deepseek/deepseek-chat --agent worker --dir {cwd} "Execute a task {taskId}. Leia tasks/{taskId}.md, implemente conforme escopo, rode o verify, reporte start/finish no ledger via MCP."'
+
+NEXUS_AGENT_CMD_REVIEWER='opencode run --model google/gemini-2.5-pro --agent reviewer --dir {cwd} "Revise a task {taskId}. Julgue mérito/cobertura/escopo. Dê approve ou request_changes no ledger via MCP."'
+
+NEXUS_AGENT_CMD_ARCHITECT='opencode run --model anthropic/claude-... --agent architect --dir {cwd} "..."'  # requer chave API Anthropic direta (ver ressalva #3)
+```
+(Placeholders `{taskId}`/`{role}`/`{cwd}` já são exatamente os substituídos por
+`replacePlaceholders()` em `agent-adapter.ts` — os templates acima encaixam sem mudança no adapter.)
+
+### Otimização prevista para a Fase 3 (pool K>1)
+Em vez de `opencode run` frio por task, considerar **um `opencode serve` por slot do pool**
+(porta derivada do índice do slot), com os `run` daquele slot anexando via `--attach
+http://localhost:PORT`. Resolve cold-start e dá isolamento de sessão por slot — combinar com o
+isolamento de runtime ainda pendente (`TEST_DB_PATH=:memory:` + portas por slot) para o
+paralelismo não reintroduzir o bug do vitest. Não é bloqueio da Fase 1 (K=1).
+
+### Headroom dentro do OpenCode (Fase 3/4 — não bloqueia a PoC nem a Fase 1)
+O OpenCode não tem `headroom wrap` dedicado (a lista oficial cobre claude/codex/cursor/aider/
+copilot). Dois caminhos limpos, que **atacam camadas diferentes** e não são mutuamente
+exclusivos:
+- **Opção A — proxy OpenAI-compatível (recomendada como base):** apontar a base URL do provedor
+  no `opencode.json` para `http://localhost:8787` (o mesmo proxy Headroom da T-1018/ADR-headroom).
+  Zero código; comprime todo o tráfego do agente (prompts, saídas de ferramenta, histórico) e
+  ganha o `CacheAligner` de graça. Custo: o proxy precisa estar de pé como dependência de runtime.
+- **Opção B1 — manter como está:** o RAG do próprio Nexus continua dono da sua compressão via
+  `Compressor`/`getCompressor()` (T-1018); o agente só consome a tool MCP. Não precisa de nada
+  novo.
+- **Evitar Opção B2** (registrar o MCP server do Headroom direto no OpenCode, dando ao agente
+  controle explícito de CCR) a menos que surja necessidade real — duplica a responsabilidade que
+  o `Compressor` já centraliza.
+- **Regra a preservar quando isso for implementado:** nunca comprimir a spec da task
+  (assinaturas, comandos exatos do gate) — é texto normativo, não histórico/RAG; Kompress é
+  lossy. Só contexto auxiliar passa pelo proxy.
+- Decisão formal (se/quando a Fase 3/4 chegar): registrar como ADR-piloto-automatico §Fase 4 ou
+  ADR dedicado — não decidir agora, são perguntas de operação (1 proxy por ambiente vs. por slot;
+  provisão dos assets ONNX/HF no ambiente do runner; deprecar `headroom.client.ts` legado em
+  favor de `Compressor`+proxy — este último já é o plano da T-1016, sem conflito).
+
+### Próximo passo concreto para fechar a T-1017 (validação empírica, não design)
+1. `pip install "headroom-ai[all]"` + `headroom proxy --port 8787` (opcional nesta fase — só
+   necessário se for testar o tráfego comprimido; não bloqueia o teste do OpenCode em si).
+2. Instalar OpenCode, `opencode auth login` (DeepSeek/Gemini).
+3. Rodar `opencode run --model ... --agent worker --dir <worktree-de-uma-task-real> "<prompt>"`
+   e confirmar: (a) edita no worktree; (b) reporta status no ledger via MCP; (c) o
+   `verify-gate` (T-1021) pega o resultado; (d) nenhuma surpresa de exit code/timeout.
+4. Congelar os 3 templates de env acima a partir do que de fato funcionou (podem precisar de
+   ajuste fino de sintaxe de aspas/escaping ao passar pelo `shell:true` do `CommandAdapter`).
 
 ## Consequências
 - (+) Remove ~80% do atrito humano já na Fase 1 (sem prompts, sem validar QA à mão).
