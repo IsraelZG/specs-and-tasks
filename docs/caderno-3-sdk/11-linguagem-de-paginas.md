@@ -93,3 +93,11 @@ Consequência central: **uma página não consegue fazer nada que seu usuário n
 2. **Confiança gradual:** renderizar uma página é seguro por construção (A.5), então páginas de terceiros são renderizáveis; a UI sinaliza autor/assinatura fora do círculo de confiança do usuário (mesma lógica social de qualquer CONTENT).
 3. **Geração por IA** (RFC-010): o agente produz documentos deste dialeto guiado pelos metadados do catálogo (`AIHints`, `Props`, `AntiPatterns` — RFC-006 A.3 foi desenhada para isso) e publica via intent sujeito ao mesmo validador. O renderizador suporta **render progressivo por streaming** (árvore parcial válida renderiza incrementalmente) para a experiência de geração ao vivo.
 4. **Fim de vida (arquivamento):** arquivar uma `SPEC:PAGE` a remove da navegação sem afetar dados — as respostas de formulários (A.6) já são nós alvo independentes, governados por suas próprias `SPECIFICATION`/data schemas, e permanecem pelo ciclo de vida normal do grafo. A página é uma view sobre os dados, não sua dona.
+
+---
+
+## §8 — Perfis de Capacidade do Motor (Emenda RFC-025)
+
+1. O motor de páginas é **único**; cada caso de uso é um **perfil de capacidade**: um subset de componentes permitidos + comportamento (linear vs. livre) + ações habilitadas. Perfis previstos: `pagina_completa` (tudo), `documento` (linear, subset Notion/Obsidian), `anuncio` (criativo + componentes), `slide` (apresentação), `comentario_post` (markdown simples). Ver [[perfil-de-capacidade]].
+2. O perfil é declarado na `SPEC:PAGE`; o validador aplica o subset do perfil. Trocar de perfil é restringir/relaxar, nunca trocar de motor.
+3. Isso unifica páginas, artigos, docs Notion, anúncios e apresentações sob um motor — com WYSIWYG e autoria apontar-e-descrever (estilo Layrr) editando o mesmo `SPEC:PAGE`.

@@ -9,7 +9,7 @@ tags: [sdk, ui, design-system, componentes, ai-ready, metadados]
 
 ## Definição
 
-O catálogo de componentes é o índice canônico e vivo de todos os componentes UI do [[design-system]] da plataforma. Cada entrada registra identidade, metadados AI-ready, variantes, props, tokens consumidos, anti-patterns e ciclo de vida. Um índice leve auto-gerado (`components.index.json`) serve à descoberta; metadados completos carregam sob demanda.
+O catálogo de componentes é o índice canônico e vivo de todos os componentes UI do [[caderno-3-sdk/10-design-system|design-system]] da plataforma. Cada entrada registra identidade, metadados AI-ready, variantes, props, tokens consumidos, anti-patterns e ciclo de vida. Um índice leve auto-gerado (`components.index.json`) serve à descoberta; metadados completos carregam sob demanda.
 
 O contrato completo de metadados e fluxo de autoria está definido em `caderno-3-sdk/10-design-system.md §3`.
 

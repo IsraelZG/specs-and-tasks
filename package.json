@@ -5,7 +5,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint"
+    "lint": "node scripts/audit-portfolio.mjs && turbo run lint"
   },
   "devDependencies": {
     "turbo": "^2.0.0",

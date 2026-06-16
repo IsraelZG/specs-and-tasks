@@ -13,4 +13,4 @@ O gerenciador de espaço do shell é um **solver determinístico** encarregado d
 
 ## Ver também
 - [[spec-workspace]] — O layout resolvido salvo
-- [[plugins-frontend]] — Os plugins e manifestos declarando suas restrições
+- [[caderno-3-sdk/26-plugins-frontend]] — Os plugins e manifestos declarando suas restrições

@@ -40,8 +40,10 @@ A separação fundamental (`rfc-v4.md §4.1`) é:
 | **Medição verificável** | Core | Recibos de banda, provas de storage, amostras de compute — um registro assinado e auditável de trabalho feito |
 | **Liquidação** | SPEC (via [[specification|Zen Engine]]) | A regra "contribuição → crédito/fiat/reputação" — procedimento na SPEC, não no core |
 
-A regra de liquidação é configurada por rede/módulo. O core não sabe o que
-fazer com a medição; a SPEC decide.
+A regra de liquidação é configurada por rede/módulo. O core não sabe o que fazer com a medição; a SPEC decide.
+
+- **Split, comissão e impostos de rede:** Splits de pagamento, comissões de venda e impostos/taxas de manutenção de rede são casos de liquidação por SPEC. O core apenas mede as operações e finaliza os créditos/débitos atômicos multi-destino correspondentes, enquanto a lógica e percentuais de split e taxas são definidos em Zen na SPEC do item ou da rede.
+
 
 ---
 

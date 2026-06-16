@@ -13,10 +13,11 @@ tags:
   - canonical
   - onda-11
 modo: canonical
-fonte-canonica: docs/caderno-3-sdk/05-media-transport-plane.md §8.2
+fonte-canonica: docs/caderno-3-sdk/05-media-transport-plane.md §8.2 e docs/caderno-3-sdk/19-streaming-reference-spec.md §3
 aparicoes-consolidadas:
   - docs/glossary.md §Consolidação de Live
   - docs/caderno-3-sdk/05-media-transport-plane.md §8.2
+  - docs/caderno-3-sdk/19-streaming-reference-spec.md §3
 dependencias:
   - [[convergent-encryption]]
   - [[ephemeral-messages]]
@@ -49,7 +50,7 @@ Os segmentos parciais gerados durante a transmissão ao vivo não participam do 
 
 ## Implementação → [[caderno-3-sdk]]
 
-O comportamento detalhado de gravação e os custos computacionais da consolidação estão descritos em [`caderno-3-sdk/05-media-transport-plane.md §8.2`](../caderno-3-sdk/05-media-transport-plane.md).
+O comportamento detalhado de gravação e os custos computacionais da consolidação estão descritos em [`caderno-3-sdk/05-media-transport-plane.md §8.2`](../caderno-3-sdk/05-media-transport-plane.md) e na especificação de produto em [`caderno-3-sdk/19-streaming-reference-spec.md §3`](../caderno-3-sdk/19-streaming-reference-spec.md).
 
 ### Fluxo Operacional
 

@@ -52,7 +52,7 @@
 | [T-1011](./T-1011.md) | Ferramentas MCP + endpoints REST de Tasks | `done` | logic_agent | 4 |
 | [T-1012](./T-1012.md) | Isolamento branch-por-task (git worktree) | `done` | devops_agent | 3 |
 | [T-1013](./T-1013.md) | UI Board Jira + Drawer de Task + client de API | `done` | frontend_agent | 4 |
-| [T-1014](./T-1014.md) | CLAUDE.md + wrapper legado do manage-task (delega ao TaskService) | `draft` | logic_agent | 2 |
+| [T-1014](./T-1014.md) | CLAUDE.md + wrapper legado do manage-task (delega ao TaskService) | `review` | logic_agent | 2 |
 | [T-1015](./T-1015.md) | Seletor estrutural + export (sobre a interface Compressor) | `done` | logic_agent | 4 |
 | [T-1016](./T-1016.md) | Outlet de compressão + PromptBuilder religado + desacoplar legados | `draft` | frontend_agent | 3 |
 | [T-1017](./T-1017.md) | Spike: viabilidade do piloto automático (OpenCode) | `draft` | devops_agent | 5 |

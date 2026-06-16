@@ -407,6 +407,138 @@ Cada item vira teste permanente na suíte (`testkit/adversarial/`):
 
 ---
 
+## 12.7 Preparativos de Marketplace e Negociação (RFC-012 §A.12)
+
+> Estas tarefas integram o suporte para itens negociáveis e saga de checkout transacional multidomínio. Fonte normativa: `docs/caderno-3-sdk/15-marketplace-reference-spec.md`.
+
+- **T-MK-01 · SPECs base PRODUCT/PRODUCT_LISTING + classes de liquidação.** Definir os schemas e validators para as SPECs bases e as classes de liquidação (§2) no core/protocolo. *Aceite:* validação correta de tipos e assinaturas; build determinístico.
+- **T-MK-02 · Anti-oversell por linhagem.** Implementar e validar a garantia anti-oversell na concorrência de finalização de linhagem (duas compras do mesmo item escasso colidem e apenas uma passa). *Aceite:* testes de estresse comprovando zero oversell sem locks globais.
+- **T-MK-03 · Motor de saga Tier 1 + Tier 2.** Desenvolver o motor de checkout saga Tier 1 (`ASSET:LOCK`, `ttl_policy` e compensação automática idempotente) e suporte opcional Tier 2. *Aceite:* locks expiram liberando o head após o TTL; estado de saga é efêmero e não-replicado.
+- **T-MK-04 · Verbos econômicos e split multi-destino.** Implementar suporte a partição dobrada com split multi-destino de pagamentos (comissão, afiliados, taxas) em uma única operação. *Aceite:* validação atômica de SPENDS/CREDITS balanceados; Zen de taxas.
+- **T-MK-05 · SPECs de instrumento financeiro.** Modelar e implementar a classe `instrumento_financeiro` (cessão de recebível, aporte e garantia) com gates `APPROVED_BY`, lastros `RELATES:FINANCE:LASTRO` e régua de cobrança. *Aceite:* processamento de fluxos financeiros integrado ao caixa central.
+- **T-MK-06 · Vetores adversariais de Marketplace.** Criar testes adversariais cobrindo: oversell multi-emissor, falha na reversão de saga, cupom reusado rejeitado, e lances de leilão inválidos. *Aceite:* 100% dos testes adversariais integrados e passando.
+
+---
+
+## 12.8 Preparativos de ERP Operacional e CRM (RFC-013 §A.9)
+
+> Estas tarefas definem as lentes de processos de ERP e CRM no subgrafo transacional. Fonte normativa: `docs/caderno-3-sdk/16-erp-crm-reference-spec.md`.
+
+- **T-ERP-01 · SPECs base SALES_ORDER/PURCHASE_ORDER + StateMachine.** Definir as especificações de pedidos de venda/compra e integrar a StateMachine para gerenciar o ciclo de vida. *Aceite:* transições de estados validadas de forma não-comutativa; build determinístico.
+- **T-ERP-02 · Estoque multi-depósito + custeio.** Implementar linhagens de inventário por depósito e desenvolver a projeção analítica de custeio médio e PEPS com base na linhagem histórica. *Aceite:* consultas de custo correto e controle de transferências por saga.
+- **T-ERP-03 · Contas a pagar/receber + conciliação bancária.** Implementar a conciliação bancária idempotente baseada no hash determinístico de lançamentos de extrato e liquidações. *Aceite:* casamentos corretos de lançamentos evitando baixa dupla.
+- **T-ERP-04 · CRM e Visão 360 do Cliente.** Desenvolver pipelines configuráveis de CRM por StateMachine e travessias no grafo para carregar a visão consolidada de perfis. *Aceite:* interações integradas com dado tratado sob consentimento (ASSET:CONSENT) e expurgo de dados.
+- **T-ERP-05 · Projeções analíticas incrementais e Teste de Custo.** Implementar e validar a geração de relatórios baseada em projeções incrementais com decriptografia on-device. *Aceite:* testes de benchmark validando o desempenho sob cifragem.
+
+---
+
+## 12.9 Preparativos de Contabilidade, Fiscal e RH (RFC-014 §A.8)
+
+> Estas tarefas definem as derivações de lançamentos e apurações contábeis/fiscais e de folha por SPEC. Fonte normativa: `docs/caderno-3-sdk/17-contabil-fiscal-rh-reference-spec.md`.
+
+- **T-CFR-01 · Plano de contas como SPEC + Classificação contábil.** Definir a estrutura do plano de contas e o mapeamento fato econômico → débito/crédito via Zen no core. *Aceite:* razão derivado e reconstruível via re-fold da linhagem; build determinístico.
+- **T-CFR-02 · Apuração fiscal + Provisões + Exportação SPED.** Desenvolver a apuração de tributos por competência com vigência e a geração de arquivos SPED como projeção. *Aceite:* provisões de impostos em BALANCE_STATE acumuladas corretamente.
+- **T-CFR-03 · Persona do Contador e Fechamento de Período.** Implementar o perfil de acesso do contador escopado por ROLE e a disciplina de fechamento de competência. *Aceite:* fechamentos impedem mutação do passado; auditoria sem logs paralelos.
+- **T-CFR-04 · Vínculos de RH e Folha de Pagamento Derivada.** Modelar contratos/vínculos de colaboradores e apurar a folha salarial baseada em eventos de trabalho e encargos vigentes por competência. *Aceite:* provisões contábeis da folha ativadas.
+- **T-CFR-05 · Vetores adversariais de Contabilidade, Fiscal e RH.** Testar: recálculos retroativos aplicando leis da competência de origem, recálculos massivos na fila de computação assíncrona, e conectores fiscais ausentes degradando para modo declarado. *Aceite:* todos os vetores de segurança e falhas passam.
+
+---
+
+## 12.10 Preparativos de Mapa (RFC-021 §A.6)
+
+> Estas tarefas integram o suporte para lugares, consultas espaciais e rotas de mapas. Fonte normativa: `docs/caderno-3-sdk/23-mapa-reference-spec.md`.
+
+- **T-MAP-01 · SPEC:PLACE + Consulta geo_index + Render GeoSpatial.** Definir a SPEC de lugar e implementar consultas espaciais (proximidade, bbox) indexadas localmente via R*Tree. *Aceite:* renderização fluida na engine GeoSpatial usando tiles locais/remotos.
+- **T-MAP-02 · Conector Classe E + Cache de geocoding/places/rotas.** Implementar o conector Classe E para integração com provedores externos, suportando cache local com TTL e proveniência. *Aceite:* chamadas Classe E funcionando com cache e restrições.
+- **T-MAP-03 · Consumo cross-módulo + Privacidade e Sinais Efêmeros.** Integrar locais de forma cruzada nos demais módulos e tratar localização em tempo real como sinal de rede efêmero e dado sensível sob consentimento. *Aceite:* testes provando que a localização não vaza.
+
+---
+
+## 12.11 Preparativos de Logística e Armazém (RFC-023 §A.9)
+
+> Estas tarefas definem as operações de armazém, fulfillment e transporte logístico. Fonte normativa: `docs/caderno-3-sdk/25-logistica-reference-spec.md`.
+
+- **T-LOG-01 · WMS: SPEC:WORKFLOW sobre INVENTORY + Endereçamento.** Modelar operações de armazém como SPEC:WORKFLOWs e estruturar o endereçamento como sub-linhagem por local de inventário. *Aceite:* picking/packing/contagens validados; build determinístico.
+- **T-LOG-02 · Fulfillment: Alocação multi-depósito por Zen.** Desenvolver lógica de alocação de depósitos por Zen e o ciclo de fulfillment com reservas de estoque via LOCK. *Aceite:* compensação correta em caso de falha de coleta.
+- **T-LOG-03 · Transporte externo: Conector de Transportadora.** Implementar integrações de cotação/etiqueta/rastreamento com transportadoras externas via conector, garantindo idempotência. *Aceite:* rastreamento sincronizado via external_ref.
+- **T-LOG-04 · Operação interna: Dispatch-saga + Entregador como listing.** Implementar dispatch como saga multidomínio com locks TTL temporários, entregadores como listings, e localização ao vivo como sinal efêmero. *Aceite:* matching integrado ao marketplace.
+- **T-LOG-05 · Logística reversa + Prova de entrega e Disputas.** Desenvolver os fluxos de devolução e troca e gerenciar disputas com suspensão de repasse financeiro em escrow. *Aceite:* reentrada correta de estoque e estorno financeiro; testes adversariais.
+
+---
+
+## 12.12 Preparativos de Mensagens (RFC-018 §A.6)
+
+> Estas tarefas integram chat, chamadas e presença em um produto único de comunicação. Fonte normativa: `docs/caderno-3-sdk/20-mensagens-reference-spec.md`.
+
+- **T-MSG-01 · Envoltório do produto e DMs Sociais.** Integrar o chat existente (caderno-3/07) em um produto único sob a mesma conversa e participantes (PROFILE) e integrar com as DMs da rede social. *Aceite:* conversas 1:1 e de grupo operando sob o mesmo modelo unificado.
+- **T-MSG-02 · Chamadas e Conferências via LiveKit.** Desenvolver chamadas de áudio/vídeo via LiveKit SFU (como conector infra) e P2P direto, suportando gravação consolidada por compute assíncrono. *Aceite:* início de chamada via intent e logs de eventos CALL_START/CALL_END gravados na conversa.
+- **T-MSG-03 · Presença Efêmera e Rate-Limit.** Implementar presença e indicação de digitação como sinais efêmeros não-replicados na linhagem, com rate-limit e auto-expiração rígidos. *Aceite:* indicador de digitação expirando em 5 segundos; "visto por último" desligável de forma honesta.
+
+---
+
+## 12.13 Preparativos de Rede Social e Feed (RFC-016 §A.6)
+
+> Estas tarefas definem o grafo social, perfis, stories, reações e feeds ranqueados. Fonte normativa: `docs/caderno-3-sdk/18-social-reference-spec.md`.
+
+- **T-SOC-01 · SPECs de Perfil/Post/Story e Visibilidade.** Definir as SPECs de perfil, post e story, tratando a visibilidade pública/privada como flag estática na criação dos nós. *Aceite:* chaves criptográficas geradas de acordo com as regras de visibilidade.
+- **T-SOC-02 · Feed com ranking Zen, SuperCard/Layout e Anúncios.** Implementar a recuperação e o ranking Zen do feed com o slot para anúncios integrados em instâncias de SuperCard. *Aceite:* exibição fluida do feed com ordenação dinâmica e inserção de anúncios.
+- **T-SOC-03 · Limites honestos de rede social e Vetores Adversariais.** Validar na suíte de testes que privacidade retroativa e bloqueios são mitigados na UI honesta mas incapazes em P2P puro; stories expirando e agregadores em lote de métricas para evitar hot-spotting de likes. *Aceite:* cobertura total contra abusos e validações eficientes de escala.
+
+---
+
+## 12.14 Preparativos de Streaming (RFC-017 §A.7)
+
+> Estas tarefas definem suporte a VOD adaptativo, transmissões ao vivo com consolidação de vídeo e monetização de streaming. Fonte normativa: `docs/caderno-3-sdk/19-streaming-reference-spec.md`.
+
+- **T-STR-01 · SPECs de Conteúdo/Canal/Coleção e VOD Adaptativo.** Modelar os tipos de dados e coleções para streaming e implementar a reprodução adaptativa baseada em chunks e qualidades. *Aceite:* leitura sequencial e seleção de rendition ideal conforme banda de rede.
+- **T-STR-02 · Renditions via Utilitário de Transcode Compute.** Desenvolver a geração de renditions sob demanda usando jobs da fila de computação assíncrona da rede. *Aceite:* jobs de transcode tolerando falhas e gerando nós CONTENT irmãos associados ao asset principal.
+- **T-STR-03 · Live via LiveKit e Consolidação Progressiva.** Integrar transmissões ao vivo via LiveKit SFU/P2P e salvar trechos locais progressivamente para gerar o VOD consolidado final. *Aceite:* upload de nó CONTENT:FILE unificado no encerramento da live; resiliência a crashs.
+- **T-STR-04 · Monetização e Vetores Adversariais de Streaming.** Implementar subscrições, pay-per-view e repasse ao criador por SPEC, validando o fallback suave P2P → Cloud WebSeed em caso de queda de seeders. *Aceite:* testes provando compensação de computação de transcode e controle de largura de banda sem travamentos.
+
+---
+
+## 12.15 Preparativos de Anúncios e Promoção (RFC-015 §A.6)
+
+> Estas tarefas definem suporte a campanhas de publicidade, veiculação de anúncios em superfícies e proteção contra fraudes de cliques. Fonte normativa: `docs/caderno-3-sdk/29-anuncios-reference-spec.md`.
+
+- **T-AD-01 · SPECs de Anúncio/Campanha e Orçamento por Balance State.** Implementar a modelagem de SPEC:AD e SPECIFICATION:AD_CAMPAIGN ligadas ao item promovido por aresta RELATES:AD:PROMOTES, mantendo orçamento no BALANCE_STATE e pacing via locks de TTL. *Aceite:* orçamentos criados e reservados corretamente sob locks de pacing.
+- **T-AD-02 · Seleção Zen de Anúncio e Medição assinada.** Desenvolver o leilão e a seleção local Zen do anúncio a veicular em superfícies registradas, registrando impressões e cliques assinados pelo PROFILE do espectador. *Aceite:* exibição identificável ("patrocinado") e faturamento seguro com assinaturas válidas.
+- **T-AD-03 · Vetores Adversariais de Anúncios (Sybil e Des-anonimização).** Desenvolver testes contra fraudes de robôs usando filtros Sybil de reputação no Zen e proteger privacidade por k-anonimato e ruído diferencial nos relatórios. *Aceite:* rejeição de cliques maliciosos e garantia de privacidade dos espectadores no device.
+
+---
+
+## 12.16 Preparativos de Email (RFC-019 §A.6)
+
+> Estas tarefas definem a integração bidirecional com contas de email externas IMAP/SMTP como conectores. Fonte normativa: `docs/caderno-3-sdk/21-email-reference-spec.md`.
+
+- **T-EML-01 · Conector de Email Classe D (IMAP/SMTP).** Desenvolver conector Classe D para sincronização de contas com cursor durável e IDLE, armazenando credenciais no system-peer. *Aceite:* Sincronização bem-sucedida de metadados de contas externas IMAP/SMTP.
+- **T-EML-02 · SPEC:EMAIL, Threading e Saga de Envio.** Modelar o espelho SPEC:EMAIL indexando por Message-ID, reconstruir threads por arestas nativas e implementar envio como saga SMTP com supressão de eco. *Aceite:* agregação de threads, envio funcional com supressão de duplicação.
+- **T-EML-03 · Falhas de Auth, Ponteiros Cegos e Vetores Adversariais.** Implementar download sob demanda de anexos via ponteiros cegos, sinalização explícita de erro de credenciais e supressão de eco em e-mails recebidos. *Aceite:* sagas de envio pausadas em auth offline, sem reentrega ou vazamento de anexos.
+
+---
+
+## 12.17 Preparativos de Calendário (RFC-020 §A.6)
+
+> Estas tarefas integram o suporte para agendamentos, regras de recorrências e sincronização com calendários externos. Fonte normativa: `docs/caderno-3-sdk/22-calendario-reference-spec.md`.
+
+- **T-CAL-01 · SPEC:EVENT, Recorrência RRULE e Exceções.** Implementar a modelagem de SPEC:EVENT, regras RRULE de recorrências virtuais na linha do tempo e nó de override de exceção. *Aceite:* instâncias calculadas dinamicamente com exceções aplicadas corretamente na projeção.
+- **T-CAL-02 · Convites, RSVP, Alertas locais e Capacidade.** Implementar convites a PROFILEs com resposta RSVP, tratamento local de lembretes nos clientes e bloqueio de capacidade por recurso disputado. *Aceite:* envio de RSVP, alertas disparados no Notification Center local e locks integrados.
+- **T-CAL-03 · Sincronização externa Classe D e Interoperabilidade.** Desenvolver a sincronização bidirecional Classe D com Google/Microsoft Calendar e exportação de convites via arquivos `.ics`. *Aceite:* exportação/importação funcional e supressão de eco na sincronização de exceções.
+
+---
+
+## 12.18 Preparativos de Suíte Office (RFC-025 §A.9)
+
+> Estas tarefas aplicam o motor de páginas unificado nos diversos perfis de documentos da suíte office, suportando edição multiplayer e exportação. Fonte normativa: `docs/caderno-3-sdk/27-suite-office.md`.
+
+- **T-OFF-01 · Perfis de Capacidade e Validador de UI.** Implementar a validação declarativa de whitelists de componentes e restrições de profundidade associadas a cada perfil de página. *Aceite:* validação estática e de runtime bloqueando componentes não-autorizados.
+- **T-OFF-02 · Editor de Docs (Notion/Obsidian) e Backlinks.** Desenvolver o perfil "documento" com edição baseada em blocos, sincronização Automerge e indexador local de backlinks e retrolinks do grafo. *Aceite:* co-autoria cooperativa em tempo real e resolução correta de backlinks Foam.
+- **T-OFF-03 · Planilha First-Party e Views de Dados Estruturados.** Implementar componente de planilha com motor de fórmulas executado em worker (fora da main thread) e integrar bases de dados como views sobre as planilhas. *Aceite:* reatividade sem travar o renderizador e atualização bidirecional de dados estruturados.
+- **T-OFF-04 · Apresentações (Slides) e Conversão/Export.** Desenvolver o perfil "slide" para layouts em tela cheia com proporções estáveis e implementar skills de conversão e exportação para PDF e PPTX. *Aceite:* transições de slides e exportação funcional com formatação preservada.
+- **T-OFF-05 · Editores de Mídia Integrados (Vídeo/Áudio/Imagem).** Desenvolver editores de imagem, vídeo (timeline) e áudio como componentes de UI interativos vinculados a tarefas de processamento/IA assíncronas do media plane. *Aceite:* session-locks efêmeros impedindo conflitos de edição multiplayer em camadas e renderização de tarefas compute.
+
+---
+
 ## 13. Tabela-Resumo de Dependências entre Marcos
 
 | Marco | Depende de | Entrega demo-ável |

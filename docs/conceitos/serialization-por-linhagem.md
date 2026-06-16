@@ -27,6 +27,9 @@ dependencias:
 
 Introduzido na v4, substitui o quórum global K-de-N de validadores e a eleição de emergência a 2/3 da v3.1. O consenso deixa de ser de rede e passa a ser **escopado ao ativo**: cada linhagem tem seu próprio conjunto de validadores e sua própria fila de operações.
 
+- **Aplicação Prática (Anti-oversell de Marketplace):** O mecanismo garante anti-oversell de estoque de forma nativa e sem locks globais. Se duas compras tentam consumir a última unidade de um `ASSET:INVENTORY` escasso simultaneamente, elas competem pelo mesmo head da linhagem; apenas uma será aceita pelo validador, e a outra colidirá e será automaticamente rejeitada na finalização da linhagem.
+
+
 ## Conteúdo normativo
 
 O texto normativo completo — invariante de core, bloco de política YAML, raciocínio de por que a invariante não pode ser definida por SPEC, modos `leader` vs. `quorum`, e defaults por modalidade — está definido canonicamente em:

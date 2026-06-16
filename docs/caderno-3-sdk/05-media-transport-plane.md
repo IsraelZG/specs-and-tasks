@@ -65,6 +65,7 @@ Consulte o verbete canônico [[rendition]] para:
 - A estrutura de nós e arestas que compõe as renditions.
 - O uso e as restrições da relação `MUTATES` em renditions.
 - Detalhes sobre o gerenciamento de permissões individuais por variação de qualidade ou idioma.
+- A geração de renditions por meio de utilitários `compute` assíncronos (ver [[rendition]] e `caderno-3-sdk/19-streaming-reference-spec.md §2`).
 
 ### 4.2 Fontes (redundância de ponteiros)
 

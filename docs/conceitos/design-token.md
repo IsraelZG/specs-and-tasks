@@ -9,7 +9,7 @@ tags: [sdk, ui, design-system, tokens, style-dictionary]
 
 ## Definição
 
-Design tokens são a unidade atômica do [[design-system]] da plataforma — variáveis nomeadas que armazenam decisões de estilo (cor, espaçamento, tipografia, motion) desvinculadas de qualquer implementação específica. Compilados por **Style Dictionary** para todos os formatos de distribuição (CSS custom properties, JS/TS, React Native, iOS Swift, Android XML, variante TV).
+Design tokens are a unidade atômica do [[caderno-3-sdk/10-design-system|design-system]] da plataforma — variáveis nomeadas que armazenam decisões de estilo (cor, espaçamento, tipografia, motion) desvinculadas de qualquer implementação específica. Compilados por **Style Dictionary** para todos os formatos de distribuição (CSS custom properties, JS/TS, React Native, iOS Swift, Android XML, variante TV).
 
 O contrato completo de tokens, invariantes e regras de composição está definido em `caderno-3-sdk/10-design-system.md §1`.
 

@@ -59,15 +59,15 @@
 ### P0 — Transversais (fundação; bloqueiam os produtos)
 
 #### P0.1 — Design System · DoD UI da Bancada / Protocolo-core
-Origem: [[caderno-3-sdk/09-design-system]] *(slot 09 — ver Spike O-01)*
+Origem: [[caderno-3-sdk/10-design-system]] *(slot 09 — ver Spike O-01)*
 
 - **T-DS-01** importar pacote de tokens + build multi-plataforma (Style Dictionary).
-- **T-DS-02** importar schema de metadados AI-ready + índice + CI.
+- **T-DS-02** importar schema de metadados AI-ready + CI.
 - **T-DS-03** portar componentes-piloto para `core/design-system` consumindo tokens semânticos.
 - **T-DS-04** lint anti-literal (invariante I3).
 
 #### P0.2 — Conectores Externos · DoD Cloud
-Origem: [[caderno-3-sdk/10-conectores-externos]]
+Origem: [[caderno-3-sdk/06-connectors]]
 
 - **T-CN-01** interface `ExternalConnector` + registro + health/quotas no system-peer.
 - **T-CN-02** pipeline de tradução com idempotência por `external_ref` + testes de reentrega.
@@ -75,7 +75,7 @@ Origem: [[caderno-3-sdk/10-conectores-externos]]
 - **T-CN-04** persona agente-de-sistema por conector com `ASSET:ROLE` escopado + vetor (afirmar fora do escopo → rejeição).
 
 #### P0.3 — Plugins & Computação · DoD Protocolo-core / Cloud
-Origem: [[caderno-3-sdk/11-plugins-e-computacao]]
+Origem: [[caderno-3-sdk/12-plugins-e-computacao]]
 
 - **T-PL-01** `SPEC:PLUGIN` + manifesto + verificação de assinatura/listagem no loader.
 - **T-PL-02** sandbox browser (Worker/WASM, sem autoridade ambiente) + bridge de componente.
@@ -85,7 +85,7 @@ Origem: [[caderno-3-sdk/11-plugins-e-computacao]]
 - **T-PL-06** vetores: bundle não-listado, plugin com rede fora das portas, classe restrita→`external`, dois workers/uma task.
 
 #### P0.4 — Linguagem de Páginas · DoD Protocolo-core
-Origem: [[caderno-3-sdk/12-linguagem-de-paginas]]
+Origem: [[caderno-3-sdk/11-linguagem-de-paginas]]
 
 - **T-PG-01** schema JSON do dialeto v1 + validador estático (lib isomórfica).
 - **T-PG-02** renderizador React sobre o catálogo (resolve `sources`, avalia ZEN sob orçamento, render progressivo).
@@ -102,7 +102,7 @@ Origem: [[caderno-3-sdk/13-jurisdicao]]
 - **T-JU-04** resolução multi-jurisdição por âncora de papel (origem/destino/prestação/titular) + provisão dupla + vetor cross-border.
 
 #### P0.6 — IA, RAG & Agentes · DoD Protocolo-core
-Origem: [[caderno-3-sdk/14-ia-rag-agentes]]
+Origem: [[caderno-3-sdk/14-ia-rag-e-agentes]]
 
 - **T-IA-01** projeção `vector_index` (sqlite-vec/WASM) + embedding no pipeline pós-decifra (irmã do FTS).
 - **T-IA-02** capacidades `compute` de embedding e LLM como plugins (on-device + conector external).
@@ -112,7 +112,7 @@ Origem: [[caderno-3-sdk/14-ia-rag-agentes]]
 - **T-IA-06** vetores: agente acima do escopo, recuperação furando bloqueio, embedding restrito→external, fato superado, palette acima do privilégio.
 
 #### P0.7 — Workflow · DoD Protocolo-core
-Origem: [[caderno-3-sdk/15-workflow]] *(slot 15 assumindo renumeração pós O-01; ver também Spike O-02)*
+Origem: [[caderno-3-sdk/24-workflow-reference-spec]] *(slot 15 assumindo renumeração pós O-01; ver também Spike O-02)*
 
 - **T-WF-01** formato `SPEC:WORKFLOW` Nível 1 + validador + envelope (guardas Zen, ações intent, orçamento).
 - **T-WF-02** interpretador Nível 1 (estado único, transição evento+guarda, entry/exit, timers HLC) event-sourced.
@@ -121,7 +121,7 @@ Origem: [[caderno-3-sdk/15-workflow]] *(slot 15 assumindo renumeração pós O-0
 - **T-WF-05** vetores: guarda fora do registro, ação acima do privilégio, estado nunca mutável-replicado, orçamento estourado aborta. *(Nível 2 = marco futuro condicionado.)*
 
 #### P0.8 — Plugins de Frontend · DoD Protocolo-core
-Origem: [[caderno-3-sdk/16-plugins-frontend]]
+Origem: [[caderno-3-sdk/26-plugins-frontend]]
 
 - **T-UI-01** categoria `ui` no modelo de plugins + manifesto (props/intents/capacidades) — estende T-PL-01.
 - **T-UI-02** host de sandbox (iframe + Worker/OffscreenCanvas, bridge postMessage, orçamento, brokering).
@@ -129,7 +129,7 @@ Origem: [[caderno-3-sdk/16-plugins-frontend]]
 - **T-UI-04** tier estrito de validação + vetores (DOM externo/rede não declarada, intent acima do privilégio, orçamento estourado suspende).
 
 #### P0.9 — Módulos como Profiles · DoD Protocolo-core
-Origem: [[caderno-3-sdk/17-modulos-profiles-mensageria]]
+Origem: [[caderno-4-governance/02b-modulos-profiles-mensageria]]
 
 - **T-MOD-01** profile de módulo + mensageria de comando (intent durável endereçado + sinal efêmero).
 - **T-MOD-02** delegado por (usuário × módulo) escopado por `ASSET:ROLE` + operações cross-user com permissão do próprio usuário.
@@ -140,17 +140,10 @@ Origem: [[caderno-3-sdk/17-modulos-profiles-mensageria]]
 Origem: [[caderno-3-sdk/18-shell-composicao]]
 
 - **T-SHL-01** shell FlexLayout + `SPEC:WORKSPACE` (default + salvos nomeados) + painel binda (módulo+página+params).
-- **T-SHL-02** restrições de layout no manifesto + gerenciador determinístico (recência+pinos) + pilha de colapsados.
-- **T-SHL-03** responsividade contínua (multi-coluna ↔ mobile) + chrome-como-módulo (menu reposicionado).
-- **T-SHL-04** drag/share como mensagem de comando + contrato de aceite + falha controlada; rota + deep-link.
-- **T-SHL-05** camada de overlay + command palette (superfície) + ciclo de vida de painel (suspensão).
-
----
-
-### P1 — Produtos
+- **T-SHL-02** restrições de layout no manifesto + gerenciador determinístico (recência+pinos) + pilha de colapsados.### P1 — Produtos
 
 #### P1.1 — Marketplace + Fintech · DoD Protocolo-core
-Origem: [[caderno-3-sdk/19-marketplace-negociacao]]
+Origem: [[caderno-3-sdk/15-marketplace-reference-spec]]
 
 - **T-MK-01** SPECs base `PRODUCT`/`PRODUCT_LISTING` + classes de liquidação.
 - **T-MK-02** anti-oversell por linhagem + vetor de corrida (uma unidade → uma finaliza).
@@ -160,7 +153,7 @@ Origem: [[caderno-3-sdk/19-marketplace-negociacao]]
 - **T-MK-06** vetores: oversell multi-emissor, saga com perna externa falha, lance perdedor, cupom reusado.
 
 #### P1.2 — ERP/CRM · DoD Protocolo-core
-Origem: [[caderno-3-sdk/20-erp-crm]]
+Origem: [[caderno-3-sdk/16-erp-crm-reference-spec]]
 
 - **T-ERP-01** SPECs `SALES_ORDER`/`PURCHASE_ORDER` + ciclo como `SPEC:WORKFLOW`.
 - **T-ERP-02** estoque multi-depósito + custeio como projeção + reserva por `ASSET:LOCK`.
@@ -169,7 +162,7 @@ Origem: [[caderno-3-sdk/20-erp-crm]]
 - **T-ERP-05** projeções analíticas incrementais + teste de custo (volume).
 
 #### P1.3 — Contábil/Fiscal/RH · DoD Protocolo-core
-Origem: [[caderno-3-sdk/21-contabil-fiscal-rh]]
+Origem: [[caderno-3-sdk/17-contabil-fiscal-rh-reference-spec]]
 
 - **T-CFR-01** plano de contas como SPEC + mapeamento fato→conta por Zen jurisdicional.
 - **T-CFR-02** apuração fiscal por competência + provisão em `BALANCE_STATE` + arquivo SPED como projeção.
@@ -178,14 +171,14 @@ Origem: [[caderno-3-sdk/21-contabil-fiscal-rh]]
 - **T-CFR-05** vetores: recálculo retroativo da época, fechamento imutável, jurisdição ausente degrada, conector fiscal ausente.
 
 #### P1.4 — Mapa · DoD Cloud
-Origem: [[caderno-3-sdk/22-mapa-reference-spec]] *(slot 22 — ver Spike O-02)*
+Origem: [[caderno-3-sdk/23-mapa-reference-spec]] *(slot 22 — ver Spike O-02)*
 
 - **T-MAP-01** `SPEC:PLACE` + consulta sobre `geo_index` + render `GeoSpatial`.
 - **T-MAP-02** conector Classe E (geocoding/places/rotas) com cache TTL + proveniência + flag cacheável.
 - **T-MAP-03** consumo cross-módulo + localização como dado sensível/efêmero + vetores.
 
 #### P1.5 — Logística · DoD Protocolo-core
-Origem: [[caderno-3-sdk/23-logistica]]
+Origem: [[caderno-3-sdk/25-logistica-reference-spec]]
 
 - **T-LOG-01** WMS: operações de armazém como `SPEC:WORKFLOW` + endereçamento + inventário cíclico.
 - **T-LOG-02** fulfillment: alocação multi-depósito por Zen + reserva por `LOCK` + ciclo com compensação.
@@ -194,21 +187,21 @@ Origem: [[caderno-3-sdk/23-logistica]]
 - **T-LOG-05** logística reversa + prova de entrega/disputa (escrow) + reentrada de estoque + vetores.
 
 #### P1.6 — Mensagens · DoD Protocolo-core
-Origem: [[caderno-3-sdk/24-mensagens]]
+Origem: [[caderno-3-sdk/20-mensagens-reference-spec]]
 
 - **T-MSG-01** envoltório sobre o chat existente + integração com DM social.
 - **T-MSG-02** chamadas/conferência via LiveKit (SDK embutido + SFU plugin) + gravação consolidada.
 - **T-MSG-03** presença efêmera não-replicada + vetores.
 
 #### P1.7 — Social · DoD Protocolo-core
-Origem: [[caderno-3-sdk/25-social]]
+Origem: [[caderno-3-sdk/18-social-reference-spec]]
 
 - **T-SOC-01** SPECs de perfil/post/story + arestas sociais + visibilidade pública/privada.
 - **T-SOC-02** feed via `SuperCard`/`Layout` + ranking Zen + RRF + slot de anúncio.
 - **T-SOC-03** vetores: privacidade retroativa e bloqueio como limites, story expirado, contadores como projeção.
 
 #### P1.8 — Streaming · DoD Cloud
-Origem: [[caderno-3-sdk/26-streaming]]
+Origem: [[caderno-3-sdk/19-streaming-reference-spec]]
 
 - **T-STR-01** SPECs de conteúdo/canal/coleção + reprodução adaptativa sobre o media plane.
 - **T-STR-02** renditions como utilitário `compute` assíncrono + irmãos `CONTENT`.
@@ -216,28 +209,28 @@ Origem: [[caderno-3-sdk/26-streaming]]
 - **T-STR-04** monetização (assinatura/PPV/ads/tip) + repasse por SPEC + vetor sem-seeder.
 
 #### P1.9 — Anúncios · DoD Protocolo-core
-Origem: [[caderno-3-sdk/27-anuncios]]
+Origem: [[caderno-3-sdk/29-anuncios-reference-spec]]
 
 - **T-AD-01** `SPEC:AD`/`AD_CAMPAIGN` + `RELATES:AD:PROMOTES` + orçamento/pacing por `BALANCE_STATE`/`LOCK`.
 - **T-AD-02** seleção por superfície (Zen) no contexto do espectador + medição assinada de evento.
 - **T-AD-03** vetores: segmentação lendo dado restrito, verba estourada, clique inflado.
 
 #### P1.10 — Email · DoD Cloud
-Origem: [[caderno-3-sdk/28-email]]
+Origem: [[caderno-3-sdk/21-email-reference-spec]]
 
 - **T-EML-01** conector Classe D (IMAP/SMTP, cursor, polling/IDLE) — depende de T-CN-03.
 - **T-EML-02** espelho `SPEC:EMAIL` idempotente por Message-ID + threading + anexos + envio como saga com supressão de eco.
 - **T-EML-03** vetores: reentrega→no-op, envio falho não marca "enviado", eco suprimido.
 
 #### P1.11 — Calendário · DoD Protocolo-core
-Origem: [[caderno-3-sdk/29-calendario]]
+Origem: [[caderno-3-sdk/22-calendario-reference-spec]]
 
 - **T-CAL-01** `SPEC:EVENT` + recorrência RRULE com instâncias virtuais + override de exceção.
 - **T-CAL-02** convites/RSVP + capacidade por `reserva_capacidade` + render `Timeline`.
 - **T-CAL-03** sync externo Classe D + `.ics` por email + vetores.
 
 #### P1.12 — Suíte Office · DoD Protocolo-core / UI da Bancada
-Origem: [[caderno-3-sdk/30-suite-office]]
+Origem: [[caderno-3-sdk/27-suite-office]]
 
 - **T-OFF-01** perfis de capacidade no motor de páginas + validador por perfil (emenda spec de páginas).
 - **T-OFF-02** doc perfil `documento` (blocos, Automerge, backlinks) + markdown simples.
