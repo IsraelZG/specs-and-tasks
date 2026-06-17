@@ -47,5 +47,8 @@ dist/
 build/
 out/
 
+# Nexus ledger (integridade local, não versionado)
+.nexus/
+
 *.txt
 generate_project_summary.js

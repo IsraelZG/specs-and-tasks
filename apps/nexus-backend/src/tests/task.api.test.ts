@@ -7,6 +7,7 @@ import { AddressInfo } from 'net';
 import { TaskService } from '../services/task.service.js';
 import { TaskController } from '../services/task.controller.js';
 import { createApp } from '../index.js';
+import { StatusDriftError } from '../services/task.types.js';
 
 // Evita importar/baixar o modelo via router.ts (importado transitivamente por index.ts).
 vi.mock('@huggingface/transformers', () => ({
@@ -173,5 +174,25 @@ describe('Tasks REST API (createApp)', () => {
     write('T-811', 'review');
     const res = await post('/api/tasks/T-811/transition', { action: 'approve', agent: 'dev', message: 'ok' });
     expect(res.status).toBe(403);
+  });
+
+  it('POST transition sob drift (status adulterado) → 409', async () => {
+    write('T-812', 'ready');
+    // Semeia o ledger com start
+    await post('/api/tasks/T-812/transition', { action: 'start', agent: 'dev' });
+    // Finaliza normalmente → ledger head = review
+    await post('/api/tasks/T-812/transition', { action: 'finish', agent: 'dev' });
+
+    // Edita o .md na mão simulando bypass (muda review → done)
+    const filePath = path.join(tasksDir, 'T-812.md');
+    let content = fs.readFileSync(filePath, 'utf8');
+    content = content.replace(/^status:.*$/m, 'status: done');
+    fs.writeFileSync(filePath, content, 'utf8');
+
+    // Agora tenta approve → deve dar 409 (drift)
+    const res = await post('/api/tasks/T-812/transition', { action: 'approve', agent: 'agile_reviewer', message: 'ok' });
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.error).toContain('Drift de status');
   });
 });

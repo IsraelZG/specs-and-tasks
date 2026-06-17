@@ -8,6 +8,7 @@ import { getCompressor } from './services/compressor.js';
 import {
   ForbiddenRoleError,
   InvalidTransitionError,
+  StatusDriftError,
   TaskNotFoundError,
   TaskStatus,
   ValidationError,
@@ -22,6 +23,7 @@ function statusFromError(err: unknown): number {
   if (err instanceof TaskNotFoundError) return 404;
   if (err instanceof ForbiddenRoleError) return 403;
   if (err instanceof InvalidTransitionError) return 409;
+  if (err instanceof StatusDriftError) return 409;
   return 500;
 }
 

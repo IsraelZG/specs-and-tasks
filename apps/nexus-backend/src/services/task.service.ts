@@ -16,8 +16,10 @@ import {
   CreateTaskInput,
   ForbiddenRoleError,
   InvalidTransitionError,
+  LedgerEntry,
   LogEntry,
   PROGRESS_LABEL,
+  StatusDriftError,
   TaskAction,
   TaskError,
   TaskFilter,
@@ -59,6 +61,33 @@ export class TaskService {
     const inMeta = path.join(this.metaTasksDir, `${id}.md`);
     if (fs.existsSync(inMeta)) return inMeta;
     throw new TaskNotFoundError(`Tarefa ${id} não encontrada em /tasks ou /meta-tasks.`);
+  }
+
+  // --------------------------------------------------------------- ledger
+
+  private get ledgerPath(): string {
+    return path.join(this.rootDir, '.nexus', 'transitions.jsonl');
+  }
+
+  private readLedgerHead(id: string): LedgerEntry | null {
+    if (!fs.existsSync(this.ledgerPath)) return null;
+    const raw = fs.readFileSync(this.ledgerPath, 'utf8');
+    const lines = raw.trim().split('\n').filter(Boolean);
+    for (let i = lines.length - 1; i >= 0; i--) {
+      try {
+        const entry = JSON.parse(lines[i]) as LedgerEntry;
+        if (entry.id === id) return entry;
+      } catch {
+        // ignora linhas corrompidas
+      }
+    }
+    return null;
+  }
+
+  private appendLedger(entry: LedgerEntry): void {
+    const dir = path.dirname(this.ledgerPath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.appendFileSync(this.ledgerPath, JSON.stringify(entry) + '\n');
   }
 
   // ---------------------------------------------------------------- leitura
@@ -136,9 +165,19 @@ export class TaskService {
     const rule = TRANSITIONS[action];
     if (!rule) throw new TaskError(`Ação inválida: ${action}`);
 
+    const ts = new Date().toISOString().slice(0, 16); // mesmo timestamp para log e ledger
+
     const filePath = this.resolvePath(id);
     let content = fs.readFileSync(filePath, 'utf8');
     const current = this.readStatus(content);
+
+    // Gate anti-drift: verifica se o status do arquivo bate com o ledger
+    const head = this.readLedgerHead(id);
+    if (head === null) {
+      this.appendLedger({ ts, id, from: null, to: current, action: 'seed', agent: 'system' });
+    } else if (head.to !== current) {
+      throw new StatusDriftError(id, head.to, current);
+    }
 
     if (rule.from !== '*' && !rule.from.includes(current)) {
       throw new InvalidTransitionError(
@@ -159,8 +198,11 @@ export class TaskService {
     }
 
     content = this.replaceStatus(content, rule.to);
-    content = this.appendLog(content, agent, rule.logLabel, message);
+    content = this.appendLog(content, agent, rule.logLabel, message, ts);
     fs.writeFileSync(filePath, content, 'utf8');
+
+    // Registra transição no ledger (append-only, mesma trilha de integridade)
+    this.appendLedger({ ts, id, from: current, to: rule.to, action, agent });
 
     if (action === 'start' && process.env.NEXUS_WORKTREE_ENABLED === '1') {
       try {
@@ -192,6 +234,31 @@ export class TaskService {
       }
     }
 
+    this.rebuildIndexes();
+    return this.getTask(id);
+  }
+
+  /** Única forma sancionada de corrigir drift: reescreve o status do arquivo para o topo do ledger. */
+  reconcile(id: string, agent: string): TaskRecord {
+    const filePath = this.resolvePath(id);
+    let content = fs.readFileSync(filePath, 'utf8');
+    const current = this.readStatus(content);
+
+    const head = this.readLedgerHead(id);
+    if (head === null) {
+      throw new Error(`Sem ledger para ${id}; nada a reconciliar.`);
+    }
+
+    if (head.to === current) {
+      return this.getTask(id); // no-op
+    }
+
+    const ts = new Date().toISOString().slice(0, 16);
+    content = this.replaceStatus(content, head.to);
+    content = this.appendLog(content, agent, '[Reconciliado]', `status restaurado de ${current} para ${head.to} (drift corrigido)`, ts);
+    fs.writeFileSync(filePath, content, 'utf8');
+
+    this.appendLedger({ ts, id, from: current, to: head.to, action: 'reconcile', agent });
     this.rebuildIndexes();
     return this.getTask(id);
   }
@@ -248,8 +315,8 @@ export class TaskService {
     return content.replace(/^status:\s*.*$/m, `status: ${status}`);
   }
 
-  private appendLog(content: string, agent: string, label: string, message: string): string {
-    const timestamp = new Date().toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+  private appendLog(content: string, agent: string, label: string, message: string, ts?: string): string {
+    const timestamp = ts ?? new Date().toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
     const entry = `- **[${timestamp}]** - *${agent}* - \`${label}\`${message ? `: ${message}` : ''}\n`;
     if (!content.includes(LOG_SECTION)) {
       return `${content}\n${LOG_SECTION} (Agent Execution Log)\n${entry}`;

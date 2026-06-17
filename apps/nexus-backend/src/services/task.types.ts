@@ -131,3 +131,27 @@ export class ForbiddenRoleError extends TaskError {
     this.name = 'ForbiddenRoleError';
   }
 }
+
+/** Status do arquivo divergiu do ledger — edição manual (bypass) detectada (HTTP 409). */
+export class StatusDriftError extends Error {
+  constructor(
+    public readonly id: string,
+    public readonly ledgerStatus: string,
+    public readonly fileStatus: string,
+  ) {
+    super(
+      `Drift de status em ${id}: o ledger registra '${ledgerStatus}' mas o arquivo está '${fileStatus}'. ` +
+        `O status foi editado fora do serviço (bypass). Rode 'reconcile ${id}' para restaurar o valor do ledger antes de qualquer transição.`,
+    );
+    this.name = 'StatusDriftError';
+  }
+}
+
+export interface LedgerEntry {
+  ts: string;
+  id: string;
+  from: string | null;
+  to: TaskStatus;
+  action: string;
+  agent: string;
+}

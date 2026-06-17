@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 const [, , action, taskId, agentName, ...messageParts] = process.argv;
 
 if (!action || !taskId || !agentName) {
-  console.error('Uso: node manage-task.mjs <start|pause|finish|approve|request_changes|block|unblock> <TaskID> <NomeDoAgente> [Mensagem...]');
+  console.error('Uso: node manage-task.mjs <start|pause|finish|approve|request_changes|block|unblock|reconcile> <TaskID> <NomeDoAgente> [Mensagem...]');
   process.exit(1);
 }
 
@@ -24,7 +24,12 @@ try {
 
 const svc = new TaskService({ rootDir: repoRoot });
 try {
-  const rec = await svc.transition(taskId, action, agentName, message);
+  let rec;
+  if (action === 'reconcile') {
+    rec = svc.reconcile(taskId, agentName);
+  } else {
+    rec = await svc.transition(taskId, action, agentName, message);
+  }
   console.log(`✅ Tarefa ${taskId} atualizada. Status: ${rec.frontmatter.status}. Log adicionado.`);
 } catch (err) {
   console.error(`❌ ${err.message}`);
