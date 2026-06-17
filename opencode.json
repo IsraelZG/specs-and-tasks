@@ -6,7 +6,7 @@
     "deepinfra": {
       "options": {
         "apiKey": "{env:DEEPINFRA_API_KEY}",
-        "baseURL": "https://api.deepinfra.com/v1/openai"
+        "baseURL": "{env:HEADROOM_URL}"
       }
     }
   },
