@@ -43,7 +43,7 @@ function cmdNew(id) {
   }
   console.log('\n✅ pronto. Despache o opencode no WSL:');
   console.log(`   opencode run --dir ${wslPath(wt)} "<prompt da task ${id}>"`);
-  console.log(`   (ou trabalhe direto:  cd ${wt} )`);
+  console.log(`   (ou trabalhe direto no WSL:  cd ${wslPath(wt)} )`);
   console.log(`   Ao terminar:  node tools/scripts/worktree.mjs merge ${id}   &&   ...rm ${id}`);
 }
 
