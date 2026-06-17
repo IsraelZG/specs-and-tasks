@@ -1,7 +1,6 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { EpochDBClient } from '../services/epochdb.client.js';
 import { TaskService } from '../services/task.service.js';
 import { TaskController } from '../services/task.controller.js';
 import { TASK_TOOL_DEFS, TASK_TOOL_NAMES, handleTaskTool } from './task-tools.js';
@@ -75,8 +74,6 @@ mcpServer.setRequestHandler(ListToolsRequestSchema, async () => {
 });
 
 mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const agentId = 'mcp-client';
-
   if (request.params.name === "nexus_compress_text") {
     const text = String(request.params.arguments?.text ?? '');
     const result = await getCompressor().compress(text);
@@ -87,14 +84,7 @@ mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (request.params.name === "nexus_run_safe_script") {
     const scriptId = String(request.params.arguments?.scriptId);
-    
-    EpochDBClient.logInteraction({
-      agentId,
-      action: 'nexus_run_safe_script',
-      query: scriptId,
-      timestamp: new Date().toISOString()
-    });
-    
+
     try {
       // Security: Only allow specific known commands or scripts in the root package.json
       // To keep it safe, we'll prefix it with pnpm run and execute in root dir
@@ -104,13 +94,6 @@ mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
       
       const rootDir = path.resolve(__dirname, '../../../../');
       const { stdout, stderr } = await execPromise(`pnpm run ${scriptId}`, { cwd: rootDir });
-      
-      EpochDBClient.logInteraction({
-        agentId,
-        action: 'nexus_run_safe_script_completed',
-        resultSize: stdout.length,
-        timestamp: new Date().toISOString()
-      });
 
       return {
         content: [{ type: "text", text: `Success:\n${stdout}\n\nErrors (if any):\n${stderr}` }]

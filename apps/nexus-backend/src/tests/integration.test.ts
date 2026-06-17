@@ -1,12 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { routeIntent } from '../services/router.js';
-import { EpochDBClient } from '../services/epochdb.client.js';
 import express from 'express';
 import cors from 'cors';
 import fs from 'fs/promises';
 import path from 'path';
 import { spawn, ChildProcess } from 'child_process';
-import { TurboVecClient } from '../services/turbovec.client.js';
 import { HeadroomClient } from '../services/headroom.client.js';
 
 vi.mock('@huggingface/transformers', () => {
@@ -54,13 +52,10 @@ function createTestServer() {
 
       // 1. Intent Routing (Keywords)
       const keywords = await routeIntent(query);
-      
-      // 2. Fetch from Vector DB
-      const searchResults = await TurboVecClient.search(keywords.join(' '));
-      const rawContext = searchResults.results && searchResults.results.length > 0 
-        ? searchResults.results.map((r: any) => r.content).join('\n\n') 
-        : 'Contexto simulado para testes: A documentação do projeto afirma que...';
-      
+
+      // 2. Assemble context (recuperação vetorial descontinuada — só Headroom)
+      const rawContext = 'Contexto simulado para testes: A documentação do projeto afirma que...';
+
       // 3. Compress
       const compressedContext = await HeadroomClient.compressContext(rawContext);
       
@@ -313,39 +308,6 @@ describe('Nexus Hub - Backend Integration Suite', () => {
       expect(response.result.content[0].text).toBeDefined();
       // It should NOT return "Invalid script ID format". It may run the script and return either Success or Execution Failed (due to turbo/path/timeout etc), but it must pass validation.
       expect(response.result.content[0].text).not.toContain("Invalid script ID format");
-    });
-  });
-
-  describe('4. EpochDB Offline Fail-Safe', () => {
-    it('should catch unreachable EpochDB endpoint error and log warn without crashing', async () => {
-      // Override standard EPOCHDB API URL to a guaranteed closed port
-      process.env.EPOCHDB_API_URL = 'http://127.0.0.1:9999';
-
-      console.log('[Test] Triggering EpochDB interaction logging while offline...');
-      
-      let warnLogged = false;
-      const originalConsoleWarn = console.warn;
-      console.warn = (...args: any[]) => {
-        if (args.some(arg => typeof arg === 'string' && arg.includes('[EpochDB] Memory engine unreachable'))) {
-          warnLogged = true;
-        }
-        originalConsoleWarn(...args);
-      };
-
-      try {
-        const result = await EpochDBClient.logInteraction({
-          agentId: 'test-agent',
-          action: 'test-offline-append',
-          query: 'testing offline behavior',
-          timestamp: new Date().toISOString()
-        });
-
-        // Ensure it resolves successfully (returns undefined or does not throw)
-        expect(result).toBeUndefined();
-        expect(warnLogged).toBe(true);
-      } finally {
-        console.warn = originalConsoleWarn;
-      }
     });
   });
 });

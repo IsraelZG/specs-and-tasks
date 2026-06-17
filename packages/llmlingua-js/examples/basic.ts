@@ -1,1 +1,0 @@
-import { LLMLingua } from '../src/index'; async function run() { const compressor = new LLMLingua({ targetRatio: 0.5 }); const prompt = 'O LLMLingua é uma técnica poderosa para reduzir o tamanho de prompts mantendo a informação essencial. '.repeat(10); const result = await compressor.compress(prompt); console.log('Resultado:', result); } run();

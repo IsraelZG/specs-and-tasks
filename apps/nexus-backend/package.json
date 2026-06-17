@@ -14,8 +14,7 @@
     "cors": "^2.8.6",
     "express": "^4.19.2",
     "gray-matter": "^4.0.3",
-    "headroom-ai": "^0.22.4",
-    "llmlingua-js": "workspace:*"
+    "headroom-ai": "^0.22.4"
   },
   "devDependencies": {
     "@rolldown/binding-linux-arm64-gnu": "^1.1.1",
