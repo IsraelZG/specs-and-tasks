@@ -15,6 +15,12 @@ os comandos de "Verificação automática" da própria task — sempre escopados
 da task> ...` (ex.: `@plataforma/protocol`). **NUNCA** rode a suíte inteira, o `pnpm build`/`test`
 da raiz, nem build/test/lint de `nexus-backend`/`nexus-frontend`. Se a task não toca o nexus, o
 nexus não entra na sua auditoria.
+>
+> **Se algo FORA do escopo da task falhar** (ex.: o nexus, ou outro pacote que a task não toca),
+> isso é **sinal de que você rodou fora do escopo** — volte e rode só o `--filter` do pacote da
+> task. E **NUNCA conserte o ambiente**: não apague `node_modules`, não edite `package.json`/
+> lockfile, não rode `pnpm install --force`. Ambiente quebrado é **BLOCKER de ambiente** → registre
+> no Parecer e PARE (regra INVIOLÁVEL acima). Reviewer audita, não conserta.
 
 **Regra de ouro:** NUNCA use `Edit`/`Bash` para modificar o código de **implementação**
 (`src/**` exceto testes, `packages/**`, `apps/**`). Você audita, não conserta a feature.
