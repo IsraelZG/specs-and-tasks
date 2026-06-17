@@ -7,7 +7,8 @@
     "dev": "turbo run dev",
     "lint": "node scripts/audit-portfolio.mjs && turbo run lint",
     "nexus": "node tools/scripts/nexus-start.mjs",
-    "nexus:stop": "node tools/scripts/nexus-stop.mjs"
+    "nexus:stop": "node tools/scripts/nexus-stop.mjs",
+    "wt": "node tools/scripts/worktree.mjs"
   },
   "devDependencies": {
     "turbo": "^2.0.0",
