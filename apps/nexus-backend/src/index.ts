@@ -1,12 +1,10 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import path from 'path';
-import { routeIntent } from './services/router.js';
-import { TurboVecClient } from './services/turbovec.client.js';
-import { HeadroomClient } from './services/headroom.client.js';
 import { TaskService } from './services/task.service.js';
 import { TaskController } from './services/task.controller.js';
 import { buildExport } from './services/export.service.js';
+import { getCompressor } from './services/compressor.js';
 import {
   ForbiddenRoleError,
   InvalidTransitionError,
@@ -116,28 +114,17 @@ export function createApp(
     }
   });
 
-  // ------------------------------------------- prompt builder (rewire na T-1016)
-  app.post('/api/build-prompt', async (req: Request, res: Response) => {
+  // ------------------------------------------- compress (T-1016)
+  app.post('/api/compress', async (req: Request, res: Response) => {
     try {
-      const { query } = req.body ?? {};
-      if (!query) {
-        return res.status(400).json({ error: 'Query is required' });
+      const { text } = req.body ?? {};
+      if (typeof text !== 'string' || text.length === 0) {
+        return res.status(400).json({ error: 'Campo "text" (string não-vazia) é obrigatório.' });
       }
-      const keywords = await routeIntent(query);
-      const searchResults = await TurboVecClient.search(keywords.join(' '));
-      const rawContext =
-        searchResults.results && searchResults.results.length > 0
-          ? searchResults.results.map((r: { content: string }) => r.content).join('\n\n')
-          : 'Contexto simulado para testes: A documentação do projeto afirma que...';
-      const compressedContext = await HeadroomClient.compressContext(rawContext);
-      res.json({
-        originalLength: rawContext.length,
-        compressedLength: compressedContext.length,
-        payload: compressedContext,
-        keywords,
-      });
+      const result = await getCompressor().compress(text);
+      res.json(result);
     } catch (err) {
-      console.error('[API] build-prompt:', err);
+      console.error('[API] compress:', err);
       res.status(500).json({ error: err instanceof Error ? err.message : 'Erro desconhecido' });
     }
   });

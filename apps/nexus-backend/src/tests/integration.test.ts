@@ -238,18 +238,18 @@ describe('Nexus Hub - Backend Integration Suite', () => {
       expect(listResponse.result).toHaveProperty('tools');
       const tools = listResponse.result.tools;
       
-      expect(tools.some((t: any) => t.name === 'nexus_read_context')).toBe(true);
+      expect(tools.some((t: any) => t.name === 'nexus_compress_text')).toBe(true);
       expect(tools.some((t: any) => t.name === 'nexus_run_safe_script')).toBe(true);
     });
 
-    it('should execute nexus_read_context successfully', async () => {
+    it('should execute nexus_compress_text successfully', async () => {
       const callRequest = {
         jsonrpc: "2.0",
         method: "tools/call",
         id: 3,
         params: {
-          name: "nexus_read_context",
-          arguments: { query: "Get project context for test board" }
+          name: "nexus_compress_text",
+          arguments: { text: "hello world" }
         }
       };
 
@@ -258,7 +258,10 @@ describe('Nexus Hub - Backend Integration Suite', () => {
       expect(callResponse.result).toHaveProperty('content');
       expect(Array.isArray(callResponse.result.content)).toBe(true);
       expect(callResponse.result.content[0].type).toBe('text');
-      expect(typeof callResponse.result.content[0].text).toBe('string');
+      const parsed = JSON.parse(callResponse.result.content[0].text);
+      expect(parsed).toHaveProperty('compressed');
+      expect(parsed).toHaveProperty('stats');
+      expect(parsed.stats).toHaveProperty('ratio');
     });
 
     it('should defend against command injection on nexus_run_safe_script', async () => {

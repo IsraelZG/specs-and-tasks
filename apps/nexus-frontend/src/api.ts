@@ -85,6 +85,16 @@ export interface CreateTaskBody {
   blocks?: string[];
 }
 
+export interface CompressionResult {
+  compressed: string;
+  stats: {
+    originalChars: number;
+    compressedChars: number;
+    ratio: number;
+    engine: string;
+  };
+}
+
 export const api = {
   listTasks(filter?: { status?: TaskStatus; target_agent?: string }): Promise<TaskListItem[]> {
     const qs = new URLSearchParams();
@@ -116,5 +126,9 @@ export const api = {
 
   logProgress(id: string, agent: string, message: string): Promise<TaskDetail> {
     return postJson<TaskDetail>(`/api/tasks/${encodeURIComponent(id)}/log`, { agent, message });
+  },
+
+  compressText(text: string): Promise<CompressionResult> {
+    return postJson<CompressionResult>('/api/compress', { text });
   },
 };

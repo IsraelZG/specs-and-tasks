@@ -1,14 +1,12 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { routeIntent } from '../services/router.js';
-import { TurboVecClient } from '../services/turbovec.client.js';
-import { HeadroomClient } from '../services/headroom.client.js';
 import { EpochDBClient } from '../services/epochdb.client.js';
 import { TaskService } from '../services/task.service.js';
 import { TaskController } from '../services/task.controller.js';
 import { TASK_TOOL_DEFS, TASK_TOOL_NAMES, handleTaskTool } from './task-tools.js';
 import { buildExport } from '../services/export.service.js';
+import { getCompressor } from '../services/compressor.js';
 import { exec } from 'child_process';
 import util from 'util';
 import path from 'path';
@@ -49,14 +47,14 @@ mcpServer.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: "nexus_read_context",
-        description: "Searches for project context and returns a compressed summary using LLM intent routing and Headroom.",
+        name: "nexus_compress_text",
+        description: "Comprime um texto via Headroom (proxy) ou fallback passthrough. Útil para encurtar descrições de skills/agents ou qualquer contexto antes de enviar a uma LLM.",
         inputSchema: {
           type: "object",
           properties: {
-            query: { type: "string" }
+            text: { type: "string" }
           },
-          required: ["query"]
+          required: ["text"]
         }
       },
       {
@@ -79,36 +77,11 @@ mcpServer.setRequestHandler(ListToolsRequestSchema, async () => {
 mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
   const agentId = 'mcp-client';
 
-  if (request.params.name === "nexus_read_context") {
-    const query = String(request.params.arguments?.query);
-    
-    // Log to EpochDB
-    EpochDBClient.logInteraction({
-      agentId,
-      action: 'nexus_read_context',
-      query,
-      timestamp: new Date().toISOString()
-    });
-    
-    // 1. Semantic Routing
-    const keywords = await routeIntent(query);
-    
-    // 2. Fetch from TurboVec
-    const searchResults = await TurboVecClient.search(keywords.join(' '));
-    const rawContext = searchResults.results ? searchResults.results.map((r: any) => r.content).join('\n\n') : 'Mock Content';
-    
-    // 3. Compress with Headroom
-    const compressedContext = await HeadroomClient.compressContext(rawContext);
-    
-    EpochDBClient.logInteraction({
-      agentId,
-      action: 'nexus_read_context_completed',
-      resultSize: compressedContext.length,
-      timestamp: new Date().toISOString()
-    });
-    
+  if (request.params.name === "nexus_compress_text") {
+    const text = String(request.params.arguments?.text ?? '');
+    const result = await getCompressor().compress(text);
     return {
-      content: [{ type: "text", text: compressedContext }]
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }]
     };
   }
 

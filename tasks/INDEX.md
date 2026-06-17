@@ -54,8 +54,8 @@
 | [T-1013](./T-1013.md) | UI Board Jira + Drawer de Task + client de API | `done` | frontend_agent | 4 |
 | [T-1014](./T-1014.md) | CLAUDE.md + wrapper legado do manage-task (delega ao TaskService) | `done` | logic_agent | 2 |
 | [T-1015](./T-1015.md) | Seletor estrutural + export (sobre a interface Compressor) | `done` | logic_agent | 4 |
-| [T-1016](./T-1016.md) | Outlet de compressão + PromptBuilder religado + desacoplar legados | `draft` | frontend_agent | 3 |
-| [T-1017](./T-1017.md) | Spike: viabilidade do piloto automático (OpenCode) | `draft` | devops_agent | 5 |
+| [T-1016](./T-1016.md) | Outlet de compressão + PromptBuilder religado + desacoplar legados | `done` | frontend_agent | 3 |
+| [T-1017](./T-1017.md) | Spike: viabilidade do piloto automático (OpenCode) | `in_progress` | devops_agent | 5 |
 | [T-1018](./T-1018.md) | Spike: fixar integração Headroom (interface Compressor) | `done` | logic_agent | 4 |
 | [T-1019](./T-1019.md) | Ciclo completo de branch: merge squash + push + rename main | `done` | devops_agent | 3 |
 | [T-102](./T-102.md) | ULID + EntityId | `draft` | logic_agent | 2 |
@@ -63,7 +63,9 @@
 | [T-1021](./T-1021.md) | Runner: gate de verificação determinístico (build+test no worktree) | `done` | logic_agent | 3 |
 | [T-1022](./T-1022.md) | Runner: AgentAdapter (interface + CommandAdapter genérico) | `done` | devops_agent | 3 |
 | [T-1023](./T-1023.md) | Runner core: loop serial supervisionado (worker→gate→reviewer→rework) | `done` | logic_agent | 4 |
+| [T-1024](./T-1024.md) | Worktree pool: reuso de worktrees longevas com node_modules quente (gatilho: concorrência) | `draft` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-1025](./T-1025.md) | Role gate nas transições: approve/request_changes restritos ao Reviewer | `done` | logic_agent | 2 |
+| [T-1026](./T-1026.md) | Ledger de transições + gate anti-drift: detectar e recusar edição manual de status fora do serviço | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-103](./T-103.md) | HLC (Hybrid Logical Clock) completo | `draft` | logic_agent | 3 |
 | [T-104](./T-104.md) | BIP39 + Derivação de Chaves + Desbloqueio | `draft` | crypto_agent | 3 |
 | [T-105](./T-105.md) | PeerId e Multiaddr | `draft` | protocol_agent | 2 |
