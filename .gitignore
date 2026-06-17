@@ -50,5 +50,8 @@ out/
 # Nexus ledger (integridade local, não versionado)
 .nexus/
 
+# Serena MCP (cache local de ferramenta)
+.serena/
+
 *.txt
 generate_project_summary.js
