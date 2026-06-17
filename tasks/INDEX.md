@@ -55,7 +55,7 @@
 | [T-1014](./T-1014.md) | CLAUDE.md + wrapper legado do manage-task (delega ao TaskService) | `done` | logic_agent | 2 |
 | [T-1015](./T-1015.md) | Seletor estrutural + export (sobre a interface Compressor) | `done` | logic_agent | 4 |
 | [T-1016](./T-1016.md) | Outlet de compressão + PromptBuilder religado + desacoplar legados | `done` | frontend_agent | 3 |
-| [T-1017](./T-1017.md) | Spike: viabilidade do piloto automático (OpenCode) | `in_progress` | devops_agent | 5 |
+| [T-1017](./T-1017.md) | Spike: viabilidade do piloto automático (OpenCode) | `done` | devops_agent | 5 |
 | [T-1018](./T-1018.md) | Spike: fixar integração Headroom (interface Compressor) | `done` | logic_agent | 4 |
 | [T-1019](./T-1019.md) | Ciclo completo de branch: merge squash + push + rename main | `done` | devops_agent | 3 |
 | [T-102](./T-102.md) | ULID + EntityId | `draft` | logic_agent | 2 |

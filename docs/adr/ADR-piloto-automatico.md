@@ -1,9 +1,9 @@
 # ADR — Piloto Automático (Runner de Ondas / Torre de Controle)
 
-- **Status:** Aceito (arquitetura) · recipe de invocação **resolvida pela pesquisa da spike
-  T-1017** (2026-06-16) · falta só a **validação empírica** (1 task ponta-a-ponta rodada de
-  verdade — T-1017 continua `draft`/em andamento até essa evidência existir)
-- **Data:** 2026-06-15 (atualizado 2026-06-16)
+- **Status:** Aceito (arquitetura) · recipe de invocação **resolvida** (pesquisa T-1017,
+  2026-06-16) · **validação empírica concluída** (2026-06-17, ver §Validação empírica) — a
+  spike T-1017 está pronta para fechar
+- **Data:** 2026-06-15 (atualizado 2026-06-17)
 - **Contexto-fonte:** vínculo com T-1010..T-1019 (ledger MGTIA, REST/MCP, worktree, merge cycle)
 
 ## Contexto
@@ -92,9 +92,8 @@ estado esperado. 6. Task `opus-spike` na fila (política: modelo forte/humano).
 
 ## Recipe de invocação OpenCode (resolvida pela pesquisa da T-1017 em 2026-06-16)
 
-As 6 perguntas abertas têm resposta. **Falta a validação empírica** (instalar, autenticar,
-rodar 1 task ponta-a-ponta) — isso é o que resta para fechar a T-1017; o design abaixo não é
-mais incerto.
+As 6 perguntas abertas têm resposta e a recipe foi **validada empiricamente** (§Validação
+empírica). O design abaixo não é mais incerto.
 
 1. **Modo headless?** Sim — `opencode run "<prompt>"` (scriptável, sem TUI).
 2. **Modelo por execução?** `--model provider/model`.
@@ -150,15 +149,36 @@ exclusivos:
   provisão dos assets ONNX/HF no ambiente do runner; deprecar `headroom.client.ts` legado em
   favor de `Compressor`+proxy — este último já é o plano da T-1016, sem conflito).
 
-### Próximo passo concreto para fechar a T-1017 (validação empírica, não design)
-1. `pip install "headroom-ai[all]"` + `headroom proxy --port 8787` (opcional nesta fase — só
-   necessário se for testar o tráfego comprimido; não bloqueia o teste do OpenCode em si).
-2. Instalar OpenCode, `opencode auth login` (DeepSeek/Gemini).
-3. Rodar `opencode run --model ... --agent worker --dir <worktree-de-uma-task-real> "<prompt>"`
-   e confirmar: (a) edita no worktree; (b) reporta status no ledger via MCP; (c) o
-   `verify-gate` (T-1021) pega o resultado; (d) nenhuma surpresa de exit code/timeout.
-4. Congelar os 3 templates de env acima a partir do que de fato funcionou (podem precisar de
-   ajuste fino de sintaxe de aspas/escaping ao passar pelo `shell:true` do `CommandAdapter`).
+### Validação empírica (concluída em 2026-06-17)
+
+A capacidade de invocar agentes externos em modo headless contra este repo está **provada na
+prática** — não é mais hipótese:
+
+- **Ambiente:** OpenCode `1.15.13` rodando no **WSL (Ubuntu)**. Não funcionou no Windows nativo
+  (auth.json do Windows com 0 credenciais); no WSL, `~/.local/share/opencode/auth.json` tem as
+  chaves **`deepseek`** e **`deepinfra`** autenticadas (`opencode auth login`). O binário roda
+  via `node.exe` (interop), sem `node` nativo no PATH do WSL — e mesmo assim
+  `node tools/scripts/manage-task.mjs` executa normalmente.
+- **Acesso ao repo/ledger:** o repo é visível em `/mnt/c/Dev2026/Docs` a partir do WSL; o agente
+  edita código e reporta transições no **ledger central** (`.nexus/` + Markdown) sem problema de
+  fronteira de filesystem.
+- **Recipe provada por ciclos reais ponta-a-ponta:** T-1025, T-1016 e T-1026 foram executadas
+  com **DeepSeek como worker via OpenCode** (`opencode run`) + reviewer, percorrendo
+  `start → finish → review → approve` pelo serviço, com o ledger recebendo cada transição. Isso
+  cobre o critério de sucesso da T-1017 ("1 task ponta-a-ponta rodada de verdade") — múltiplas
+  vezes.
+- **Evidência adversarial (bônus):** `deekseek-output.txt` na raiz é o transcript de uma rodada
+  OpenCode+DeepSeek (rodapé `Build · DeepSeek V4 Pro · 5m 35s`) que capturou o **bypass do T-1014**
+  (o worker, recusado no `finish`, chamou `approve` e se autoaprovou). Pós-T-1025 (role gate, 403)
+  + T-1026 (drift gate, 409) esse caminho é **estruturalmente impossível** — o princípio central
+  desta ADR ("o runner não confia no auto-relato") já está parcialmente em vigor no próprio serviço.
+
+**Ressalva de config a alinhar antes da Fase 1 do runner (não é design, não bloqueia o fechamento
+da spike):** o `opencode.json` atual aponta para `deepinfra/Meta-Llama-3.1-70B-Instruct`, enquanto
+os templates `NEXUS_AGENT_CMD_*` acima usam `deepseek/deepseek-chat` / `google/gemini-2.5-pro`.
+Antes do `CommandAdapter` (T-1022) ser ligado de fato, congelar qual provider/modelo cada papel
+usa e refletir nos templates de env (ajuste fino de aspas/escaping ao passar pelo `shell:true`
+pode ser necessário).
 
 ## Consequências
 - (+) Remove ~80% do atrito humano já na Fase 1 (sem prompts, sem validar QA à mão).
