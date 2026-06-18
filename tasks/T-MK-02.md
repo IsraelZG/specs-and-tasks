@@ -17,7 +17,7 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
 - **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
-- **Capacidade-alvo:** haiku | sonnet | opus-spike *(ver regra "Dimensionamento de Tarefas" no CLAUDE.md: spec sem decisões em aberto, contratos explícitos, sem API externa não-fixada, verificação por comando)*
+- **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
 *(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
@@ -54,8 +54,13 @@ blocks: [] # IDs de tarefas que esta bloqueia
 3. Refatore.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **ATENÇÃO:** Se a spec (RAG) for ambígua, contraditória ou o design pattern imposto for impossível, **PARE**. Mude o status para `blocked` e escreva o motivo abaixo. Não alucine uma abstração não documentada.
-- *[Nenhum problema identificado]*
+> **DECISÕES EM ABERTO — requer definição do arquiteto:**
+> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
+> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
+> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
+> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
+> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
+> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
