@@ -3,9 +3,10 @@
   "private": true,
   "packageManager": "pnpm@11.1.2",
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "node scripts/audit-portfolio.mjs && turbo run lint",
+    "build": "turbo run build --filter=!nexus-backend --filter=!nexus-frontend",
+    "dev": "turbo run dev --filter=!nexus-backend --filter=!nexus-frontend",
+    "lint": "node scripts/audit-portfolio.mjs && turbo run lint --filter=!nexus-backend --filter=!nexus-frontend",
+    "_comment_nexus": "CONGELADO: nexus-backend/frontend fora do build/dev/lint da raiz. Buildar sob demanda: pnpm --filter nexus-backend build. Descongelar: remover os --filter=! daqui.",
     "nexus": "node tools/scripts/nexus-start.mjs",
     "nexus:stop": "node tools/scripts/nexus-stop.mjs",
     "wt": "node tools/scripts/worktree.mjs"
