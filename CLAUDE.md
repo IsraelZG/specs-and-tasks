@@ -24,8 +24,6 @@
 
 ## MGTIA — Gestão de Tarefas
 
-> **NEXUS CONGELADO (2026-06-17):** `apps/nexus-backend` e `apps/nexus-frontend` são a *ferramenta* MGTIA, não o produto, e estão congelados — fora do `build`/`dev`/`lint` da raiz (ver `package.json`). Workers e reviewers NÃO rodam build/test/lint do nexus; rodam só o `pnpm --filter <pacote da task>` da própria task. Continua buildável sob demanda (`pnpm --filter nexus-backend build`); o `manage-task.mjs` usa o `dist/` já compilado, então o MGTIA segue funcionando.
-
 Tasks em `/tasks/` (implementação) e `/meta-tasks/` (gestão). Dashboard: `tasks/INDEX.md` — use-o, não inspecione arquivos individuais.
 
 A fonte canônica de gestão de tarefas é o Nexus (tool MCP nexus_transition_task ou
@@ -73,6 +71,6 @@ Tasks ≤ Sonnet (preferencialmente Haiku). A spec precisa ter: zero decisões a
 
 ## Skills e Agentes
 
-**Skills:** `/verificar` · `/qa-review` · `/vincular-rag` · `/endurecer-task` · `/endurecer-fila` · `/executar-task` · `/absorver-rfc` · `/rodar-onda` · `/consolidar-arquivo` · `/consolidar-glossario` · `/handoff` · `/migrar-caderno` · `/novo-verbete` · `/revisar-rfc` · `/revisar-rfcs`
+**Skills:** `/verificar` · `/qa-review` · `/endurecer-task` · `/endurecer-fila` · `/executar-task` · `/absorver-rfc` · `/rodar-onda` · `/consolidar-arquivo` · `/consolidar-glossario` · `/handoff` · `/migrar-caderno` · `/novo-verbete` · `/revisar-rfc` · `/revisar-rfcs`
 
 **Agentes** (`.claude/agents/`): `agile-reviewer` · `auditor-consistencia-rfc` · `consolidador` · `criador-verbete` · `emendador-rfc` · `incorporador` · `rfc-roteador` · `triador-review`

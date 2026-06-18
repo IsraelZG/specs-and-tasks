@@ -174,7 +174,7 @@ Cada item vira teste permanente na suíte (`testkit/adversarial/`):
 ### E1.1 — Primitivas (`crypto`, `protocol`)
 
 - **T-101 · Wrappers cripto.** Ed25519 (sign/verify), AES-256-GCM, SHA-256, blake2s256, HKDF — via `@noble/*` + WebCrypto onde disponível; isomórfico. *Aceite:* vetores de teste conhecidos (RFC/test vectors) passando em Node e em browser (Vitest browser mode ou Playwright).
-- **T-102 · ULID + EntityId.** Geração via `ClockPort`+`RandomPort`; convenção do 11º caractere (`N`/não-`N`) da VFK; ordenação lexicográfica testada. *Aceite:* propriedade: ordenação ≡ ordem temporal sob clock virtual.
+- **T-102 · ULID + EntityId.** Geração via `ClockPort`+`RandomPort`; convenção do 11º caractere (`N`/`E`) da VFK; ordenação lexicográfica testada. *Aceite:* propriedade: ordenação ≡ ordem temporal sob clock virtual.
 - **T-103 · HLC completo.** Empacotamento `(pt<<16)|c`, eventos local/envio/recepção (algoritmo do caderno-2/02 §3.5.3), ordem total `(pt, c, author_pubkey)`, `MAX_DRIFT` com quarentena. *Aceite:* testes de propriedade (causalidade ⇒ HLC crescente) + vetores adversariais 3 e 4 do §2.5.
 - **T-104 · BIP39 + derivação + desbloqueio.** Seed 12/24 palavras → chave mestra Ed25519; chave do dispositivo via PBKDF2 da senha (senha = fator de desbloqueio, nunca identidade). *Aceite:* mesmo mnemônico ⇒ mesmas chaves; senha errada falha sem vazar timing grosseiro.
 - **T-105 · PeerId (duas variantes — RFC-005 §A.5).** `DevicePeerId = blake2s256(DEVICE_PUB_KEY)` (identidade de transporte, chave estável do dispositivo) e `PersonaPeerId = blake2s256(PERSONA_PUB_KEY)` (identidade de aplicação); utilidades de encode/parse de multiaddr básico (`/dns4|ip4/.../wss/...#fragment`). *Aceite:* derivação estável das duas variantes; parsing round-trip.
