@@ -1,5 +1,14 @@
 # Fluxo de Worktrees por Task
 
+> **MODELO DOIS-REPOS (2026-06-17).** Este repo (`specs-and-tasks`/`Docs`) é o **controle**
+> (specs, tasks, ledger, ferramenta). O **código do produto** vive no repo **`superapp`** (irmão,
+> `C:\Dev2026\superapp`). O `pnpm wt` roda **aqui (Docs)** mas cria worktrees **do superapp** em
+> `C:\Dev2026\.superapp-worktrees/<ID>`. O worker lê a spec + rastreia status no `Docs` e
+> implementa/commita/pusha o código no `superapp` (ver skill `/executar-task`). Aponte o repo de
+> código com `SUPERAPP_DIR` (default `../superapp`). **As menções a `.nexus-worktrees`/`master` e
+> "mesmo repo" abaixo são do modelo antigo single-repo — a fonte operativa é
+> [worktree.mjs](../tools/scripts/worktree.mjs) + a skill.**
+
 Cada task do SuperApp roda **isolada numa git worktree** (branch `task/<ID>`), e o worker
 (opencode/DeepSeek) é despachado **manualmente** ali dentro. Helper: `pnpm wt`
 ([tools/scripts/worktree.mjs](../tools/scripts/worktree.mjs)).
