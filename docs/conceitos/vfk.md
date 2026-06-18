@@ -34,7 +34,7 @@ A solução consiste em reservar o **11º caractere (index 10)** do [[ulid]] —
 | caractere | tabela-alvo | exemplo de id |
 |:----------|:------------|:--------------|
 | `N` | `nodes` | `01J2X3Y4Z5N6Y7Z8A9BC...` |
-| `E` | `edges`  | `01J2X3Y4Z5E6Y7Z8A9BC...` |
+| qualquer outro | `edges`  | `01J2X3Y4Z5E6Y7Z8A9BC...` |
 
 A inspeção é uma única leitura de caractere — $O(1)$ — executada pela camada do [[sync-worker]] e do [[tinybase]] antes de qualquer join ou projeção.
 
@@ -53,13 +53,12 @@ O modelo de grafo exige arestas que apontem tanto para nós quanto para outras a
 
 ## Contrato
 
-A definição normativa completa — incluindo exemplos de DDL e raciocínio de tradeoff TEXT vs. BLOB — está em:
+A definição normativa completa — incluindo exemplos de DDL e raciocínio de tradeoff TEXT vs BLOB — está em:
 
 - [caderno-3-sdk/01-sqlite-and-projections-schema.md §2.1 — Virtual Foreign Keys (VFK) por Bitmasking de Caractere](../caderno-3-sdk/01-sqlite-and-projections-schema.md)
 
-Regras derivadas:
-
-1. Todo `id` gerado para `nodes` **deve** ter o 11º caractere igual a `N`; todo `id` gerado para `edges`, igual a `E`.
+Regras:
+1. Se o 11º caractere for **`N`**, o `id` pertence à tabela `nodes`. Se o 11º caractere **não for `N`**, o `id` pertence à tabela `edges`.
 2. Qualquer novo tipo de tabela replicável que precise de referências polimórficas **deve** reservar um caractere distinto via RFC de schema (a convenção é extensão da plataforma sobre o spec padrão do ULID).
 3. A verificação da VFK é obrigatória na camada [[sync-worker]]/[[tinybase]] antes de inserir ou projetar uma aresta; violações devem ser rejeitadas como erro de integridade.
 

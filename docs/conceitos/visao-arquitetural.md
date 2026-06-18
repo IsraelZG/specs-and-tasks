@@ -71,7 +71,7 @@ erDiagram
     }
 
     edges {
-        string id "ULID PRIMARY KEY (11º char='E')"
+        string id "ULID PRIMARY KEY (11º char!='N')"
         string entity_id "TEXT NOT NULL"
         string source_id "TEXT NOT NULL (sempre nó 'N')"
         string target_id "TEXT NOT NULL (polimórfico via VFK)"
