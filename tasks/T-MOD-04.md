@@ -24,9 +24,13 @@ blocks: [] # task final do bloco — fecha a cadeia
 ## 1. Objetivo
 Implementar **apenas testes de vetor de ataque** — esta task NÃO adiciona funcionalidade nova, apenas prova que os sistemas de T-MOD-01, T-MOD-02 e T-MOD-03 rejeitam corretamente violações de segurança. Três vetores: (1) **delegado lendo dado de outro usuário**: profile de módulo do userA no módulo ERP tenta ler nó `CONTENT:INTENT` do userB — deve ser rejeitado pelo enforcement de escopo de T-MOD-02; (2) **comando acima do privilégio**: módulo com UCAN de leitura tenta emitir `CONTENT:INTENT` de escrita — rejeitado pela validação de capability; (3) **sessão efêmera sem opt-in**: tentar recuperar documento de sessão que foi descartada (`discardSession()`) ou nunca commitada — deve retornar `null`/vazio. **(Fonte: T-MOD-01 profile escopo; T-MOD-02 validateCrossUserOp; T-MOD-03 sessão efêmera)**
 
-> ⚠ **SEM-FONTE:** O caderno `docs/caderno-3-sdk/02b-modulos-profiles-mensageria.md` não foi encontrado. Vetores foram inferidos dos contratos estabelecidos em T-MOD-01/02/03. O Worker deve reportar se encontrar vetores adicionais não cobertos.
+> ✓ **Fonte localizada (correção 2026-06-19):** NÃO é lacuna de design. Os limites honestos que os
+> vetores exercitam (mensagem só propõe, sem god-mode; compartimentação; sinal só via registry) estão
+> em `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md` §2 e §5 — o link anterior apontava
+> `caderno-3-sdk/` por engano. Worker: confira os vetores contra §2/§5 além de T-MOD-01/02/03.
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- **[READ]** `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md` §2, §5 — **fonte normativa**: comando durável/efêmero e limites honestos (mensagem propõe, pipeline recusa)
 - **[READ]** `packages/core/src/module/profile.ts` — `ModuleProfile`, `resolveModuleProfile()` (T-MOD-01)
 - **[READ]** `packages/core/src/module/delegation.ts` — `validateCrossUserOp()` (T-MOD-02)
 - **[READ]** `packages/core/src/module/session.ts` — `createSession()`, `commitSession()`, `discardSession()` (T-MOD-03)

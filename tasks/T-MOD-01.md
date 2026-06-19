@@ -19,14 +19,18 @@ blocks: ["T-MOD-02", "T-MOD-03"] # Bloqueia delegação e sessão colaborativa
 - **Package:** `@plataforma/core` (profile de módulo + mensageria)
 - **Test Runner:** `vitest` (Node puro)
 - **Capacidade-alvo:** sonnet
-- **#fontes:** 5 | **link OK:** ✗ | **SEM-FONTE:** ⚠ `docs/caderno-3-sdk/02b-modulos-profiles-mensageria.md` NÃO EXISTE — usando conceitos canônicos como melhor fonte disponível
+- **#fontes:** 6 | **link OK:** ✓ — fonte normativa em `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md` §1–§3
 
 ## 1. Objetivo
 Implementar o perfil de módulo (delegado compartimentado) e o sistema de mensageria de comando: cada par (usuário × módulo) possui um **profile-delegado** próprio escopado por `ASSET:ROLE` restrito aos dados daquele usuário naquele módulo. O módulo como ator recebe dois canais de mensagem: (1) **intent durável endereçado** (`CONTENT:INTENT` persistido no grafo, com `PersonaPeerId` alvo); (2) **sinal efêmero** (mensagem transiente via canal de `ephemeral-messages`, sem persistência). O profile do módulo é derivado do `PROFILE` do usuário mas com escopo reduzido — operações cross-user rodam estritamente com as permissões de leitura do próprio usuário solicitante. **(Fonte: [[profile-de-modulo]]; [[lente-de-modulo]]; [[modulo-lente-e-ator]]; [[delegacao-de-dispositivo]]; T-004 StoragePort; T-105 PeerId/PersonaPeerId)**
 
-> ⚠ **SEM-FONTE:** O caderno `docs/caderno-3-sdk/02b-modulos-profiles-mensageria.md` não foi encontrado no filesystem. A spec foi inferida dos verbetes canônicos `profile-de-modulo`, `lente-de-modulo`, `modulo-lente-e-ator` e `delegacao-de-dispositivo`, que referenciam `caderno-4-governance/02b-modulos-profiles-mensageria.md` como fonte. O Worker deve validar contratos contra esses conceitos e reportar discrepâncias na Seção 8.
+> ✓ **Fonte localizada (correção 2026-06-19):** NÃO é lacuna de design. O caderno existe em
+> `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md` (§1 dois planos ortogonais; §2
+> comando durável vs. efêmero; §3 profiles compartimentados por usuário × módulo) — o link anterior
+> apontava `caderno-3-sdk/` por engano. Worker: derive/valide os contratos contra §1–§3.
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- **[READ]** `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md` §1–§3 — **fonte normativa**: profile-delegado, mensageria de comando (intent durável + sinal efêmero), compartimentação por usuário × módulo
 - **[READ]** `docs/conceitos/profile-de-modulo.md` — par (usuário × módulo), escopo por ASSET:ROLE, fonte: caderno-4-governance §3
 - **[READ]** `docs/conceitos/lente-de-modulo.md` — módulo como projeção sobre subgrafo compartilhado (plano de dados)
 - **[READ]** `docs/conceitos/modulo-lente-e-ator.md` — dois planos: lente (dados) e ator (comando/mensagem)

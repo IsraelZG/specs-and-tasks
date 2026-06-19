@@ -24,9 +24,12 @@ blocks: ["T-MOD-04"] # Bloqueia vetores de segurança
 ## 1. Objetivo
 Implementar o sistema de delegação escopada: cada par (usuário × módulo) recebe um UCAN próprio derivado de `ASSET:ROLE` que restringe o acesso do módulo aos dados daquele usuário naquele domínio. Operações cross-user (ex: gerente de ERP consulta pedido de subordinado) rodam **estritamente com as permissões de leitura do próprio usuário solicitante** — o módulo nunca herda permissões além das do usuário que o delegou. O `ASSET:ROLE` agrega `ASSET:PERMISSION` via arestas `AGGREGATES`; o UCAN emitido contém a query de traversal (root, depth, edge_filter) correspondente. A validação é bilateral: o peer que recebe a requisição valida a cadeia de UCAN + verifica que o `ASSET:ROLE` está ativo (aresta não-lápide). **(Fonte: [[profile-de-modulo]]; [[asset-role]]; [[ucan]]; [[asset-permission]]; T-MOD-01 ModuleProfile; T-501 UCAN motor)**
 
-> ⚠ **SEM-FONTE:** O caderno `docs/caderno-3-sdk/02b-modulos-profiles-mensageria.md` não foi encontrado. Conceitos `profile-de-modulo`, `asset-role`, `ucan` e `asset-permission` suprem os contratos. O Worker deve validar contra essas fontes.
+> ✓ **Fonte localizada (correção 2026-06-19):** NÃO é lacuna de design. O contrato de delegados
+> compartimentados e operações cross-user está em `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md`
+> §3 — o link anterior apontava `caderno-3-sdk/` por engano. Worker: derive/valide contra §3.
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- **[READ]** `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md` §3 — **fonte normativa**: profiles compartimentados por usuário × módulo, cross-user só com permissões do solicitante
 - **[READ]** `docs/conceitos/profile-de-modulo.md` — delegação por (usuário × módulo) com ASSET:ROLE próprio
 - **[READ]** `docs/conceitos/asset-role.md` — agrupamento de permissões via `AGGREGATES`, templates vs instâncias físicas
 - **[READ]** `docs/conceitos/ucan.md` — capability model, query de traversal, delegação recursiva, revogação

@@ -24,9 +24,12 @@ blocks: ["T-MOD-04"] # Bloqueia vetores de segurança
 ## 1. Objetivo
 Implementar sessão colaborativa de módulo: toda edição em módulo é modelada como um **documento Automerge efêmero e local-first** (CRDT em RAM, sem persistência automática). A persistência no grafo como `CONTENT:DOCUMENT` depende de **opt-in explícito** do usuário (gênese de rascunho ou publicação). O profile do módulo atua como **co-editor**: propõe alterações no documento via `CONTENT:INTENT`, respeitando o fluxo de commit do Automerge Repo (changes incrementais → heurística de consolidação → snapshot binário → nó-versão). Sessão sem opt-in = descartada ao fechar; com opt-in = commit gera aresta `MUTATES` + `AUTHORED`. **(Fonte: [[sessao-colaborativa]]; [[automerge-repo]]; [[profile-de-modulo]]; T-MOD-01 ModuleProfile; T-403 Automerge Repo/casca)**
 
-> ⚠ **SEM-FONTE:** O caderno `docs/caderno-3-sdk/02b-modulos-profiles-mensageria.md` não foi encontrado. Conceitos `sessao-colaborativa` e `automerge-repo` suprem os contratos (fonte: `caderno-4-governance/02b-modulos-profiles-mensageria.md §4` e `caderno-2-protocol/04-automerge-integration-spec.md §2`).
+> ✓ **Fonte localizada (correção 2026-06-19):** NÃO é lacuna de design. A sessão como doc colaborativo
+> (profile do módulo como co-editor) está em `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md`
+> §4 — o link anterior apontava `caderno-3-sdk/` por engano. Worker: derive/valide contra §4.
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- **[READ]** `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md` §4 — **fonte normativa**: sessão como doc Automerge, profile do módulo como co-editor (intents)
 - **[READ]** `docs/conceitos/sessao-colaborativa.md` — doc Automerge efêmero local-first, opt-in de persistência, profile como co-editor via CONTENT:INTENT
 - **[READ]** `docs/conceitos/automerge-repo.md` — camada de orquestração: changes, consolidação, commit, nó-versão, ephemeral messages
 - **[READ]** `docs/conceitos/profile-de-modulo.md` — profile delegado como ator na sessão
