@@ -19,7 +19,7 @@ blocks: [] # task final do bloco — fecha a cadeia
 - **Package:** `@plataforma/core` (testes de vetor — não adiciona features, só testes de segurança)
 - **Test Runner:** `vitest` (Node puro)
 - **Capacidade-alvo:** haiku
-- **#fontes:** 3 | **link OK:** ✗ | **SEM-FONTE:** ⚠ RAG caderno não localizado — vetores inferidos dos contratos T-MOD-01/02/03
+- **#fontes:** 4 | **link OK:** ✓ — fonte normativa em `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md` §2, §5
 
 ## 1. Objetivo
 Implementar **apenas testes de vetor de ataque** — esta task NÃO adiciona funcionalidade nova, apenas prova que os sistemas de T-MOD-01, T-MOD-02 e T-MOD-03 rejeitam corretamente violações de segurança. Três vetores: (1) **delegado lendo dado de outro usuário**: profile de módulo do userA no módulo ERP tenta ler nó `CONTENT:INTENT` do userB — deve ser rejeitado pelo enforcement de escopo de T-MOD-02; (2) **comando acima do privilégio**: módulo com UCAN de leitura tenta emitir `CONTENT:INTENT` de escrita — rejeitado pela validação de capability; (3) **sessão efêmera sem opt-in**: tentar recuperar documento de sessão que foi descartada (`discardSession()`) ou nunca commitada — deve retornar `null`/vazio. **(Fonte: T-MOD-01 profile escopo; T-MOD-02 validateCrossUserOp; T-MOD-03 sessão efêmera)**

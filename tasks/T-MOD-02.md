@@ -19,7 +19,7 @@ blocks: ["T-MOD-04"] # Bloqueia vetores de segurança
 - **Package:** `@plataforma/core` (delegação escopada + enforcement)
 - **Test Runner:** `vitest` (Node puro)
 - **Capacidade-alvo:** sonnet
-- **#fontes:** 5 | **link OK:** ✗ | **SEM-FONTE:** ⚠ RAG caderno não localizado — usando conceitos canônicos
+- **#fontes:** 6 | **link OK:** ✓ — fonte normativa em `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md` §3
 
 ## 1. Objetivo
 Implementar o sistema de delegação escopada: cada par (usuário × módulo) recebe um UCAN próprio derivado de `ASSET:ROLE` que restringe o acesso do módulo aos dados daquele usuário naquele domínio. Operações cross-user (ex: gerente de ERP consulta pedido de subordinado) rodam **estritamente com as permissões de leitura do próprio usuário solicitante** — o módulo nunca herda permissões além das do usuário que o delegou. O `ASSET:ROLE` agrega `ASSET:PERMISSION` via arestas `AGGREGATES`; o UCAN emitido contém a query de traversal (root, depth, edge_filter) correspondente. A validação é bilateral: o peer que recebe a requisição valida a cadeia de UCAN + verifica que o `ASSET:ROLE` está ativo (aresta não-lápide). **(Fonte: [[profile-de-modulo]]; [[asset-role]]; [[ucan]]; [[asset-permission]]; T-MOD-01 ModuleProfile; T-501 UCAN motor)**

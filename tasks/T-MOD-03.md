@@ -19,7 +19,7 @@ blocks: ["T-MOD-04"] # Bloqueia vetores de segurança
 - **Package:** `@plataforma/core` (sessão colaborativa) + `@plataforma/transport` (Automerge Repo integração)
 - **Test Runner:** `vitest` (Node puro) + `playwright` (E2E colaboração)
 - **Capacidade-alvo:** sonnet
-- **#fontes:** 5 | **link OK:** ✗ | **SEM-FONTE:** ⚠ RAG caderno não localizado — usando conceitos canônicos
+- **#fontes:** 6 | **link OK:** ✓ — fonte normativa em `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md` §4
 
 ## 1. Objetivo
 Implementar sessão colaborativa de módulo: toda edição em módulo é modelada como um **documento Automerge efêmero e local-first** (CRDT em RAM, sem persistência automática). A persistência no grafo como `CONTENT:DOCUMENT` depende de **opt-in explícito** do usuário (gênese de rascunho ou publicação). O profile do módulo atua como **co-editor**: propõe alterações no documento via `CONTENT:INTENT`, respeitando o fluxo de commit do Automerge Repo (changes incrementais → heurística de consolidação → snapshot binário → nó-versão). Sessão sem opt-in = descartada ao fechar; com opt-in = commit gera aresta `MUTATES` + `AUTHORED`. **(Fonte: [[sessao-colaborativa]]; [[automerge-repo]]; [[profile-de-modulo]]; T-MOD-01 ModuleProfile; T-403 Automerge Repo/casca)**
