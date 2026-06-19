@@ -24,14 +24,19 @@
 | [L-03](./L-03.md) | MoR + hard-stop legal: Merchant of Record e modo de bloqueio rigido | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [O-01](./O-01.md) | Colisao slot 09 do caderno-3: design-system vs hierarchical-theme — decidir numeracao | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [O-02](./O-02.md) | Colisao slot 22 do caderno-3: Mapa vs Workflow — mapa unico de numeracao | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-001](./T-001.md) | Bootstrap do monorepo | `draft` | devops_agent0 | 2 |
+| [T-001](./T-001.md) | Bootstrap do monorepo | `ready` | devops_agent | 2 |
 | [T-002](./T-002.md) | Pipeline de CI (GitHub Actions) | `draft` | devops | 2 |
 | [T-003](./T-003.md) | Pacote testkit: Relógio e Random | `draft` | logic_agent | 2 |
-| [T-004](./T-004.md) | Portas fundamentais | `draft` | logic_agent | 2 |
+| [T-004](./T-004.md) | Portas fundamentais | `ready` | logic_agent | 2 |
 | [T-005](./T-005.md) | SimNetwork v1 | `draft` | logic_agent | 3 |
 | [T-006](./T-006.md) | SimNetwork v2 — Degradação e NAT | `draft` | logic_agent | 3 |
+| [T-006a](./T-006a.md) | SimNetwork v2: degradação (drop/latência/jitter/bandwidth) | `draft` | logic_agent | 3 |
+| [T-006b](./T-006b.md) | SimNetwork v2: perfis NAT (open/cone/symmetric) | `draft` | logic_agent | 2 |
 | [T-007](./T-007.md) | Asserções de convergência (Testkit) | `draft` | logic_agent | 2 |
 | [T-008](./T-008.md) | App Bancada (PWA-ready) | `draft` | frontend_agent | 3 |
+| [T-009](./T-009.md) | Superfície de Controle e Telemetria (Headless) | `draft` | backend_agent | 3 |
+| [T-009a](./T-009a.md) | ControlPort (interface + implementação core) | `draft` | backend_agent | 3 |
+| [T-009b](./T-009b.md) | WebSocketControlClient (client-sdk → Hub QA) | `draft` | backend_agent | 3 |
 | [T-010](./T-010.md) | Peer do sistema v0 + admin | `draft` | devops | 3 |
 | [T-011](./T-011.md) | Incorporar @plataforma/design-system (lib) ao monorepo | `draft` | devops_agent | 2 |
 | [T-012](./T-012.md) | Incorporar apps/design-system-showcase | `draft` | frontend_agent | 1 |
@@ -39,6 +44,9 @@
 | [T-014](./T-014.md) | Migrar hook de metadados + skill para .claude da raiz | `draft` | devops_agent | 1 |
 | [T-015](./T-015.md) | Quality gate do design system no CI | `draft` | devops_agent | 2 |
 | [T-016](./T-016.md) | Implementar RFC de Tema Multi-Nível no Design System | `draft` | frontend_agent | 3 |
+| [T-016a](./T-016a.md) | Tema Multi-Nível: Style Dictionary (outputReferences) | `draft` | frontend_agent | 3 |
+| [T-016b](./T-016b.md) | Tema Multi-Nível: themeEngine (compileScopedOverrides) | `draft` | frontend_agent | 3 |
+| [T-016c](./T-016c.md) | Tema Multi-Nível: ThemeScope (React wrapper) | `draft` | frontend_agent | 2 |
 | [T-1001](./T-1001.md) | Configuração do Monorepo Nexus (Backend e Frontend) | `done` | devops_agent | 2 |
 | [T-1002](./T-1002.md) | Integração do Indexador Semântico (TurboVec) | `done` | backend_agent | 3 |
 | [T-1003](./T-1003.md) | Roteamento Inteligente com SmolLM2 (llmlingua-js) | `done` | backend_agent | 4 |
@@ -47,7 +55,7 @@
 | [T-1006](./T-1006.md) | Prompt Builder e Exportador Inteligente (UI) | `done` | frontend_agent | 3 |
 | [T-1007](./T-1007.md) | Integração do EpochDB para Agentic Memory (Lossless) | `done` | backend_agent | 4 |
 | [T-1008](./T-1008.md) | Automação via MCP Safe Runner (Pre-approved Scripts) | `done` | devops_agent | 3 |
-| [T-101](./T-101.md) | Wrappers cripto | `draft` | crypto_agent | 3 |
+| [T-101](./T-101.md) | Wrappers cripto | `ready` | crypto_agent | 3 |
 | [T-1010](./T-1010.md) | Serviço de Tasks (máquina de estados MGTIA) no Nexus | `done` | logic_agent | 4 |
 | [T-1011](./T-1011.md) | Ferramentas MCP + endpoints REST de Tasks | `done` | logic_agent | 4 |
 | [T-1012](./T-1012.md) | Isolamento branch-por-task (git worktree) | `done` | devops_agent | 3 |
@@ -58,6 +66,9 @@
 | [T-1017](./T-1017.md) | Spike: viabilidade do piloto automático (OpenCode) | `done` | devops_agent | 5 |
 | [T-1018](./T-1018.md) | Spike: fixar integração Headroom (interface Compressor) | `done` | logic_agent | 4 |
 | [T-1019](./T-1019.md) | Ciclo completo de branch: merge squash + push + rename main | `done` | devops_agent | 3 |
+| [T-101a](./T-101a.md) | Wrapper Ed25519 (sign/verify/generateKeyPair) | `draft` | crypto_agent | 2 |
+| [T-101b](./T-101b.md) | Wrapper AES-256-GCM + SHA-256 | `draft` | crypto_agent | 2 |
+| [T-101c](./T-101c.md) | Wrapper Blake2s256 + HKDF | `draft` | crypto_agent | 2 |
 | [T-102](./T-102.md) | ULID + EntityId | `draft` | logic_agent | 2 |
 | [T-1020](./T-1020.md) | Runner: scheduler (ready-set + pick) do grafo de tasks | `done` | logic_agent | 2 |
 | [T-1021](./T-1021.md) | Runner: gate de verificação determinístico (build+test no worktree) | `done` | logic_agent | 3 |
@@ -67,33 +78,70 @@
 | [T-1025](./T-1025.md) | Role gate nas transições: approve/request_changes restritos ao Reviewer | `done` | logic_agent | 2 |
 | [T-1026](./T-1026.md) | Ledger de transições + gate anti-drift: detectar e recusar edição manual de status fora do serviço | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-1027](./T-1027.md) | nexus start: bootstrap idempotente (Headroom WSL único + backend + frontend) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-103](./T-103.md) | HLC (Hybrid Logical Clock) completo | `draft` | logic_agent | 3 |
+| [T-103](./T-103.md) | HLC (Hybrid Logical Clock) completo | `ready` | logic_agent | 3 |
 | [T-104](./T-104.md) | BIP39 + Derivação de Chaves + Desbloqueio | `draft` | crypto_agent | 3 |
+| [T-104a](./T-104a.md) | BIP39: Mnemônico + Validação | `draft` | crypto_agent | 2 |
+| [T-104b](./T-104b.md) | BIP39: Derivação seed → chave mestra Ed25519 + chave dispositivo | `draft` | crypto_agent | 2 |
 | [T-105](./T-105.md) | PeerId e Multiaddr | `draft` | protocol_agent | 2 |
-| [T-106](./T-106.md) | Schema SQLite local (nodes/edges) | `draft` | core_agent | 3 |
-| [T-107](./T-107.md) | Assinatura Universal Layer 1 | `draft` | core_agent | 4 |
-| [T-108](./T-108.md) | Linhagem Layer 2 | `draft` | logic_agent | 3 |
+| [T-105a](./T-105a.md) | PeerId: Derivação DevicePeerId + PersonaPeerId | `draft` | protocol_agent | 2 |
+| [T-105b](./T-105b.md) | Multiaddr: parser + formatador minimalista | `draft` | protocol_agent | 2 |
+| [T-106](./T-106.md) | Schema SQLite local (nodes/edges) | `ready` | core_agent | 3 |
+| [T-106a](./T-106a.md) | Schema SQLite: DDL + migrations v1 | `draft` | core_agent | 2 |
+| [T-106b](./T-106b.md) | Schema SQLite: migrateSchema + teste de integração | `draft` | core_agent | 2 |
+| [T-107](./T-107.md) | Assinatura Universal Layer 1 | `ready` | core_agent | 4 |
+| [T-108](./T-108.md) | Linhagem Layer 2 | `ready` | logic_agent | 3 |
+| [T-108a](./T-108a.md) | Linhagem Layer 2: insertNode (validação + persistência) | `draft` | logic_agent | 3 |
+| [T-108b](./T-108b.md) | Linhagem Layer 2: getLineage/getHead/validateChain/detectFork | `draft` | logic_agent | 2 |
 | [T-110](./T-110.md) | Key Vault v0 | `draft` | core_agent | 3 |
 | [T-201](./T-201.md) | Wire format v1 | `draft` | protocol_agent | 3 |
+| [T-201a](./T-201a.md) | Wire format: encodeFrame (MessagePack + framing) | `draft` | protocol_agent | 2 |
+| [T-201b](./T-201b.md) | Wire format: decodeFrame + quarentena | `draft` | protocol_agent | 2 |
 | [T-202](./T-202.md) | Noise_XX sobre porta de transporte | `draft` | crypto_agent | 4 |
+| [T-202a](./T-202a.md) | Noise_XX: handshake initiator | `draft` | crypto_agent | 3 |
+| [T-202b](./T-202b.md) | Noise_XX: handshake responder + encrypt/decrypt | `draft` | crypto_agent | 3 |
 | [T-204](./T-204.md) | Adapter WebSocket | `draft` | transport_agent | 3 |
 | [T-205](./T-205.md) | SwarmRegistry em RAM | `draft` | core_agent | 3 |
 | [T-208](./T-208.md) | First Peer Protocol (FPP) | `draft` | logic_agent | 4 |
 | [T-211](./T-211.md) | Bancada: aba Rede | `draft` | frontend_agent | 2 |
 | [T-301](./T-301.md) | B-Tree de fingerprints (RBSR) | `draft` | logic_agent | 4 |
+| [T-301a](./T-301a.md) | RBSR B-Tree: insert/delete + XOR agregado | `draft` | logic_agent | 2 |
+| [T-301b](./T-301b.md) | RBSR B-Tree: compareRange + diff | `draft` | logic_agent | 2 |
 | [T-302](./T-302.md) | Protocolo de troca RBSR | `draft` | protocol_agent | 4 |
+| [T-302a](./T-302a.md) | RBSR exchange: máquina de estados reconcile | `draft` | protocol_agent | 3 |
+| [T-302b](./T-302b.md) | RBSR exchange: applyNodes (validação Layer 1 + inserção) | `draft` | protocol_agent | 2 |
 | [T-305](./T-305.md) | Sync dirigido por UCAN | `draft` | logic_agent | 3 |
+| [T-305a](./T-305a.md) | Sync UCAN: scopeRBSRTree (filtro por UCAN) | `draft` | logic_agent | 3 |
+| [T-305b](./T-305b.md) | Sync UCAN: canAccess (verificação pontual) | `draft` | logic_agent | 2 |
 | [T-308](./T-308.md) | Snapshot de bootstrap | `draft` | core_agent | 3 |
+| [T-308a](./T-308a.md) | Snapshot: export + encode | `draft` | core_agent | 2 |
+| [T-308b](./T-308b.md) | Snapshot: decode + import (idempotente) | `draft` | core_agent | 2 |
 | [T-311](./T-311.md) | Bancada: aba Sync | `draft` | frontend_agent | 2 |
 | [T-402](./T-402.md) | Adapter WebRTC DataChannel | `draft` | transport_agent | 4 |
 | [T-404](./T-404.md) | ConnectionPromotionEngine (Hole Punching) | `draft` | logic_agent | 4 |
+| [T-404a](./T-404a.md) | CPE: tryPromote (core loop + NAT decision) | `draft` | logic_agent | 3 |
+| [T-404b](./T-404b.md) | CPE: getState/cancel/directCount (query) | `draft` | logic_agent | 2 |
 | [T-501](./T-501.md) | Motor de UCAN Core | `draft` | crypto_agent | 4 |
+| [T-501a](./T-501a.md) | UCAN: codec JWT (encode/decode) | `draft` | crypto_agent | 2 |
+| [T-501b](./T-501b.md) | UCAN: issue + verify (assinatura Ed25519) | `draft` | crypto_agent | 2 |
+| [T-501c](./T-501c.md) | UCAN: isAttenuation + delegação em cadeia | `draft` | crypto_agent | 2 |
 | [T-505](./T-505.md) | Rotação de Épocas (Forward Secrecy) | `draft` | crypto_agent | 5 |
+| [T-505a](./T-505a.md) | EpochRotation: rotate/revoke (geração de chave + UCAN gate) | `draft` | crypto_agent | 3 |
+| [T-505b](./T-505b.md) | EpochRotation: getCurrent/listEpochs (query) | `draft` | crypto_agent | 2 |
 | [T-601](./T-601.md) | Detecção Estrutural de Fork e Merge | `draft` | logic_agent | 4 |
+| [T-601a](./T-601a.md) | Fork/Merge: detectForks (SQL) | `draft` | logic_agent | 2 |
+| [T-601b](./T-601b.md) | Fork/Merge: resolveFork + createMergeNode | `draft` | logic_agent | 2 |
 | [T-604](./T-604.md) | Zen Engine Embarcado + Invariante T1 | `draft` | logic_agent | 3 |
 | [T-701](./T-701.md) | AES de Link (Peer-to-Peer Encriptado) | `draft` | crypto_agent | 3 |
+| [T-701a](./T-701a.md) | LinkCipher: encryptFrame/decryptFrame (AES-256-GCM) | `draft` | crypto_agent | 3 |
+| [T-701b](./T-701b.md) | LinkCipher: deriveSessionKey (HKDF) | `draft` | crypto_agent | 2 |
 | [T-801](./T-801.md) | Storage Engine de BLOBs (Chunking) | `draft` | core_agent | 4 |
-| [T-905](./T-905.md) | Bateria de Testes Adversariais (Chaos/Fuzzer) | `draft` | devops_agent | 5 |
+| [T-801a](./T-801a.md) | Storage BLOBs: Chunker (fragmentação + reassembly) | `draft` | core_agent | 2 |
+| [T-801b](./T-801b.md) | Storage BLOBs: MerkleTree (construção + prova) | `draft` | core_agent | 2 |
+| [T-901](./T-901.md) | PWA produto v0 (apps/web) — prova de consumo do SDK | `draft` | frontend_agent | 5 |
+| [T-902](./T-902.md) | Suíte adversarial consolidada (12 vetores §2.5 + mapa de cobertura) | `draft` | devops_agent | 4 |
+| [T-903](./T-903.md) | Telemetria local + painel (métricas na Bancada + benchmark de regressão no CI) | `draft` | frontend_agent | 4 |
+| [T-904](./T-904.md) | Caos programado (Chaos/Fuzzer sobre SimNetwork) | `draft` | devops_agent | 5 |
+| [T-905](./T-905.md) | Documentação de integração + ADRs | `draft` | devops_agent | 3 |
 | [T-AD-01](./T-AD-01.md) | SPEC:AD/AD_CAMPAIGN + RELATES:AD:PROMOTES + orcamento/pacing por BALANCE_STATE/LOCK | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-AD-02](./T-AD-02.md) | selecao por superficie (Zen) no contexto do espectador + medicao assinada de evento | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-AD-03](./T-AD-03.md) | vetores: segmentacao lendo dado restrito, verba estourada, clique inflado | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |

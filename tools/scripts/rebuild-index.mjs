@@ -7,11 +7,11 @@ import path from 'path';
  */
 
 function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) return {};
-  
+
   const frontmatter = {};
-  const lines = match[1].split('\n');
+  const lines = match[1].split(/\r?\n/);
   for (const line of lines) {
     const colonIndex = line.indexOf(':');
     if (colonIndex !== -1) {
