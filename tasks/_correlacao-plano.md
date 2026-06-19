@@ -50,31 +50,27 @@ Notas de reconciliação foram inseridas no topo de T-009, T-011, T-701 e T-905.
 
 ---
 
-## 3. Resumo quantitativo (~279 arquivos)
+## 3. Resumo quantitativo (285 tarefas indexadas)
 
-- **Buracos (🚨) no core M1–M8:** 6 tasks de protocolo definidas no plano sem arquivo (T-109, T-111, T-203, T-206, T-017, T-018). As 46 restantes foram preenchidas nesta passada (2026-06-19). Lista em §4.
-- **Órfãos de reconciliação (a criar):** T-017, T-018.
-- **Órfão resolvido:** T-707 `device_state.db` — spec criada.
+- **Buracos (🚨) no core M1–M8:** **0** — as 52 specs (49 do core + órfãos T-017/T-018/T-707) foram criadas em `411193b` (2026-06-19) e o INDEX regenerado (285 tarefas). Dimensionamento real: **11 haiku + 41 sonnet**, zero decisões em aberto (Seções 6 limpas).
+- **Órfãos de reconciliação:** T-017, T-018, T-707 — **resolvidos** (specs criadas).
 - **Extras de produto fora do plano (⚠️):** T-CN-*, T-JU-*, T-PG-*, T-PL-* (~19). Proveniência: RFCs/backlog-modulos. Decisão pendente: absorver no plano ou manter como track de RFC (§5).
 - **Extras de ferramentaria (⚠️, legítimos fora do plano):** T-012–T-016 (design-system) e T-1001–T-1027 (Nexus/MGTIA, **congelado**). Não são buracos — só segregados (§5).
 - **Drift de título (🟡/❌ nos módulos):** maioria é reescrita/elaboração, sem divergência de escopo. Baixa prioridade.
 
 ---
 
-## 4. Buracos a preencher — core M1–M8 (entrada para `/endurecer-fila`)
+## 4. Core M1–M8 — preenchido ✅ (histórico)
 
-Ordem sugerida = ordem de dependência (M1→M8), priorizando o que destrava tasks já endurecidas.
+Todos os buracos do core foram preenchidos em `411193b` (2026-06-19). Estado por marco:
 
-**M1 (cripto/dados):** T-109 Projeção `entity_heads` + tombstones · T-111 Bancada: aba Identidade
-**M2 (transporte/swarm):** T-203 Validação precoce de época · T-206 Heartbeat + evicção
-**M3 (sync/RBSR):** ✅ Completo
-**M4 (WebRTC/descoberta):** ✅ Completo
-**M5 (UCAN/chaves):** ✅ Completo
-**M6 (intents/Zen):** ✅ Completo
-**M7 (multi-device/blobs):** ✅ Completo
-**M8 (mídia):** ✅ Completo
+**M0 (órfãos):** ✅ T-017 Reset local · T-018 Runner de cenários
+**M1 (cripto/dados):** ✅ T-109 · T-111
+**M2 (transporte/swarm):** ✅ T-203 · T-206 · T-207 · T-209 · T-210
+**M3 (sync/RBSR):** ✅ Completo · **M4 (WebRTC):** ✅ · **M5 (UCAN/chaves):** ✅
+**M6 (intents/Zen):** ✅ · **M7 (multi-device/blobs):** ✅ (inc. T-707) · **M8 (mídia):** ✅
 
-**+ órfãos de reconciliação:** T-017 Reset local do peer (M0) · T-018 Runner de cenários (M0)
+> Próximo backlog não-core: governança dos extras (§5) e drift de título (§3, baixa prioridade).
 
 ---
 
