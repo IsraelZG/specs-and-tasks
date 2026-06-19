@@ -23,8 +23,7 @@ blocks: [] # IDs de tarefas que esta bloqueia
 *(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
 
 ## 2. Contexto RAG (Spec-Driven Development)
-*(A spec é a fonte da verdade. Adicione links absolutos ou relativos)*
-- [ ] `docs/...`
+- [caderno-3-sdk/13-jurisdicao.md](../docs/caderno-3-sdk/13-jurisdicao.md)
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
 *(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
