@@ -1,4 +1,11 @@
 # Plano de Módulos — Marcos por Produto
+
+> ⬆️ **PROMOVIDO (2026-06-19):** este draft foi promovido para o roadmap canônico
+> [`docs/plano-aplicacao.md`](../plano-aplicacao.md) (Camada 2), agora com os IDs de task reais e os
+> invariantes de UI (i18n/tokens/a11y). Este arquivo e `diff-preparativos-plano.md` ficam como
+> referência histórica e podem ser deletados (git guarda o histórico). A narrativa de validação por
+> marco abaixo ainda não foi totalmente absorvida no canônico.
+
 > Plano separado do `plano-de-implementacao.md` (que fecha o ciclo de transporte/sync/auth, M0–M9). Aqui ficam os **marcos de produto**, construídos sobre as transversais. Cada marco lista o que entrega, de que depende e qual o critério de validação. As tasks atômicas estão no [diff de preparativos](diff-preparativos-plano.md); a ordem de escrita de cadernos está na [ordem de absorção](ordem-de-absorcao.md).
 
 ## Princípios
