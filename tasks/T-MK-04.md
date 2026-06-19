@@ -7,10 +7,13 @@ target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, fro
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-MK-01", "T-MK-03", "T-605"] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+subtasks: ["T-MK-04a","T-MK-04b"]
+blocks: ["T-MK-04a","T-MK-04b"] # IDs de tarefas que esta bloqueia
 ---
 
 # T-MK-04 · SPENDS/CREDITS com split multi-destino + comissao/imposto por SPEC + multi-moeda
+
+> **DECOMPOSTA** — não executar diretamente. O trabalho está nas subtarefas: T-MK-04a, T-MK-04b
 
 ## 0. Ambiente de Execução Obrigatório
 - **Runtime:** Node.js v20+

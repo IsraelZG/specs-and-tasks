@@ -80,7 +80,7 @@ Implementar o perfil de módulo (delegado compartimentado) e o sistema de mensag
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
 > **Decisões resolvidas pelo Arquiteto:**
-> - Contexto RAG: conceitos canônicos (`profile-de-modulo`, `lente-de-modulo`, `modulo-lente-e-ator`, `delegacao-de-dispositivo`) — fonte `caderno-4-governance/02b-modulos-profiles-mensageria.md` referenciada mas não localizada no filesystem
+> - Contexto RAG: fonte normativa confirmada em `docs/caderno-4-governance/02b-modulos-profiles-mensageria.md` + verbetes canônicos (`profile-de-modulo`, `lente-de-modulo`, `modulo-lente-e-ator`, `delegacao-de-dispositivo`)
 > - Escopo: `packages/core/src/module/` — 2 arquivos fonte, 2 arquivos de teste, 1 update
 > - Contratos: `ModuleProfile`, `createModuleProfile()`, `sendIntent()`, `sendSignal()`
 > - Testes: 6 cenários Vitest (Node puro)

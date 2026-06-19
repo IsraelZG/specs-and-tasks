@@ -7,10 +7,13 @@ target_agent: logic_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-PL-01", "T-110"]
+subtasks: ["T-PL-05a","T-PL-05b"]
 blocks: ["T-PL-06"]
 ---
 
 # T-PL-05 · fila assincrona (task=no, claim por ASSET:LOCK, resultado assinado, idempotencia)
+
+> **DECOMPOSTA** — não executar diretamente. O trabalho está nas subtarefas: T-PL-05a, T-PL-05b
 
 ## 0. Ambiente de Execução Obrigatório
 - **Runtime:** Node.js v20+

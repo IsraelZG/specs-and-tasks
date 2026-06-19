@@ -7,10 +7,13 @@ target_agent: logic_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-WF-01", "T-103"]
+subtasks: ["T-WF-02a","T-WF-02b"]
 blocks: ["T-WF-03", "T-WF-05"]
 ---
 
 # T-WF-02 · interpretador Nivel 1 (estado unico, transicao evento+guarda, entry/exit, timers HLC) event-sourced
+
+> **DECOMPOSTA** — não executar diretamente. O trabalho está nas subtarefas: T-WF-02a, T-WF-02b
 
 ## 0. Ambiente de Execução Obrigatório
 - **Runtime:** Node.js v20+
