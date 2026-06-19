@@ -6,8 +6,8 @@ complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+dependencies: ["T-PG-01", "T-004"] # IDs de tarefas que bloqueiam esta
+blocks: ["T-OFF-02", "T-OFF-03", "T-OFF-04", "T-OFF-05"] # IDs de tarefas que esta bloqueia
 ---
 
 # T-OFF-01 · perfis de capacidade no motor de paginas + validador por perfil (emenda spec de paginas)
@@ -20,61 +20,114 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Estender o motor de páginas (SPEC:PAGE) com perfis de capacidade: um motor único com subsets de componentes
+permitidos + comportamento declarados na SPEC. O perfil determina quais componentes/ações são válidos para
+aquele tipo de página. Fonte: `caderno-3-sdk/27-suite-office.md §1`.
+
+### Contratos exatos (assinaturas TS fixadas)
+```ts
+// packages/page-engine/src/capacity-profile.ts
+
+export type CapacityProfileName =
+  | "pagina_completa"
+  | "documento"
+  | "anuncio"
+  | "slide"
+  | "comentario_post";
+
+export interface CapacityProfile {
+  name: CapacityProfileName;
+  /** Whitelist de componentes permitidos. */
+  allowedComponents: string[];
+  /** Comportamento: "linear" (documento) ou "free" (canvas livre). */
+  layoutMode: "linear" | "free";
+  /** Ações habilitadas (ex.: "export_pdf", "collaborate", "zen_eval"). */
+  allowedActions: string[];
+  /** Orçamento máximo de componentes (evita DOS). */
+  maxComponents: number;
+}
+
+export interface ProfileValidator {
+  /** Valida se uma SPEC:PAGE está em conformidade com seu perfil declarado. */
+  validate(pageSpec: PageSpec, profile: CapacityProfile): ValidationResult;
+  /** Retorna o perfil para um dado nome. */
+  getProfile(name: CapacityProfileName): CapacityProfile;
+  /** Registra perfil customizado (extensível). */
+  registerProfile(profile: CapacityProfile): void;
+}
+
+export type ValidationResult =
+  | { valid: true }
+  | { valid: false; errors: string[] };
+
+export interface PageSpec {
+  limits_profile: CapacityProfileName;
+  components: Array<{ type: string; [key: string]: unknown }>;
+}
+```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/27-suite-office.md](../docs/caderno-3-sdk/27-suite-office.md)
+- [caderno-3-sdk/27-suite-office.md](../docs/caderno-3-sdk/27-suite-office.md) §1 — Perfis de capacidade do motor (emenda à RFC-008)
+- [[perfil-de-capacidade]] — Definição canônica: governança declarativa e restrição comportamental do motor
+- [[sessao-colaborativa]] — Docs e planilhas usam Automerge com sessão colaborativa (T-OFF-02, T-OFF-03)
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `docs/caderno-3-sdk/27-suite-office.md` §1, §8
+- **[READ]** `docs/conceitos/perfil-de-capacidade.md` — perfis canônicos: pagina_completa, documento, anuncio, slide, comentario_post
+- **[READ]** `packages/protocol/src/ports.ts` — LoggerPort (T-004)
+- **[CREATE]** `packages/page-engine/src/capacity-profile.ts` — interfaces + perfis canônicos
+- **[CREATE]** `packages/page-engine/src/profile-validator.ts` — implementação do validador
+- **[CREATE]** `packages/page-engine/tests/capacity-profile.test.ts` — testes
+- **[UPDATE]** `packages/page-engine/src/index.ts` — re-exportar
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+- [x] **Framework:** Vitest (Node puro — validador é lógica pura, sem DOM).
+- [x] **Ambiente do Teste:** Node puro.
+- [x] **Fora de Escopo:** Renderização React (T-PG-02). Automerge (T-403). Zen (T-604).
+
+Casos de teste (numerados):
+1. Perfil `pagina_completa` aceita qualquer componente (whitelist = ["*"]).
+2. Perfil `documento` rejeita componente "game_engine" (não está na whitelist de documento).
+3. Perfil `slide` permite "export_pptx" mas rejeita "collaborate" (slide não é colaborativo).
+4. Perfil `comentario_post` rejeita ZEN expressions (ações bloqueadas).
+5. `validate()` com perfil inexistente no SPEC retorna erro claro.
+6. Trocar perfil de `comentario_post` para `documento` (relaxar) é permitido.
+7. Trocar perfil de `documento` para `pagina_completa` (elevar privilégio) requer confirmação extra.
+8. Limite de `maxComponents`: 1001 componentes em perfil `documento` (max=1000) → rejeitado.
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
+> - **NÃO** crie múltiplos motores de página — o motor é ÚNICO; o perfil é restrição declarativa (§1.1: "motor de páginas é único; cada caso de uso é um perfil de capacidade").
+> - **NÃO** permita elevação de perfil sem gate — trocar para perfil com mais capacidades exige validação criptográfica ou re-autoria (§1.2 e contrato do protocolo).
+> - **NÃO** invente perfis não-listados no caderno — os 5 canônicos são os da fonte; novos perfis são registrados via `registerProfile()`.
 
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+### Pegadinhas conhecidas
+- **Whitelist, não blacklist:** o validador é permissivo por omissão, restritivo por declaração. Se o perfil não lista um componente, ele é REJEITADO. Não assuma que componentes novos são automaticamente permitidos.
+- **Trocar perfil não troca de motor:** `pagina_completa` e `slide` usam o mesmo `PageEngine.render()`. A diferença é apenas o subset de componentes e ações que o validador aceita.
+- **Perfis são extensíveis mas os 5 canônicos são built-in:** `getProfile("documento")` sempre retorna o canônico; `registerProfile()` adiciona perfis customizados que podem ser referenciados por nome no `limits_profile`.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+1. **[TDD]** Crie `packages/page-engine/tests/capacity-profile.test.ts` com os 8 casos.
+2. Implemente `packages/page-engine/src/capacity-profile.ts` com os 5 perfis canônicos e interfaces.
+3. Implemente `packages/page-engine/src/profile-validator.ts` com `validate()`, `getProfile()`, `registerProfile()`.
+4. Re-exporte em `packages/page-engine/src/index.ts`.
+5. Rode build + test e cole saída.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+Nenhuma pendência.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
-O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+O agente `agile_reviewer` usará esta checklist:
+- [ ] 5 perfis canônicos definidos com whitelists corretas (documento, anuncio, slide, pagina_completa, comentario_post)?
+- [ ] Validador rejeita componentes fora da whitelist do perfil?
+- [ ] Elevação de perfil (mais capacidades) exige gate?
+- [ ] Motor é único — perfis são declaração, não motores separados?
+- [ ] `pnpm test` verde com 8 casos?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/page-engine build
+pnpm --filter @plataforma/page-engine test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:

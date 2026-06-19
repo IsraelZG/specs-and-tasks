@@ -3,11 +3,12 @@ id: T-PG-02
 title: "renderizador React sobre o catalogo (resolve sources, avalia ZEN sob orcamento, render progressivo)"
 status: draft
 complexity: 5
-target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+target_agent: frontend_agent
 reviewer_agent: agile_reviewer
-execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+execution_mode: sequential
+dependencies: ["T-PG-01"]
+blocks: ["T-PG-04", "T-PG-05"]
+ui: true
 ---
 
 # T-PG-02 · renderizador React sobre o catalogo (resolve sources, avalia ZEN sob orcamento, render progressivo)
@@ -16,65 +17,204 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
+- **Test Runner:** `vitest` (JSDOM) + `playwright` (smoke E2E)
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar o renderizador React que consome um `PageDocument` validado (T-PG-01), resolve fontes de dados (`sources`), avalia expressões ZEN sob orçamento de recurso (L3) e renderiza a árvore progressivamente (streaming para experiência de geração por IA). O renderizador é um motor único; cada caso de uso é um perfil de capacidade declarado na `SPEC:PAGE`.
+
+**Justificativa de fontes:**
+- Fonte primária: `docs/caderno-3-sdk/11-linguagem-de-paginas.md` §3 (fontes, ZEN, state), §4 (componentes ricos, code-splitting), §7 (render progressivo por streaming)
+- Enriquecimento: [[catalogo-de-componentes]] — mapeia `component` → implementação React; [[spec-page]] — nó canônico
+
+### Contratos TS (derivados do RAG §3, §4, §7)
+
+```ts
+// --- packages/pages/src/renderer.ts ---
+import type { PageDocument, PageNode, PageSource, BindingOrExpression } from './schema';
+import type { ReactElement } from 'react';
+
+/** Perfil de capacidade do motor (§8). */
+export type PageProfile = 'pagina_completa' | 'documento' | 'anuncio' | 'slide' | 'comentario_post';
+
+export interface RenderBudget {
+  maxTreeDepth: number;
+  maxNodeCount: number;
+  maxExpressionLength: number;
+  /** Milissegundos máximos por ciclo de render. */
+  evalBudgetMs: number;
+  maxDocumentSizeBytes: number;
+}
+
+export interface ResolvedSource {
+  data: unknown;
+  error?: string;
+}
+
+export interface SourceResolver {
+  resolve(source: PageSource, routeParams: Record<string, string>, sessionCtx: SessionContext): Promise<ResolvedSource>;
+}
+
+export interface SessionContext {
+  persona_id: string;
+  theme: string;
+  locale: string;
+  jurisdiction?: string;
+}
+
+export interface ZenEvaluationResult {
+  value: unknown;
+  budgetExhausted: boolean;
+  error?: string;
+}
+
+export interface ZenEvaluator {
+  /**
+   * Avalia expressão ZEN sobre as fontes resolvidas e estado local.
+   * Deve ser interrompível sob o orçamento L3 (execução em Worker).
+   * Retorna `budgetExhausted: true` se o orçamento estourar.
+   */
+  evaluate(expression: string, context: ZenContext, budgetMs: number): ZenEvaluationResult;
+}
+
+export interface ZenContext {
+  sources: Record<string, unknown>;
+  state: Record<string, unknown>;
+}
+
+export interface ComponentResolver {
+  /**
+   * Resolve nome de componente do catálogo para implementação React.
+   * Componentes ricos (planilha, player) usam React.lazy para code-splitting.
+   */
+  resolve(name: string): React.ComponentType<unknown> | null;
+}
+
+export interface RenderOptions {
+  /** Se true, emite atualizações parciais conforme a árvore é construída (streaming). */
+  progressive: boolean;
+}
+
+export interface RenderResult {
+  element: ReactElement;
+  budgetExhausted: boolean;
+  diagnostics: string[];
+}
+
+export interface PageRenderer {
+  render(
+    doc: PageDocument,
+    resolver: SourceResolver,
+    zen: ZenEvaluator,
+    components: ComponentResolver,
+    budget: RenderBudget,
+    sessionCtx: SessionContext,
+    options?: RenderOptions
+  ): Promise<RenderResult>;
+}
+
+/** State local transiente de render — descartável, nunca replicado (§3.5). */
+export interface PageState {
+  [key: string]: unknown;
+}
+
+export interface PageStateStore {
+  getState(): PageState;
+  setState(field: string, value: unknown): void;
+  subscribe(listener: () => void): () => void;
+}
+
+/** Adaptador para fontes editoriais (Automerge CRDT — §3.6). */
+export interface EditorialSourceAdapter {
+  /** Assina mutations do CRDT e notifica quando dados mudam. */
+  subscribe(docId: string, onChange: (data: unknown) => void): () => void;
+}
+```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/11-linguagem-de-paginas.md](../docs/caderno-3-sdk/11-linguagem-de-paginas.md)
+- [caderno-3-sdk/11-linguagem-de-paginas.md](../docs/caderno-3-sdk/11-linguagem-de-paginas.md) §3 (fontes, ZEN, state), §4 (componentes ricos, code-splitting), §7 (render progressivo por streaming), §8 (perfis)
+- [docs/conceitos/catalogo-de-componentes.md](../docs/conceitos/catalogo-de-componentes.md) — ComponentResolver mapeia para React
+- [docs/conceitos/spec-page.md](../docs/conceitos/spec-page.md)
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `packages/pages/src/schema.ts` (tipos base — T-PG-01)
+- **[READ]** `packages/pages/src/validator.ts` (validador — T-PG-01)
+- **[READ]** `docs/caderno-3-sdk/11-linguagem-de-paginas.md`
+- **[CREATE]** `packages/pages/src/renderer.ts` — PageRenderer, contratos de portas
+- **[CREATE]** `packages/pages/src/zen-evaluator.ts` — ZenEvaluator com orçamento e executor em Worker
+- **[CREATE]** `packages/pages/src/source-resolver.ts` — resolve fontes contra projeções/TinyBase
+- **[CREATE]** `packages/pages/src/component-resolver.ts` — mapeia catálogo → React (React.lazy)
+- **[CREATE]** `packages/pages/src/page-renderer.tsx` — implementação PageRenderer
+- **[CREATE]** `packages/pages/src/progressive-renderer.ts` — streaming de árvore parcial
+- **[CREATE]** `packages/pages/tests/renderer.test.tsx` — JSDOM (vitest + React Testing Library)
+- **[UPDATE]** `packages/pages/src/index.ts` — adicionar exports
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+- [x] **Framework:** Vitest (JSDOM) + React Testing Library para render; Playwright para smoke E2E
+- [x] **Ambiente do Teste:** JSDOM (`pnpm --filter @plataforma/pages test`)
+- [x] **Fora de Escopo:** EXTENDS (T-PG-03), formulários (T-PG-04), vetores adversariais (T-PG-05)
+
+Casos de teste (numerados):
+1. Renderiza `PageDocument` mínimo (1 nó Card) → elemento React contém `<Card>`.
+2. Resolve `$bind` sobre fonte → prop `title` recebe valor da fonte resolvida.
+3. Resolve `$zen` (ex.: concatenação de duas fontes) → valor derivado correto.
+4. Expressão ZEN com `visible: { $zen: "false" }` → nó NÃO aparece no output.
+5. Expressão ZEN com `visible: { $zen: "true" }` → nó aparece no output.
+6. Componente desconhecido no catálogo → diagnóstico, fallback, sem crash.
+7. Orçamento de avaliação ZEN estoura (`budgetExhausted: true`) → render aborta com diagnóstico.
+8. Resolução de fonte falha → nó mostra fallback de erro.
+9. `state` local: `set_state` atualiza e re-renderiza sem perder outros campos.
+10. `navigate` dispara callback de navegação sem alterar DOM.
+11. `intent` dispara callback de emissão de intent com payload montado.
+12. Render progressivo: árvore parcial válida é emitida antes do documento completo.
+13. Componente rico (ex.: planilha) é carregado via React.lazy (code-splitting).
+14. Perfil `documento`: componentes não-documento (ex.: Card) são rejeitados.
+15. Smoke E2E (Playwright): página mínima renderiza no browser sem erro de console.
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
+> - NÃO implemente a lógica de resolução real de fontes contra TinyBase — use mock/stub.
+> - NÃO implemente o motor ZEN real — use um stub que avalia expressões triviais.
+> - NÃO implemente EXTENDS (T-PG-03).
+> - NÃO renderize HTML/CSS inline — só componentes do catálogo (L2).
 
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+### Pegadinhas conhecidas
+- O ZenEvaluator deve rodar em Web Worker para ser interrompível sem bloquear main thread. O stub pode ser síncrono no teste JSDOM, mas a interface deve suportar abort.
+- `state` da página é transiente e NUNCA replicado (§3.5). Não confundir com sessão-doc editorial.
+- Componentes ricos (planilha, player) são carregados via `React.lazy` — o `ComponentResolver.resolve()` retorna um wrapper lazy, não o componente direto.
+- `$bind` é açúcar — internamente convertido para `$zen` antes da avaliação.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+1. **[TDD]** Escreva `packages/pages/tests/renderer.test.tsx` com os 15 casos (RED).
+2. Implemente `packages/pages/src/zen-evaluator.ts` (stub com orçamento).
+3. Implemente `packages/pages/src/source-resolver.ts` (stub que retorna dados mockados).
+4. Implemente `packages/pages/src/component-resolver.ts` (mapeamento catálogo → React.lazy).
+5. Implemente `packages/pages/src/page-renderer.tsx` (árvore recursiva, resolução de props, visibilidade ZEN).
+6. Implemente `packages/pages/src/progressive-renderer.ts` (streaming incremental).
+7. Atualize `packages/pages/src/index.ts`.
+8. Rode build + test (Seção 7) e cole saída.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+**Links validados:**
+- `docs/caderno-3-sdk/11-linguagem-de-paginas.md` — OK (103 linhas)
+- `docs/conceitos/catalogo-de-componentes.md` — OK
+- `docs/conceitos/spec-page.md` — OK
+- `packages/pages/src/schema.ts` — será criado por T-PG-01 (dep)
+
+**Abertos:** Nenhum.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
-O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+O agente `agile_reviewer` usará esta checklist:
+- [ ] Todos os 14 casos de teste (vitest) passam?
+- [ ] Playwright smoke (caso 15) não produz erro de console?
+- [ ] O renderizador NÃO injeta HTML/CSS inline (L2)?
+- [ ] `state` local é transiente e não persiste entre montagens diferentes?
+- [ ] Orçamento estourado produz `budgetExhausted: true` sem crash?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/pages build
+pnpm --filter @plataforma/pages test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:

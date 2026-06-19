@@ -3,91 +3,165 @@ id: T-STR-03
 title: "live via LiveKit (SDK embutido + SFU plugin) + consolidacao para CONTENT:FILE"
 status: draft
 complexity: 4
-target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+target_agent: frontend_agent
 reviewer_agent: agile_reviewer
-execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+execution_mode: sequential
+dependencies: ["T-STR-01", "T-MSG-02"]
+blocks: []
+ui: true
 ---
 
 # T-STR-03 · live via LiveKit (SDK embutido + SFU plugin) + consolidacao para CONTENT:FILE
 
-## 0. Ambiente de Execução Obrigatório
+## 0. Ambiente de Execucao Obrigatorio
 - **Runtime:** Node.js v20+
-- **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
+- **Package Manager:** `pnpm` (NAO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
+- **Test Runner:** `vitest` (JSDOM) + `playwright` (E2E smoke)
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar o player e broadcast de live conforme `19-streaming-reference-spec.md` S3:
+transmissao ao vivo via **LiveKit** (SDK cliente embutido, SFU como plugin `infra`, canais
+WebRTC proprios). Segmentos ao vivo sao efemeros; ao encerrar, a [[consolidacao-de-live]]
+(utilitario `compute` assincrono) consolida num unico `CONTENT:FILE` que entra no plano VOD.
+Chat e reacoes ao vivo sao a lente de mensagens (RFC-018/T-MSG-01) sobre a sessao.
+
+### Contratos exatos (assinaturas TS fixadas)
+
+```ts
+// --- apps/nexus-frontend/src/modules/streaming/live-types.ts ---
+
+export type LiveState = 'offline' | 'connecting' | 'live' | 'consolidating' | 'vod';
+
+export interface LiveSession {
+  liveId: string;
+  broadcasterId: string;
+  title: string;
+  state: LiveState;
+  startedAt?: number;
+  viewerCount?: number;            // projecao
+  consolidatedContentId?: string;  // CONTENT:FILE apos consolidacao
+}
+
+export interface LivePlayerProps {
+  liveId: string;
+  profileId: string;               // espectador
+  autoPlay?: boolean;
+}
+
+export interface LiveBroadcastProps {
+  profileId: string;               // broadcaster
+  title: string;
+  onStateChange?: (state: LiveState) => void;
+}
+```
+
+```tsx
+// --- apps/nexus-frontend/src/modules/streaming/LivePlayer.tsx ---
+
+export interface LivePlayerComponent {
+  /** Conecta ao stream LiveKit e inicia reproducao. */
+  connect(): Promise<void>;
+
+  /** Desconecta do stream. */
+  disconnect(): void;
+
+  /** Estado reativo da sessao live. */
+  readonly session: LiveSession | null;
+
+  /** Inicia broadcast (apenas para o broadcaster). */
+  startBroadcast(title: string): Promise<LiveSession>;
+
+  /** Encerra broadcast e dispara consolidacao. */
+  endBroadcast(): Promise<void>;
+}
+```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/19-streaming-reference-spec.md](../docs/caderno-3-sdk/19-streaming-reference-spec.md)
+- [caderno-3-sdk/19-streaming-reference-spec.md](../docs/caderno-3-sdk/19-streaming-reference-spec.md) S3 — Live
+- [[livekit]] — Ecossistema LiveKit, `CONTENT:LIVE_SESSION`, aresta `STREAMS`
+- [[consolidacao-de-live]] — Padrao de consolidacao de segmentos em `CONTENT:FILE`
+- [[ephemeral-messages]] — Canal volatil para segmentos de live
+- T-STR-01 — MediaCatalog
+- T-MSG-02 — CallPanel (LiveKit ja integrado para chamadas)
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `docs/caderno-3-sdk/19-streaming-reference-spec.md` S3
+- **[READ]** `docs/conceitos/consolidacao-de-live.md` — Fluxo de consolidacao
+- **[READ]** `docs/conceitos/livekit.md` — Contrato LiveKit
+- **[READ]** `apps/nexus-frontend/src/modules/calls/CallPanel.tsx` — T-MSG-02 (reusa integracao LiveKit)
+- **[CREATE]** `apps/nexus-frontend/src/modules/streaming/live-types.ts` — Tipos acima
+- **[CREATE]** `apps/nexus-frontend/src/modules/streaming/LivePlayer.tsx` — Player + broadcast
+- **[CREATE]** `apps/nexus-frontend/src/modules/streaming/LivePlayer.test.tsx` — Vitest (JSDOM)
+- **[CREATE]** `apps/nexus-frontend/src/modules/streaming/LivePlayer.e2e.ts` — Playwright smoke
 
-## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+## 4. Estrategia de Testes Estrita (Test-Driven Development)
+- [x] **Framework:** Vitest (JSDOM) + Playwright (E2E smoke)
+- [x] **Ambiente do Teste:** JSDOM para unitarios; headless browser para smoke
+- [x] **Fora de Escopo:** Testes com SFU real; transcode real; integracao LiveKit Cloud
 
-## 5. Instruções de Execução (Step-by-Step)
-> **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
+Casos de teste (numerados):
+1. `LivePlayer` renderiza estado `offline` com indicador "Transmissao encerrada".
+2. `connect` transita para `connecting` e depois `live` quando stream LiveKit conecta.
+3. `disconnect` transita para `offline` e libera recursos LiveKit.
+4. `startBroadcast` cria `LiveSession` com `state: 'live'` e emite `CONTENT:LIVE_SESSION`.
+5. `endBroadcast` transita para `consolidating`, dispara [[consolidacao-de-live]], e finalmente para `vod` com `consolidatedContentId`.
+6. `endBroadcast` em queda abrupta do peer: janelas progressivas preservam segmentos ja consolidados (rolling-windows).
+7. Playwright smoke: player monta, botoes de play/stop respondem.
 
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+## 5. Instrucoes de Execucao (Step-by-Step)
+> **REGRAS DO QUE NAO FAZER:**
+> - **NAO** implemente o SFU — o plugin `infra` e exigido mas fornecido pelo ambiente.
+> - **NAO** persista segmentos efemeros no grafo — apenas o `CONTENT:FILE` final consolidado.
+> - **NAO** duplique a integracao LiveKit de T-MSG-02 — reuse o hook/servico de chamadas.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+### Pegadinhas conhecidas
+- **Armadilha:** Segmentos ao vivo sao `REPLICABLE_VOLATILE` (19-streaming S3.2). Nao os confunda com dados duraveis. Se um segmento for perdido na rede, ele NAO pode ser recuperado do grafo — apenas do disco local do broadcaster.
+- **Armadilha:** [[consolidacao-de-live]] opera em janelas progressivas (rolling-windows, ex. blocos de minutos). Queda abrupta do broadcaster preserva os segmentos ja consolidados. O `CONTENT:FILE` final agrega as janelas integras ([[consolidacao-de-live]] S2).
+- **Armadilha:** Lives ilimitadas (24/7) usam checkpoint periodico: a cada intervalo (ex.: 1h), o SDK consolida o segmento decorrido e commita no parcial ([[consolidacao-de-live]] S3). Nao espere o fim da live para commitar — pode nunca acontecer.
+- **Armadilha:** Chat e reacoes ao vivo sao a lente de mensagens (RFC-018) sobre a sessao (19-streaming S3.3). Nao implemente chat proprio — reuse o ChatWrapper de T-MSG-01 vinculado a `liveId` como `conversationId`.
 
-## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+1. **[TDD]** Escreva `LivePlayer.test.tsx` com os 6 casos unitarios da Secao 4.
+2. Crie `live-types.ts` com interfaces da Secao 1.
+3. Implemente `LivePlayer.tsx` reusando hook LiveKit de T-MSG-02, com estados `LiveState`.
+4. Implemente `startBroadcast`/`endBroadcast` com integracao a [[consolidacao-de-live]].
+5. Escreva `LivePlayer.e2e.ts` com smoke test Playwright.
+6. Rode build + test (Secao 7) e cole saida.
+
+## 6. Feedback de Especificacao (Spec Feedback Loop)
+> **DECISOES EM ABERTO — requer definicao do arquiteto:**
+> - **Nenhuma.** Contratos derivados de 19-streaming S3, [[livekit]], e [[consolidacao-de-live]].
+> **Status:** `draft` ate o arquiteto validar Secoes 1-4 e 7.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
-O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+O agente `agile_reviewer` usara esta checklist para aprovar ou rejeitar o PR:
+- [ ] O codigo segue estritamente os arquivos de Output especificados?
+- [ ] O `pnpm test` roda sem erros (JSDOM + Playwright smoke)?
+- [ ] Linter (`pnpm lint`) nao acusa problemas?
+- [ ] A implementacao respeita a Regra do Que Nao Fazer?
+- [ ] `endBroadcast` dispara consolidacao e gera `CONTENT:FILE`?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificacao automatica *(comandos exatos — worker E reviewer rodam e COLAM a saida)*
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter nexus-frontend build
+pnpm --filter nexus-frontend test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDENCIA:** nem o `finish` (worker) nem o veredito (reviewer) sao validos sem a
+> saida literal desses comandos colada na secao 8. Marcar `[x]` sem evidencia e violacao.
 
-## 8. Log de Handover e Revisão Agile (Code Review)
+## 8. Log de Handover e Revisao Agile (Code Review)
 ### Handover do Executor:
 - 
 
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
-- [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- [ ] **Requer Refatoracao**
+- **Evidencia de Execucao (obrigatoria — colar saida de build/tsc + test):**
 ```
-(cole aqui a saída real de pnpm build e pnpm test)
+(cole aqui a saida real de pnpm build e pnpm test)
 ```
-- **Comentários de Revisão:**
+- **Comentarios de Revisao:**
 
-## 9. Log de Execução (Agent Execution Log)
-> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+## 9. Log de Execucao (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.

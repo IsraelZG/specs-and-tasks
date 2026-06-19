@@ -6,8 +6,8 @@ complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+dependencies: ["T-JU-01", "T-JU-02", "T-103"]
+blocks: ["T-JU-04"]
 ---
 
 # T-JU-03 · selecao por vigencia na competencia + recalculo retroativo + vetor (regra errada nunca aplicada)
@@ -16,65 +16,53 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
+- **Test Runner:** `vitest` (pacotes core/protocol)
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar seleção de SPEC por vigência temporal: a regra aplicável é a vigente na **competência do fato** (mês de referência), não na data de execução. Recálculo retroativo navega `SUPERSEDED_BY` e aplica a versão da SPEC vigente naquela competência. Mudança de lei = `SUPERSEDED_BY` com nova janela. Vetor: regra errada nunca aplicada por engano de data.
+**Fonte:** `caderno-3-sdk/13-jurisdicao.md §3`. **Conceitos:** [[vigencia-de-regra]], [[jurisdicao]].
+
+### Contratos essenciais
+
+```ts
+// packages/jurisdiction/src/vigencia.ts
+export interface VigenciaWindow { vigente_de: number; vigente_ate: number | null; } // timestamps ms
+export interface SpecVersion { specId: string; vigencia: VigenciaWindow; supersededBy?: string; payload: Record<string, unknown>; }
+export function selectByCompetencia(versions: SpecVersion[], competenciaMs: number): SpecVersion | null;
+export function navigateSuperseded(versions: SpecVersion[], competenciaMs: number): SpecVersion[];
+export interface RecalculoResult { appliedVersion: SpecVersion; originalVersion?: SpecVersion; correct: boolean; }
+```
+**File paths:** `packages/jurisdiction/src/vigencia.ts` (CREATE), `packages/jurisdiction/tests/vigencia.test.ts` (CREATE), `packages/jurisdiction/src/index.ts` (UPDATE).
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/13-jurisdicao.md](../docs/caderno-3-sdk/13-jurisdicao.md)
+- [caderno-3-sdk/13-jurisdicao.md](../docs/caderno-3-sdk/13-jurisdicao.md) — §3 (vigência, competência, recálculo retroativo, SUPERSEDED_BY, conflito detectado)
+- [[vigencia-de-regra]] — definição canônica
+- Deps: T-103 (HLC) ready — `HLC` provê timestamps para competência. T-JU-01 (`JurisdictionId`), T-JU-02 (`SpecPayload`).
 
-## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+**Testes (8 casos):** 1. `selectByCompetencia` com competência dentro da janela → retorna versão. 2. Competência antes de `vigente_de` → `null`. 3. Competência após `vigente_ate` → `null`. 4. `navigateSuperseded` segue cadeia `SUPERSEDED_BY`. 5. Recálculo retroativo: competência passada → versão antiga correta. 6. Conflito: duas versões com janelas sobrepostas → erro detectado. 7. `vigente_ate: null` = vigência aberta (sem fim). 8. Vetor: regra de 2025 não se aplica a competência de 2024.
 
-## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+**Pegadinhas:** `vigente_de`/`vigente_ate` são timestamps ms Unix. Competência é mês de referência (1º dia do mês à meia-noite UTC). `SUPERSEDED_BY` é cadeia linear (uma versão substitui exatamente uma anterior). Sobreposição detectada: `a.vigente_ate > b.vigente_de && a.vigente_de < b.vigente_ate` para mesma jurisdição.
 
-## 5. Instruções de Execução (Step-by-Step)
-> **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
-
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
-
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+**Gate:** `pnpm --filter @plataforma/jurisdiction build && pnpm --filter @plataforma/jurisdiction test`
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+> **DECISÃO EM ABERTO:** T-103 (HLC) ready. T-JU-01 e T-JU-02 sendo endurecidas nesta passada. **Status:** `draft` até deps implementadas.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] `selectByCompetencia` seleciona versão correta por competência?
+- [ ] Recálculo retroativo navega `SUPERSEDED_BY`?
+- [ ] Conflito de vigências sobrepostas detectado?
+- [ ] Vetor: regra errada nunca aplicada?
+- [ ] `pnpm --filter @plataforma/jurisdiction build` e `test` verdes?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática (Gate de Evidência)
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/jurisdiction build
+pnpm --filter @plataforma/jurisdiction test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -83,7 +71,7 @@ pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- **Evidência de Execução (obrigatória):**
 ```
 (cole aqui a saída real de pnpm build e pnpm test)
 ```
@@ -91,3 +79,4 @@ pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+

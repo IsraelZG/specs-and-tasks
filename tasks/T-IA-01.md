@@ -6,8 +6,8 @@ complexity: 5
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+dependencies: ["T-106", "T-101b"]
+blocks: ["T-IA-03"]
 ---
 
 # T-IA-01 · projecao vector_index (sqlite-vec/WASM) + embedding no pipeline pos-decifra (irma do FTS)
@@ -16,65 +16,143 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
-- **Capacidade-alvo:** sonnet
+- **Test Runner:** `vitest` (pacotes core/protocol)
+- **Capacidade-alvo:** haiku (vetores — complexidade de integração, não de lógica)
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Criar a 7ª projeção `vector_index` (irmã do FTS) usando sqlite-vec via WASM. Embeddings são computados no pipeline pós-decifra (mesmo ponto que `search_index_fts`), invocando a capacidade `compute` de embedding (preferencialmente on-device). A `SPECIFICATION` do nó declara campos `embeddable: true` e qual estratégia de embedding usar. Vetor de campo cifrado/sem-chave não é gerado.
+**Fonte:** `caderno-3-sdk/14-ia-rag-e-agentes.md §2` — substrato de embeddings. **Conceitos:** [[utilitario-de-ia]], [[recuperacao-hibrida]].
+
+### Contratos exatos
+
+```ts
+// --- packages/vector-index/src/vector-index.ts ---
+
+import type { StoragePort } from '@plataforma/protocol';
+
+/** Estratégia de embedding por tipo de conteúdo. */
+export type EmbeddingStrategy = 'text' | 'code' | 'image';
+
+/** Configuração de campo embeddable na SPECIFICATION. */
+export interface EmbeddableField {
+  field: string;
+  strategy: EmbeddingStrategy;
+  /** Capacidade de embedding a usar (ex.: "text-embedding-3-small"). */
+  capabilityId: string;
+}
+
+/** Entrada no vector_index. */
+export interface VectorEntry {
+  nodeId: string;
+  field: string;
+  /** Vetor de embedding (dimensão varia por modelo). */
+  vector: Float32Array;
+  /** Estratégia usada. */
+  strategy: EmbeddingStrategy;
+  indexedAt: number;
+}
+
+/** Projeção vector_index — a 7ª projeção do sistema. */
+export interface VectorIndex {
+  /**
+   * Indexa um campo embeddable de um nó decifrado.
+   * Só indexa se o campo não for cifrado/sem-chave.
+   */
+  indexField(nodeId: string, field: string, plaintext: string, strategy: EmbeddingStrategy): Promise<void>;
+
+  /**
+   * Remove entradas de um nó (expurgo/arquivamento).
+   * Ciclo de vida casado com o nó de origem (§2.5).
+   */
+  removeNode(nodeId: string): Promise<void>;
+
+  /**
+   * Busca por similaridade de cosseno (KNN).
+   * Retorna nodeIds ordenados por distância.
+   */
+  search(queryVector: Float32Array, topK: number): Promise<Array<{ nodeId: string; distance: number }>>;
+
+  /**
+   * Podar entradas expurgadas — projeção reconstruível sob demanda.
+   */
+  prune(): Promise<void>;
+}
+
+/** Configuração do vector_index (sqlite-vec via WASM). */
+export interface VectorIndexConfig {
+  /** Caminho para o banco SQLite (via StoragePort). */
+  storage: StoragePort;
+  /** Dimensão do vetor (depende do modelo de embedding). */
+  dimensions: number;
+}
+```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/14-ia-rag-e-agentes.md](../docs/caderno-3-sdk/14-ia-rag-e-agentes.md)
+- [caderno-3-sdk/14-ia-rag-e-agentes.md](../docs/caderno-3-sdk/14-ia-rag-e-agentes.md) — §2 (embeddings, punto do pipeline pós-decifra, 7ª projeção, ciclo de vida, eager/lazy)
+- [[utilitario-de-ia]] — capacidade compute de embedding
+- [[recuperacao-hibrida]] — usa vector_index como sinal semântico no RRF
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `packages/protocol/src/ports.ts` — `StoragePort` (T-004 ready)
+- **[READ]** `packages/core/src/schema.ts` — schema SQLite (T-106 ready, para integrar projeção)
+- **[CREATE]** `packages/vector-index/src/vector-index.ts` — interface + implementação `SqliteVectorIndex`
+- **[CREATE]** `packages/vector-index/tests/vector-index.test.ts` — testes de indexação, busca, remoção, poda
+- **[UPDATE]** `packages/vector-index/src/index.ts` — re-exportar
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+- [x] **Framework:** Vitest (Node puro).
+- [x] **Ambiente do Teste:** Node puro (`pnpm --filter @plataforma/vector-index test`).
+- [x] **Fora de Escopo:** Embedding real (usar vetor dummy), integração com pipeline de decifra, WASM real.
+
+Casos de teste:
+1. `indexField` insere entrada; `search` com vetor similar retorna o nodeId.
+2. `search` com vetor dissimilar → distância alta, rank baixo.
+3. `removeNode` remove todas as entradas do nó; `search` não retorna mais.
+4. `prune` remove entradas cujo nó de origem foi expurgado (simulado).
+5. `indexField` com string vazia → não indexa (sem entrada fantasma).
+6. `topK` limita resultados: `search(v, 3)` retorna no máximo 3.
+7. Type-check: `Float32Array` para vetor; `EmbeddingStrategy` union literal.
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
+> - **NÃO** implemente embedding real — use `Float32Array` dummy preenchido com valores fixos.
+> - **NÃO** dependede sqlite-vec WASM real — use `better-sqlite3` ou `sql.js` com tabela simples para protótipo.
+> - **NÃO** implemente RRF ou recuperação híbrida (T-IA-03). Apenas a projeção.
 
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+### Pegadinhas conhecidas
+- `Float32Array` não é serializável diretamente em JSON. Precisa converter para `Array<number>` ou `Buffer` antes de armazenar.
+- A busca KNN com distância de cosseno usa `vector` como array de floats — a similaridade é `1 - cosine_distance`.
+- `prune()` precisa de join com a tabela de nós para detectar expurgados. Use `StoragePort.exec()` com query SQL.
+- SHA-256 (T-101b) é necessário para hash do conteúdo na deduplicação de embedding — se T-101b ainda estiver draft, usar `crypto.subtle.digest('SHA-256')` nativo como fallback.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+1. **[TDD]** Crie `packages/vector-index/tests/vector-index.test.ts` com casos 1–7.
+2. Crie `packages/vector-index/src/vector-index.ts` com `VectorIndex` + implementação.
+3. Use `StoragePort` para criar tabela `vector_index(node_id, field, vector_blob, strategy, indexed_at)`.
+4. Implemente `search` com similaridade de cosseno simples (dot product normalizado).
+5. Re-exporte em `packages/vector-index/src/index.ts`.
+6. Rode build + test (Seção 7) e cole saída.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+> **DECISÃO EM ABERTO:**
+> - **T-101b (SHA-256) está `draft`.** O hash de conteúdo para dedup de embedding depende de SHA-256. O worker deve usar `crypto.subtle.digest('SHA-256')` nativo (Node 20+) como fallback, com comentário para migrar quando T-101b estiver pronto.
+> - **WASM sqlite-vec:** A integração real com sqlite-vec via WASM depende da disponibilidade no runtime. O protótipo usa tabela SQLite simples com BLOB para vetor; a migração para extensão vec é incremental.
+> **Status:** `draft` até T-101b chegar a `ready`. Contratos da projeção estão derivados de fonte.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
-O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática (Gate de Evidência)
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/vector-index build
+pnpm --filter @plataforma/vector-index test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal na Seção 8.
+
+### Checklist do Reviewer
+- [ ] `VectorIndex` com `indexField`, `removeNode`, `search`, `prune`?
+- [ ] `search` usa similaridade de cosseno, `topK` respeitado?
+- [ ] `removeNode` limpa todas as entradas do nó?
+- [ ] `prune` remove órfãos com join em nós expurgados?
+- [ ] `pnpm --filter @plataforma/vector-index build` e `test` verdes?
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -83,7 +161,7 @@ pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- **Evidência de Execução (obrigatória):**
 ```
 (cole aqui a saída real de pnpm build e pnpm test)
 ```

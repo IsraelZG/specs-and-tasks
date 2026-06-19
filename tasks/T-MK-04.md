@@ -6,7 +6,7 @@ complexity: 5
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
+dependencies: ["T-MK-01", "T-MK-03", "T-605"] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
 ---
 
@@ -20,61 +20,144 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar a máquina de caixa: verbos econômicos SPENDS/CREDITS com partida dobrada interna em uma única
+operação, split multi-destino (vendedor + comissão + afiliado + imposto), liquidação por SPEC, e multi-moeda
+com conversão explícita. Fonte: `caderno-3-sdk/15-marketplace-reference-spec.md §5, §6`.
+
+### Contratos exatos (assinaturas TS fixadas)
+```ts
+// packages/marketplace/src/cash-engine.ts
+
+export interface BalanceState {
+  /** entity_id da linhagem do ASSET:BALANCE_STATE. */
+  entityId: string;
+  /** Moeda única deste saldo. */
+  currency: string;
+  /** Saldo atual (em centavos/unidade mínima). */
+  balance: number;
+  /** Head atual. */
+  headId: string;
+}
+
+export interface SplitDestination {
+  /** entity_id do saldo de destino (CREDITS → entity_id). */
+  targetEntityId: string;
+  /** Valor a creditar (sempre ≥ 0). */
+  amount: number;
+  /** Motivo (ex.: "comissao_marketplace", "imposto_rede", "vendedor"). */
+  reason: string;
+}
+
+export interface CashOperation {
+  /** entity_id do saldo de origem (SPENDS → head). */
+  sourceEntityId: string;
+  /** Head atual do saldo de origem. */
+  sourceHeadId: string;
+  /** Valor total a debitar. */
+  totalDebit: number;
+  /** Destinos do split (soma deve igualar totalDebit). */
+  splits: SplitDestination[];
+  /** ID da intent que autoriza a operação. */
+  intentId: string;
+}
+
+export type CashResult =
+  | { kind: "executed"; newSourceHeadId: string; creditHeadIds: string[] }
+  | { kind: "insufficient_funds"; available: number; requested: number }
+  | { kind: "split_mismatch"; sum: number; expected: number }
+  | { kind: "head_collision"; conflictingIntentId: string };
+
+export interface CashEngine {
+  /** Executa operação: 1 SPENDS na origem, N CREDITS nos destinos, atômico. */
+  execute(op: CashOperation): CashResult;
+  /** Converte moeda A→B com taxa afirmada por oráculo. */
+  convert(
+    source: BalanceState,
+    targetCurrency: string,
+    rate: number,     // taxa do oráculo
+    spread: number    // spread declarado
+  ): CashOperation;
+  /** Calcula split automático conforme SPEC do marketplace. */
+  calculateSplit(
+    total: number,
+    commissionPercent: number,
+    affiliatePercent: number,
+    taxPercent: number
+  ): SplitDestination[];
+}
+
+export interface MoneyFormatter {
+  /** Formata valor para exibição conforme jurisdição/locale. */
+  format(amount: number, currency: string, locale: string): string;
+}
+```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md)
+- [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md) §5 — Caixa, verbos econômicos e split (SPENDS/CREDITS, partida dobrada, split, multi-moeda)
+- [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md) §6 — Liquidação externa e meios de pagamento (conversão, oráculo)
+- [[credits]] — Aresta CREDITS (comutativa, entity_id) vs SPENDS (não-comutativa, head)
+- [[saga]] — Cash operations são pernas da saga (T-MK-03)
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `docs/caderno-3-sdk/15-marketplace-reference-spec.md` §5, §6, §10
+- **[READ]** `docs/conceitos/credits.md` — CREDITS vs SPENDS, comutatividade
+- **[READ]** `packages/marketplace/src/saga.ts` — SagaLeg (T-MK-03)
+- **[CREATE]** `packages/marketplace/src/cash-engine.ts` — interfaces + CashEngine + MoneyFormatter
+- **[CREATE]** `packages/marketplace/src/cash-engine-impl.ts` — implementação
+- **[CREATE]** `packages/marketplace/tests/cash-engine.test.ts` — testes
+- **[UPDATE]** `packages/marketplace/src/index.ts` — re-exportar
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+- [x] **Framework:** Vitest (Node puro — lógica determinística).
+- [x] **Ambiente do Teste:** Node puro.
+- [x] **Fora de Escopo:** Integração com BaaS/conector externo (T-CN-03). UCAN (T-501). Persistência real (T-106).
+
+Casos de teste (numerados):
+1. Débito de 100 com 2 splits (80 + 20) → origem -100, destino1 +80, destino2 +20.
+2. Split com 3 destinos (comissão 10 + afiliado 5 + vendedor 85) → soma = 100.
+3. `split_mismatch`: totalDebit=100, splits sum=95 → erro.
+4. `insufficient_funds`: saldo=50, débito=100 → erro com available/requested.
+5. `head_collision`: duas operações concorrentes no mesmo head → segunda detecta colisão.
+6. `calculateSplit(1000, 10, 5, 3)` → vendedor=820, comissão=100, afiliado=50, imposto=30.
+7. Conversão BRL→USD com rate=0.19, spread=0.01: usa oráculo, registra taxa no fato.
+8. MoneyFormatter: `format(1990, "BRL", "pt-BR")` → "R$ 19,90".
+9. Multi-moeda: operação cross-currency gera SPENDS em BRL + CREDITS em USD como pernas da saga.
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
+> - **NÃO** use float para dinheiro — todos os valores são inteiros (centavos/unidade mínima).
+> - **NÃO** crie saldo "polimoeda" — cada `ASSET:BALANCE_STATE` é denominado numa ÚNICA moeda (§5.5). Conversão é operação explícita.
+> - **NÃO** absorva spread de câmbio sem rastro — a diferença entre taxa de consulta e taxa de liquidação é declarada (§6.4).
 
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+### Pegadinhas conhecidas
+- **Partida dobrada em uma op só:** o SPENDS na origem e os N CREDITS nos destinos são uma ÚNICA finalização de linhagem (§5.1). Não faça duas transações separadas.
+- **CREDITS → entity_id, SPENDS → head:** crédito é comutativo (aponta para linhagem estável); débito é não-comutativo (aponta para head específico). Essa assimetria é deliberada e normativa — ver [[credits]].
+- **Conversão cross-moeda é perna de saga:** quando comprador (BRL) e vendedor (USD) usam moedas diferentes, a conversão é uma perna da saga junto com o lock no saldo de origem e o CREDITS no destino (§6.4). Não faça conversão solta.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+1. **[TDD]** Crie `packages/marketplace/tests/cash-engine.test.ts` com os 9 casos.
+2. Implemente `packages/marketplace/src/cash-engine.ts` com interfaces.
+3. Implemente `packages/marketplace/src/cash-engine-impl.ts` com execute, convert, calculateSplit, MoneyFormatter.
+4. Re-exporte em `packages/marketplace/src/index.ts`.
+5. Rode build + test e cole saída.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+Nenhuma pendência.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
-O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+O agente `agile_reviewer` usará esta checklist:
+- [ ] CashEngine.execute: 1 SPENDS + N CREDITS atômico em uma única operação?
+- [ ] Split multi-destino validado (soma = total)?
+- [ ] Insufficient funds e head collision detectados?
+- [ ] Conversão cross-moeda via oráculo com taxa e spread declarados?
+- [ ] MoneyFormatter formata por jurisdição/locale?
+- [ ] Todos os valores em inteiros (nunca float)?
+- [ ] `pnpm test` verde com 9 casos?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/marketplace build
+pnpm --filter @plataforma/marketplace test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:

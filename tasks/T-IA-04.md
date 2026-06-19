@@ -6,8 +6,8 @@ complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+dependencies: ["T-IA-03", "T-501"]
+blocks: ["T-IA-06"]
 ---
 
 # T-IA-04 · persona de agente com ASSET:ROLE delegado + geracao de SPEC:PAGE validada
@@ -16,65 +16,56 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
+- **Test Runner:** `vitest` (pacotes core/protocol)
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar persona de agente de IA: atua via `CONTENT:INTENT` com `ASSET:ROLE` delegado e escopado pelo principal. Teto de abuso: agente não faz nada que o principal não possa. Delegação explícita e revogável. Geração de `SPEC:PAGE` via intent, validada pelo validador estático (RFC-008 A.7). Trilha de procedência: todo fato registra modelo/principal.
+**Fonte:** `caderno-3-sdk/14-ia-rag-e-agentes.md §5`. **Conceitos:** [[agente-de-ia]], [[agente-de-sistema]].
+
+### Contratos essenciais
+
+```ts
+// packages/ai-agent/src/agent-persona.ts
+export interface AgentDelegation { principalId: string; agentId: string; roleId: string; // ASSET:ROLE delegado
+  scope: { allowedNodeTypes: string[]; maxValueLimit?: number; }; expiresAt: number; }
+export interface AgentIntent { delegation: AgentDelegation; intentType: string; payload: Record<string, unknown>; modelId: string; }
+export interface AgentPersona { readonly agentId: string;
+  proposeIntent(intent: AgentIntent): Promise<{ accepted: boolean; factId?: string; rejectionReason?: string }>;
+  generatePageSpec(prompt: string, catalogMetadata: Record<string, unknown>): Promise<Record<string, unknown>>; }
+export function validateDelegation(delegation: AgentDelegation, currentTime: number): { valid: boolean; reason?: string; };
+```
+**File paths:** `packages/ai-agent/src/agent-persona.ts` (CREATE), `packages/ai-agent/tests/agent-persona.test.ts` (CREATE), `packages/ai-agent/src/index.ts` (UPDATE).
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/14-ia-rag-e-agentes.md](../docs/caderno-3-sdk/14-ia-rag-e-agentes.md)
+- [caderno-3-sdk/14-ia-rag-e-agentes.md](../docs/caderno-3-sdk/14-ia-rag-e-agentes.md) — §5 (agente como persona, delegação, teto de abuso, SPEC:PAGE, trilha de procedência)
+- [[agente-de-ia]] — definição canônica: atua em nome de usuário, distinto de agente-de-sistema
+- Deps: T-IA-03 (recuperação híbrida — agente usa para contexto), T-501 (UCAN — `draft`, delegação usa UCAN para `ASSET:ROLE`)
 
-## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+**Testes (7 casos):** 1. `validateDelegation` dentro do prazo e scope → `valid: true`. 2. Delegação expirada → `valid: false`. 3. `proposeIntent` com nó fora do scope → `accepted: false`. 4. `proposeIntent` dentro do scope → `accepted: true`, `factId` preenchido. 5. `generatePageSpec` retorna spec válida. 6. Intent sem `modelId` → rejeitado (falta proveniência). 7. Vetor: agente tenta intent com `maxValueLimit` excedido → rejeitado.
 
-## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+**Pegadinhas:** `ASSET:ROLE` é delegado via UCAN (T-501) — se T-501 draft, usar placeholder. `principalId` é o usuário delegante, não o agente. `expiresAt` em timestamp ms. O validador de SPEC:PAGE (RFC-008 A.7) é externo — o agente só propõe, não valida.
 
-## 5. Instruções de Execução (Step-by-Step)
-> **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
-
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
-
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+**Gate:** `pnpm --filter @plataforma/ai-agent build && pnpm --filter @plataforma/ai-agent test`
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+> **DECISÃO EM ABERTO:** T-501 (UCAN) está `draft` — `ASSET:ROLE` delegado depende de UCAN. T-IA-03 sendo endurecida nesta passada. **Status:** `draft` até T-501 e T-IA-03 chegarem a `ready`.
+
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] `validateDelegation` verifica expiração e scope?
+- [ ] `proposeIntent` bloqueia intent acima do privilégio?
+- [ ] `generatePageSpec` retorna spec válida para o validador?
+- [ ] Trilha de proveniência (`modelId`, `principalId`) registrada?
+- [ ] `pnpm --filter @plataforma/ai-agent build` e `test` verdes?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática (Gate de Evidência)
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/ai-agent build
+pnpm --filter @plataforma/ai-agent test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -83,7 +74,7 @@ pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- **Evidência de Execução (obrigatória):**
 ```
 (cole aqui a saída real de pnpm build e pnpm test)
 ```

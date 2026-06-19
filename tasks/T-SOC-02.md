@@ -3,91 +3,173 @@ id: T-SOC-02
 title: "feed via SuperCard/Layout + ranking Zen + RRF + slot de anuncio"
 status: draft
 complexity: 4
-target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+target_agent: frontend_agent
 reviewer_agent: agile_reviewer
-execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+execution_mode: sequential
+dependencies: ["T-SOC-01", "T-PG-02", "T-IA-03"]
+blocks: ["T-SOC-03"]
+ui: true
 ---
 
 # T-SOC-02 · feed via SuperCard/Layout + ranking Zen + RRF + slot de anuncio
 
-## 0. Ambiente de Execução Obrigatório
+## 0. Ambiente de Execucao Obrigatorio
 - **Runtime:** Node.js v20+
-- **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
+- **Package Manager:** `pnpm` (NAO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
+- **Test Runner:** `vitest` (JSDOM) + `playwright` (E2E smoke)
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar o feed social conforme `18-social-reference-spec.md` S4: composicao de `SuperCard` +
+`Layout` com conteudo recuperado por traversal social + RRF (RFC-011) e anuncios (RFC-015)
+como itens distinguiveis. Ranking e Zen na SPEC do feed, com variantes cronologica, algoritmica
+ou hibrida configuraveis. Slot de anuncio rotulado "patrocinado" (requisito de produto).
+
+### Contratos exatos (assinaturas TS fixadas)
+
+```ts
+// --- apps/nexus-frontend/src/modules/social/feed-types.ts ---
+
+export type FeedRankingMode = 'chronological' | 'algorithmic' | 'hybrid';
+
+export type FeedItemKind = 'post' | 'story' | 'ad' | 'suggestion';
+
+export interface FeedItem {
+  kind: FeedItemKind;
+  contentId: string;
+  authorId: string;
+  body?: string;
+  mediaContentIds?: string[];
+  createdAt: number;
+  isSponsored: boolean;            // true se for anuncio
+  rankingScore?: number;           // score Zen, se ranking algoritmico
+  ttlMs?: number;                  // story apenas
+}
+
+export interface FeedConfig {
+  rankingMode: FeedRankingMode;
+  /** Superficies elegiveis para anuncio. */
+  adSurfaces: string[];            // ex: ['feed', 'sidebar']
+  /** Intervalo entre slots de anuncio (ex: a cada N itens). */
+  adSlotInterval: number;          // default: 5
+  /** Limite de itens por pagina. */
+  pageSize: number;                // default: 20
+}
+
+export interface FeedPage {
+  items: FeedItem[];
+  nextCursor?: string;
+  hasMore: boolean;
+}
+```
+
+```tsx
+// --- apps/nexus-frontend/src/modules/social/Feed.tsx ---
+
+export interface FeedProps {
+  profileId: string;
+  config?: Partial<FeedConfig>;
+}
+
+export interface FeedComponent {
+  /** Carrega proxima pagina do feed. */
+  loadMore(): Promise<FeedPage>;
+
+  /** Atualiza feed (pull-to-refresh). */
+  refresh(): Promise<FeedPage>;
+
+  /** Estado reativo da pagina atual. */
+  readonly currentPage: FeedPage | null;
+
+  /** Alterna modo de ranking. */
+  setRankingMode(mode: FeedRankingMode): void;
+}
+```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/18-social-reference-spec.md](../docs/caderno-3-sdk/18-social-reference-spec.md)
+- [caderno-3-sdk/18-social-reference-spec.md](../docs/caderno-3-sdk/18-social-reference-spec.md) S4 — Feed e ranking
+- [caderno-3-sdk/29-anuncios-reference-spec.md](../docs/caderno-3-sdk/29-anuncios-reference-spec.md) S2 — Superficies de veiculacao
+- [[projecao-analitica]] — Agregados para contadores (likes, views)
+- T-SOC-01 — SocialGraph (arestas, perfis)
+- T-PG-02 — Renderer de SuperCard/Layout
+- T-IA-03 — RRF (recuperacao semantica)
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `docs/caderno-3-sdk/18-social-reference-spec.md` S4
+- **[READ]** `docs/caderno-3-sdk/29-anuncios-reference-spec.md` S2
+- **[READ]** `apps/nexus-frontend/src/modules/social/` — SocialGraph de T-SOC-01
+- **[CREATE]** `apps/nexus-frontend/src/modules/social/feed-types.ts` — Tipos acima
+- **[CREATE]** `apps/nexus-frontend/src/modules/social/Feed.tsx` — Componente + hook
+- **[CREATE]** `apps/nexus-frontend/src/modules/social/Feed.test.tsx` — Vitest (JSDOM)
+- **[CREATE]** `apps/nexus-frontend/src/modules/social/Feed.e2e.ts` — Playwright smoke
 
-## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+## 4. Estrategia de Testes Estrita (Test-Driven Development)
+- [x] **Framework:** Vitest (JSDOM) + Playwright (E2E smoke)
+- [x] **Ambiente do Teste:** JSDOM para unitarios; headless browser para smoke
+- [x] **Fora de Escopo:** Testes com grafo real; rede P2P
 
-## 5. Instruções de Execução (Step-by-Step)
-> **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
+Casos de teste (numerados):
+1. `Feed` renderiza estado vazio com mensagem "Nenhum conteudo no feed".
+2. `loadMore` retorna `FeedPage` com `items` e `nextCursor`; segunda chamada usa cursor.
+3. `refresh` limpa pagina e recarrega do inicio.
+4. Slot de anuncio aparece a cada `adSlotInterval` itens com `isSponsored: true` e rotulo "patrocinado".
+5. `setRankingMode('chronological')` reordena feed por `createdAt` decrescente.
+6. `FeedItem` de kind `story` com `ttlMs` expirado nao aparece apos refresh.
+7. Playwright smoke: feed monta, botoes de ranking alternam, scroll carrega mais itens.
 
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+## 5. Instrucoes de Execucao (Step-by-Step)
+> **REGRAS DO QUE NAO FAZER:**
+> - **NAO** implemente o algoritmo de ranking — delegue ao Zen (T-604) via config.
+> - **NAO** renderize anuncio sem rotulo "patrocinado" — requisito de produto, nao opcional.
+> - **NAO** duplique logica de `SuperCard`/`Layout` — consuma o renderer de T-PG-02.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+### Pegadinhas conhecidas
+- **Armadilha:** Ranking e Zen na SPEC do feed, mas a qualidade depende da vantagem observacional do agente (18-social S4.3). Em P2P puro com visao parcial, o ranking e mais fraco — declarado como limite honesto. O componente deve expor o modo `chronological` como fallback garantido.
+- **Armadilha:** Anuncio e sempre distinguivel de conteudo organico na UI (29-anuncios S2.3). Um cliente adversario pode omitir o rotulo localmente, mas o componente honesto DEVE renderiza-lo.
+- **Armadilha:** Contadores virais (likes/views) inflam o grafo com arestas leves — use projecoes de intent em lote ([[projecao-analitica]], 18-social S3.3). Nao consulte o grafo para cada contador individualmente.
+- **Armadilha:** `adSlotInterval` define a cada quantos itens organicos um anuncio aparece. Se nao houver anuncios disponiveis, o slot e simplesmente pulado — nao insira placeholder vazio.
 
-## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+1. **[TDD]** Escreva `Feed.test.tsx` com os 6 casos unitarios da Secao 4.
+2. Crie `feed-types.ts` com interfaces e config padrao.
+3. Implemente `Feed.tsx` com composicao de SuperCard/Layout, intercalacao de anuncios, e controle de ranking.
+4. Implemente `loadMore` com cursor e `refresh` com reset.
+5. Escreva `Feed.e2e.ts` com smoke test Playwright.
+6. Rode build + test (Secao 7) e cole saida.
+
+## 6. Feedback de Especificacao (Spec Feedback Loop)
+> **DECISOES EM ABERTO — requer definicao do arquiteto:**
+> - **Nenhuma.** Contratos derivados de 18-social S4 e 29-anuncios S2.
+> **Status:** `draft` ate o arquiteto validar Secoes 1-4 e 7.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
-O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+O agente `agile_reviewer` usara esta checklist para aprovar ou rejeitar o PR:
+- [ ] O codigo segue estritamente os arquivos de Output especificados?
+- [ ] O `pnpm test` roda sem erros (JSDOM + Playwright smoke)?
+- [ ] Linter (`pnpm lint`) nao acusa problemas?
+- [ ] A implementacao respeita a Regra do Que Nao Fazer?
+- [ ] Todo anuncio renderizado tem `isSponsored: true` e rotulo visivel?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificacao automatica *(comandos exatos — worker E reviewer rodam e COLAM a saida)*
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter nexus-frontend build
+pnpm --filter nexus-frontend test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDENCIA:** nem o `finish` (worker) nem o veredito (reviewer) sao validos sem a
+> saida literal desses comandos colada na secao 8. Marcar `[x]` sem evidencia e violacao.
 
-## 8. Log de Handover e Revisão Agile (Code Review)
+## 8. Log de Handover e Revisao Agile (Code Review)
 ### Handover do Executor:
 - 
 
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
-- [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- [ ] **Requer Refatoracao**
+- **Evidencia de Execucao (obrigatoria — colar saida de build/tsc + test):**
 ```
-(cole aqui a saída real de pnpm build e pnpm test)
+(cole aqui a saida real de pnpm build e pnpm test)
 ```
-- **Comentários de Revisão:**
+- **Comentarios de Revisao:**
 
-## 9. Log de Execução (Agent Execution Log)
-> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+## 9. Log de Execucao (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.

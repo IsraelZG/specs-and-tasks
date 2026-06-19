@@ -6,8 +6,8 @@ complexity: 5
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+dependencies: ["T-JU-01", "T-JU-02", "T-JU-03"]
+blocks: []
 ---
 
 # T-JU-04 · resolucao multi-jurisdicao por ancora de papel (origem/destino/prestacao/titular) + provisao dupla + vetor cross-border
@@ -16,65 +16,56 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
+- **Test Runner:** `vitest` (pacotes core/protocol)
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar resolução multi-jurisdição por âncora de papel: cada aspecto regulado tem uma âncora (origem, destino, prestação, titular, MoR). Uma operação cross-border resolve cada regra com a âncora correspondente — não uma jurisdição única. Provisão dupla: venda BR→US apura imposto de saída `@BR` e entrada `@US`, ambos em `BALANCE_STATE` próprios. Vetor: conflito de duas regras no mesmo papel detectado na validação.
+**Fonte:** `caderno-3-sdk/13-jurisdicao.md §5`. **Conceitos:** [[jurisdicao]], [[spec-jurisdicional]], [[vigencia-de-regra]].
+
+### Contratos essenciais
+
+```ts
+// packages/jurisdiction/src/multi-jurisdiction.ts
+export type JurisdictionAnchor = 'origin' | 'destination' | 'labor' | 'data_subject' | 'merchant_of_record';
+export interface AnchorResolution { anchor: JurisdictionAnchor; jurisdiction: JurisdictionId; specVariantId?: string; }
+export interface MultiJurisdictionOperation { operationId: string; anchors: Partial<Record<JurisdictionAnchor, { entityId: string; defaultJurisdiction: JurisdictionId }>>; }
+export function resolveAnchors(operation: MultiJurisdictionOperation): AnchorResolution[];
+export interface DualProvision { originProvision: { jurisdiction: JurisdictionId; amount: number }; destinationProvision: { jurisdiction: JurisdictionId; amount: number }; }
+export function validateNoConflict(resolutions: AnchorResolution[]): { valid: boolean; conflicts: string[]; };
+```
+**File paths:** `packages/jurisdiction/src/multi-jurisdiction.ts` (CREATE), `packages/jurisdiction/tests/multi-jurisdiction.test.ts` (CREATE), `packages/jurisdiction/src/index.ts` (UPDATE).
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/13-jurisdicao.md](../docs/caderno-3-sdk/13-jurisdicao.md)
+- [caderno-3-sdk/13-jurisdicao.md](../docs/caderno-3-sdk/13-jurisdicao.md) — §5 (âncora por papel, composição multi-jurisdição, MoR, blocking vs degradação)
+- [[jurisdicao]] — resolução multi-jurisdição por papel
+- Deps: T-JU-01 (`JurisdictionId`, `resolveJurisdiction`), T-JU-02 (`SpecPayload`), T-JU-03 (`VigenciaWindow`)
 
-## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+**Testes (8 casos):** 1. Venda BR→US: origem=BR, destino=US → duas resoluções. 2. `validateNoConflict` sem conflito → `valid: true`. 3. Duas regras reivindicam mesmo papel → conflito detectado. 4. Âncora MoR resolve separadamente das demais. 5. `resolveAnchors` com anchor ausente → retorna default da implementação. 6. Provisão dupla: `originProvision` e `destinationProvision` em jurisdições diferentes. 7. Conector distinto por âncora: BR usa NF-e, US usa sales-tax. 8. Vetor cross-border: regra errada de jurisdição vizinha não aplicada (degradação para base).
 
-## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+**Pegadinhas:** `JurisdictionAnchor` é union literal (5 âncoras). MoR sempre se resolve como âncora separada. `DualProvision` não é sempre dual — depende das âncoras presentes na operação. Hard Stop (`blocking: true`) vs degradação: se conector fiscal falha e a SPEC tem `blocking: true`, a transição é bloqueada.
 
-## 5. Instruções de Execução (Step-by-Step)
-> **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
-
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
-
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+**Gate:** `pnpm --filter @plataforma/jurisdiction build && pnpm --filter @plataforma/jurisdiction test`
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+> **DECISÃO EM ABERTO:** T-JU-01, T-JU-02, T-JU-03 sendo endurecidas nesta passada. Âncoras dependem de `resolveJurisdiction` (T-JU-01). **Status:** `draft` até deps implementadas.
+
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] `resolveAnchors` resolve jurisdição por âncora de papel?
+- [ ] `validateNoConflict` detecta conflito de duas regras no mesmo papel?
+- [ ] Provisão dupla (BR→US) com jurisdições distintas?
+- [ ] Âncora MoR resolvida separadamente?
+- [ ] Vetor cross-border: regra de jurisdição vizinha não aplicada?
+- [ ] `pnpm --filter @plataforma/jurisdiction build` e `test` verdes?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática (Gate de Evidência)
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/jurisdiction build
+pnpm --filter @plataforma/jurisdiction test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -83,7 +74,7 @@ pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- **Evidência de Execução (obrigatória):**
 ```
 (cole aqui a saída real de pnpm build e pnpm test)
 ```

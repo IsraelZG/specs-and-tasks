@@ -6,8 +6,8 @@ complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+dependencies: ["T-CN-01", "T-009a"]
+blocks: []
 ---
 
 # T-CN-04 · persona agente-de-sistema por conector com ASSET:ROLE escopado + vetor
@@ -16,65 +16,55 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
+- **Test Runner:** `vitest` (pacotes core/protocol)
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar persona [[agente-de-sistema]] por conector: conectores classes C e D atuam como `PROFILE:SYSTEM` com `ASSET:ROLE` próprio, escopando o que podem ler/afirmar no grafo. Tudo que o conector publica é assinado por essa persona. Vetor adversarial: conector tenta afirmar fora do escopo → rejeição pelo validador.
+**Fonte:** `caderno-3-sdk/06-connectors.md §1.2`. **Conceitos:** [[agente-de-sistema]], [[conector-externo]].
+
+### Contratos essenciais
+
+```ts
+// packages/connectors/src/system-agent-persona.ts
+export interface SystemAgentPersona { personaId: string; // PROFILE:SYSTEM
+  roleId: string; // ASSET:ROLE
+  scope: { readableNodeTypes: string[]; writableNodeTypes: string[]; maxAffirmationsPerHour: number; }; }
+export function createConnectorPersona(connectorId: string, connectorClass: 'C'|'D'): SystemAgentPersona;
+export interface ScopedAffirmation { persona: SystemAgentPersona; fact: Record<string, unknown>; }
+export function validateAffirmation(affirmation: ScopedAffirmation): { valid: boolean; reason?: string; };
+```
+**File paths:** `packages/connectors/src/system-agent-persona.ts` (CREATE), `packages/connectors/tests/system-agent-persona.test.ts` (CREATE), `packages/connectors/src/index.ts` (UPDATE).
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/06-connectors.md](../docs/caderno-3-sdk/06-connectors.md)
+- [caderno-3-sdk/06-connectors.md](../docs/caderno-3-sdk/06-connectors.md) — §1.2 (identidade: persona SYSTEM + ASSET:ROLE escopado, auditabilidade)
+- [[agente-de-sistema]] — definição completa, orquestração vs afirmação
+- Deps: T-CN-01 (`ConnectorId`), T-009a (ControlPort — `draft`, interface de comando)
 
-## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+**Testes (6 casos):** 1. `createConnectorPersona` classe C → scope com `writableNodeTypes` não vazio. 2. Classe A → sem persona (dispensável). 3. `validateAffirmation` dentro do scope → `valid: true`. 4. Afirmação fora do scope → `valid: false`. 5. `maxAffirmationsPerHour` excedido → `valid: false`. 6. Vetor: conector tenta afirmar `BALANCE_STATE` sem `writableNodeTypes` contendo → rejeitado.
 
-## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+**Pegadinhas:** Classes A/B/E não têm persona (só C/D). `ASSET:ROLE` é escopado por tipo de nó — não por ID de nó. T-009a (ControlPort) está `draft` — a interface de comando para o system-peer ainda não definida.
 
-## 5. Instruções de Execução (Step-by-Step)
-> **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
-
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
-
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+**Gate:** `pnpm --filter @plataforma/connectors build && pnpm --filter @plataforma/connectors test`
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+> **DECISÃO EM ABERTO:** T-009a (ControlPort) está `draft`. A integração com system-peer depende da interface de comando. **Status:** `draft` até T-009a chegar a `ready`.
+
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] `createConnectorPersona` gera persona com `ASSET:ROLE` escopado?
+- [ ] `validateAffirmation` bloqueia afirmações fora do scope?
+- [ ] Classes A/B/E dispensam persona corretamente?
+- [ ] Vetor: conector tenta afirmar fora do escopo → rejeitado?
+- [ ] `pnpm --filter @plataforma/connectors build` e `test` verdes?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática (Gate de Evidência)
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/connectors build
+pnpm --filter @plataforma/connectors test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -83,7 +73,7 @@ pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- **Evidência de Execução (obrigatória):**
 ```
 (cole aqui a saída real de pnpm build e pnpm test)
 ```

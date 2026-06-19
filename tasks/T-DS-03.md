@@ -6,8 +6,8 @@ complexity: 4
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+dependencies: ["T-DS-01"] # Tokens semânticos compilados são pré-requisito — componentes consomem só camada semântica
+blocks: []
 ---
 
 # T-DS-03 · portar componentes-piloto para core/design-system consumindo tokens semanticos
@@ -20,46 +20,68 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Portar o conjunto piloto de 6 componentes — `Button`, `Input`, `Card`, `Message`, `NavItem`, `Toast` — para dentro de `packages/design-system/src/components/`, refatorando cada um para consumir **exclusivamente tokens semânticos** compilados pela T-DS-01 (invariante I1). Os componentes são shadcn-based, mas o vínculo com Tailwind é mediado: as classes Tailwind referenciam CSS custom properties geradas pelo Style Dictionary — nunca valores literais (invariante I3). A hierarquia de composição `módulo → engine → componente → tokens semânticos` (§2 do RAG) deve ser respeitada.
+
+**Entregáveis:**
+- `packages/design-system/src/components/Button.tsx` — portado, consumindo `var(--semantic-button-primary-bg)`
+- `packages/design-system/src/components/Input.tsx`
+- `packages/design-system/src/components/Card.tsx`
+- `packages/design-system/src/components/Message.tsx`
+- `packages/design-system/src/components/NavItem.tsx`
+- `packages/design-system/src/components/Toast.tsx`
+- `packages/design-system/src/components/index.ts` — barrel export do catálogo
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/10-design-system.md](../docs/caderno-3-sdk/10-design-system.md)
+- [caderno-3-sdk/10-design-system.md](../docs/caderno-3-sdk/10-design-system.md) — §2 define o catálogo de componentes, o conjunto piloto (`Button`, `Input`, `Card`, `Message`, `NavItem`, `Toast`), a hierarquia de composição `módulo → engine → componente → tokens semânticos`, e as invariantes I1 (componente consome só camada semântica) e I3 (nenhum literal). §1 define que o vínculo com Tailwind é mediado — `tailwind.config.js` referencia CSS custom properties do Style Dictionary, nunca valores literais.
+- [[catalogo-de-componentes]] — verbete canônico: conjunto piloto autorado, hierarquia de composição, contrato componente ↔ engine ↔ módulo.
+- [[design-token]] — verbete canônico: três camadas, invariantes I1 e I3, proibição de consumo direto de primitivos.
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `packages/design-system/build/web/css/variables-{light,dark}.css` — tokens CSS gerados pela T-DS-01
+- **[READ]** `packages/design-system/build/js/tokens.ts` — tokens TS para tipagem
+- **[READ]** `docs/caderno-3-sdk/10-design-system.md` — §2 catálogo e invariantes
+- **[READ]** fonte externa: `c:\Dev2026\Design System\design-system\src\components\**` — implementações originais como referência
+- **[CREATE]** `packages/design-system/src/components/Button.tsx`
+- **[CREATE]** `packages/design-system/src/components/Input.tsx`
+- **[CREATE]** `packages/design-system/src/components/Card.tsx`
+- **[CREATE]** `packages/design-system/src/components/Message.tsx`
+- **[CREATE]** `packages/design-system/src/components/NavItem.tsx`
+- **[CREATE]** `packages/design-system/src/components/Toast.tsx`
+- **[CREATE]** `packages/design-system/src/components/index.ts` — barrel export
+- **[UPDATE]** `packages/design-system/tailwind.config.js` — referenciar CSS custom properties do Style Dictionary, nunca valores literais
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+- [ ] **Framework:** Vitest + React Testing Library (JSDOM) para renderização; Playwright (smoke visual) opcional para regressão
+- [ ] **Métricas/Cobertura:** 5 casos de teste
+- [ ] **Ambiente do Teste:** JSDOM (renderização React)
+- [ ] **Fora de Escopo:** acessibilidade (T-015), responsividade TV, tema multi-nível (T-016)
+
+### Casos de Teste (numerados)
+1. **Cada componente renderiza sem crash:** para cada um dos 6 componentes, `render(<Component />)` em JSDOM não lança exceção.
+2. **Invariante I1 — sem consumo de primitivos:** inspecionar o CSS computado de `<Button variant="primary" />` em JSDOM — propriedades de cor (color, background-color) são resolvidas via `var(--semantic-*)`, nunca via `var(--global-*)` nem valor literal (ex: `#fff`, `hsl(...)`).
+3. **Invariante I3 — zero literais:** `grep -rPn "(#[0-9a-fA-F]{3,8}|rgb\(|hsl\(|font-size:\s*\d+)" packages/design-system/src/components/` não retorna matches (excluindo comentários).
+4. **Tailwind config referencia custom properties:** `tailwind.config.js` contém extensões de `colors`, `spacing`, `fontSize` etc. que usam `var(--semantic-*)` — nunca valores literais.
+5. **Barrel export completo:** `src/components/index.ts` exporta nomeadamente os 6 componentes; `tsc --noEmit` resolve todos.
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ REGRAS DO QUE NÃO FAZER:**
 > -
 > -
 
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+### Pegadinhas conhecidas
+- **Tailwind com valor literal embutido:** classes como `bg-[#ff0000]`, `text-[hsl(...)]` ou `p-[16px]` violam I3. Todo valor deve vir de token — usar `bg-[var(--semantic-button-primary-bg)]` ou configurar o `tailwind.config.js` com extensões que referenciam `var()`.
+- **Componente referenciando primitivo diretamente:** se o CSS do componente usar `var(--global-color-neutral-100)` em vez de `var(--semantic-card-bg)`, viola I1. A camada semântica é a única interface dos componentes com o sistema de tokens.
+- **Esquecer de mediar o vínculo Tailwind:** se o `tailwind.config.js` declarar `colors: { primary: '#...' }` com literais, o build gerará classes com valores hardcoded. Toda cor/dimensão no config deve ser `var(--semantic-*)` ou `var(--theme-*)`.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+1. **[TDD]** Configurar `tailwind.config.js` referenciando apenas custom properties do Style Dictionary
+2. Portar `Button` — primeiro componente, validar contra testes 1–3
+3. Portar `Input`, `Card` — validar a cada componente
+4. Portar `Message`, `NavItem`, `Toast`
+5. Criar barrel export `index.ts`
+6. Rodar teste 5 (tsc) e teste 3 (grep anti-literal)
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+> **ESPECIFICAÇÃO COMPLETA.** Seções 1–4 e 7 preenchidas pelo Task Architect com base no RAG `10-design-system.md` §2 e nos verbetes `[[catalogo-de-componentes]]` e `[[design-token]]`. Contratos extraídos diretamente da fonte — nenhum inventado.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
@@ -70,8 +92,8 @@ O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
 
 ### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/design-system build   # build completo (tokens + bundle Vite)
+pnpm --filter @plataforma/design-system test    # vitest + RTL (JSDOM) — 5 casos de teste
 ```
 > **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
 > saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.

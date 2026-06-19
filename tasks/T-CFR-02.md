@@ -3,11 +3,11 @@ id: T-CFR-02
 title: "apuracao fiscal por competencia + provisao em BALANCE_STATE + arquivo SPED como projecao"
 status: draft
 complexity: 5
-target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+target_agent: logic_agent
 reviewer_agent: agile_reviewer
-execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+execution_mode: sequential
+dependencies: ["T-CFR-01", "T-103"]
+blocks: ["T-CFR-04", "T-CFR-05"]
 ---
 
 # T-CFR-02 · apuracao fiscal por competencia + provisao em BALANCE_STATE + arquivo SPED como projecao
@@ -20,61 +20,175 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar o módulo de apuração fiscal no pacote `@plataforma/contabil`: cálculo de tributos como Zen jurisdicional sobre os fatos aplicando a regra vigente na competência (recálculo retroativo correto por construção), acúmulo do imposto a recolher em `ASSET:BALANCE_STATE` próprio, e geração de arquivos SPED/obrigações acessórias como projeção sobre os fatos. Emissão e transmissão de documentos fiscais (NF-e etc.) são delegadas a conector classe C — a plataforma modela o que precisa para orquestrar e provisionar, não reimplementa o motor fiscal externo. Falta de conector → modo degradado declarado.
+*(Fonte: `docs/caderno-3-sdk/17-contabil-fiscal-rh-reference-spec.md` §3)*.
+
+### Contratos exatos (assinaturas TS fixadas)
+
+```ts
+// --- packages/contabil/src/tax.ts ---
+import type { ULID, HLCTimestamp } from '@plataforma/core';
+import type { StoragePort } from '@plataforma/protocol';
+import type { EconomicFact } from './chart-of-accounts.js';
+
+/** Regime tributário. */
+export type TaxRegime = 'simples_nacional' | 'lucro_presumido' | 'lucro_real';
+
+/** Tributo a apurar. */
+export interface TaxRule {
+  id: string;
+  name: string; // "ICMS", "PIS", "COFINS", "IRPJ", "CSLL", "ISS"
+  jurisdiction: string;
+  regime: TaxRegime;
+  /** Alíquota base (pode ser ajustada por Zen). */
+  baseRate: number;
+  /** Base de cálculo (ex: 'revenue', 'payroll', 'profit'). */
+  base: 'revenue' | 'payroll' | 'profit' | 'custom';
+  /** Vigência da regra (epoch ms). */
+  effectiveFrom: number;
+  supersedesId?: string;
+}
+
+/** Provisão de tributo (acumula em BALANCE_STATE). */
+export interface TaxProvision {
+  id: ULID;
+  taxRuleId: string;
+  competence: number; // período de apuração (epoch ms)
+  /** Base de cálculo apurada. */
+  baseAmount: number;
+  /** Valor do tributo. */
+  taxAmount: number;
+  /** Fatos que compõem a base. */
+  sourceFactIds: ULID[];
+  createdAt: number;
+}
+
+/** Resultado da apuração fiscal de uma competência. */
+export interface TaxCalculation {
+  competence: number;
+  jurisdiction: string;
+  provisions: TaxProvision[];
+  /** Total a recolher. */
+  totalTaxDue: number;
+  /** Se houve fatos não classificados (apuração incompleta). */
+  incomplete: boolean;
+}
+
+/** Layout de arquivo SPED (projeção). */
+export interface SpedLayout {
+  regime: TaxRegime;
+  blocks: SpedBlock[];
+}
+
+export interface SpedBlock {
+  code: string; // "0", "C", "D", "E", "H", "K", etc.
+  description: string;
+  records: Record<string, string>[];
+}
+
+/** Registra regra tributária jurisdicional. */
+export function createTaxRule(params: Omit<TaxRule, 'id'>): TaxRule;
+
+/** Apura tributos de uma competência. */
+export async function calculateTaxes(
+  storage: StoragePort,
+  competence: number,
+  jurisdiction: string,
+  regime: TaxRegime,
+): Promise<TaxCalculation>;
+
+/** Acumula provisão em BALANCE_STATE. */
+export async function provisionTax(
+  storage: StoragePort,
+  provision: Omit<TaxProvision, 'id'>,
+): Promise<TaxProvision>;
+
+/** Gera arquivo SPED como projeção sobre os fatos. */
+export async function generateSped(
+  storage: StoragePort,
+  competence: number,
+  regime: TaxRegime,
+): Promise<SpedLayout>;
+
+/** Recalcula tributos de competência anterior (retroativo). */
+export async function recalculateTaxes(
+  storage: StoragePort,
+  competence: number,
+  jurisdiction: string,
+): Promise<TaxCalculation>;
+```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [caderno-3-sdk/17-contabil-fiscal-rh-reference-spec.md](../docs/caderno-3-sdk/17-contabil-fiscal-rh-reference-spec.md)
+- [caderno-3-sdk/17-contabil-fiscal-rh-reference-spec.md](../docs/caderno-3-sdk/17-contabil-fiscal-rh-reference-spec.md) §3 — apuração fiscal, provisão, SPED, modo degradado
+- [[jurisdicao]] — variante jurisdicional decide qual conector e parâmetros
+- [[conector-externo]] — conector classe C para emissão/transmissão de NF-e, classe E para consulta
+- [[vigencia-de-regra]] — competência temporal para recálculo retroativo
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `docs/caderno-3-sdk/17-contabil-fiscal-rh-reference-spec.md` §3, §6
+- **[READ]** `packages/contabil/src/chart-of-accounts.ts` (T-CFR-01) — EconomicFact, ClassificationRule
+- **[READ]** `packages/core/src/hlc.ts` (T-103) — HLCTimestamp para competência
+- **[CREATE]** `packages/contabil/src/tax.ts` — funções acima
+- **[CREATE]** `packages/contabil/tests/tax.test.ts`
+- **[UPDATE]** `packages/contabil/src/index.ts` — re-export
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+- [x] **Framework:** Vitest (Node puro).
+- [x] **Ambiente do Teste:** `pnpm --filter @plataforma/contabil test`.
+- [x] **Fora de Escopo:** Transmissão real de NF-e/SPED (conector), validação de assinatura digital de NF-e.
+
+Casos de teste (numerados):
+1. `createTaxRule({ name: 'ICMS', jurisdiction: 'BR-SP', baseRate: 0.18, ... })` → regra criada.
+2. `calculateTaxes(2026-06, 'BR', 'lucro_presumido')` sobre 3 fatos de venda → PIS/COFINS calculados.
+3. `calculateTaxes` com jurisdição sem regras → `incomplete: true`, `totalTaxDue: 0`.
+4. `provisionTax` → provisão registrada com `sourceFactIds` e `competence`.
+5. Duas chamadas a `provisionTax` para mesma competência → segunda atualiza (não duplica).
+6. `generateSped('lucro_presumido')` → layout com blocos 0, C, D, E, H, K preenchidos.
+7. `recalculateTaxes(2025-01, 'BR')` aplica regra vigente em 2025-01, não a atual.
+8. `calculateTaxes` com `base: 'payroll'` (INSS) → calculado sobre total de folha da competência.
+9. `calculateTaxes` com `base: 'revenue'` → calculado sobre total de vendas da competência.
+10. Modo degradado: `calculateTaxes` sinaliza `incomplete: true` com fato negativo (sem conector, sem estimativa).
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
+> - **NÃO** transmita NF-e ou SPED — isso é responsabilidade do conector classe C (fora do escopo). A plataforma só apura e provisiona.
+> - **NÃO** estime tributo silenciosamente quando faltam dados — sinalize `incomplete: true`.
+> - **NÃO** aplique regra de jurisdição errada — se não há variante para a jurisdição, degrade com fato negativo.
 
 ### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+- **Recálculo retroativo**: `recalculateTaxes(2025-01)` deve usar as regras com `effectiveFrom <= 2025-01` e que não foram substituídas antes dessa data. Não usar a regra atual se ela foi criada depois.
+- **Provisão vs. pagamento**: a provisão acumula em BALANCE_STATE (passivo). O pagamento do tributo é um fato separado que liquida esse passivo — não confundir apuração com recolhimento.
+- **Base de cálculo mista**: um fato pode contribuir para múltiplos tributos (ex: venda → ICMS + PIS + COFINS). Cada tributo tem sua própria base de cálculo e alíquota.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+1. **[TDD]** Crie `packages/contabil/tests/tax.test.ts` com casos 1–10.
+2. Implemente `createTaxRule` com validação de `base`/`regime`.
+3. Implemente `calculateTaxes` (agrega fatos por competência, aplica regras por jurisdição).
+4. Implemente `provisionTax` (acumula em BALANCE_STATE, idempotente por competência).
+5. Implemente `generateSped` como projeção (layout de blocos).
+6. Implemente `recalculateTaxes` (usa regra da época, não a atual).
+7. Re-exporte em `packages/contabil/src/index.ts`.
+8. Rode build + test (Seção 7) e cole saída.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
 > **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - **Contexto RAG (Seção 2):** vazio ou placeholder — quais cadernos/docs definem o contrato desta task?
-> - **Escopo de arquivos (Seção 3):** placeholder — quais arquivos exatos (READ/CREATE/UPDATE)?
-> - **Contratos TS (Seção 1):** não definidos — quais interfaces/tipos/funções?
-> - **Casos de teste (Seção 4):** não enumerados — quais cenários e framework?
-> - **Gate (Seção 7):** comando `pnpm --filter <pkg>` com `<pkg>` placeholder.
-> **Status:** `draft` até o arquiteto preencher Seções 1–4 e 7. NÃO inventar contratos sem fonte.
+> - **T-CFR-01 está `draft`**: `EconomicFact` e `ClassificationRule` ainda não estão definidos. Usar interfaces provisórias.
+> - **Layout SPED completo**: a especificação define que SPED é projeção. O layout exato de cada bloco (registros, campos) depende de especificação da RFB. Esta task implementa o mecanismo de projeção; os layouts específicos serão preenchidos por SPEC.
+> **Status:** `draft` até T-CFR-01 ficar `ready`.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] `calculateTaxes` aplica regra vigente na competência (não a atual)?
+- [ ] `recalculateTaxes` é retroativo correto (usa regra da época)?
+- [ ] Modo degradado sinaliza `incomplete: true`, nunca estima?
+- [ ] `generateSped` é projeção sobre fatos (não mantém estado paralelo)?
+- [ ] Os 10 casos de teste passam?
 
 ### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/contabil build
+pnpm --filter @plataforma/contabil test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDÊNCIA:** Worker cola saída literal na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
