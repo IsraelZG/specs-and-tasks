@@ -194,17 +194,17 @@
 | [T-903](./T-903.md) | Telemetria local + painel (métricas na Bancada + benchmark de regressão no CI) | `draft` | frontend_agent | 4 |
 | [T-904](./T-904.md) | Caos programado (Chaos/Fuzzer sobre SimNetwork) | `draft` | devops_agent | 5 |
 | [T-905](./T-905.md) | Documentação de integração + ADRs | `draft` | devops_agent | 3 |
-| [T-AD-01](./T-AD-01.md) | SPEC:AD/AD_CAMPAIGN + RELATES:AD:PROMOTES + orcamento/pacing por BALANCE_STATE/LOCK | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-AD-02](./T-AD-02.md) | selecao por superficie (Zen) no contexto do espectador + medicao assinada de evento | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-AD-03](./T-AD-03.md) | vetores: segmentacao lendo dado restrito, verba estourada, clique inflado | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-AD-01](./T-AD-01.md) | SPEC:AD/AD_CAMPAIGN + RELATES:AD:PROMOTES + orcamento/pacing por BALANCE_STATE/LOCK | `draft` | logic_agent | 4 |
+| [T-AD-02](./T-AD-02.md) | selecao por superficie (Zen) no contexto do espectador + medicao assinada de evento | `draft` | logic_agent | 5 |
+| [T-AD-03](./T-AD-03.md) | vetores: segmentacao lendo dado restrito, verba estourada, clique inflado | `draft` | logic_agent | 3 |
 | [T-CAL-01](./T-CAL-01.md) | SPEC:EVENT + recorrencia RRULE com instancias virtuais + override de excecao | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-CAL-02](./T-CAL-02.md) | convites/RSVP + capacidade por reserva_capacidade + render Timeline | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-CAL-02](./T-CAL-02.md) | convites/RSVP + capacidade por reserva_capacidade + render Timeline | `draft` | frontend_agent # UI task — Playwright obrigatório | 3 |
 | [T-CAL-03](./T-CAL-03.md) | sync externo Classe D + .ics por email + vetores | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-CFR-01](./T-CFR-01.md) | plano de contas como SPEC + mapeamento fato para conta por Zen jurisdicional | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-CFR-02](./T-CFR-02.md) | apuracao fiscal por competencia + provisao em BALANCE_STATE + arquivo SPED como projecao | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-CFR-03](./T-CFR-03.md) | persona contador (ASSET:ROLE escopado lendo subgrafo do cliente) + exportacoes formais | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-CFR-04](./T-CFR-04.md) | RH: colaborador/vinculo/eventos + folha derivada jurisdicional + provisao e lancamentos | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-CFR-05](./T-CFR-05.md) | vetores: recalculo retroativo da epoca, fechamento imutavel, jurisdicao ausente degrada, conector fiscal ausente | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-CFR-01](./T-CFR-01.md) | plano de contas como SPEC + mapeamento fato para conta por Zen jurisdicional | `draft` | logic_agent | 4 |
+| [T-CFR-02](./T-CFR-02.md) | apuracao fiscal por competencia + provisao em BALANCE_STATE + arquivo SPED como projecao | `draft` | logic_agent | 5 |
+| [T-CFR-03](./T-CFR-03.md) | persona contador (ASSET:ROLE escopado lendo subgrafo do cliente) + exportacoes formais | `draft` | logic_agent | 4 |
+| [T-CFR-04](./T-CFR-04.md) | RH: colaborador/vinculo/eventos + folha derivada jurisdicional + provisao e lancamentos | `draft` | logic_agent | 4 |
+| [T-CFR-05](./T-CFR-05.md) | vetores: recalculo retroativo da epoca, fechamento imutavel, jurisdicao ausente degrada, conector fiscal ausente | `draft` | logic_agent | 3 |
 | [T-CN-01](./T-CN-01.md) | interface ExternalConnector + registro + health/quotas no system-peer | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-CN-02](./T-CN-02.md) | pipeline de traducao com idempotencia por external_ref + testes de reentrega | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-CN-03](./T-CN-03.md) | esqueleto Classe D (cursor, polling/webhook, supressao de eco) com provedor fake | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
@@ -213,14 +213,14 @@
 | [T-DS-02](./T-DS-02.md) | importar schema de metadados AI-ready + indice + CI | `draft` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
 | [T-DS-03](./T-DS-03.md) | portar componentes-piloto para core/design-system consumindo tokens semanticos | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-DS-04](./T-DS-04.md) | lint anti-literal (invariante I3) | `draft` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-EML-01](./T-EML-01.md) | conector Classe D (IMAP/SMTP, cursor, polling/IDLE) — depende de T-CN-03 | `draft` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-EML-02](./T-EML-02.md) | espelho SPEC:EMAIL idempotente por Message-ID + threading + anexos + envio como saga com supressao de eco | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-EML-03](./T-EML-03.md) | vetores: reentrega para no-op, envio falho nao marca enviado, eco suprimido | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-ERP-01](./T-ERP-01.md) | SPECs SALES_ORDER/PURCHASE_ORDER + ciclo como SPEC:WORKFLOW | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-ERP-02](./T-ERP-02.md) | estoque multi-deposito + custeio como projecao + reserva por ASSET:LOCK | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-ERP-03](./T-ERP-03.md) | contas a pagar/receber + conciliacao por external_ref | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-ERP-04](./T-ERP-04.md) | CRM (pipeline workflow, visao 360 por traversal, regua Zen) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-ERP-05](./T-ERP-05.md) | projecoes analiticas incrementais + teste de custo (volume) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [T-EML-01](./T-EML-01.md) | conector Classe D (IMAP/SMTP, cursor, polling/IDLE) — depende de T-CN-03 | `draft` | devops_agent | 5 |
+| [T-EML-02](./T-EML-02.md) | espelho SPEC:EMAIL idempotente por Message-ID + threading + anexos + envio como saga com supressao de eco | `draft` | logic_agent | 5 |
+| [T-EML-03](./T-EML-03.md) | vetores: reentrega para no-op, envio falho nao marca enviado, eco suprimido | `draft` | logic_agent | 3 |
+| [T-ERP-01](./T-ERP-01.md) | SPECs SALES_ORDER/PURCHASE_ORDER + ciclo como SPEC:WORKFLOW | `draft` | logic_agent | 4 |
+| [T-ERP-02](./T-ERP-02.md) | estoque multi-deposito + custeio como projecao + reserva por ASSET:LOCK | `draft` | logic_agent | 4 |
+| [T-ERP-03](./T-ERP-03.md) | contas a pagar/receber + conciliacao por external_ref | `draft` | logic_agent | 4 |
+| [T-ERP-04](./T-ERP-04.md) | CRM (pipeline workflow, visao 360 por traversal, regua Zen) | `draft` | logic_agent | 4 |
+| [T-ERP-05](./T-ERP-05.md) | projecoes analiticas incrementais + teste de custo (volume) | `draft` | logic_agent | 4 |
 | [T-IA-01](./T-IA-01.md) | projecao vector_index (sqlite-vec/WASM) + embedding no pipeline pos-decifra (irma do FTS) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-IA-02](./T-IA-02.md) | capacidades compute de embedding e LLM como plugins (on-device + conector external) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-IA-03](./T-IA-03.md) | recuperacao hibrida RRF (FTS+vetor+traversal) com filtro de permissao + bypass escalar | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
@@ -231,61 +231,67 @@
 | [T-JU-02](./T-JU-02.md) | composicao base+variante por EXTENDS + validacao variante nao contradiz invariante + degradacao para base | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-JU-03](./T-JU-03.md) | selecao por vigencia na competencia + recalculo retroativo + vetor (regra errada nunca aplicada) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-JU-04](./T-JU-04.md) | resolucao multi-jurisdicao por ancora de papel (origem/destino/prestacao/titular) + provisao dupla + vetor cross-border | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-LOG-01](./T-LOG-01.md) | WMS: operacoes de armazem como SPEC:WORKFLOW + enderecamento + inventario ciclico | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-LOG-02](./T-LOG-02.md) | fulfillment: alocacao multi-deposito por Zen + reserva por LOCK + ciclo com compensacao | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-LOG-03](./T-LOG-03.md) | transporte externo: conector de transportadora (cotacao/etiqueta/rastreio) idempotente | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-LOG-04](./T-LOG-04.md) | operacao interna: dispatch-saga, entregador como listing, localizacao efemera, surge por Zen, repasse por SPEC | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-LOG-05](./T-LOG-05.md) | logistica reversa + prova de entrega/disputa (escrow) + reentrada de estoque + vetores | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-MAP-01](./T-MAP-01.md) | SPEC:PLACE + consulta sobre geo_index + render GeoSpatial | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-MAP-02](./T-MAP-02.md) | conector Classe E (geocoding/places/rotas) com cache TTL + proveniencia + flag cacheavel | `draft` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-MAP-03](./T-MAP-03.md) | consumo cross-modulo + localizacao como dado sensivel/efemero + vetores | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-LOG-01](./T-LOG-01.md) | WMS: operacoes de armazem como SPEC:WORKFLOW + enderecamento + inventario ciclico | `draft` | logic_agent | 4 |
+| [T-LOG-02](./T-LOG-02.md) | fulfillment: alocacao multi-deposito por Zen + reserva por LOCK + ciclo com compensacao | `draft` | logic_agent | 5 |
+| [T-LOG-03](./T-LOG-03.md) | transporte externo: conector de transportadora (cotacao/etiqueta/rastreio) idempotente | `draft` | logic_agent | 4 |
+| [T-LOG-04](./T-LOG-04.md) | operacao interna: dispatch-saga, entregador como listing, localizacao efemera, surge por Zen, repasse por SPEC | `draft` | logic_agent | 4 |
+| [T-LOG-05](./T-LOG-05.md) | logistica reversa + prova de entrega/disputa (escrow) + reentrada de estoque + vetores | `draft` | logic_agent | 4 |
+| [T-MAP-01](./T-MAP-01.md) | SPEC:PLACE + consulta sobre geo_index + render GeoSpatial | `draft` | logic_agent | 4 |
+| [T-MAP-02](./T-MAP-02.md) | conector Classe E (geocoding/places/rotas) com cache TTL + proveniencia + flag cacheavel | `draft` | devops_agent | 4 |
+| [T-MAP-03](./T-MAP-03.md) | consumo cross-modulo + localizacao como dado sensivel/efemero + vetores | `draft` | logic_agent | 3 |
 | [T-MK-01](./T-MK-01.md) | SPECs base PRODUCT/PRODUCT_LISTING + classes de liquidacao | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-MK-02](./T-MK-02.md) | anti-oversell por linhagem + vetor de corrida (uma unidade para uma finaliza) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-MK-03](./T-MK-03.md) | motor de saga Tier 1 (ASSET:LOCK, ttl_policy, compensacao) + Tier 2 opcional, estado efemero | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-MK-04](./T-MK-04.md) | SPENDS/CREDITS com split multi-destino + comissao/imposto por SPEC + multi-moeda | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
+| [T-MK-04a](./T-MK-04a.md) | SPENDS: dedução atômica de saldo com referência causal | `draft` | logic_agent | 3 |
+| [T-MK-04b](./T-MK-04b.md) | CREDITS: split multi-destino + comissão/imposto por SPEC + multi-moeda | `draft` | logic_agent | 4 |
 | [T-MK-05](./T-MK-05.md) | SPECs instrumento_financeiro (cessao/aporte/garantia) com APPROVED_BY, LASTRO, recourse | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-MK-06](./T-MK-06.md) | vetores: oversell multi-emissor, saga com perna externa falha, lance perdedor, cupom reusado | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
 | [T-MOD-01](./T-MOD-01.md) | profile de modulo + mensageria de comando (intent duravel enderecado + sinal efemero) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-MOD-02](./T-MOD-02.md) | delegado por (usuario x modulo) escopado por ASSET:ROLE + operacoes cross-user com permissao do proprio usuario | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-MOD-03](./T-MOD-03.md) | sessao como doc Automerge efemero local-first + opt-in de persistencia + profile como co-editor | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-MOD-04](./T-MOD-04.md) | vetores: delegado lendo dado de outro usuario, comando acima do privilegio, sessao efemera sem opt-in | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-MSG-01](./T-MSG-01.md) | envoltorio sobre o chat existente + integracao com DM social | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-MSG-02](./T-MSG-02.md) | chamadas/conferencia via LiveKit (SDK embutido + SFU plugin) + gravacao consolidada | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-MSG-03](./T-MSG-03.md) | presenca efemera nao-replicada + vetores | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-MOD-04](./T-MOD-04.md) | vetores: delegado lendo dado de outro usuario, comando acima do privilegio, sessao efemera sem opt-in | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [T-MSG-01](./T-MSG-01.md) | envoltorio sobre o chat existente + integracao com DM social | `draft` | logic_agent | 3 |
+| [T-MSG-02](./T-MSG-02.md) | chamadas/conferencia via LiveKit (SDK embutido + SFU plugin) + gravacao consolidada | `draft` | frontend_agent | 4 |
+| [T-MSG-03](./T-MSG-03.md) | presenca efemera nao-replicada + vetores | `draft` | frontend_agent | 3 |
 | [T-OFF-01](./T-OFF-01.md) | perfis de capacidade no motor de paginas + validador por perfil (emenda spec de paginas) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-OFF-02](./T-OFF-02.md) | doc perfil documento (blocos, Automerge, backlinks) + markdown simples | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-OFF-03](./T-OFF-03.md) | planilha first-party (motor de formulas + ZEN) + base como view estruturada/sobre-planilha | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-OFF-04](./T-OFF-04.md) | apresentacao perfil slide + export PDF/PPTX | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-OFF-05](./T-OFF-05.md) | editores de midia (imagem/video/audio) como componente/ui plugin + IA via compute | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-PG-01](./T-PG-01.md) | schema JSON do dialeto v1 + validador estatico (lib isomorfica) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-PG-02](./T-PG-02.md) | renderizador React sobre o catalogo (resolve sources, avalia ZEN sob orcamento, render progressivo) | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-PG-03](./T-PG-03.md) | mecanismo EXTENDS/override por id estavel + testes de precedencia | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-PG-04](./T-PG-04.md) | sub-dialeto de formularios sobre dataschema de SPEC | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-PG-05](./T-PG-05.md) | vetores: componente fora do catalogo, expressao estourando orcamento, intent acima do privilegio | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-PL-01](./T-PL-01.md) | SPEC:PLUGIN + manifesto + verificacao de assinatura/listagem no loader | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-PL-02](./T-PL-02.md) | sandbox browser (Worker/WASM, sem autoridade ambiente) + bridge de componente | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-PL-03](./T-PL-03.md) | sandbox node (processo/isolate, capacidades por ASSET:ROLE) | `draft` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-PL-04](./T-PL-04.md) | ComputePort + escalonador com anuncio de runtime via serves + casamento de site | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-PL-05](./T-PL-05.md) | fila assincrona (task=no, claim por ASSET:LOCK, resultado assinado, idempotencia) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-PL-06](./T-PL-06.md) | vetores: bundle nao-listado, plugin com rede fora das portas, classe restrita para external | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-PG-01](./T-PG-01.md) | schema JSON do dialeto v1 + validador estatico (lib isomorfica) | `draft` | logic_agent | 3 |
+| [T-PG-02](./T-PG-02.md) | renderizador React sobre o catalogo (resolve sources, avalia ZEN sob orcamento, render progressivo) | `draft` | frontend_agent | 5 |
+| [T-PG-03](./T-PG-03.md) | mecanismo EXTENDS/override por id estavel + testes de precedencia | `draft` | logic_agent | 4 |
+| [T-PG-04](./T-PG-04.md) | sub-dialeto de formularios sobre dataschema de SPEC | `draft` | frontend_agent | 4 |
+| [T-PG-05](./T-PG-05.md) | vetores: componente fora do catalogo, expressao estourando orcamento, intent acima do privilegio | `draft` | logic_agent | 3 |
+| [T-PL-01](./T-PL-01.md) | SPEC:PLUGIN + manifesto + verificacao de assinatura/listagem no loader | `draft` | logic_agent | 4 |
+| [T-PL-02](./T-PL-02.md) | sandbox browser (Worker/WASM, sem autoridade ambiente) + bridge de componente | `draft` | frontend_agent | 5 |
+| [T-PL-03](./T-PL-03.md) | sandbox node (processo/isolate, capacidades por ASSET:ROLE) | `draft` | devops_agent | 5 |
+| [T-PL-04](./T-PL-04.md) | ComputePort + escalonador com anuncio de runtime via serves + casamento de site | `draft` | logic_agent | 4 |
+| [T-PL-05](./T-PL-05.md) | fila assincrona (task=no, claim por ASSET:LOCK, resultado assinado, idempotencia) | `draft` | logic_agent | 4 |
+| [T-PL-05a](./T-PL-05a.md) | Fila assíncrona: claim por ASSET:LOCK + lease com heartbeat | `draft` | logic_agent | 3 |
+| [T-PL-05b](./T-PL-05b.md) | Fila assíncrona: resultado assinado + idempotência | `draft` | logic_agent | 2 |
+| [T-PL-06](./T-PL-06.md) | vetores: bundle nao-listado, plugin com rede fora das portas, classe restrita para external | `draft` | logic_agent | 3 |
 | [T-SHL-01](./T-SHL-01.md) | shell FlexLayout + SPEC:WORKSPACE (default + salvos nomeados) + painel binda (modulo+pagina+params) | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-SHL-02](./T-SHL-02.md) | restricoes de layout no manifesto + gerenciador deterministico (recencia+pinos) + pilha de colapsados | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-SHL-03](./T-SHL-03.md) | responsividade continua (multi-coluna para mobile) + chrome-como-modulo (menu reposicionado) | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-SHL-04](./T-SHL-04.md) | drag/share como mensagem de comando + contrato de aceite + falha controlada; rota + deep-link | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-SHL-05](./T-SHL-05.md) | camada de overlay + command palette (superficie) + ciclo de vida de painel (suspensao) | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-SOC-01](./T-SOC-01.md) | SPECs de perfil/post/story + arestas sociais + visibilidade publica/privada | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-SOC-02](./T-SOC-02.md) | feed via SuperCard/Layout + ranking Zen + RRF + slot de anuncio | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-SOC-03](./T-SOC-03.md) | vetores: privacidade retroativa e bloqueio como limites, story expirado, contadores como projecao | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-STR-01](./T-STR-01.md) | SPECs de conteudo/canal/colecao + reproducao adaptativa sobre o media plane | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-STR-02](./T-STR-02.md) | renditions como utilitario compute assincrono + irmaos CONTENT | `draft` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-STR-03](./T-STR-03.md) | live via LiveKit (SDK embutido + SFU plugin) + consolidacao para CONTENT:FILE | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-STR-04](./T-STR-04.md) | monetizacao (assinatura/PPV/ads/tip) + repasse por SPEC + vetor sem-seeder | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [T-SOC-01](./T-SOC-01.md) | SPECs de perfil/post/story + arestas sociais + visibilidade publica/privada | `draft` | logic_agent | 4 |
+| [T-SOC-02](./T-SOC-02.md) | feed via SuperCard/Layout + ranking Zen + RRF + slot de anuncio | `draft` | frontend_agent | 4 |
+| [T-SOC-03](./T-SOC-03.md) | vetores: privacidade retroativa e bloqueio como limites, story expirado, contadores como projecao | `draft` | frontend_agent | 3 |
+| [T-STR-01](./T-STR-01.md) | SPECs de conteudo/canal/colecao + reproducao adaptativa sobre o media plane | `draft` | logic_agent | 4 |
+| [T-STR-02](./T-STR-02.md) | renditions como utilitario compute assincrono + irmaos CONTENT | `draft` | devops_agent | 4 |
+| [T-STR-03](./T-STR-03.md) | live via LiveKit (SDK embutido + SFU plugin) + consolidacao para CONTENT:FILE | `draft` | frontend_agent | 4 |
+| [T-STR-04](./T-STR-04.md) | monetizacao (assinatura/PPV/ads/tip) + repasse por SPEC + vetor sem-seeder | `draft` | logic_agent | 4 |
 | [T-UI-01](./T-UI-01.md) | categoria ui no modelo de plugins + manifesto (props/intents/capacidades) — estende T-PL-01 | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-UI-02](./T-UI-02.md) | host de sandbox (iframe + Worker/OffscreenCanvas, bridge postMessage, orcamento, brokering) | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-UI-03](./T-UI-03.md) | componente rico GameEngine (2D/3D) data-driven com pontos ZEN + emissao de intent | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-UI-04](./T-UI-04.md) | tier estrito de validacao + vetores (DOM externo/rede nao declarada, intent acima do privilegio) | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-WF-01](./T-WF-01.md) | formato SPEC:WORKFLOW Nivel 1 + validador + envelope (guardas Zen, acoes intent, orcamento) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-WF-02](./T-WF-02.md) | interpretador Nivel 1 (estado unico, transicao evento+guarda, entry/exit, timers HLC) event-sourced | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-WF-03](./T-WF-03.md) | integracao com saga/TTL (compensacao) e tarefa humana (APPROVED_BY) | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-WF-04](./T-WF-04.md) | geracao Mermaid + read view na suite office | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-WF-05](./T-WF-05.md) | vetores: guarda fora do registro, acao acima do privilegio, estado nunca mutavel-replicado, orcamento estourado aborta | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-WF-01](./T-WF-01.md) | formato SPEC:WORKFLOW Nivel 1 + validador + envelope (guardas Zen, acoes intent, orcamento) | `draft` | logic_agent | 4 |
+| [T-WF-02](./T-WF-02.md) | interpretador Nivel 1 (estado unico, transicao evento+guarda, entry/exit, timers HLC) event-sourced | `draft` | logic_agent | 5 |
+| [T-WF-02a](./T-WF-02a.md) | Interpretador Nível 1: estado único + transição evento+guarda | `draft` | logic_agent | 3 |
+| [T-WF-02b](./T-WF-02b.md) | Interpretador Nível 1: timers HLC + entry/exit actions | `draft` | logic_agent | 3 |
+| [T-WF-03](./T-WF-03.md) | integracao com saga/TTL (compensacao) e tarefa humana (APPROVED_BY) | `draft` | logic_agent | 4 |
+| [T-WF-04](./T-WF-04.md) | geracao Mermaid + read view na suite office | `draft` | frontend_agent | 3 |
+| [T-WF-05](./T-WF-05.md) | vetores: guarda fora do registro, acao acima do privilegio, estado nunca mutavel-replicado, orcamento estourado aborta | `draft` | logic_agent | 3 |
