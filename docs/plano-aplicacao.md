@@ -2,8 +2,8 @@
 
 > **Canônico.** Roadmap da **camada de aplicação**, construída sobre a plataforma
 > (`plano-de-implementacao.md`, M0–M9). Aqui ficam as **fundações de aplicação** (transversais) e os
-> **produtos** (módulos de negócio). Promovido de `docs/rfcs/plano-de-modulos.md` +
-> `docs/rfcs/diff-preparativos-plano.md` (2026-06-19), agora reconciliado com os IDs de task reais.
+> **produtos** (módulos de negócio). Absorve e substitui os drafts `plano-de-modulos.md` +
+> `diff-preparativos-plano.md` (removidos 2026-06-20; histórico no git), reconciliado com os IDs de task reais.
 > Correlação task↔plano↔status: [`tasks/_correlacao-plano.md`](../tasks/_correlacao-plano.md).
 
 ## Duas camadas
@@ -78,8 +78,20 @@ por projeção, ação por intent, e um workflow Nível 1 dirigindo uma transiç
 | **M11** | **Calendário** | T-CAL-01..03 | P0 (workflow) + M5/M10 |
 | **M12** | **Suíte Office & Criação** | T-OFF-01..05 | P0 (páginas, plugins-frontend, shell, IA) + Automerge |
 
-> Critérios de validação detalhados por marco: ver a narrativa em `docs/rfcs/plano-de-modulos.md`
-> (a ser absorvida aqui na próxima passada).
+## Validação por marco (capacidade demonstrável)
+- **P0:** uma página spec renderiza no shell, com componente do catálogo, dados por projeção, ação por intent e um workflow Nível 1 — sem código novo além do substrato.
+- **M1 Mensageria:** app de mensagens estilo WhatsApp ponta a ponta (prova do substrato).
+- **M2 Marketplace:** vender item → pagar via BaaS sandbox → ver split/imposto provisionados; ceder recebível com aprovação; reversão comprovada.
+- **M3 ERP/CRM:** a venda do M2 aparece no ERP **sem ETL** (mesma lente); pipeline CRM avança por intents; relatório lê projeção dentro do custo dimensionado.
+- **M4 Contábil/Fiscal/RH:** fechar competência; recalcular folha retroativa pela regra da época; exportar SPED; jurisdição ausente degrada sem aplicar regra alheia.
+- **M5 Mapa:** buscar lugares por proximidade offline; rota com proveniência; consumível cross-módulo por referência.
+- **M6 Logística:** despachar pedido por entregador interno com rastreio ao vivo; disputa "não chegou" segura o escrow até resolver.
+- **M7 Social:** feed compõe conteúdo + anúncio distinguível; story expira na UI honesta; limites honestos (privacidade retroativa, bloqueio) provados.
+- **M8 Streaming:** VOD com qualidades adaptativas; live vira VOD ao encerrar; sem seeder → degradação declarada.
+- **M9 Anúncios:** produto vira anúncio sem duplicar o item; veicula em feed e pré-roll; cobra por evento; segmentação não lê dado restrito.
+- **M10 Email:** receber/enviar email real; reentrega vira no-op; eco suprimido; duas contas do mesmo usuário isoladas.
+- **M11 Calendário:** recorrência longa não materializa em massa; exceção não muta o mestre; convite externo via `.ics`.
+- **M12 Office:** doc colaborativo multiplayer; planilha com fórmulas; slide exportado para PPTX; imagem editada com IA — tudo no mesmo motor com perfis distintos.
 
 ## Sequência resumida
 **P0 (fundação) → M1 (mensageria, validação) → M2–M4 (núcleo comercial) → M5–M6 (mapa, logística) →
