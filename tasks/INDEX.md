@@ -213,6 +213,7 @@
 | [T-DS-02](./T-DS-02.md) | importar schema de metadados AI-ready + indice + CI | `draft` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
 | [T-DS-03](./T-DS-03.md) | portar componentes-piloto para core/design-system consumindo tokens semanticos | `draft` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-DS-04](./T-DS-04.md) | lint anti-literal (invariante I3) | `draft` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-DS-05](./T-DS-05.md) | Identidade visual: paleta + accent por módulo + escalas (raio/borda/elevação) + claro/escuro | `draft` | frontend_agent | 5 |
 | [T-EML-01](./T-EML-01.md) | conector Classe D (IMAP/SMTP, cursor, polling/IDLE) — depende de T-CN-03 | `draft` | devops_agent | 5 |
 | [T-EML-02](./T-EML-02.md) | espelho SPEC:EMAIL idempotente por Message-ID + threading + anexos + envio como saga com supressao de eco | `draft` | logic_agent | 5 |
 | [T-EML-03](./T-EML-03.md) | vetores: reentrega para no-op, envio falho nao marca enviado, eco suprimido | `draft` | logic_agent | 3 |
