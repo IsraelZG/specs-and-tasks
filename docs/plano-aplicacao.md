@@ -24,12 +24,20 @@ Toda task que renderiza UI (Bancada, shell, páginas, módulos, PWA) DEVE satisf
 1. **i18n como dado** — nenhuma string literal na UI. Todo rótulo consome `CONTENT:TRANSLATION`
    reativamente (`caderno-3-sdk/04-theme-and-i18n-data-structures.md §2`); placeholders (`{count}`,
    `{name}`) preservados. *(Lint/checagem: sem texto hard-coded em componente.)*
+   - **Locales de lançamento:** `pt-BR` (base), `en`, `es`, `fr`, `de`, `it` — toda copy/label nasce com os 6.
+   - **Preparado para outros, incluindo RTL** (`ar`, `he`): use **propriedades lógicas** de CSS
+     (`margin-inline-start`, `padding-block`, `inset-inline`) e tokens direcionais — **nunca** `left/right`
+     físicos — para que `dir="rtl"` espelhe o layout sem reescrita. Ícones direcionais (setas, voltar)
+     espelham por `dir`. *(Decisão registrada 2026-06-19; era lacuna — RTL não estava no caderno-04.)*
+   - **Formatação locale-aware** de datas/números/moeda via `Intl`, com a moeda/jurisdição resolvida
+     por [[jurisdicao]] (T-JU) quando aplicável — não hard-codar `R$`/`,`/`.`.
 2. **Tema por tokens** — só variáveis `--ds-*` do design-system; zero literais de cor/espaçamento
    (invariante **I3**, lint anti-literal — T-DS-04). Customização em 4 níveis (app→módulo→página→componente).
 3. **A11y baseline** — navegável por teclado, contraste AA, rótulos ARIA nas superfícies interativas.
 4. **Responsividade contínua** — multi-coluna ↔ mobile (mecanismo do shell, T-SHL-03).
 
 > Estes 4 itens entram no checklist do `agile-reviewer` para qualquer task `ui: true`.
+> Detalhamento de UX: [`diretrizes-ux.md`](diretrizes-ux.md). Telas para mockup: [`inventario-de-telas.md`](inventario-de-telas.md).
 
 ---
 
