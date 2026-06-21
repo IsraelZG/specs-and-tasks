@@ -8,6 +8,7 @@ import type {
   NetworkAdapterPort,
   PeerId,
   RandomPort,
+  SqlParams,
   SqlRow,
   StoragePort,
   WireData,
