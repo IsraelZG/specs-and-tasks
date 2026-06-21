@@ -148,6 +148,10 @@ importers:
         version: 3.2.6
 
   packages/testkit:
+    dependencies:
+      '@plataforma/protocol':
+        specifier: workspace:*
+        version: link:../protocol
     devDependencies:
       eslint:
         specifier: ^9.0.0

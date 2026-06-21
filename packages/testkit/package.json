@@ -9,6 +9,9 @@
     "test": "vitest run",
     "lint": "eslint src/"
   },
+  "dependencies": {
+    "@plataforma/protocol": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.8.0",
     "vitest": "^3.0.0",
