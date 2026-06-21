@@ -13,21 +13,21 @@ export type Ed25519PublicKey = Uint8Array;
 export type Ed25519Signature = Uint8Array;
 
 /** Gera par de chaves Ed25519. Backend: @noble/curves ou WebCrypto conforme ambiente. */
-export function ed25519GenerateKeyPair(): {
+export function ed25519GenerateKeyPair(): Promise<{
   publicKey: Ed25519PublicKey;
   privateKey: Ed25519PrivateKey;
-} {
+}> {
   const privateKey = ed25519.utils.randomSecretKey();
   const publicKey = ed25519.getPublicKey(privateKey);
-  return { publicKey, privateKey };
+  return Promise.resolve({ publicKey, privateKey });
 }
 
 /** Assina `message` com chave privada. */
 export function ed25519Sign(
   privateKey: Ed25519PrivateKey,
   message: Uint8Array,
-): Ed25519Signature {
-  return ed25519.sign(message, privateKey);
+): Promise<Ed25519Signature> {
+  return Promise.resolve(ed25519.sign(message, privateKey));
 }
 
 /** Verifica assinatura. */
@@ -35,8 +35,8 @@ export function ed25519Verify(
   publicKey: Ed25519PublicKey,
   message: Uint8Array,
   signature: Ed25519Signature,
-): boolean {
-  return ed25519.verify(signature, message, publicKey);
+): Promise<boolean> {
+  return Promise.resolve(ed25519.verify(signature, message, publicKey));
 }
 
 // === AES-256-GCM (cifra simétrica autenticada) ===
@@ -135,14 +135,14 @@ export async function aesGcmDecrypt(
 /** Digest SHA-256 — 32 bytes. */
 export type Sha256Digest = Uint8Array;
 
-export function sha256(data: Uint8Array): Sha256Digest {
-  return sha2(data);
+export function sha256(data: Uint8Array): Promise<Sha256Digest> {
+  return Promise.resolve(sha2(data));
 }
 
 // === Blake2s-256 ===
 
-export function blake2s256(data: Uint8Array): Uint8Array {
-  return blake2s(data);
+export function blake2s256(data: Uint8Array): Promise<Uint8Array> {
+  return Promise.resolve(blake2s(data));
 }
 
 // === HKDF (SHA-256) ===
@@ -152,6 +152,6 @@ export function hkdfSha256(
   salt: Uint8Array,
   info: Uint8Array,
   length: number,
-): Uint8Array {
-  return hkdf(sha2, ikm, salt, info, length);
+): Promise<Uint8Array> {
+  return Promise.resolve(hkdf(sha2, ikm, salt, info, length));
 }
