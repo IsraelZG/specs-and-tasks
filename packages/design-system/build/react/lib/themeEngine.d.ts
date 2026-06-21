@@ -5,17 +5,17 @@ export interface ThemeTokenValue {
     value: string;
     type: string;
 }
+/**
+ * A node in a Style Dictionary-shaped token tree: either a leaf (`{value, type}`),
+ * a plain string (e.g. `_comment` fields sprinkled through the token JSON files),
+ * or a nested group of further nodes.
+ */
+export type TokenNode = string | {
+    [key: string]: TokenNode;
+};
 export interface ThemeJSON {
     theme: {
-        name: {
-            value: string;
-            type: string;
-        };
-        scheme: {
-            value: string;
-            type: string;
-        };
-        [key: string]: any;
+        [key: string]: TokenNode;
     };
 }
 /**
@@ -24,4 +24,6 @@ export interface ThemeJSON {
  * @param themeJson The theme JSON containing primitives (e.g. theme.surface.canvas, etc.)
  * @param targetSelector The CSS selector target (default: ':root')
  */
-export declare function compileThemeToCSS(themeJson: any, targetSelector?: string): string;
+export declare function compileThemeToCSS(themeJson: {
+    [key: string]: TokenNode;
+}, targetSelector?: string): string;

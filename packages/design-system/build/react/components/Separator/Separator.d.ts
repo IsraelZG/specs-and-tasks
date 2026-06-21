@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as SeparatorPrimitive from '@radix-ui/react-separator';
-export interface SeparatorProps extends React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root> {
-}
-declare const Separator: React.ForwardRefExoticComponent<SeparatorProps & React.RefAttributes<HTMLDivElement>>;
+export type SeparatorProps = React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>;
+declare const Separator: React.ForwardRefExoticComponent<Omit<SeparatorPrimitive.SeparatorProps & React.RefAttributes<HTMLDivElement>, "ref"> & React.RefAttributes<HTMLDivElement>>;
 export { Separator };
