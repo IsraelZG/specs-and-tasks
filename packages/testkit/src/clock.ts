@@ -26,17 +26,16 @@ export class VirtualClock implements ClockPort {
     if (ms <= 0) return;
     const target = this._now + ms;
 
-    // Processa timers incrementalmente, em ordem cronológica
-    let expired: Timer[] = [];
-    do {
+    // Processa um timer por vez: extrai só o primeiro, executa, reordena.
+    // Assim nested timers e clearTimeout funcionam corretamente.
+    while (this.timers.length > 0) {
       this.timers.sort((a, b) => a.fireAt - b.fireAt);
-      const idx = this.timers.findIndex(t => t.fireAt > target);
-      expired = idx === -1 ? this.timers.splice(0) : this.timers.splice(0, idx);
-      for (const t of expired) {
-        this._now = t.fireAt;
-        t.callback();
-      }
-    } while (expired.length > 0);
+      const first = this.timers[0];
+      if (first === undefined || first.fireAt > target) break;
+      this.timers.shift();
+      this._now = first.fireAt;
+      first.callback();
+    }
 
     this._now = target;
   }

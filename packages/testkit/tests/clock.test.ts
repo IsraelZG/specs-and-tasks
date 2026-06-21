@@ -71,4 +71,33 @@ describe('VirtualClock', () => {
     clock.advance(100);
     expect(capturedNow).toBe(75);
   });
+
+  it('sonda B2: nested timer com fireAt anterior a outro timer pendente', () => {
+    const clock = new VirtualClock(0);
+    const order: number[] = [];
+    // Timer A: 200ms
+    clock.setTimeout(() => { order.push('A'); }, 200);
+    // Timer B: 100ms → agenda Timer C com 80ms (fireAt=180, anterior a A)
+    clock.setTimeout(() => {
+      order.push('B');
+      clock.setTimeout(() => { order.push('C'); }, 80);
+    }, 100);
+    clock.advance(200);
+    expect(order).toEqual(['B', 'C', 'A']);
+  });
+
+  it('sonda B3: clearTimeout de dentro de callback cancela timer futuro', () => {
+    const clock = new VirtualClock(0);
+    const fired: string[] = [];
+    let futureId: number;
+    // Timer em 50ms → cancela o timer de 100ms
+    clock.setTimeout(() => {
+      fired.push('early');
+      clock.clearTimeout(futureId);
+    }, 50);
+    // Timer em 100ms → não deve disparar
+    futureId = clock.setTimeout(() => { fired.push('late'); }, 100);
+    clock.advance(100);
+    expect(fired).toEqual(['early']);
+  });
 });
