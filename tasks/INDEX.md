@@ -24,14 +24,15 @@
 | [L-03](./L-03.md) | MoR + hard-stop legal: Merchant of Record e modo de bloqueio rigido | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [O-01](./O-01.md) | Colisao slot 09 do caderno-3: design-system vs hierarchical-theme — decidir numeracao | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [O-02](./O-02.md) | Colisao slot 22 do caderno-3: Mapa vs Workflow — mapa unico de numeracao | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-001](./T-001.md) | Bootstrap do monorepo | `draft` | devops_agent0 | 2 |
+| [T-001](./T-001.md) | Bootstrap do monorepo | `review` | devops_agent | 2 |
 | [T-002](./T-002.md) | Pipeline de CI (GitHub Actions) | `draft` | devops | 2 |
 | [T-003](./T-003.md) | Pacote testkit: Relógio e Random | `draft` | logic_agent | 2 |
-| [T-004](./T-004.md) | Portas fundamentais | `draft` | logic_agent | 2 |
+| [T-004](./T-004.md) | Portas fundamentais | `ready` | logic_agent | 2 |
 | [T-005](./T-005.md) | SimNetwork v1 | `draft` | logic_agent | 3 |
 | [T-006](./T-006.md) | SimNetwork v2 — Degradação e NAT | `draft` | logic_agent | 3 |
 | [T-007](./T-007.md) | Asserções de convergência (Testkit) | `draft` | logic_agent | 2 |
 | [T-008](./T-008.md) | App Bancada (PWA-ready) | `draft` | frontend_agent | 3 |
+| [T-009](./T-009.md) | Superfície de Controle e Telemetria (Headless) | `draft` | backend_agent | 3 |
 | [T-010](./T-010.md) | Peer do sistema v0 + admin | `draft` | devops | 3 |
 | [T-011](./T-011.md) | Incorporar @plataforma/design-system (lib) ao monorepo | `draft` | devops_agent | 2 |
 | [T-012](./T-012.md) | Incorporar apps/design-system-showcase | `draft` | frontend_agent | 1 |
@@ -47,7 +48,7 @@
 | [T-1006](./T-1006.md) | Prompt Builder e Exportador Inteligente (UI) | `done` | frontend_agent | 3 |
 | [T-1007](./T-1007.md) | Integração do EpochDB para Agentic Memory (Lossless) | `done` | backend_agent | 4 |
 | [T-1008](./T-1008.md) | Automação via MCP Safe Runner (Pre-approved Scripts) | `done` | devops_agent | 3 |
-| [T-101](./T-101.md) | Wrappers cripto | `draft` | crypto_agent | 3 |
+| [T-101](./T-101.md) | Wrappers cripto | `ready` | crypto_agent | 3 |
 | [T-1010](./T-1010.md) | Serviço de Tasks (máquina de estados MGTIA) no Nexus | `done` | logic_agent | 4 |
 | [T-1011](./T-1011.md) | Ferramentas MCP + endpoints REST de Tasks | `done` | logic_agent | 4 |
 | [T-1012](./T-1012.md) | Isolamento branch-por-task (git worktree) | `done` | devops_agent | 3 |
@@ -67,12 +68,12 @@
 | [T-1025](./T-1025.md) | Role gate nas transições: approve/request_changes restritos ao Reviewer | `done` | logic_agent | 2 |
 | [T-1026](./T-1026.md) | Ledger de transições + gate anti-drift: detectar e recusar edição manual de status fora do serviço | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-1027](./T-1027.md) | nexus start: bootstrap idempotente (Headroom WSL único + backend + frontend) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [T-103](./T-103.md) | HLC (Hybrid Logical Clock) completo | `draft` | logic_agent | 3 |
+| [T-103](./T-103.md) | HLC (Hybrid Logical Clock) completo | `ready` | logic_agent | 3 |
 | [T-104](./T-104.md) | BIP39 + Derivação de Chaves + Desbloqueio | `draft` | crypto_agent | 3 |
 | [T-105](./T-105.md) | PeerId e Multiaddr | `draft` | protocol_agent | 2 |
-| [T-106](./T-106.md) | Schema SQLite local (nodes/edges) | `draft` | core_agent | 3 |
-| [T-107](./T-107.md) | Assinatura Universal Layer 1 | `draft` | core_agent | 4 |
-| [T-108](./T-108.md) | Linhagem Layer 2 | `draft` | logic_agent | 3 |
+| [T-106](./T-106.md) | Schema SQLite local (nodes/edges) | `ready` | core_agent | 3 |
+| [T-107](./T-107.md) | Assinatura Universal Layer 1 | `ready` | core_agent | 4 |
+| [T-108](./T-108.md) | Linhagem Layer 2 | `ready` | logic_agent | 3 |
 | [T-110](./T-110.md) | Key Vault v0 | `draft` | core_agent | 3 |
 | [T-201](./T-201.md) | Wire format v1 | `draft` | protocol_agent | 3 |
 | [T-202](./T-202.md) | Noise_XX sobre porta de transporte | `draft` | crypto_agent | 4 |
