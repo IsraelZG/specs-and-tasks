@@ -1,0 +1,111 @@
+{
+  "color": {
+    "_comment": "Primitive color scales. Never reference these directly in components — always use semantic tokens. Each scale runs 50 (lightest) → 950 (darkest).",
+
+    "neutral": {
+      "0":   { "value": "#FFFFFF", "type": "color" },
+      "50":  { "value": "#FAFAFA", "type": "color" },
+      "100": { "value": "#F4F4F5", "type": "color" },
+      "200": { "value": "#E8E8EC", "type": "color" },
+      "300": { "value": "#D4D4DA", "type": "color" },
+      "400": { "value": "#A1A1AA", "type": "color" },
+      "500": { "value": "#71717A", "type": "color" },
+      "600": { "value": "#52525B", "type": "color" },
+      "700": { "value": "#3F3F46", "type": "color" },
+      "800": { "value": "#27272A", "type": "color" },
+      "900": { "value": "#18181B", "type": "color" },
+      "950": { "value": "#09090B", "type": "color" },
+      "1000":{ "value": "#000000", "type": "color" }
+    },
+
+    "lavender": {
+      "_comment": "Primary family — inspired by the dashboard purples in references.",
+      "50":  { "value": "#F5F3FF", "type": "color" },
+      "100": { "value": "#EDE9FE", "type": "color" },
+      "200": { "value": "#DDD6FE", "type": "color" },
+      "300": { "value": "#C4B5FD", "type": "color" },
+      "400": { "value": "#A78BFA", "type": "color" },
+      "500": { "value": "#8B5CF6", "type": "color" },
+      "600": { "value": "#7C3AED", "type": "color" },
+      "700": { "value": "#6D28D9", "type": "color" },
+      "800": { "value": "#5B21B6", "type": "color" },
+      "900": { "value": "#4C1D95", "type": "color" },
+      "950": { "value": "#2E1065", "type": "color" }
+    },
+
+    "blush": {
+      "_comment": "Accent family — the soft pinks from the references.",
+      "50":  { "value": "#FFF1F5", "type": "color" },
+      "100": { "value": "#FFE4EC", "type": "color" },
+      "200": { "value": "#FFCCDA", "type": "color" },
+      "300": { "value": "#FBA3BD", "type": "color" },
+      "400": { "value": "#F472A0", "type": "color" },
+      "500": { "value": "#EC4899", "type": "color" },
+      "600": { "value": "#DB2777", "type": "color" },
+      "700": { "value": "#BE185D", "type": "color" },
+      "800": { "value": "#9D174D", "type": "color" },
+      "900": { "value": "#831843", "type": "color" },
+      "950": { "value": "#500724", "type": "color" }
+    },
+
+    "sage": {
+      "_comment": "Success / nature family.",
+      "50":  { "value": "#F0FDF4", "type": "color" },
+      "100": { "value": "#DCFCE7", "type": "color" },
+      "200": { "value": "#BBF7D0", "type": "color" },
+      "300": { "value": "#86EFAC", "type": "color" },
+      "400": { "value": "#4ADE80", "type": "color" },
+      "500": { "value": "#22C55E", "type": "color" },
+      "600": { "value": "#16A34A", "type": "color" },
+      "700": { "value": "#15803D", "type": "color" },
+      "800": { "value": "#166534", "type": "color" },
+      "900": { "value": "#14532D", "type": "color" },
+      "950": { "value": "#052E16", "type": "color" }
+    },
+
+    "amber": {
+      "_comment": "Warning family.",
+      "50":  { "value": "#FFFBEB", "type": "color" },
+      "100": { "value": "#FEF3C7", "type": "color" },
+      "200": { "value": "#FDE68A", "type": "color" },
+      "300": { "value": "#FCD34D", "type": "color" },
+      "400": { "value": "#FBBF24", "type": "color" },
+      "500": { "value": "#F59E0B", "type": "color" },
+      "600": { "value": "#D97706", "type": "color" },
+      "700": { "value": "#B45309", "type": "color" },
+      "800": { "value": "#92400E", "type": "color" },
+      "900": { "value": "#78350F", "type": "color" },
+      "950": { "value": "#451A03", "type": "color" }
+    },
+
+    "coral": {
+      "_comment": "Danger / destructive family.",
+      "50":  { "value": "#FEF2F2", "type": "color" },
+      "100": { "value": "#FEE2E2", "type": "color" },
+      "200": { "value": "#FECACA", "type": "color" },
+      "300": { "value": "#FCA5A5", "type": "color" },
+      "400": { "value": "#F87171", "type": "color" },
+      "500": { "value": "#EF4444", "type": "color" },
+      "600": { "value": "#DC2626", "type": "color" },
+      "700": { "value": "#B91C1C", "type": "color" },
+      "800": { "value": "#991B1B", "type": "color" },
+      "900": { "value": "#7F1D1D", "type": "color" },
+      "950": { "value": "#450A0A", "type": "color" }
+    },
+
+    "ocean": {
+      "_comment": "Info family — calmer alternative to lavender.",
+      "50":  { "value": "#EFF6FF", "type": "color" },
+      "100": { "value": "#DBEAFE", "type": "color" },
+      "200": { "value": "#BFDBFE", "type": "color" },
+      "300": { "value": "#93C5FD", "type": "color" },
+      "400": { "value": "#60A5FA", "type": "color" },
+      "500": { "value": "#3B82F6", "type": "color" },
+      "600": { "value": "#2563EB", "type": "color" },
+      "700": { "value": "#1D4ED8", "type": "color" },
+      "800": { "value": "#1E40AF", "type": "color" },
+      "900": { "value": "#1E3A8A", "type": "color" },
+      "950": { "value": "#172554", "type": "color" }
+    }
+  }
+}
