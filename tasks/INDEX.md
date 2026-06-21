@@ -34,9 +34,9 @@
 | [T-008](./T-008.md) | App Bancada (PWA-ready) | `draft` | frontend_agent | 3 |
 | [T-009](./T-009.md) | Superfície de Controle e Telemetria (Headless) | `draft` | backend_agent | 3 |
 | [T-010](./T-010.md) | Peer do sistema v0 + admin | `draft` | devops | 3 |
-| [T-011](./T-011.md) | Incorporar @plataforma/design-system (lib) ao monorepo | `draft` | devops_agent | 2 |
+| [T-011](./T-011.md) | Incorporar @plataforma/design-system (lib) ao monorepo | `done` | devops_agent | 2 |
 | [T-012](./T-012.md) | Incorporar apps/design-system-showcase | `draft` | frontend_agent | 1 |
-| [T-013](./T-013.md) | Pipeline Turbo de tokens + cache (exceção Vite) | `draft` | devops_agent | 2 |
+| [T-013](./T-013.md) | Pipeline Turbo de tokens + cache (exceção Vite) | `ready` | devops_agent | 2 |
 | [T-014](./T-014.md) | Migrar hook de metadados + skill para .claude da raiz | `draft` | devops_agent | 1 |
 | [T-015](./T-015.md) | Quality gate do design system no CI | `draft` | devops_agent | 2 |
 | [T-016](./T-016.md) | Implementar RFC de Tema Multi-Nível no Design System | `draft` | frontend_agent | 3 |
