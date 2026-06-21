@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Do not edit directly
+  Generated on Sun, 21 Jun 2026 18:19:55 GMT
+-->
+<resources>
+  <dimen name="size_control_xs">384.00dp</dimen>
+  <dimen name="size_control_sm">512.00dp</dimen>
+  <dimen name="size_control_md">640.00dp</dimen>
+  <dimen name="size_control_lg">768.00dp</dimen>
+  <dimen name="size_control_xl">896.00dp</dimen>
+  <dimen name="size_icon_xs">192.00sp</dimen>
+  <dimen name="size_icon_sm">256.00sp</dimen>
+  <dimen name="size_icon_md">320.00sp</dimen>
+  <dimen name="size_icon_lg">384.00sp</dimen>
+  <dimen name="size_icon_xl">512.00sp</dimen>
+  <dimen name="size_icon_2xl">640.00sp</dimen>
+  <dimen name="size_avatar_xs">320.00dp</dimen>
+  <dimen name="size_avatar_sm">448.00dp</dimen>
+  <dimen name="size_avatar_md">576.00dp</dimen>
+  <dimen name="size_avatar_lg">768.00dp</dimen>
+  <dimen name="size_avatar_xl">1024.00dp</dimen>
+  <dimen name="size_avatar_2xl">1536.00dp</dimen>
+  
+</resources>

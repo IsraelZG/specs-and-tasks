@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Do not edit directly
+  Generated on Sun, 21 Jun 2026 18:19:55 GMT
+-->
+<resources>
+  <color name="color_neutral_0">#ffffffff</color>
+  <color name="color_neutral_50">#fffafafa</color>
+  <color name="color_neutral_100">#fff4f4f5</color>
+  <color name="color_neutral_200">#ffe8e8ec</color>
+  <color name="color_neutral_300">#ffd4d4da</color>
+  <color name="color_neutral_400">#ffa1a1aa</color>
+  <color name="color_neutral_500">#ff71717a</color>
+  <color name="color_neutral_600">#ff52525b</color>
+  <color name="color_neutral_700">#ff3f3f46</color>
+  <color name="color_neutral_800">#ff27272a</color>
+  <color name="color_neutral_900">#ff18181b</color>
+  <color name="color_neutral_950">#ff09090b</color>
+  <color name="color_neutral_1000">#ff000000</color>
+  <color name="color_lavender_50">#fff5f3ff</color>
+  <color name="color_lavender_100">#ffede9fe</color>
+  <color name="color_lavender_200">#ffddd6fe</color>
+  <color name="color_lavender_300">#ffc4b5fd</color>
+  <color name="color_lavender_400">#ffa78bfa</color>
+  <color name="color_lavender_500">#ff8b5cf6</color>
+  <color name="color_lavender_600">#ff7c3aed</color>
+  <color name="color_lavender_700">#ff6d28d9</color>
+  <color name="color_lavender_800">#ff5b21b6</color>
+  <color name="color_lavender_900">#ff4c1d95</color>
+  <color name="color_lavender_950">#ff2e1065</color>
+  <color name="color_blush_50">#fffff1f5</color>
+  <color name="color_blush_100">#ffffe4ec</color>
+  <color name="color_blush_200">#ffffccda</color>
+  <color name="color_blush_300">#fffba3bd</color>
+  <color name="color_blush_400">#fff472a0</color>
+  <color name="color_blush_500">#ffec4899</color>
+  <color name="color_blush_600">#ffdb2777</color>
+  <color name="color_blush_700">#ffbe185d</color>
+  <color name="color_blush_800">#ff9d174d</color>
+  <color name="color_blush_900">#ff831843</color>
+  <color name="color_blush_950">#ff500724</color>
+  <color name="color_sage_50">#fff0fdf4</color>
+  <color name="color_sage_100">#ffdcfce7</color>
+  <color name="color_sage_200">#ffbbf7d0</color>
+  <color name="color_sage_300">#ff86efac</color>
+  <color name="color_sage_400">#ff4ade80</color>
+  <color name="color_sage_500">#ff22c55e</color>
+  <color name="color_sage_600">#ff16a34a</color>
+  <color name="color_sage_700">#ff15803d</color>
+  <color name="color_sage_800">#ff166534</color>
+  <color name="color_sage_900">#ff14532d</color>
+  <color name="color_sage_950">#ff052e16</color>
+  <color name="color_amber_50">#fffffbeb</color>
+  <color name="color_amber_100">#fffef3c7</color>
+  <color name="color_amber_200">#fffde68a</color>
+  <color name="color_amber_300">#fffcd34d</color>
+  <color name="color_amber_400">#fffbbf24</color>
+  <color name="color_amber_500">#fff59e0b</color>
+  <color name="color_amber_600">#ffd97706</color>
+  <color name="color_amber_700">#ffb45309</color>
+  <color name="color_amber_800">#ff92400e</color>
+  <color name="color_amber_900">#ff78350f</color>
+  <color name="color_amber_950">#ff451a03</color>
+  <color name="color_coral_50">#fffef2f2</color>
+  <color name="color_coral_100">#fffee2e2</color>
+  <color name="color_coral_200">#fffecaca</color>
+  <color name="color_coral_300">#fffca5a5</color>
+  <color name="color_coral_400">#fff87171</color>
+  <color name="color_coral_500">#ffef4444</color>
+  <color name="color_coral_600">#ffdc2626</color>
+  <color name="color_coral_700">#ffb91c1c</color>
+  <color name="color_coral_800">#ff991b1b</color>
+  <color name="color_coral_900">#ff7f1d1d</color>
+  <color name="color_coral_950">#ff450a0a</color>
+  <color name="color_ocean_50">#ffeff6ff</color>
+  <color name="color_ocean_100">#ffdbeafe</color>
+  <color name="color_ocean_200">#ffbfdbfe</color>
+  <color name="color_ocean_300">#ff93c5fd</color>
+  <color name="color_ocean_400">#ff60a5fa</color>
+  <color name="color_ocean_500">#ff3b82f6</color>
+  <color name="color_ocean_600">#ff2563eb</color>
+  <color name="color_ocean_700">#ff1d4ed8</color>
+  <color name="color_ocean_800">#ff1e40af</color>
+  <color name="color_ocean_900">#ff1e3a8a</color>
+  <color name="color_ocean_950">#ff172554</color>
+  
+</resources>
