@@ -1,12 +1,12 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "deepinfra/meta-llama/Llama-3.3-70B-Instruct-Turbo",
+  "model": "deepinfra/deepseek-ai/DeepSeek-V4-Flash",
   "small_model": "deepinfra/meta-llama/Llama-4-Scout-17B-16E-Instruct",
   "provider": {
     "deepinfra": {
       "options": {
         "apiKey": "{env:DEEPINFRA_API_KEY}",
-        "baseURL": "https://api.deepinfra.com/v1/openai"
+        "baseURL": "{env:HEADROOM_URL}"
       }
     }
   },

@@ -16,7 +16,7 @@ const HEADROOM_PORT = 8787;
 const BACKEND_PORT = 3001;
 const FRONTEND_PORT = 5173;
 const HEADROOM_URL = `http://127.0.0.1:${HEADROOM_PORT}`;
-const DEEPINFRA_OPENAI_URL = 'https://api.deepinfra.com/v1/openai';
+const DEEPINFRA_OPENAI_URL = 'https://api.deepinfra.com';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

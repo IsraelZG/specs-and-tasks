@@ -30,6 +30,21 @@ stop('Frontend', 'frontend.pid');
 
 if (alsoHeadroom) {
   stop('Headroom', 'headroom.pid');
+  // Adiciona fallback por porta para matar processos órfãos do shim do Windows
+  try {
+    const res = spawnSync('cmd.exe', ['/c', 'netstat -ano | findstr LISTENING | findstr :8787'], { encoding: 'utf8' });
+    const lines = (res.stdout || '').split('\n').map(l => l.trim()).filter(Boolean);
+    for (const line of lines) {
+      const parts = line.split(/\s+/);
+      const pid = parts[parts.length - 1];
+      if (pid && /^\d+$/.test(pid)) {
+        spawnSync('taskkill', ['/PID', pid, '/F'], { encoding: 'utf8' });
+        console.log(`• Headroom (porta 8787): parado (pid ${pid})`);
+      }
+    }
+  } catch (e) {
+    // Silencioso
+  }
 } else {
   console.log('• Headroom: mantido de pé (use --headroom para derrubar)');
 }
