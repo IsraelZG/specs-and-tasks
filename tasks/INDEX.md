@@ -71,7 +71,7 @@
 | [T-103](./T-103.md) | HLC (Hybrid Logical Clock) completo | `ready` | logic_agent | 3 |
 | [T-104](./T-104.md) | BIP39 + Derivação de Chaves + Desbloqueio | `draft` | crypto_agent | 3 |
 | [T-105](./T-105.md) | PeerId e Multiaddr | `draft` | protocol_agent | 2 |
-| [T-106](./T-106.md) | Schema SQLite local (nodes/edges) | `review` | core_agent | 3 |
+| [T-106](./T-106.md) | Schema SQLite local (nodes/edges) | `done` | core_agent | 3 |
 | [T-107](./T-107.md) | Assinatura Universal Layer 1 | `ready` | core_agent | 4 |
 | [T-108](./T-108.md) | Linhagem Layer 2 | `ready` | logic_agent | 3 |
 | [T-110](./T-110.md) | Key Vault v0 | `draft` | core_agent | 3 |
