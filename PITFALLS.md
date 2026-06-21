@@ -146,4 +146,52 @@ problema, não a um `pnpm install` incompleto (P-003) — checar `LinkType` ante
 
 ---
 
+## P-006 · `ERR_PNPM_IGNORED_BUILDS` no pnpm 11 — `allowBuilds`, não `onlyBuiltDependencies`
+
+**Data:** 2026-06-20 (descoberto no Gate da T-001; custou várias rodadas)
+**Sintoma:** `pnpm install` (e por tabela `pnpm -r build/test/lint`, que fazem `runDepsStatusCheck`)
+sai com **exit 1** e `[ERR_PNPM_IGNORED_BUILDS] Ignored build scripts: esbuild@x.y.z` +
+`Run "pnpm approve-builds" …`. O Gate trava no install mesmo com o scaffolding correto.
+**Causa raiz:** o pnpm 10+ bloqueia postinstall de dependências por segurança. No **pnpm 11** o campo
+de aprovação é **`allowBuilds` (mapa `pacote: true|false`) no `pnpm-workspace.yaml`** — NÃO
+`onlyBuiltDependencies` (campo do pnpm 10, **silenciosamente ignorado** no 11) nem o `pnpm` field do
+`package.json`. O pnpm 11 inclusive **autoescreve** um stub `allowBuilds:\n  esbuild: set this to true
+or false` pedindo pra preencher — NÃO apague esse stub (é o pnpm te dizendo o campo certo).
+**Solução:**
+```yaml
+# pnpm-workspace.yaml
+allowBuilds:
+  esbuild: true
+```
+**Pegadinha dentro da pegadinha (lockfile velho mascara a correção):** se o `pnpm-lock.yaml` já existe,
+o pnpm imprime `Lockfile is up to date, resolution step is skipped` e **NÃO reaplica** a config de build
+— então mudar o `allowBuilds` não tem efeito. Precisa **apagar `node_modules` (e o `pnpm-lock.yaml`)**
+e reinstalar para a aprovação valer. (Esses deletes/instalações são longos → rodar manual, ver P-002.)
+**Fallback garantido:** `pnpm approve-builds` (interativo: seleciona o pacote com espaço, Enter), que
+escreve a config correta seja qual for o nome do campo na versão instalada.
+
+---
+
+## P-007 · Worktree criada no WSL quebra no Windows (e vice-versa) — padronizar UM ambiente
+
+**Data:** 2026-06-20
+**Sintoma:** `git -C <worktree> status` falha com `fatal: not a git repository: /mnt/c/...`; o
+`git worktree list` mostra a worktree como `prunable` com caminho `/mnt/c/Dev2026/...`; e/ou
+`pnpm -r build` falha por binário nativo de plataforma errada (esbuild/rollup linux num checkout Windows).
+**Causa raiz:** a worktree foi criada por um agente rodando no **WSL** (ex.: opencode). O ponteiro
+`.git` da worktree e o `gitdir` do lado do repo apontam para caminhos **`/mnt/c/...`** (válidos no WSL,
+inválidos no git nativo do Windows), e o `node_modules` instalado no WSL tem binários **linux** que não
+rodam no Windows. Misturar os dois ambientes no mesmo repo de código é a raiz.
+**Solução (padronizamos Windows-native em 2026-06-20):**
+1. Conserto pontual dos ponteiros: reescrever `<worktree>/.git` para `gitdir: C:/.../superapp/.git/worktrees/<ID>`
+   e `superapp/.git/worktrees/<ID>/gitdir` para `C:/.../.superapp-worktrees/<ID>/.git`.
+2. Limpo: apagar a worktree (`Remove-Item` de fora dela — não de dentro, senão o diretório fica em uso),
+   `git worktree prune`, `git branch -D task/<ID>`, e recriar do Windows
+   (`git -C superapp worktree add <path> -b task/<ID> master`).
+3. O `node_modules` do WSL é inútil no Windows: apagar e reinstalar (`pnpm install` Windows).
+**Decisão de fluxo:** rodar `pnpm wt` + agente + Gate **sempre no mesmo ambiente** (escolhido: Windows).
+WSL/opencode foi abandonado para execução de tasks.
+
+---
+
 <!-- Adicione novas entradas acima desta linha, no formato P-NNN -->
