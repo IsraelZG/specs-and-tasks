@@ -25,9 +25,9 @@
 | [O-01](./O-01.md) | Colisao slot 09 do caderno-3: design-system vs hierarchical-theme — decidir numeracao | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [O-02](./O-02.md) | Colisao slot 22 do caderno-3: Mapa vs Workflow — mapa unico de numeracao | `draft` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-001](./T-001.md) | Bootstrap do monorepo | `done` | devops_agent | 2 |
-| [T-002](./T-002.md) | Pipeline de CI (GitHub Actions) | `review` | devops | 2 |
+| [T-002](./T-002.md) | Pipeline de CI (GitHub Actions) | `done` | devops | 2 |
 | [T-003](./T-003.md) | Pacote testkit: Relógio e Random | `draft` | logic_agent | 2 |
-| [T-004](./T-004.md) | Portas fundamentais | `in_progress` | logic_agent | 2 |
+| [T-004](./T-004.md) | Portas fundamentais | `rework` | logic_agent | 2 |
 | [T-005](./T-005.md) | SimNetwork v1 | `draft` | logic_agent | 3 |
 | [T-006](./T-006.md) | SimNetwork v2 — Degradação e NAT | `draft` | logic_agent | 3 |
 | [T-007](./T-007.md) | Asserções de convergência (Testkit) | `draft` | logic_agent | 2 |
