@@ -17,6 +17,11 @@
 - **Lint:** `eslint` + `typescript-eslint`.
 - **Leia `PITFALLS.md` do repo de controle** antes de rodar build/install pesado — esta é máquina
   Windows 11 ARM64; o `.npmrc` precisa de `supportedArchitectures` win32+arm64.
+- **Build é Windows-native** (WSL/opencode abandonado — worktree e `node_modules` do WSL quebram no
+  Windows; ver PITFALLS P-007). Rode o agente/Gate num **terminal standalone** (não o integrado do
+  VS Code, que trava em `pnpm install` — P-002).
+- **pnpm 11 bloqueia build scripts:** aprovação é `allowBuilds:` (mapa `pkg: true`) no
+  `pnpm-workspace.yaml` — não `onlyBuiltDependencies` (ver PITFALLS P-006).
 
 ## Worktrees por task
 

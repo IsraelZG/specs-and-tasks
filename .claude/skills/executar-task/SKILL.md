@@ -32,6 +32,12 @@ Use seu identificador (ex.: `DeepSeek`) onde aparecer `<EU>` — **nunca** `agil
 5. **Gate de Evidência (INVIOLÁVEL):** rode os comandos EXATOS da Seção 7 **na sua pasta (CÓDIGO)** e
    cole a **saída literal** na Seção 8 de `<CTRL>/tasks/$ARGUMENTS.md`. Tudo verde é obrigatório.
    Vermelho → conserte; falha de ambiente → `pause`/`block` (nunca finalize no escuro).
+   > **Ambiente do Gate (Windows-native):** `pnpm install`/build **trava** se rodado pelo terminal
+   > **integrado do VS Code** (PITFALLS P-002). Rode o worker num **terminal standalone** (Windows
+   > Terminal/PowerShell) para o Gate ser autônomo; se estiver no VS Code, peça o Gate ao usuário e
+   > finalize com a saída colada. **pnpm 11:** se `pnpm install` der `ERR_PNPM_IGNORED_BUILDS`, o campo
+   > é `allowBuilds:` → `<pkg>: true` no `pnpm-workspace.yaml` (P-006), **não** `onlyBuiltDependencies`;
+   > e config nova só vale após apagar `node_modules`+`pnpm-lock.yaml` (o lock velho pula a resolução).
 6. **Finalize** (ledger): `node "<CTRL>/tools/scripts/manage-task.mjs" finish $ARGUMENTS <EU> "<resumo + placar de testes>"`.
    - Move pra `review`. Daqui em diante o reviewer assume — você **NÃO** aprova.
 7. **Commit + push do CÓDIGO** (na sua pasta = superapp):
