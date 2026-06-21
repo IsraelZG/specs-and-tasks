@@ -43,4 +43,32 @@ describe('VirtualClock', () => {
     clock.advance(100);
     expect(count).toBe(0);
   });
+
+  it('ordenacao: timers disparam em ordem cronológica (fireAt)', () => {
+    const clock = new VirtualClock(0);
+    const order: number[] = [];
+    clock.setTimeout(() => { order.push(2); }, 200);
+    clock.setTimeout(() => { order.push(1); }, 100);
+    clock.advance(200);
+    expect(order).toEqual([1, 2]);
+  });
+
+  it('nested: timer agenda outro timer dentro do mesmo advance', () => {
+    const clock = new VirtualClock(0);
+    const order: number[] = [];
+    clock.setTimeout(() => {
+      order.push(1);
+      clock.setTimeout(() => { order.push(2); }, 50);
+    }, 50);
+    clock.advance(150);
+    expect(order).toEqual([1, 2]);
+  });
+
+  it('nested: now() dentro do callback retorna fireAt exato', () => {
+    const clock = new VirtualClock(0);
+    let capturedNow = 0;
+    clock.setTimeout(() => { capturedNow = clock.now(); }, 75);
+    clock.advance(100);
+    expect(capturedNow).toBe(75);
+  });
 });

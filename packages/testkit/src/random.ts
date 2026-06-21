@@ -1,13 +1,5 @@
 import type { RandomPort } from '@plataforma/protocol';
 
-/**
- * Implementação xoshiro128**.
- * Gera double em [0, 1) via deslocamento de 64 bits.
- */
-function rotl(x: number, k: number): number {
-  return ((x << k) | (x >>> (32 - k))) >>> 0;
-}
-
 function splitmix32(seed: number): () => number {
   let s = seed | 0;
   return () => {
@@ -44,7 +36,7 @@ export class SeededRandom implements RandomPort {
   private nextU32(): number {
     const [a, b, c, d] = this.s;
     const result = Math.imul(d, 0x9e3779b9) >>> 0;
-    let t = (b << 9) >>> 0;
+    const t = (b << 9) >>> 0;
     this.s[1] = (a ^ b) >>> 0;
     this.s[2] = ((b ^ c) >>> 0) << 11;
     this.s[3] = (c ^ d) >>> 0;
