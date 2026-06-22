@@ -17,6 +17,10 @@
       "inputs": ["$TURBO_DEFAULT$", "!build/**", "!dist/**"],
       "outputs": ["dist/**", "build/**"]
     },
+    "validate": {},
+    "typecheck": {
+      "dependsOn": ["build:tokens"]
+    },
     "test": {},
     "lint": {},
     "dev": { "cache": false, "persistent": true }
