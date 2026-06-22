@@ -29,15 +29,23 @@ O pipeline de build é dividido em duas etapas orquestradas pelo Turborepo:
 
 | Step | Script npm | Turbo task | Output |
 |------|-----------|-----------|--------|
-| 1 — Tokens | `build:tokens` | `build:tokens` | `build/web/**` (CSS themes) |
-| 2 — Bundle | `build:react` | parte de `build` | `build/react/**` (ESM + types) |
-| Full | `build` | `build` | ambos acima |
+| 1 — Tokens | `build:tokens` | `build:tokens` | `build/web/**`, `build/react-native/**`, `build/ios/**`, `build/android/**`, `build/tv/**`, `src/metadata/components.index.json` (Tokens e metadados compilados) |
+| 2 — Bundle | `build:react` | `build` | `build/react/**` (ESM + types + CSS bundle) |
 
-O `turbo.json` reflete essa ordem de dependências:
+O `turbo.json` reflete essa ordem de dependências e os outputs completos:
 
 ```json
 {
-  "build:tokens": { "outputs": ["build/web/**"] },
+  "build:tokens": {
+    "outputs": [
+      "build/web/**",
+      "build/react-native/**",
+      "build/ios/**",
+      "build/android/**",
+      "build/tv/**",
+      "src/metadata/components.index.json"
+    ]
+  },
   "build": {
     "dependsOn": ["^build", "build:tokens"],
     "outputs": ["dist/**", "build/**"]

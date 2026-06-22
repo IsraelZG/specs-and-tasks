@@ -20,7 +20,7 @@
     "build:tokens": "node style-dictionary.config.js && pnpm run build:index",
     "build:index": "node --experimental-strip-types scripts/build-component-index.mjs",
     "build:react": "vite build",
-    "build": "pnpm run build:tokens && pnpm run build:react",
+    "build": "pnpm run build:react",
     "validate": "node --experimental-strip-types scripts/validate-metadata.mjs",
     "lint": "eslint src/",
     "test": "pnpm run validate && pnpm run typecheck && vitest run",

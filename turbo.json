@@ -2,10 +2,19 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build:tokens": {
-      "outputs": ["build/web/**"]
+      "inputs": ["$TURBO_DEFAULT$", "!build/**", "!src/metadata/components.index.json"],
+      "outputs": [
+        "build/web/**",
+        "build/react-native/**",
+        "build/ios/**",
+        "build/android/**",
+        "build/tv/**",
+        "src/metadata/components.index.json"
+      ]
     },
     "build": {
       "dependsOn": ["^build", "build:tokens"],
+      "inputs": ["$TURBO_DEFAULT$", "!build/**", "!dist/**"],
       "outputs": ["dist/**", "build/**"]
     },
     "test": {},
