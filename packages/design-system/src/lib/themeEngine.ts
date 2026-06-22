@@ -163,3 +163,109 @@ export function compileThemeToCSS(themeJson: { [key: string]: TokenNode }, targe
 
   return `${targetSelector} {\n${cssRules}\n}`;
 }
+
+// ---------------------------------------------------------------------------
+// Hierarchical Theme Overrides (RFC caderno-3-sdk/09)
+// ---------------------------------------------------------------------------
+
+/** Flat override map: "theme.intent.primary.fill" → "#7c3aed".
+ *  Derived from caderno-3-sdk/09 §5. */
+export type ThemeOverrideMap = Record<string, string>;
+
+/** Nível de escopo para compileScopedOverrides.
+ *  Derived from caderno-3-sdk/09 §1: data-ds-module | data-ds-page. */
+export type ScopedLevel = 'module' | 'page';
+
+/** Nome do atributo DOM por nível.
+ *  Derived from caderno-3-sdk/09 §1. */
+export const SCOPE_SELECTORS: Record<ScopedLevel, string> = {
+  module: 'data-ds-module',
+  page: 'data-ds-page',
+};
+
+/**
+ * Converts a flat override key to a CSS custom property name.
+ * "theme.intent.primary.fill" → "--ds-theme-intent-primary-fill"
+ * "card.radius"              → "--ds-component-card-radius"
+ * Derived from caderno-3-sdk/09 §5 "Regras de Resolução".
+ */
+function keyToCssVariable(flatKey: string): string {
+  const isTheme = flatKey.startsWith('theme.');
+  const tokenPath = isTheme ? flatKey.slice(6) : flatKey;
+  const prefix = isTheme ? '--ds-theme-' : '--ds-component-';
+  const kebab = tokenPath
+    .split('.')
+    .map(toKebabCase)
+    .join('-');
+  return `${prefix}${kebab}`;
+}
+
+/**
+ * Resolves reference placeholders in override values.
+ * "{theme.intent.primary.fill}" → "var(--ds-theme-intent-primary-fill)"
+ * "{component.card.radius}"     → "var(--ds-component-card-radius)"
+ * Literal values pass through unchanged.
+ * Derived from caderno-3-sdk/09 §5 "Referências encadeadas".
+ */
+function resolveReference(val: string): string {
+  const refRegex = /\{([^}]+)\}/g;
+  return val.replace(refRegex, (_match: string, path: string) => {
+    const isTheme = path.startsWith('theme.');
+    const tokenPath = isTheme ? path.slice(6) : path;
+    const prefix = isTheme ? '--ds-theme-' : '--ds-component-';
+    const kebab = tokenPath
+      .split('.')
+      .map(toKebabCase)
+      .join('-');
+    return `var(${prefix}${kebab})`;
+  });
+}
+
+/**
+ * Sanitizes a CSS value to prevent style-block escape.
+ * Strips "</style>" to prevent breaking out of a <style> element.
+ */
+function sanitizeCssValue(val: string): string {
+  return val.replace(/<\/style>/gi, '');
+}
+
+/**
+ * Compiles overrides into a scoped CSS block for injection via <style>.
+ * Derived from caderno-3-sdk/09 §4 "Bloco global <style>".
+ */
+export function compileScopedOverrides(
+  overrides: ThemeOverrideMap,
+  scope: ScopedLevel,
+  scopeId: string,
+): string {
+  const attr = SCOPE_SELECTORS[scope];
+  const rules: string[] = [];
+
+  for (const [key, rawVal] of Object.entries(overrides)) {
+    const varName = keyToCssVariable(key);
+    const resolved = resolveReference(rawVal);
+    const safe = sanitizeCssValue(resolved);
+    rules.push(`  ${varName}: ${safe};`);
+  }
+
+  return `[${attr}="${scopeId}"] {\n${rules.join('\n')}\n}`;
+}
+
+/**
+ * Converts overrides to an inline style object for React.
+ * { "button.primary.bg": "#333" } → { "--ds-component-button-primary-bg": "#333" }
+ * Derived from caderno-3-sdk/09 §4 "Componente/Instância — inline".
+ */
+export function overridesToStyleObject(
+  overrides: ThemeOverrideMap,
+): Record<string, string> {
+  const obj: Record<string, string> = {};
+
+  for (const [key, rawVal] of Object.entries(overrides)) {
+    const varName = keyToCssVariable(key);
+    const resolved = resolveReference(rawVal);
+    obj[varName] = resolved;
+  }
+
+  return obj;
+}

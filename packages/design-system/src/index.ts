@@ -233,6 +233,15 @@ export {
 } from './components/Menubar/Menubar';
 
 export { cn } from './lib/utils';
-export { compileThemeToCSS, defaultLightTheme, defaultDarkTheme } from './lib/themeEngine';
-export type { ThemeJSON } from './lib/themeEngine';
+export {
+  compileThemeToCSS,
+  defaultLightTheme,
+  defaultDarkTheme,
+  compileScopedOverrides,
+  overridesToStyleObject,
+  SCOPE_SELECTORS,
+} from './lib/themeEngine';
+export type { ThemeJSON, ThemeOverrideMap, ScopedLevel } from './lib/themeEngine';
+export { VALID_OVERRIDE_KEYS, isValidOverrideKey } from './lib/themeOverrideKeys';
+export { ThemeScope } from './lib/ThemeScope';
 
