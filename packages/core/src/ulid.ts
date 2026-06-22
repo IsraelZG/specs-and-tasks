@@ -92,14 +92,15 @@ export class ULIDFactory {
     const timestamp = this.clock.now() & 0xffff_ffff_ffff; // 48 bits
     const randomBytes = this.random.bytes(10);
 
-    // Monta 6 bytes timestamp (48 bits) big-endian
+    // Monta 6 bytes timestamp (48 bits) big-endian usando BigInt para evitar perda de precisão float64
     const tsBytes = new Uint8Array(6);
-    tsBytes[0] = (timestamp / 0x100_0000_0000) & 0xff;
-    tsBytes[1] = (timestamp / 0x1_0000_0000) & 0xff;
-    tsBytes[2] = (timestamp / 0x100_0000) & 0xff;
-    tsBytes[3] = (timestamp / 0x1_0000) & 0xff;
-    tsBytes[4] = (timestamp / 0x100) & 0xff;
-    tsBytes[5] = timestamp & 0xff;
+    const tsBig = BigInt(timestamp);
+    tsBytes[0] = Number((tsBig >> 40n) & 0xffn);
+    tsBytes[1] = Number((tsBig >> 32n) & 0xffn);
+    tsBytes[2] = Number((tsBig >> 24n) & 0xffn);
+    tsBytes[3] = Number((tsBig >> 16n) & 0xffn);
+    tsBytes[4] = Number((tsBig >> 8n) & 0xffn);
+    tsBytes[5] = Number(tsBig & 0xffn);
 
     // ULID spec: timestamp e random encodados separadamente → 10 + 16 = 26 chars
     return CrockfordBase32.encode(tsBytes) + CrockfordBase32.encode(randomBytes);

@@ -93,6 +93,17 @@ describe('ULIDFactory', () => {
     const ulid = factory.generate();
     expect(ulid.length).toBe(26);
     const crockfordAlphabet = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
-    expect(crockfordAlphabet.includes(ulid[10]!)).toBe(true);
+    expect(crockfordAlphabet.includes(ulid[10] ?? '')).toBe(true);
+  });
+
+  // Caso 12: timestamp máximo (0xFFFFFFFFFFFF) de 48 bits
+  // Derivado: M1 do Code Review — garante que o roundtrip do timestamp máximo funciona corretamente sem perda de precisão
+  it('12. timestamp máximo de 48 bits (0xFFFFFFFFFFFF) -> roundtrip mantem precisao', () => {
+    const maxTimestamp = 0xFFFFFFFFFFFF; // 281474976710655
+    const clock = new VirtualClock(maxTimestamp);
+    const factory = new ULIDFactory({ clock, random: new SeededRandom('max') });
+    const ulid = factory.generate();
+    const { timestamp } = ULIDFactory.decode(ulid);
+    expect(timestamp).toBe(maxTimestamp);
   });
 });
