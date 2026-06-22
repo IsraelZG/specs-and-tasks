@@ -13,15 +13,22 @@ export const CrockfordBase32 = {
     let bitCount = 0;
     let result = '';
     for (let i = 0; i < bytes.length; i++) {
-      bits = (bits << 8) | bytes[i]!;
+      const byte = bytes[i] ?? 0;
+      bits = (bits << 8) | byte;
       bitCount += 8;
       while (bitCount >= 5) {
         bitCount -= 5;
-        result += ALPHABET[(bits >>> bitCount) & 0x1f];
+        const char = ALPHABET[(bits >>> bitCount) & 0x1f];
+        if (char !== undefined) {
+          result += char;
+        }
       }
     }
     if (bitCount > 0) {
-      result += ALPHABET[(bits << (5 - bitCount)) & 0x1f]!;
+      const char = ALPHABET[(bits << (5 - bitCount)) & 0x1f];
+      if (char !== undefined) {
+        result += char;
+      }
     }
     return result;
   },
@@ -102,13 +109,16 @@ export class ULIDFactory {
   static decode(ulid: ULID): { timestamp: number; random: Uint8Array } {
     const tsBytes = CrockfordBase32.decode(ulid.slice(0, 10));
     const random = CrockfordBase32.decode(ulid.slice(10));
+    if (tsBytes.length < 6) {
+      throw new Error('Invalid timestamp bytes length');
+    }
     const timestamp =
-      tsBytes[0]! * 0x100_0000_0000 +
-      tsBytes[1]! * 0x1_0000_0000 +
-      tsBytes[2]! * 0x100_0000 +
-      tsBytes[3]! * 0x1_0000 +
-      tsBytes[4]! * 0x100 +
-      tsBytes[5]!;
+      (tsBytes[0] ?? 0) * 0x100_0000_0000 +
+      (tsBytes[1] ?? 0) * 0x1_0000_0000 +
+      (tsBytes[2] ?? 0) * 0x100_0000 +
+      (tsBytes[3] ?? 0) * 0x1_0000 +
+      (tsBytes[4] ?? 0) * 0x100 +
+      (tsBytes[5] ?? 0);
     return { timestamp, random };
   }
 
@@ -116,7 +126,8 @@ export class ULIDFactory {
   static isValid(candidate: string): candidate is ULID {
     if (candidate.length !== 26) return false;
     for (let i = 0; i < 26; i++) {
-      if (!ALPHABET.includes(candidate[i]!.toUpperCase())) return false;
+      const char = candidate[i];
+      if (char === undefined || !ALPHABET.includes(char.toUpperCase())) return false;
     }
     return true;
   }
