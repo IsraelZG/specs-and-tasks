@@ -89,6 +89,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@plataforma/crypto':
+        specifier: workspace:*
+        version: link:../crypto
       '@plataforma/protocol':
         specifier: workspace:*
         version: link:../protocol

@@ -10,6 +10,7 @@
     "lint": "eslint src/"
   },
   "dependencies": {
+    "@plataforma/crypto": "workspace:*",
     "@plataforma/protocol": "workspace:*"
   },
   "devDependencies": {
