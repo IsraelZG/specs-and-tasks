@@ -13,6 +13,7 @@
     "@plataforma/protocol": "workspace:*"
   },
   "devDependencies": {
+    "@plataforma/testkit": "workspace:*",
     "@types/better-sqlite3": "^7.6.0",
     "better-sqlite3": "^11.0.0",
     "typescript": "^5.8.0",
