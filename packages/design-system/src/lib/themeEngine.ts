@@ -211,7 +211,15 @@ function resolveReference(val: string): string {
   const refRegex = /\{([^}]+)\}/g;
   return val.replace(refRegex, (_match: string, path: string) => {
     const isTheme = path.startsWith('theme.');
-    const tokenPath = isTheme ? path.slice(6) : path;
+    const isComponent = path.startsWith('component.');
+    
+    let tokenPath = path;
+    if (isTheme) {
+      tokenPath = path.slice(6);
+    } else if (isComponent) {
+      tokenPath = path.slice(10);
+    }
+    
     const prefix = isTheme ? '--ds-theme-' : '--ds-component-';
     const kebab = tokenPath
       .split('.')

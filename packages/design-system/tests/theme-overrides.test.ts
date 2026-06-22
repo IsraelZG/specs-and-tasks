@@ -32,15 +32,22 @@ describe('compileScopedOverrides', () => {
   });
 
   // Case 3: Reference resolution
-  it('3. referencia {theme.xxx} vira var(--ds-theme-xxx)', () => {
+  it('3. referencia {theme.xxx} e {component.xxx} viram var(--ds-theme-xxx) e var(--ds-component-xxx)', () => {
     const css = compileScopedOverrides(
-      { 'button.primary.bg': '{theme.intent.primary.fill}' },
+      {
+        'button.primary.bg': '{theme.intent.primary.fill}',
+        'button.primary.radius': '{component.card.radius}',
+      },
       'module',
       'x',
     );
     expect(css).toContain('--ds-component-button-primary-bg');
     expect(css).toContain('var(--ds-theme-intent-primary-fill)');
+    expect(css).toContain('--ds-component-button-primary-radius');
+    expect(css).toContain('var(--ds-component-card-radius)');
     expect(css).not.toContain('{theme.intent.primary.fill}');
+    expect(css).not.toContain('{component.card.radius}');
+    expect(css).not.toContain('--ds-component-component-card-radius');
   });
 
   // Case 8: Empty overrides

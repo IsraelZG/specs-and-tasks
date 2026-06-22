@@ -33,19 +33,15 @@ function buildValidKeys(): ReadonlySet<string> {
   const keys = new Set<string>();
 
   // Theme-level keys (from light theme)
-  if (defaultLightTheme && typeof defaultLightTheme === 'object') {
-    const theme = (defaultLightTheme as Record<string, unknown>)['theme'];
-    if (theme && typeof theme === 'object') {
-      collectKeys(theme, 'theme', keys);
-    }
+  const theme = (defaultLightTheme as Record<string, unknown>)['theme'];
+  if (theme && typeof theme === 'object') {
+    collectKeys(theme, 'theme', keys);
   }
 
   // Component-level keys (from semantic components)
-  if (semanticComponents && typeof semanticComponents === 'object') {
-    const comp = (semanticComponents as Record<string, unknown>)['component'];
-    if (comp && typeof comp === 'object') {
-      collectKeys(comp, '', keys);
-    }
+  const comp = (semanticComponents as Record<string, unknown>)['component'];
+  if (comp && typeof comp === 'object') {
+    collectKeys(comp, '', keys);
   }
 
   return keys;
