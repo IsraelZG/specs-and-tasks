@@ -31,17 +31,29 @@ export class MerkleTree {
 
   private static async buildLevel(nodes: MerkleNode[]): Promise<MerkleNode> {
     if (nodes.length === 1) {
-      return nodes[0]!;
+      const rootNode = nodes[0];
+      if (!rootNode) {
+        throw new Error("Invalid MerkleTree state: node is undefined");
+      }
+      return rootNode;
+    }
+
+    const lastNode = nodes[nodes.length - 1];
+    if (!lastNode) {
+      throw new Error("Invalid MerkleTree state: empty nodes list");
     }
 
     // Balance: if odd, duplicate last
     const balanced =
-      nodes.length % 2 === 0 ? nodes : [...nodes, nodes[nodes.length - 1]!];
+      nodes.length % 2 === 0 ? nodes : [...nodes, lastNode];
 
     const parents = await Promise.all(
       Array.from({ length: balanced.length / 2 }, (_, i) => {
-        const left = balanced[i * 2]!;
-        const right = balanced[i * 2 + 1]!;
+        const left = balanced[i * 2];
+        const right = balanced[i * 2 + 1];
+        if (!left || !right) {
+          throw new Error("Invalid MerkleTree state: unbalanced child nodes");
+        }
         const combined = new Uint8Array(left.hash.length + right.hash.length);
         combined.set(left.hash);
         combined.set(right.hash, left.hash.length);
@@ -49,11 +61,18 @@ export class MerkleTree {
       }),
     );
 
-    const parentNodes: MerkleNode[] = parents.map((hash, i) => ({
-      hash,
-      left: balanced[i * 2],
-      right: balanced[i * 2 + 1],
-    }));
+    const parentNodes: MerkleNode[] = parents.map((hash, i) => {
+      const left = balanced[i * 2];
+      const right = balanced[i * 2 + 1];
+      if (!left || !right) {
+        throw new Error("Invalid MerkleTree state: unbalanced child nodes");
+      }
+      return {
+        hash,
+        left,
+        right,
+      };
+    });
 
     return MerkleTree.buildLevel(parentNodes);
   }
@@ -97,10 +116,14 @@ export class MerkleTree {
 
     if (targetIndex < mid) {
       if (node.right) proof.push(node.right.hash);
-      this.walkProof(node.left!, targetIndex, rangeStart, mid, proof);
+      if (node.left) {
+        this.walkProof(node.left, targetIndex, rangeStart, mid, proof);
+      }
     } else {
       if (node.left) proof.push(node.left.hash);
-      this.walkProof(node.right!, targetIndex, mid, rangeEnd, proof);
+      if (node.right) {
+        this.walkProof(node.right, targetIndex, mid, rangeEnd, proof);
+      }
     }
   }
 
