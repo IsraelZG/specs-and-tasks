@@ -57,7 +57,7 @@ export class HybridLogicalClock {
     // Drift check
     if (remotePt > wall + MAX_DRIFT_MS) {
       throw new Error(
-        `HLC drift: remote pt ${remotePt} exceeds wall clock ${wall} + ${MAX_DRIFT_MS}ms`
+        `HLC drift: remote pt ${remotePt.toString()} exceeds wall clock ${wall.toString()} + ${MAX_DRIFT_MS.toString()}ms`
       );
     }
 
@@ -85,10 +85,11 @@ export class HybridLogicalClock {
 
   /** Desempacota HLC em (pt, c). */
   static unpack(hlc: HLCTimestamp): HLCParts {
-    const n = Number(hlc);
+    const ptBig = hlc >> 16n;
+    const cBig = hlc & 0xFFFFn;
     return {
-      pt: Math.floor(n / 65536),
-      c: n & 0xFFFF,
+      pt: Number(ptBig),
+      c: Number(cBig),
     };
   }
 
