@@ -1,4 +1,5 @@
 import type { PeerId } from './peerId.js';
+export type { PeerId };
 
 /** Dado serializado na rede. Formato concreto definido em T-201 (wire format). */
 export type WireData = Uint8Array;
