@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@source "../../design-system/src/**/*.tsx";
+@source "../../design-system/src/**/*.ts";
+@source "./**/*.tsx";
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--ds-font-family-sans, system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+.ds-preview {
+  background-color: var(--ds-theme-surface-subdued, #f4f4f5);
+  border-radius: var(--ds-radius-xl, 0.75rem);
+  padding: var(--ds-spacing-5, 1rem);
+}
+
+.focus-demo {
+  transition: all 150ms ease;
+}
+.focus-demo:focus-visible,
+.focus-demo.simulated-focus {
+  outline: var(--ds-focus-ring-width, 2px) solid var(--ds-focus-ring-color, #8b5cf6);
+  outline-offset: var(--ds-focus-ring-offset, 2px);
+  box-shadow: var(--ds-focus-ring-shadow, 0 0 0 4px rgba(139, 92, 246, 0.25));
+}
