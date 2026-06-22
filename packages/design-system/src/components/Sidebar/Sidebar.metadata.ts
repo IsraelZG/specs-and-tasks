@@ -47,7 +47,6 @@ export const SidebarMetadata = defineMetadata({
     responsive: 'Hides/collapses side elements on mobile width thresholds.'
   },
   props: {
-    collapsible: { type: 'boolean', default: 'false', required: false, description: 'Allows collapsing sidebar width.' },
     isCollapsed: { type: 'boolean', default: 'false', required: false, description: 'Toggles sidebar widths.' }
   },
   tokens: {

@@ -2,16 +2,12 @@ import * as React from 'react';
 import { cn } from '../../lib/utils';
 
 export interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  collapsible?: boolean;
   isCollapsed?: boolean;
 }
 
 export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
   (
-    // `collapsible` is accepted for API compatibility but currently has no effect —
-    // see human-decision note: behavior is driven entirely by `isCollapsed`.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    { className, collapsible = false, isCollapsed = false, children, ...props },
+    { className, isCollapsed = false, children, ...props },
     ref
   ) => {
     return (
