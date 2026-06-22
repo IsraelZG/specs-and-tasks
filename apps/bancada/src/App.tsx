@@ -7,7 +7,7 @@ export function App() {
 
   return (
     <div>
-      <button type="button" onClick={reset} disabled={isResetting}>
+      <button type="button" onClick={() => { void reset(); }} disabled={isResetting}>
         {isResetting ? "Resetando..." : "Reset deste peer"}
       </button>
     </div>

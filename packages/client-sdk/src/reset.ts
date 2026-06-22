@@ -11,29 +11,32 @@
  * Não lança em ambiente que não suporte alguma API — apenas omite da lista.
  */
 
-type BrowserFS = typeof globalThis & {
-  navigator: Navigator & {
-    storage?: { getDirectory(): Promise<FileSystemDirectoryHandle> };
-    serviceWorker?: {
-      getRegistrations(): Promise<readonly ServiceWorkerRegistration[]>;
-    };
-  };
-  indexedDB?: IDBFactory & {
-    databases?(): Promise<Array<{ name: string }>>;
-  };
-  caches?: CacheStorage & {
-    keys(): Promise<readonly string[]>;
-    delete(cacheName: string): Promise<boolean>;
-  };
-  localStorage?: Storage;
-  sessionStorage?: Storage;
+type StorageAPI = {
+  getDirectory(): Promise<FileSystemDirectoryHandle>;
+};
+
+type ServiceWorkerAPI = {
+  getRegistrations(): Promise<readonly ServiceWorkerRegistration[]>;
+};
+
+type IDBWithDatabases = IDBFactory & {
+  databases(): Promise<Array<{ name: string }>>;
+};
+
+type CacheStorageAPI = {
+  keys(): Promise<readonly string[]>;
+  delete(cacheName: string): Promise<boolean>;
 };
 
 async function clearOPFS(): Promise<boolean> {
-  const nav = (globalThis as BrowserFS).navigator;
-  if (!nav?.storage?.getDirectory) return false;
+  const nav: unknown = (globalThis as Record<string, unknown>)["navigator"];
+  if (nav == null || typeof nav !== "object") return false;
+  const storage: unknown = (nav as Record<string, unknown>)["storage"];
+  if (storage == null || typeof storage !== "object") return false;
+  const api = storage as StorageAPI;
+  if (typeof api.getDirectory !== "function") return false;
   try {
-    const root = await nav.storage.getDirectory();
+    const root = await api.getDirectory();
     await removeRecursive(root);
     return true;
   } catch {
@@ -58,23 +61,25 @@ async function removeRecursive(
 }
 
 async function clearIndexedDB(): Promise<boolean> {
-  const idb = (globalThis as BrowserFS).indexedDB;
-  if (!idb?.databases || !idb?.deleteDatabase) return false;
+  const idb: unknown = (globalThis as Record<string, unknown>)["indexedDB"];
+  if (idb == null || typeof idb !== "object") return false;
+  const factory = idb as Partial<IDBWithDatabases>;
+  if (typeof factory.databases !== "function") return false;
+  if (typeof factory.deleteDatabase !== "function") return false;
   try {
-    const dbs = await idb.databases();
+    const dbs = await factory.databases();
     for (const db of dbs) {
       if (db.name) {
-        const result = idb.deleteDatabase(db.name) as Promise<void> | IDBRequest;
+        const result = factory.deleteDatabase(db.name) as Promise<void> | IDBRequest;
         if (result instanceof Promise) {
           await result;
         } else {
           await new Promise<void>((resolve, reject) => {
-            result.onsuccess = () => resolve();
-            result.onerror = () =>
+            result.onsuccess = () => { resolve(); };
+            result.onerror = () => {
               reject(new DOMException("IndexedDB delete failed", "AbortError"));
-            (result as IDBOpenDBRequest).onblocked = () => {
-              resolve();
             };
+            (result as IDBOpenDBRequest).onblocked = () => { resolve(); };
           });
         }
       }
@@ -86,12 +91,15 @@ async function clearIndexedDB(): Promise<boolean> {
 }
 
 async function clearCacheStorage(): Promise<boolean> {
-  const cs = (globalThis as BrowserFS).caches;
-  if (!cs?.keys || !cs?.delete) return false;
+  const cs: unknown = (globalThis as Record<string, unknown>)["caches"];
+  if (cs == null || typeof cs !== "object") return false;
+  const api = cs as CacheStorageAPI;
+  if (typeof api.keys !== "function") return false;
+  if (typeof api.delete !== "function") return false;
   try {
-    const cacheNames = await cs.keys();
+    const cacheNames = await api.keys();
     for (const name of cacheNames) {
-      await cs.delete(name);
+      await api.delete(name);
     }
     return true;
   } catch {
@@ -100,10 +108,10 @@ async function clearCacheStorage(): Promise<boolean> {
 }
 
 function clearLocalStorage(): boolean {
-  const ls = (globalThis as BrowserFS).localStorage;
-  if (!ls) return false;
+  const ls: unknown = (globalThis as Record<string, unknown>)["localStorage"];
+  if (ls == null || typeof ls !== "object") return false;
   try {
-    ls.clear();
+    (ls as Storage).clear();
     return true;
   } catch {
     return false;
@@ -111,10 +119,10 @@ function clearLocalStorage(): boolean {
 }
 
 function clearSessionStorage(): boolean {
-  const ss = (globalThis as BrowserFS).sessionStorage;
-  if (!ss) return false;
+  const ss: unknown = (globalThis as Record<string, unknown>)["sessionStorage"];
+  if (ss == null || typeof ss !== "object") return false;
   try {
-    ss.clear();
+    (ss as Storage).clear();
     return true;
   } catch {
     return false;
@@ -122,10 +130,14 @@ function clearSessionStorage(): boolean {
 }
 
 async function clearServiceWorker(): Promise<boolean> {
-  const nav = (globalThis as BrowserFS).navigator;
-  if (!nav?.serviceWorker?.getRegistrations) return false;
+  const nav: unknown = (globalThis as Record<string, unknown>)["navigator"];
+  if (nav == null || typeof nav !== "object") return false;
+  const sw: unknown = (nav as Record<string, unknown>)["serviceWorker"];
+  if (sw == null || typeof sw !== "object") return false;
+  const api = sw as ServiceWorkerAPI;
+  if (typeof api.getRegistrations !== "function") return false;
   try {
-    const regs = await nav.serviceWorker.getRegistrations();
+    const regs = await api.getRegistrations();
     for (const reg of regs) {
       await reg.unregister();
     }
