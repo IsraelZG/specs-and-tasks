@@ -1,5 +1,4 @@
-/** Identificador de peer — definido em T-102 e T-105. Nesta task, é um type alias provisório. */
-export type PeerId = string;
+import type { PeerId } from './peerId.js';
 
 /** Dado serializado na rede. Formato concreto definido em T-201 (wire format). */
 export type WireData = Uint8Array;
