@@ -49,7 +49,7 @@ StyleDictionary.extend({
         destination: 'tokens-global.css',
         format: 'css/variables',
         filter: isNotTypography,
-        options: { outputReferences: false, selector: ':root' },
+        options: { outputReferences: true, selector: ':root' },
       }],
     },
   },
@@ -74,7 +74,7 @@ function buildTheme(themeName) {
           destination: `theme-${themeName}.css`,
           format: 'css/variables',
           filter: (t) => isNotTypography(t) && !isGlobal(t),
-          options: { outputReferences: false, selector: `:root[data-theme="${themeName}"], .theme-${themeName}` },
+          options: { outputReferences: true, selector: `:root[data-theme="${themeName}"], .theme-${themeName}` },
         }],
       },
 
