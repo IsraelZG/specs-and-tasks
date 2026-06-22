@@ -22,7 +22,10 @@ export function derivePersonaPeerId(personaPublicKey: Uint8Array): PeerId {
 function bytesToHex(bytes: Uint8Array): string {
   const hex: string[] = [];
   for (let i = 0; i < bytes.length; i++) {
-    hex.push(bytes[i]!.toString(16).padStart(2, '0'));
+    const byte = bytes[i];
+    if (byte !== undefined) {
+      hex.push(byte.toString(16).padStart(2, '0'));
+    }
   }
   return hex.join('');
 }
@@ -39,7 +42,7 @@ const MULTIADDR_RE = /^\/(dns4|ip4)\/([^/]+)\/tcp\/(\d+)\/wss(?:#(.+))?$/;
 
 /** Codifica ParsedMultiaddr em string canônica. */
 export function encodeMultiaddr(addr: ParsedMultiaddr): string {
-  const base = `/${addr.protocol}/${addr.host}/tcp/${addr.port}/wss`;
+  const base = `/${addr.protocol}/${addr.host}/tcp/${String(addr.port)}/wss`;
   return addr.fragment ? `${base}#${addr.fragment}` : base;
 }
 
@@ -49,9 +52,11 @@ export function parseMultiaddr(raw: string): ParsedMultiaddr | null {
   if (!m) return null;
   const port = Number(m[3]);
   if (port < 1 || port > 65535) return null;
+  const host = m[2];
+  if (!host) return null;
   const result: ParsedMultiaddr = {
     protocol: m[1] as 'dns4' | 'ip4',
-    host: m[2]!,
+    host,
     port,
     transport: 'wss',
   };
