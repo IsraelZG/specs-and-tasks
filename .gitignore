@@ -94,3 +94,6 @@ generate_project_summary.js
 # Scratch space e artifacts de sessão
 .scratch/
 fable-last-week/
+
+# Config local de pnpm por máquina (não versionado — ver Regra 2b / P-008)
+.npmrc
