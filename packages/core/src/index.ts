@@ -7,4 +7,22 @@ export type { EntityId, ULID, ULIDFactoryOptions } from './ulid.js';
 export { KeyVault } from './keyVault';
 export type { KeyResult, DelegationProof } from './keyVault';
 
+export { HybridLogicalClock, MAX_DRIFT_MS } from './hlc';
+export type { HLCTimestamp, HLCParts } from './hlc';
+
+export {
+  canonicalizeNode,
+  canonicalizeEdge,
+  signNode,
+  signEdge,
+  verifyNode,
+  verifyEdge,
+} from './signature.js';
+export type {
+  UnsignedNode,
+  SignedNode,
+  UnsignedEdge,
+  SignedEdge,
+} from './signature.js';
+
 export const VERSION = "0.0.1";
