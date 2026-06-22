@@ -158,12 +158,12 @@ export async function signEdge(
 
 export async function verifyNode(node: SignedNode): Promise<boolean> {
   const { signature, ...unsigned } = node;
-  const message = canonicalizeNode(unsigned as UnsignedNode);
+  const message = canonicalizeNode(unsigned);
   return ed25519Verify(node.publicKey, message, signature);
 }
 
 export async function verifyEdge(edge: SignedEdge): Promise<boolean> {
   const { signature, ...unsigned } = edge;
-  const message = canonicalizeEdge(unsigned as UnsignedEdge);
+  const message = canonicalizeEdge(unsigned);
   return ed25519Verify(edge.publicKey, message, signature);
 }
