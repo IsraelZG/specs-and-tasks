@@ -61,18 +61,31 @@ describe("Chunker", () => {
     expect(reassembled).toEqual(original);
   });
 
-  test("5: reassemble com chunks em ordem trocada → falha", async () => {
+  test("5a: reassemble com ciphertext adulterado (1 byte) → falha (authTag GCM)", async () => {
     const chunker = new Chunker(256);
     const original = new Uint8Array(500).fill(0xdd);
     const encrypted = await chunker.process(original, key);
 
-    // Swap nonces entre chunks 0 e 1 (ciphertext fica com nonce errado)
-    const swapped = [
-      { ...encrypted[0]!, nonce: encrypted[1]!.nonce },
-      { ...encrypted[1]!, nonce: encrypted[0]!.nonce },
-    ];
+    // Adultera 1 byte do ciphertext do primeiro chunk — GCM deve rejeitar na decifração.
+    const tampered = encrypted.map((c, i) => {
+      if (i !== 0) return c;
+      const ct = new Uint8Array(c.ciphertext);
+      ct[0] = ((ct[0] ?? 0) + 1) % 256;
+      return { ...c, ciphertext: ct };
+    });
 
-    await expect(chunker.reassemble(swapped, key)).rejects.toThrow();
+    await expect(chunker.reassemble(tampered, key)).rejects.toThrow();
+  });
+
+  test("5b: reassemble com chunk faltando (índices não contíguos) → falha (sanidade)", async () => {
+    const chunker = new Chunker(256);
+    const original = new Uint8Array(700).fill(0xab); // 3 chunks: index 0,1,2
+    const encrypted = await chunker.process(original, key);
+    expect(encrypted).toHaveLength(3);
+
+    // Remove o chunk do meio → conjunto de índices {0,2} ≠ 0..n-1.
+    const missing = encrypted.filter((c) => c.index !== 1);
+    await expect(chunker.reassemble(missing, key)).rejects.toThrow();
   });
 
   test("6: arquivo 5 MiB dividido em chunks de 1 MiB → roundtrip com SHA-256 igual", async () => {

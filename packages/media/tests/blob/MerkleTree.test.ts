@@ -1,6 +1,9 @@
 import { describe, test, expect } from "vitest";
 import { MerkleTree } from "../../src/blob/MerkleTree.js";
+import { Chunker } from "../../src/blob/Chunker.js";
 import { sha256, type Sha256Digest } from "@plataforma/crypto";
+
+const key = new Uint8Array(32).fill(0x42);
 
 async function leaf(data: string): Promise<Sha256Digest> {
   return sha256(new TextEncoder().encode(data));
@@ -76,26 +79,23 @@ describe("MerkleTree", () => {
     expect(await MerkleTree.verifyProof(tree.root, leaves[0]!, 1, proof2)).toBe(false);
   });
 
-  test("13: InfoHash sobre ciphertext — raiz de ciphertextHash ≠ raiz de plaintextHash", async () => {
-    const ciphertextHashes = [
-      await leaf("ciphertext-chunk-0"),
-      await leaf("ciphertext-chunk-1"),
-      await leaf("ciphertext-chunk-2"),
-    ];
-    const plaintextHashes = [
-      await leaf("plaintext-chunk-0"),
-      await leaf("plaintext-chunk-1"),
-      await leaf("plaintext-chunk-2"),
-    ];
+  test("13: InfoHash sobre ciphertext — com saída REAL de process()", async () => {
+    const chunker = new Chunker(64);
+    const data = new Uint8Array(200).map((_, i) => (i * 3 + 1) % 256);
+    const chunks = await chunker.process(data, key);
+    expect(chunks.length).toBeGreaterThan(1);
 
-    const cipherTree = await MerkleTree.build(ciphertextHashes);
-    const plainTree = await MerkleTree.build(plaintextHashes);
+    const cipherTree = await MerkleTree.build(chunks.map((c) => c.ciphertextHash));
+    const plainTree = await MerkleTree.build(chunks.map((c) => c.plaintextHash));
 
-    // Raízes DEVEM diferir (comprova que a árvore consome ciphertext)
+    // A raiz sobre ciphertextHash DEVE diferir da raiz sobre plaintextHash
+    // (comprova que a árvore consome o ciphertext real produzido por process()).
     expect(cipherTree.root).not.toEqual(plainTree.root);
 
-    // Reconstruir raiz a partir de sha256 de cada ciphertext deve bater
-    const reconstructedRoot = (await MerkleTree.build(ciphertextHashes)).root;
-    expect(reconstructedRoot).toEqual(cipherTree.root);
+    // Reconstruir a raiz a partir de sha256(ciphertext) de cada chunk deve bater com cipherTree.
+    const reconstructed = await MerkleTree.build(
+      await Promise.all(chunks.map((c) => sha256(c.ciphertext))),
+    );
+    expect(reconstructed.root).toEqual(cipherTree.root);
   });
 });
