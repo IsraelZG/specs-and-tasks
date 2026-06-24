@@ -34,15 +34,15 @@ export class SeededRandom implements RandomPort {
   }
 
   private nextU32(): number {
-    const [a, b, c, d] = this.s;
-    const result = Math.imul(d, 0x9e3779b9) >>> 0;
-    const t = (b << 9) >>> 0;
-    this.s[1] = (a ^ b) >>> 0;
-    this.s[2] = ((b ^ c) >>> 0) << 11;
-    this.s[3] = (c ^ d) >>> 0;
-    // Rola a pra esquerda
-    const a2 = ((a << 23) | (a >>> 9)) >>> 0;
-    this.s[0] = a2 ^ t ^ (a2 >>> 18);
+    const s = this.s;
+    const result = Math.imul(rotl(Math.imul(s[1], 5), 7), 9) >>> 0;
+    const t = (s[1] << 9) >>> 0;
+    s[2] ^= s[0];
+    s[3] ^= s[1];
+    s[1] ^= s[2];
+    s[0] ^= s[3];
+    s[2] ^= t;
+    s[3] = rotl(s[3], 11);
     return result;
   }
 
@@ -53,4 +53,8 @@ export class SeededRandom implements RandomPort {
     }
     return out;
   }
+}
+
+function rotl(x: number, k: number): number {
+  return ((x << k) | (x >>> (32 - k))) >>> 0;
 }

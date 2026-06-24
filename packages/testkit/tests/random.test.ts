@@ -36,4 +36,12 @@ describe('SeededRandom', () => {
       expect(v).toBeLessThan(1);
     }
   });
+
+  it('11: bytes(10) consecutivos produzem valores distintos (regressão xoshiro128**)', () => {
+    const rng = new SeededRandom('distinct');
+    const a = rng.bytes(10);
+    const unique = new Set(a);
+    // Com PRNG corrigido, pelo menos 5 bytes devem ser distintos
+    expect(unique.size).toBeGreaterThanOrEqual(5);
+  });
 });
