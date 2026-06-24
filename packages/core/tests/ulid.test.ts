@@ -106,4 +106,11 @@ describe('ULIDFactory', () => {
     const { timestamp } = ULIDFactory.decode(ulid);
     expect(timestamp).toBe(maxTimestamp);
   });
+
+  // Caso 13: 5 ULIDs consecutivos com clock fixo → 5 IDs únicos (regressão xoshiro128**)
+  it('13. 5 ULIDs consecutivos com clock fixo → 5 IDs únicos', () => {
+    const factory = new ULIDFactory({ clock: new VirtualClock(0), random: new SeededRandom('unique') });
+    const ids = new Set(Array.from({ length: 5 }, () => factory.generate()));
+    expect(ids.size).toBe(5);
+  });
 });

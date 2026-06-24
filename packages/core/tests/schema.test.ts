@@ -142,6 +142,8 @@ describe('Schema SQLite', () => {
       'idx_edges_source',
       'idx_edges_target',
       'idx_edges_type',
+      'idx_entity_heads_head',
+      'idx_entity_members_entity',
       'idx_nodes_type',
     ]);
   });

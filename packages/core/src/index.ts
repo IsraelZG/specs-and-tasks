@@ -25,4 +25,14 @@ export type {
   SignedEdge,
 } from './signature.js';
 
+export {
+  hashNode,
+  insertNode,
+  getLineage,
+  getHead,
+  validateChain,
+  detectFork,
+} from './lineage.js';
+export type { NodeHash } from './lineage.js';
+
 export const VERSION = "0.0.1";

@@ -35,9 +35,27 @@ export interface Migration {
   sql: string;
 }
 
-/** Schema v1 = migration 1. Adições futuras ganham version > 1. */
+const V2 = `
+CREATE TABLE IF NOT EXISTS entity_members (
+  node_id    TEXT NOT NULL PRIMARY KEY REFERENCES nodes(id),
+  entity_id  TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_entity_members_entity ON entity_members(entity_id);
+
+CREATE TABLE IF NOT EXISTS entity_heads (
+  entity_id  TEXT NOT NULL PRIMARY KEY,
+  head_id    TEXT NOT NULL REFERENCES nodes(id),
+  head_hlc   TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_entity_heads_head ON entity_heads(head_id);
+`;
+
+/** Schema v1 + v2 (entity_heads + entity_id column). */
 export const MIGRATIONS: Migration[] = [
   { version: 1, sql: DDL },
+  { version: 2, sql: V2 },
 ];
 
 /** Aplica todas as migrations pendentes via StoragePort. Idempotente. */
