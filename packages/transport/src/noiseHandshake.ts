@@ -261,7 +261,12 @@ function makeInbox(adapter: NetworkAdapterPort): {
   let pending: ((m: { from: PeerId; data: Uint8Array }) => void) | null = null;
   const controller = new AbortController();
   let remotePeer: PeerId | null = null;
+  // Filtro de peer (T-202-followup-3): antes do bindRemote, o primeiro frame é aceito de qualquer
+  // peer (race documentada — handshake ainda não sabe o remote). Após bindRemote, frames whose
+  // `from` não bate com o remote esperado são descartados silenciosamente. Cross-wiring de
+  // respondNoiseXX concorrentes no mesmo adapter é prevenido por este filtro.
   adapter.onMessage((from, data) => {
+    if (remotePeer !== null && from !== remotePeer) return;
     const msg = { from, data };
     if (pending) {
       const r = pending;
