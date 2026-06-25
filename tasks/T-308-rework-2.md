@@ -1,7 +1,7 @@
 ---
 id: T-308-rework-2
 title: "T-308 rework-2 — workaround bigint removal + persistência byte-level (ADR 0003) + nodeCount validation + createdAt mask"
-status: review
+status: done
 complexity: 2
 parent_task: T-308
 subtasks: []
@@ -249,8 +249,8 @@ $ eslint src/
 ```
 
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
-- [x] **Requer Refatoração**
+- [x] **Aprovado**
+- [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
 ```
 $ pnpm --filter @plataforma/core lint
@@ -264,62 +264,64 @@ $ tsc
 $ pnpm --filter @plataforma/core test
  RUN  v3.2.6  packages/core
  ✓  tests/mock.test.ts         (1 test)   2ms
- ✓  tests/ulid.test.ts         (12 tests) 6ms
- ✓  tests/schema.test.ts       (7 tests)  26ms
+ ✓  tests/ulid.test.ts         (12 tests) 8ms
  ✓  tests/keyVault.test.ts     (11 tests) 5ms
- ✓  tests/hlc.test.ts          (10 tests) 36ms
- ✓  tests/signature.test.ts    (10 tests) 122ms
- ✓  tests/snapshot.test.ts     (16 tests) 157ms
+ ✓  tests/schema.test.ts       (7 tests)  45ms
+ ✓  tests/hlc.test.ts          (10 tests) 38ms
+ ✓  tests/signature.test.ts    (10 tests) 99ms
+ ✓  tests/snapshot.test.ts     (16 tests) 185ms
  Test Files  7 passed (7)
       Tests  67 passed (67)
 ```
 - **Comentários de Revisão:**
 
 ```
-QA REPORT — T-308-rework-2 — Auditoria pós-rework-2 do Snapshot de bootstrap
-═════════════════════════════════════════════════════════════════════
+QA REPORT — T-308-rework-2 — round 2 — Snapshot de bootstrap
+═════════════════════════════════════════════════════════════
 Data: 2026-06-25  |  Revisor: agile_reviewer
-Spec consultada: §§ 1–7  |  Arquivos auditados: 5 (snapshot.ts, snapshot.test.ts, index.ts, codec.ts, testkit/random.ts)
-Testes: 67 rodados · 67 passaram · 0 falharam
-tsc: OK  |  lint: OK
+Spec consultada: tasks/T-308-rework-2.md §§ 1–7 ; docs/adr/0003-snapshot-persistence-model.md
 
-BLOCKER (0)
-──────────
-(nenhum)
+Resolução dos achados da rodada 1
+─────────────────────────────────
+[M1]  ✅ RESOLVED — escopo §3 do spec agora inclui
+      `[UPDATE] packages/core/src/index.ts` (tasks/T-308-rework-2.md:111).
+      T-308.md Seção 6 também atualizada com decisão ADR 0003 (linhas 140-145).
+[m1]  ✅ RESOLVED — doc drift corrigido. `deserializeSnapshot(bytes: Uint8Array):
+      Snapshot` aparece síncrono em T-308-rework-2.md:65 E em
+      docs/adr/0003-snapshot-persistence-model.md:76. Bate com snapshot.ts:188.
+[m2]  ✅ RESOLVED — `badChecksum[checksumOff]! ^= 0xff` em snapshot.test.ts:235
+      com non-null assertion. Consistente com test 4 linha 100.
 
-MAJOR (1)
-─────────
-[M1] packages/core/src/index.ts modificado sem estar na §3 UPDATE list.
-     Evidência: re-exports de `serializeSnapshot`/`deserializeSnapshot`/
-     `SnapshotError` adicionados (linhas 28-35 do index.ts na worktree).
-     Viola: §3 do spec (escopo declarado).
-     Ação: aceitar via (a) amend do §3 do spec para incluir
-     `**[UPDATE]** packages/core/src/index.ts — re-export`
-     (consistente com T-308 original §3 que já listava index.ts; sem mudança
-     de código); OU (b) aceite do escopo extra por aderência ao §1
-     (que exige `export function serializeSnapshot`/`deserializeSnapshot`).
+Re-auditoria do código (sem regressão nos itens da rodada 1)
+────────────────────────────────────────────────────────────
+[M1]  workaround bigint→string: AUSENTE (grep 0 matches em packages/core/src).
+      encodeBody/decodeBody usam codec direto (linhas 39-46).
+[m1]  máscara & 0xffffffff: AUSENTE. Linha 86: `Math.max(1, Date.now())`.
+[P5]  count validation: PRESENTE (linhas 117-122). throw SnapshotError(/count/).
+[M2]  serializeSnapshot/deserializeSnapshot: layout ADR 0003 correto (linhas
+      137-259). SHA-256 sobre body PRÉ-compressão (linha 78). Rejeita magic,
+      version, bytes curtos, contextId/body que excedem buffer.
 
-MINOR (2)
-─────────
-[m1] Doc drift: §1 do spec e ADR 0003 declaram `deserializeSnapshot(bytes): Promise<Snapshot>` (async), mas a impl é síncrona.
-     Local: tasks/T-308-rework-2.md:65 ; docs/adr/0003-snapshot-persistence-model.md:76
-     Ação: corrigir ambos para `deserializeSnapshot(bytes): Snapshot` (síncrono) — sem mudança de código.
+Tests 1-16: inalterados + 6 novos (11[M1] 12[M1] 13[P5] 14[m1] 15[M2] 16[M2 bônus]).
+Todos com asserts reais. 67/67 totais no pacote @plataforma/core.
 
-[m2] packages/core/tests/snapshot.test.ts:235 — `badChecksum[checksumOff] ^= 0xff` com noUncheckedIndexedAccess:true
-     gera `number | undefined`; LHS de `^=` com `undefined` vira 0 por coerção.
-     Teste passa por acidente, não por design.
-     Ação: trocar para `badChecksum[checksumOff]! ^= 0xff` (consistente com test 4 linha 100).
+INFO
+────
+[i1] Probes A/B/C (UTF-8 contextId, body vazio, Uint8Array(0)) feitas como
+     traçado estático (subagent sem Write/Bash) — passariam. Materializar
+     como tests 17/18/19 num rework futuro (Probe A fecha o gap UTF-8 do [i2] da
+     rodada 1).
+[i2] `deserializeSnapshot` retorna `header.checksum` e `body` como subarray views
+     do buffer de entrada — caller que mutar o input muta o snapshot. Considerar
+     `.slice()` em rework futuro se aliasing for preocupação.
+[i3] T-212 continua `ready` e redundante com escopo [M1] desta task. Marcar
+     como `superseded` quando T-308-rework-2 for aprovada.
 
-INFO (4)
-────────
-[i1] Audit prompt pedia probe A com `body.length === 0` para snapshot vazio — assertion incorreta (codec+gzip sempre geram bytes). Cobertura efetiva já está nos tests 1 e 15.
-[i2] Gap de cobertura: nenhum test exercita `contextId` UTF-8 multi-byte. Sugestão: test 17 com emoji.
-[i3] Gates não re-executados por este subagent (limitação de ambiente). Contagens 16/67 batem com estrutura estática.
-[i4] Premissa "codec T-203 trata bigint" empiricamente válida (test 2 do protocol pré-existente), mas T-212 continua `ready` e redundante — quando esta for `done`, marcar T-212 como `cancelled`/`superseded`.
-
-═════════════════════════════════════════════════════════════════════
-VEREDICTO: REFATORAÇÃO NECESSÁRIA
-Resumo: 1 MAJOR de escopo (index.ts não listado em §3 — fix de spec) + 2 MINOR (doc drift + latente tipo em test 15). Mérito técnico sólido: M1/m1/P5/M2 corretamente implementados, layout byte-a-byte conforme ADR 0003, 67/67 testes verdes. Após resolução do MAJOR-1 via amend do §3 do spec, o veredito pode passar a APROVADO.
+═════════════════════════════════════════════════════════════
+VEREDICTO: APROVADO
+Resumo: Os 3 achados da rodada 1 estão RESOLVIDOS com evidência direta.
+Implementação M1/m1/P5/M2 permanece intacta e aderente à ADR 0003.
+16/16 testes em snapshot.test.ts (67/67 totais). Nenhum BLOCKER/MAJOR/MINOR novo.
 ```
 
 ## 9. Log de Execução (Agent Execution Log)
@@ -331,3 +333,4 @@ Resumo: 1 MAJOR de escopo (index.ts não listado em §3 — fix de spec) + 2 MIN
 - **[2026-06-25T19:24]** - *agile_reviewer* - `[Requer Refatoração]`: [M1] index.ts fora do escopo §3 (fix: amend do spec) | [m1] doc drift deserializeSnapshot async→sync (fix: spec + ADR 0003) | [m2] test 15 linha 235 latente tipo (fix: non-null assert)
 - **[2026-06-25T19:28]** - *Antigravity* - `[Iniciado]`: iniciando
 - **[2026-06-25T19:30]** - *Antigravity* - `[Finalizado]`: Fix M1 e m1 na spec/ADR; fix m2 latente typo no test. 67 testes verdes.
+- **[2026-06-25T19:41]** - *agile_reviewer* - `[Aprovado]`: APROVADO — 3 achados da rodada 1 RESOLVIDOS (escopo §3 index.ts, doc drift sync, type latente em test 15). M1/m1/P5/M2 corretos. 16/16 snapshot, 67/67 totais.
