@@ -1,7 +1,7 @@
 ---
 id: T-308-rework-2
 title: "T-308 rework-2 — workaround bigint removal + persistência byte-level (ADR 0003) + nodeCount validation + createdAt mask"
-status: rework
+status: review
 complexity: 2
 parent_task: T-308
 subtasks: []
@@ -62,7 +62,7 @@ import { HybridLogicalClock } from './hlc.js';
 export function serializeSnapshot(snap: Snapshot): Uint8Array;       // NOVO (M2)
 
 /** Desserializa bytes em Snapshot. Valida magic/version/checksum. */
-export function deserializeSnapshot(bytes: Uint8Array): Promise<Snapshot>; // NOVO (M2)
+export function deserializeSnapshot(bytes: Uint8Array): Snapshot; // NOVO (M2)
 
 // encodeBody simplificado — codec já trata bigint (M1)
 function encodeBody(nodes: SignedNode[], edges: SignedEdge[]): Uint8Array {
@@ -108,6 +108,7 @@ export async function hydrateSnapshot(
 - **[READ]** `docs/adr/0003-snapshot-persistence-model.md` — ADR 0003 (Status: **aceito**) — modelo de persistência byte-level do Snapshot (Opção A: envelope binário puro)
 - **[UPDATE]** `packages/core/src/snapshot.ts` — [M1] remover workaround; [P5] adicionar count validation; [m1] remover máscara de `createdAt`; **[M2] adicionar `serializeSnapshot`/`deserializeSnapshot`** (layout ADR 0003)
 - **[UPDATE]** `packages/core/tests/snapshot.test.ts` — adicionar tests [M1] (roundtrip de hlc arbitrariamente grande), [P5] (count mismatch), [m1] (createdAt > 0 sem overflow de 32 bits)
+- **[UPDATE]** `packages/core/src/index.ts` — re-export
 - **[UPDATE]** `tasks/T-308.md` — Seção 6 com decisão do ADR M2
 
 > **NÃO tocar:** `packages/protocol/src/codec.ts` (codec T-203 está correto).
@@ -220,35 +221,31 @@ pnpm --filter @plataforma/core lint
 - [ ] `pnpm --filter @plataforma/core build` + `test` + `lint` verdes?
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
-### Handover do Executor:
-- **[M1]** Workaround `bigintToString`/`stringToBigint`/`serializeBigInts`/`deserializeBigInts`/`BIGINT_FIELDS_*` removido de `snapshot.ts`. `encodeBody`/`decodeBody` simplificados para usar `codecEncode`/`codecDecode` direto.
-- **[m1]** Máscara `& 0xffffffff` removida do `createdAt` em `createBootstrapSnapshot`.
-- **[P5]** Validação `nodeCount`/`edgeCount` adicionada ao `hydrateSnapshot`.
-- **[M2]** `serializeSnapshot`/`deserializeSnapshot` implementados (layout ADR 0003 Opção A — envelope binário puro "SPBT").
-- `SnapshotError` exportado. `deserializeSnapshot` é síncrono (não precisa de await).
-- Testes 11-16 adicionados (16/16 snapshot, 67/67 totais).
-- `tasks/T-308.md` Seção 6 atualizada com decisão ADR 0003.
+### Handover do Executor (rework-2):
+- **[M1]** `index.ts` listado no escopo §3 (amend da spec).
+- **[m1]** Doc drift corrigido: `deserializeSnapshot` agora documentado como síncrono no spec e no ADR 0003.
+- **[m2]** Corrigido tipo latente no test 15 (`badChecksum[checksumOff]! ^= 0xff`).
 - **Gate de Evidência — todos Exit Code 0:**
-```
-$ pnpm --filter @plataforma/core lint
-$ eslint src/
-(sem erros)
-
-$ pnpm --filter @plataforma/core build
+```text
+$ cmd /c "pnpm --filter @plataforma/core build && pnpm --filter @plataforma/core test && pnpm --filter @plataforma/core lint"
 $ tsc
-(sem erros)
+$ vitest run
 
-$ pnpm --filter @plataforma/core test
- RUN  v3.2.6  packages/core
- ✓  tests/mock.test.ts         (1 test)   2ms
- ✓  tests/ulid.test.ts         (12 tests) 6ms
- ✓  tests/schema.test.ts       (7 tests)  26ms
- ✓  tests/keyVault.test.ts     (11 tests) 5ms
- ✓  tests/hlc.test.ts          (10 tests) 36ms
- ✓  tests/signature.test.ts    (10 tests) 122ms
- ✓  tests/snapshot.test.ts     (16 tests) 157ms
+ RUN  v3.2.6 C:/Dev2026/.superapp-worktrees/T-308/packages/core
+
+ ✓ tests/mock.test.ts (1 test) 2ms
+ ✓ tests/ulid.test.ts (12 tests) 8ms
+ ✓ tests/keyVault.test.ts (11 tests) 5ms
+ ✓ tests/schema.test.ts (7 tests) 45ms
+ ✓ tests/hlc.test.ts (10 tests) 38ms
+ ✓ tests/signature.test.ts (10 tests) 99ms
+ ✓ tests/snapshot.test.ts (16 tests) 185ms
+
  Test Files  7 passed (7)
       Tests  67 passed (67)
+
+$ eslint src/
+(sem erros)
 ```
 
 ### Parecer do Agente Revisor (Reviewer):
@@ -332,3 +329,5 @@ Resumo: 1 MAJOR de escopo (index.ts não listado em §3 — fix de spec) + 2 MIN
 - **[2026-06-25T19:06]** - *DeepSeek* - `[Iniciado]`: iniciando rework-2 — M1 bigint removal + M2 ADR 0003 + P5 count validation + m1 createdAt mask
 - **[2026-06-25T19:13]** - *DeepSeek* - `[Finalizado]`: M1 bigint workaround removido + M2 serializeSnapshot/deserializeSnapshot (ADR 0003 Opção A) + P5 count validation + m1 createdAt mask removida. snapshot.ts simplificado (encodeBody/decodeBody direto via codec T-203). 67/67 testes (16 snapshot), lint/build/test verdes.
 - **[2026-06-25T19:24]** - *agile_reviewer* - `[Requer Refatoração]`: [M1] index.ts fora do escopo §3 (fix: amend do spec) | [m1] doc drift deserializeSnapshot async→sync (fix: spec + ADR 0003) | [m2] test 15 linha 235 latente tipo (fix: non-null assert)
+- **[2026-06-25T19:28]** - *Antigravity* - `[Iniciado]`: iniciando
+- **[2026-06-25T19:30]** - *Antigravity* - `[Finalizado]`: Fix M1 e m1 na spec/ADR; fix m2 latente typo no test. 67 testes verdes.
