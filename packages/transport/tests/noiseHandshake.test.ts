@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, vi } from 'vitest';
 import type { NetworkAdapterPort, MessageHandler, PeerId } from '@plataforma/protocol';
 import { deriveDevicePeerId } from '@plataforma/protocol';
 import { ed25519GenerateKeyPair } from '@plataforma/crypto';
@@ -17,6 +17,10 @@ import {
 function makePair(tamperIndexAtoB = -1): [NetworkAdapterPort, NetworkAdapterPort] {
   let hA: MessageHandler | null = null;
   let hB: MessageHandler | null = null;
+  const closeHandlersA = new Set<(peerId: PeerId, reason?: 'remote' | 'error' | 'local') => void>();
+  const closeHandlersB = new Set<(peerId: PeerId, reason?: 'remote' | 'error' | 'local') => void>();
+  const closedA = new Set<PeerId>();
+  const closedB = new Set<PeerId>();
   let countAtoB = 0;
   const a: NetworkAdapterPort = {
     connect: () => Promise.resolve(),
@@ -29,8 +33,18 @@ function makePair(tamperIndexAtoB = -1): [NetworkAdapterPort, NetworkAdapterPort
     },
     onMessage: (h) => {
       hA = h;
+      return () => { hA = null; };
     },
-    close: () => Promise.resolve(),
+    onClose: (h) => {
+      closeHandlersA.add(h);
+      return () => { closeHandlersA.delete(h); };
+    },
+    close: (peerId?: PeerId) => {
+      if (peerId) closedA.add(peerId);
+      for (const h of closeHandlersA) h(peerId ?? 'A', 'local');
+      closeHandlersA.clear();
+      return Promise.resolve();
+    },
   };
   const b: NetworkAdapterPort = {
     connect: () => Promise.resolve(),
@@ -41,8 +55,18 @@ function makePair(tamperIndexAtoB = -1): [NetworkAdapterPort, NetworkAdapterPort
     },
     onMessage: (h) => {
       hB = h;
+      return () => { hB = null; };
     },
-    close: () => Promise.resolve(),
+    onClose: (h) => {
+      closeHandlersB.add(h);
+      return () => { closeHandlersB.delete(h); };
+    },
+    close: (peerId?: PeerId) => {
+      if (peerId) closedB.add(peerId);
+      for (const h of closeHandlersB) h(peerId ?? 'B', 'local');
+      closeHandlersB.clear();
+      return Promise.resolve();
+    },
   };
   return [a, b];
 }
@@ -57,7 +81,8 @@ function deadAdapter(): NetworkAdapterPort {
     connect: () => Promise.resolve(),
     listen: () => Promise.resolve(),
     send: () => Promise.resolve(),
-    onMessage: () => {},
+    onMessage: () => () => {},
+    onClose: () => () => {},
     close: () => Promise.resolve(),
   };
 }
@@ -194,5 +219,70 @@ describe('Noise_XX handshake (T-202)', () => {
     expect(toHex(encryptWithAd(initSend, empty, hb(V.msgs[4]!.p)))).toBe(V.msgs[4]!.ct); // init->resp n=0
     expect(toHex(decryptWithAd(respRecv, empty, hb(V.msgs[4]!.ct)))).toBe(V.msgs[4]!.p);
     expect(toHex(encryptWithAd(respSend, empty, hb(V.msgs[5]!.p)))).toBe(V.msgs[5]!.ct); // resp->init n=1
+  });
+
+  test('13: receive() termina quando onClose dispara (queda remota)', async () => {
+    const [a, b] = makePair();
+    const ka = await keypair();
+    const kb = await keypair();
+    const [rInit, rResp] = await Promise.all([
+      initiateNoiseXX(a, ka, 1),
+      respondNoiseXX(b, kb, 1),
+    ]);
+    // Fecha o adapter do iniciador para o peer remoto (simula queda do respondedor)
+    await a.close('B');
+    // O receive() do iniciador deve terminar
+    const messages: Uint8Array[] = [];
+    for await (const m of rInit.receive()) {
+      messages.push(m);
+    }
+    expect(messages).toEqual([]);
+  });
+
+  test('14: receive({ signal }) termina quando caller aborta', async () => {
+    const [a, b] = makePair();
+    const ka = await keypair();
+    const kb = await keypair();
+    const [rInit] = await Promise.all([
+      initiateNoiseXX(a, ka, 1),
+      respondNoiseXX(b, kb, 1),
+    ]);
+    const ac = new AbortController();
+    const messages: Uint8Array[] = [];
+    const iterating = (async () => {
+      for await (const m of rInit.receive({ signal: ac.signal })) {
+        messages.push(m);
+      }
+    })();
+    // Aborta imediatamente — o receive deve terminar
+    ac.abort();
+    await iterating;
+    expect(messages).toEqual([]);
+  });
+
+  test('15: decryptWithAd loga console.error antes de lançar invalid_signature', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const cs: CipherState = { k: new Uint8Array(32), n: 0 };
+    // ciphertext aleatório (não foi cifrado com a chave correta → tag mismatch)
+    const badCiphertext = new Uint8Array(32);
+    expect(() => decryptWithAd(cs, new Uint8Array(0), badCiphertext)).toThrow(NoiseHandshakeError);
+    expect(spy).toHaveBeenCalledWith(
+      '[noiseHandshake] AEAD decrypt failed:',
+      expect.any(Error),
+    );
+    spy.mockRestore();
+  });
+
+  test('16: makePair onClose dispara reason local quando close() chamado', async () => {
+    const [a] = makePair();
+    let closedPeer: string | undefined;
+    let closedReason: string | undefined;
+    a.onClose((peerId, reason) => {
+      closedPeer = peerId;
+      closedReason = reason;
+    });
+    await a.close('test-peer');
+    expect(closedPeer).toBe('test-peer');
+    expect(closedReason).toBe('local');
   });
 });

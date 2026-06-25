@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "nexus-workspace",
   "private": true,
   "packageManager": "pnpm@11.1.2",
@@ -25,26 +24,7 @@
     ]
   },
   "dependencies": {
-    "headroom-ai": "^0.22.4"
+    "headroom-ai": "^0.22.4",
+    "typescript-eslint": "^8.62.0"
   }
-=======
-  "name": "superapp",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "turbo run build",
-    "test": "turbo run test",
-    "lint": "turbo run lint",
-    "dev": "turbo run dev"
-  },
-  "devDependencies": {
-    "turbo": "^2.0.0",
-    "vitest": "^3.0.0",
-    "typescript": "^5.8.0",
-    "eslint": "^9.0.0",
-    "typescript-eslint": "^8.0.0",
-    "prettier": "^3.0.0"
-  },
-  "packageManager": "pnpm@11.1.2"
->>>>>>> t109/task/T-109
 }

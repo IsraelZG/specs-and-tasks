@@ -7,6 +7,9 @@ export type WireData = Uint8Array;
 /** Callback invocado quando chega mensagem de um peer. */
 export type MessageHandler = (peerId: PeerId, data: WireData) => void;
 
+/** Callback invocado quando um peer se desconecta. */
+export type PeerCloseHandler = (peerId: PeerId, reason?: 'remote' | 'error' | 'local') => void;
+
 /**
  * Porta de adaptador de rede.
  * Contrato para conectar, ouvir, enviar e receber dados em rede P2P.
@@ -28,6 +31,12 @@ export interface NetworkAdapterPort {
   onMessage(handler: MessageHandler): () => void;
   /** Encerra conexão e libera recursos. */
   close(): Promise<void>;
+  /**
+   * Registra callback para queda/desconexão de um peer.
+   * Suporta múltiplos handlers simultâneos (broadcast).
+   * @returns função de unsubscribe idempotente.
+   */
+  onClose(handler: PeerCloseHandler): () => void;
 }
 
 /** Resultado de execução SQL. Esquema concreto definido em T-106 (schema nodes/edges). */
