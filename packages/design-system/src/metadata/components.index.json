@@ -1,6 +1,6 @@
 {
   "$schema": "https://your-app.dev/schemas/components.index.v1.json",
-  "generatedAt": "2026-06-22T15:48:37.934Z",
+  "generatedAt": "2026-06-24T19:26:17.436Z",
   "count": 46,
   "components": [
     {
@@ -9,7 +9,7 @@
       "type": "interactive",
       "description": "A vertically stacked set of interactive headings that each disclose an associated content section.",
       "path": "src/components/Accordion/Accordion.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Accordion\\Accordion.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Accordion\\Accordion.metadata.ts",
       "priority": "high",
       "keywords": [
         "accordion",
@@ -36,7 +36,7 @@
       "type": "container",
       "description": "A modal dialog that interrupts the user with important content and requires an explicit confirmation action.",
       "path": "src/components/AlertDialog/AlertDialog.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\AlertDialog\\AlertDialog.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\AlertDialog\\AlertDialog.metadata.ts",
       "priority": "high",
       "keywords": [
         "alertdialog",
@@ -63,7 +63,7 @@
       "type": "display",
       "description": "Circular user representation. Shows a photo, initials, or a fallback icon when no image is available.",
       "path": "src/components/Avatar/Avatar.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Avatar\\Avatar.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Avatar\\Avatar.metadata.ts",
       "priority": "high",
       "keywords": [
         "avatar",
@@ -98,7 +98,7 @@
       "type": "display",
       "description": "Compact label that communicates status, category, or a count. Never interactive on its own.",
       "path": "src/components/Badge/Badge.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Badge\\Badge.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Badge\\Badge.metadata.ts",
       "priority": "high",
       "keywords": [
         "badge",
@@ -137,7 +137,7 @@
       "type": "interactive",
       "description": "Triggers an action when activated. Pill-shaped by default to match the system aesthetic.",
       "path": "src/components/Button/Button.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Button\\Button.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Button\\Button.metadata.ts",
       "priority": "high",
       "keywords": [
         "button",
@@ -180,7 +180,7 @@
       "type": "container",
       "description": "Elevated rectangular surface that groups related content. The workhorse container of dashboards, lists, and marketing layouts.",
       "path": "src/components/Card/Card.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Card\\Card.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Card\\Card.metadata.ts",
       "priority": "high",
       "keywords": [
         "card",
@@ -221,7 +221,7 @@
       "type": "input",
       "description": "Binary input control. Lets users select zero, one, or many items from a set. Supports an indeterminate state for partial selection.",
       "path": "src/components/Checkbox/Checkbox.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Checkbox\\Checkbox.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Checkbox\\Checkbox.metadata.ts",
       "priority": "high",
       "keywords": [
         "checkbox",
@@ -258,7 +258,7 @@
       "type": "interactive",
       "description": "An autocomplete selector list offering filtering queries and value matches.",
       "path": "src/components/Combobox/Combobox.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Combobox\\Combobox.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Combobox\\Combobox.metadata.ts",
       "priority": "high",
       "keywords": [
         "combobox",
@@ -286,7 +286,7 @@
       "type": "interactive",
       "description": "A modal command palette allowing search-based executable items and shortcuts.",
       "path": "src/components/Command/Command.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Command\\Command.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Command\\Command.metadata.ts",
       "priority": "high",
       "keywords": [
         "command-palette",
@@ -315,7 +315,7 @@
       "type": "interactive",
       "description": "A contextual menu list presenting toggle options, links, or action shortcuts triggered by clicking a button.",
       "path": "src/components/DropdownMenu/DropdownMenu.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\DropdownMenu\\DropdownMenu.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\DropdownMenu\\DropdownMenu.metadata.ts",
       "priority": "high",
       "keywords": [
         "dropdownmenu",
@@ -342,7 +342,7 @@
       "type": "input",
       "description": "Composes a label, an input control, and optional helper/error text into a single accessible form field unit.",
       "path": "src/components/FormField/FormField.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\FormField\\FormField.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\FormField\\FormField.metadata.ts",
       "priority": "high",
       "keywords": [
         "form field",
@@ -380,7 +380,7 @@
       "type": "input",
       "description": "Single-line text input. The base primitive for typed user data in forms, search, and filters.",
       "path": "src/components/Input/Input.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Input\\Input.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Input\\Input.metadata.ts",
       "priority": "high",
       "keywords": [
         "input",
@@ -420,7 +420,7 @@
       "type": "display",
       "description": "Render an accessible label associated with form controls.",
       "path": "src/components/Label/Label.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Label\\Label.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Label\\Label.metadata.ts",
       "priority": "high",
       "keywords": [
         "label",
@@ -447,7 +447,7 @@
       "type": "display",
       "description": "A single chat bubble. The unit of conversation UIs: messaging, AI chat, support, comments.",
       "path": "src/components/Message/Message.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Message\\Message.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Message\\Message.metadata.ts",
       "priority": "high",
       "keywords": [
         "message",
@@ -491,7 +491,7 @@
       "type": "navigation",
       "description": "A single row in a navigation rail or menu. Renders an icon, label, and selected state. Always a link or button — never a plain div.",
       "path": "src/components/NavItem/NavItem.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\NavItem\\NavItem.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\NavItem\\NavItem.metadata.ts",
       "priority": "high",
       "keywords": [
         "nav",
@@ -536,7 +536,7 @@
       "type": "container",
       "description": "A floating dialog panel that appears anchored relative to a trigger element.",
       "path": "src/components/Popover/Popover.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Popover\\Popover.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Popover\\Popover.metadata.ts",
       "priority": "high",
       "keywords": [
         "popover",
@@ -563,7 +563,7 @@
       "type": "display",
       "description": "A visual progress bar displaying numeric completeness states.",
       "path": "src/components/Progress/Progress.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Progress\\Progress.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Progress\\Progress.metadata.ts",
       "priority": "high",
       "keywords": [
         "progress-bar",
@@ -590,7 +590,7 @@
       "type": "input",
       "description": "A set of checkable buttons, known as radio buttons, where no more than one button can be checked at a time.",
       "path": "src/components/RadioGroup/RadioGroup.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\RadioGroup\\RadioGroup.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\RadioGroup\\RadioGroup.metadata.ts",
       "priority": "high",
       "keywords": [
         "radio",
@@ -618,7 +618,7 @@
       "type": "input",
       "description": "An interactive form dropdown selector offering users choices from a collapsed option list.",
       "path": "src/components/Select/Select.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Select\\Select.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Select\\Select.metadata.ts",
       "priority": "high",
       "keywords": [
         "select",
@@ -645,7 +645,7 @@
       "type": "container",
       "description": "A slide-in dialog panel extending from any edge of the screen, typically used for settings, navigation drawer, or detailed profile configurations.",
       "path": "src/components/Sheet/Sheet.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Sheet\\Sheet.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Sheet\\Sheet.metadata.ts",
       "priority": "high",
       "keywords": [
         "sheet",
@@ -672,7 +672,7 @@
       "type": "container",
       "description": "A layout sidebar containing vertical menus, footers and collapsing states.",
       "path": "src/components/Sidebar/Sidebar.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Sidebar\\Sidebar.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Sidebar\\Sidebar.metadata.ts",
       "priority": "high",
       "keywords": [
         "sidebar-layout",
@@ -698,7 +698,7 @@
       "type": "input",
       "description": "An input where the user selects a value from a range by moving a thumb slider.",
       "path": "src/components/Slider/Slider.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Slider\\Slider.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Slider\\Slider.metadata.ts",
       "priority": "high",
       "keywords": [
         "slider",
@@ -727,7 +727,7 @@
       "type": "input",
       "description": "Toggle switch control allowing user to toggle between checked and unchecked states.",
       "path": "src/components/Switch/Switch.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Switch\\Switch.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Switch\\Switch.metadata.ts",
       "priority": "high",
       "keywords": [
         "switch",
@@ -755,7 +755,7 @@
       "type": "display",
       "description": "A responsive grid element displaying structured datasets.",
       "path": "src/components/Table/Table.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Table\\Table.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Table\\Table.metadata.ts",
       "priority": "high",
       "keywords": [
         "table",
@@ -782,7 +782,7 @@
       "type": "interactive",
       "description": "A set of layered sections of content, known as tab panels, that are displayed one at a time.",
       "path": "src/components/Tabs/Tabs.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Tabs\\Tabs.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Tabs\\Tabs.metadata.ts",
       "priority": "high",
       "keywords": [
         "tabs",
@@ -809,7 +809,7 @@
       "type": "input",
       "description": "Multi-line text input field for collecting longer form inputs.",
       "path": "src/components/Textarea/Textarea.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Textarea\\Textarea.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Textarea\\Textarea.metadata.ts",
       "priority": "high",
       "keywords": [
         "textarea",
@@ -839,7 +839,7 @@
       "type": "input",
       "description": "A two-state button that can be pressed or active, and unpressed or inactive.",
       "path": "src/components/Toggle/Toggle.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Toggle\\Toggle.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Toggle\\Toggle.metadata.ts",
       "priority": "high",
       "keywords": [
         "toggle",
@@ -867,7 +867,7 @@
       "type": "input",
       "description": "A set of two-state buttons that can be toggled on or off, functioning as single-select (exclusive) or multi-select groups.",
       "path": "src/components/ToggleGroup/ToggleGroup.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\ToggleGroup\\ToggleGroup.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\ToggleGroup\\ToggleGroup.metadata.ts",
       "priority": "high",
       "keywords": [
         "togglegroup",
@@ -896,7 +896,7 @@
       "type": "display",
       "description": "A popup panel displaying helper description text when a user hovers over or focus-indexes an element.",
       "path": "src/components/Tooltip/Tooltip.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Tooltip\\Tooltip.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Tooltip\\Tooltip.metadata.ts",
       "priority": "high",
       "keywords": [
         "tooltip",
@@ -923,7 +923,7 @@
       "type": "feedback",
       "description": "Inline persistent status message. Renders in document flow, does not dismiss automatically.",
       "path": "src/components/Alert/Alert.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Alert\\Alert.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Alert\\Alert.metadata.ts",
       "priority": "medium",
       "keywords": [
         "alert",
@@ -964,7 +964,7 @@
       "type": "layout",
       "description": "Displays content within a desired aspect ratio (e.g. 16:9, 4:3, 1:1).",
       "path": "src/components/AspectRatio/AspectRatio.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\AspectRatio\\AspectRatio.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\AspectRatio\\AspectRatio.metadata.ts",
       "priority": "medium",
       "keywords": [
         "aspectratio",
@@ -993,7 +993,7 @@
       "type": "display",
       "description": "A navigation helper displaying hierarchical link trails leading to the active page.",
       "path": "src/components/Breadcrumb/Breadcrumb.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Breadcrumb\\Breadcrumb.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Breadcrumb\\Breadcrumb.metadata.ts",
       "priority": "medium",
       "keywords": [
         "breadcrumb",
@@ -1020,7 +1020,7 @@
       "type": "interactive",
       "description": "An interactive date selection calendar grid with navigation.",
       "path": "src/components/Calendar/Calendar.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Calendar\\Calendar.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Calendar\\Calendar.metadata.ts",
       "priority": "medium",
       "keywords": [
         "calendar",
@@ -1046,7 +1046,7 @@
       "type": "container",
       "description": "A horizontal content slider with hardware-accelerated scroll snapping.",
       "path": "src/components/Carousel/Carousel.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Carousel\\Carousel.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Carousel\\Carousel.metadata.ts",
       "priority": "medium",
       "keywords": [
         "carousel",
@@ -1072,7 +1072,7 @@
       "type": "layout",
       "description": "An interactive component which lets the user expand or collapse a panel of content.",
       "path": "src/components/Collapsible/Collapsible.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Collapsible\\Collapsible.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Collapsible\\Collapsible.metadata.ts",
       "priority": "medium",
       "keywords": [
         "collapsible",
@@ -1099,7 +1099,7 @@
       "type": "display",
       "description": "An information preview card that appears on hover for sighted users, preserving link accessibility.",
       "path": "src/components/HoverCard/HoverCard.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\HoverCard\\HoverCard.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\HoverCard\\HoverCard.metadata.ts",
       "priority": "medium",
       "keywords": [
         "hovercard",
@@ -1126,7 +1126,7 @@
       "type": "interactive",
       "description": "A component with individual digit entry fields for security codes and one-time passwords.",
       "path": "src/components/InputOTP/InputOTP.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\InputOTP\\InputOTP.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\InputOTP\\InputOTP.metadata.ts",
       "priority": "medium",
       "keywords": [
         "otp-input",
@@ -1155,7 +1155,7 @@
       "type": "interactive",
       "description": "A horizontal menu bar displaying drop-down action lists (e.g. desktop app headers).",
       "path": "src/components/Menubar/Menubar.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Menubar\\Menubar.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Menubar\\Menubar.metadata.ts",
       "priority": "medium",
       "keywords": [
         "menubar",
@@ -1181,7 +1181,7 @@
       "type": "container",
       "description": "Blocking dialog that floats above the page. Traps focus, requires explicit dismissal, and scrim covers the background.",
       "path": "src/components/Modal/Modal.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Modal\\Modal.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Modal\\Modal.metadata.ts",
       "priority": "medium",
       "keywords": [
         "modal",
@@ -1223,7 +1223,7 @@
       "type": "navigation",
       "description": "Groups NavItems under an optional overline category label. The structural wrapper that satisfies NavItem's parentConstraints.",
       "path": "src/components/NavGroup/NavGroup.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\NavGroup\\NavGroup.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\NavGroup\\NavGroup.metadata.ts",
       "priority": "medium",
       "keywords": [
         "nav group",
@@ -1257,7 +1257,7 @@
       "type": "interactive",
       "description": "A navigation system segment that allows users to traverse paginated content lists.",
       "path": "src/components/Pagination/Pagination.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Pagination\\Pagination.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Pagination\\Pagination.metadata.ts",
       "priority": "medium",
       "keywords": [
         "pagination",
@@ -1284,7 +1284,7 @@
       "type": "container",
       "description": "A layout system of panels that can be dynamically resized by dragging a divider.",
       "path": "src/components/Resizable/Resizable.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Resizable\\Resizable.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Resizable\\Resizable.metadata.ts",
       "priority": "medium",
       "keywords": [
         "resizable-panels",
@@ -1310,7 +1310,7 @@
       "type": "layout",
       "description": "Custom scrollbar container supporting cross-platform mouse, trackpad, and touch scrolling.",
       "path": "src/components/ScrollArea/ScrollArea.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\ScrollArea\\ScrollArea.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\ScrollArea\\ScrollArea.metadata.ts",
       "priority": "medium",
       "keywords": [
         "scrollarea",
@@ -1337,7 +1337,7 @@
       "type": "layout",
       "description": "A visual or semantic line divider used to separate content.",
       "path": "src/components/Separator/Separator.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Separator\\Separator.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Separator\\Separator.metadata.ts",
       "priority": "medium",
       "keywords": [
         "separator",
@@ -1364,7 +1364,7 @@
       "type": "feedback",
       "description": "A placeholder element with built-in pulse animations indicating content loading state.",
       "path": "src/components/Skeleton/Skeleton.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Skeleton\\Skeleton.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Skeleton\\Skeleton.metadata.ts",
       "priority": "medium",
       "keywords": [
         "skeleton",
@@ -1391,7 +1391,7 @@
       "type": "feedback",
       "description": "Transient notification that surfaces system status. Floats above content and dismisses automatically.",
       "path": "src/components/Toast/Toast.tsx",
-      "metadataPath": "C:\\Dev2026\\.superapp-worktrees\\T-016\\packages\\design-system\\src\\components\\Toast\\Toast.metadata.ts",
+      "metadataPath": "C:\\Dev2026\\superapp\\packages\\design-system\\src\\components\\Toast\\Toast.metadata.ts",
       "priority": "medium",
       "keywords": [
         "toast",

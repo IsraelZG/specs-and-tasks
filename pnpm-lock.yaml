@@ -382,6 +382,10 @@ importers:
         version: 3.2.6(@types/node@26.0.0)(jiti@2.7.0)(jsdom@29.1.1(@noble/hashes@2.2.0))(lightningcss@1.32.0)(terser@5.48.0)
 
   packages/media:
+    dependencies:
+      '@plataforma/crypto':
+        specifier: workspace:*
+        version: link:../crypto
     devDependencies:
       eslint:
         specifier: ^9.0.0

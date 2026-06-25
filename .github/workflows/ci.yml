@@ -11,7 +11,11 @@ on:
 jobs:
   ci:
     name: Build, Lint and Test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
 
     steps:
       - name: Checkout Repo
@@ -35,9 +39,9 @@ jobs:
             .turbo
             packages/*/.turbo
             apps/*/.turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          key: ${{ runner.os }}-${{ runner.arch }}-turbo-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-turbo-
+            ${{ runner.os }}-${{ runner.arch }}-turbo-
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
