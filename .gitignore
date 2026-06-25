@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependencies
 node_modules/
 package-lock.json
@@ -55,3 +56,19 @@ out/
 
 *.txt
 generate_project_summary.js
+=======
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+coverage/
+test-results/
+playwright-report/
+playwright/.cache/
+.nexus/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+>>>>>>> t109/task/T-109

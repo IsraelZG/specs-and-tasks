@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/*
+ * @theme inline preserves var() references in Tailwind's output so that
+ * switching data-theme="dark" on :root automatically changes all colors
+ * without needing Tailwind dark: variants in component class strings.
+ */
+@theme inline {
+  /* ── Focus ring (universal, used by all interactive components) ── */
+  --color-focus-ring:  var(--ds-focus-ring-color);
+  --shadow-focus-ring: var(--ds-focus-ring-shadow);
+
+  /* ── Button ── */
+  --color-button-primary-bg:          var(--ds-component-button-primary-bg);
+  --color-button-primary-bg-hover:    var(--ds-component-button-primary-bg-hover);
+  --color-button-primary-text:        var(--ds-component-button-primary-text);
+  --color-button-secondary-bg:        var(--ds-component-button-secondary-bg);
+  --color-button-secondary-bg-hover:  var(--ds-component-button-secondary-bg-hover);
+  --color-button-secondary-text:      var(--ds-component-button-secondary-text);
+  --color-button-secondary-border:    var(--ds-component-button-secondary-border);
+  --color-button-ghost-bg:            var(--ds-component-button-ghost-bg);
+  --color-button-ghost-bg-hover:      var(--ds-component-button-ghost-bg-hover);
+  --color-button-ghost-text:          var(--ds-component-button-ghost-text);
+  --color-button-danger-bg:           var(--ds-component-button-danger-bg);
+  --color-button-danger-bg-hover:     var(--ds-component-button-danger-bg-hover);
+  --color-button-danger-text:         var(--ds-component-button-danger-text);
+
+  /* ── Input ── */
+  --color-input-bg:            var(--ds-component-input-bg);
+  --color-input-bg-disabled:   var(--ds-component-input-bg-disabled);
+  --color-input-text:          var(--ds-component-input-text);
+  --color-input-placeholder:   var(--ds-component-input-placeholder);
+  --color-input-border:        var(--ds-component-input-border);
+  --color-input-border-hover:  var(--ds-component-input-border-hover);
+  --color-input-border-focus:  var(--ds-component-input-border-focus);
+  --color-input-border-error:  var(--ds-component-input-border-error);
+
+  /* ── Card ── */
+  --color-card-bg:     var(--ds-component-card-bg);
+  --color-card-border: var(--ds-component-card-border);
+
+  /* ── Message (sent/received via component tokens; ai/failed via theme exceptions) ── */
+  --color-message-bg-sent:       var(--ds-component-message-bg-sent);
+  --color-message-text-sent:     var(--ds-component-message-text-sent);
+  --color-message-bg-received:   var(--ds-component-message-bg-received);
+  --color-message-text-received: var(--ds-component-message-text-received);
+  --color-message-bg-ai:         var(--ds-theme-intent-accent-subtle);
+  --color-message-border-failed: var(--ds-theme-intent-danger-border);
+  --color-message-text-system:   var(--ds-theme-content-muted);
+
+  /* ── NavItem ── */
+  --color-nav-bg-active:       var(--ds-component-navigation-item-bg-active);
+  --color-nav-text-active:     var(--ds-component-navigation-item-text-active);
+  --color-nav-bg-hover:        var(--ds-component-navigation-item-bg-hover);
+  --color-nav-text-inactive:   var(--ds-component-navigation-item-text-inactive);
+  --color-nav-bg-inverse:      var(--ds-theme-surface-inverse);
+  --color-nav-text-on-inverse: var(--ds-theme-content-on-inverse);
+}
+
+/*
+ * Dark mode: match the :root[data-theme="dark"] selector used by theme-dark.css.
+ * Components written with var(--ds-*) references automatically pick up dark
+ * values — no dark: variants needed.
+ */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));

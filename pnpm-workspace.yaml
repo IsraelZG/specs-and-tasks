@@ -1,4 +1,5 @@
 packages:
+<<<<<<< HEAD
   - "apps/*"
   - "packages/*"
 allowBuilds:
@@ -6,3 +7,11 @@ allowBuilds:
   onnxruntime-node: true
   protobufjs: true
   sharp: true
+=======
+  - "packages/*"
+  - "apps/*"
+allowBuilds:
+  better-sqlite3: true
+  esbuild: true
+  msgpackr-extract: false
+>>>>>>> t109/task/T-109

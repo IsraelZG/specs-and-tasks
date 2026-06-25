@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+<<<<<<< HEAD
   "globalPassThroughEnv": ["MOCK_MODEL"],
   "tasks": {
     "build": {
@@ -11,5 +12,31 @@
       "cache": false,
       "persistent": true
     }
+=======
+  "tasks": {
+    "build:tokens": {
+      "inputs": ["$TURBO_DEFAULT$", "!build/**", "!src/metadata/components.index.json"],
+      "outputs": [
+        "build/web/**",
+        "build/react-native/**",
+        "build/ios/**",
+        "build/android/**",
+        "build/tv/**",
+        "src/metadata/components.index.json"
+      ]
+    },
+    "build": {
+      "dependsOn": ["^build", "build:tokens"],
+      "inputs": ["$TURBO_DEFAULT$", "!build/**", "!dist/**"],
+      "outputs": ["dist/**", "build/**"]
+    },
+    "validate": {},
+    "typecheck": {
+      "dependsOn": ["build:tokens"]
+    },
+    "test": {},
+    "lint": {},
+    "dev": { "cache": false, "persistent": true }
+>>>>>>> t109/task/T-109
   }
 }

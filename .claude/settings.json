@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "permissions": {
     "allow": [
       "Bash(cat pnpm-workspace.yaml)",
@@ -12,6 +13,22 @@
       "PowerShell(Get-Item \"node_modules\\\\.pnpm\\\\gray-matter@4.0.3\\\\node_modules\\\\section-matter\" -Force | Format-List Name,Attributes,LinkType,Target,Mode; Write-Host \"---\"; \\(Get-Item \"node_modules\\\\.pnpm\\\\gray-matter@4.0.3\\\\node_modules\\\\section-matter\" -Force\\).GetType\\(\\).Name)",
       "PowerShell($tmp = \"$env:TEMP\\\\secpol_check.cfg\"; secedit /export /cfg $tmp /areas USER_RIGHTS | Out-Null; Select-String -Path $tmp -Pattern \"SeCreateSymbolicLinkPrivilege\"; Remove-Item $tmp -Force)",
       "PowerShell(Remove-Item \"$env:TEMP\\\\symlink_test\" -Force -ErrorAction SilentlyContinue; try { New-Item -ItemType SymbolicLink -Path \"$env:TEMP\\\\symlink_test\" -Target \"$env:TEMP\" -ErrorAction Stop | Out-Null; Write-Host \"SYMLINK CRIADO COM SUCESSO\"; Remove-Item \"$env:TEMP\\\\symlink_test\" -Force } catch { Write-Host \"FALHOU: $\\($_.Exception.Message\\)\" })"
+=======
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$j=[Console]::In.ReadToEnd()|ConvertFrom-Json; $f=$j.tool_input.file_path; if($f -and ($f -replace '\\\\', '/' -match '(?:^|/)packages/design-system/.*\\.metadata\\.ts$')){try{pnpm --filter @plataforma/design-system validate}catch{exit 1}}",
+            "shell": "powershell",
+            "timeout": 30,
+            "statusMessage": "Validando metadados do design system e reconstruindo índice..."
+          }
+        ]
+      }
+>>>>>>> t109/task/T-109
     ]
   }
 }
