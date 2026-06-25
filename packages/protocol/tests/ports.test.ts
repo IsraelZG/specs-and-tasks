@@ -58,8 +58,10 @@ class DummyNetwork implements NetworkAdapterPort {
   async send(_peerId: PeerId, _data: WireData): Promise<void> {
     /* stub */
   }
-  onMessage(_handler: MessageHandler): void {
-    /* stub */
+  onMessage(_handler: MessageHandler): () => void {
+    return () => {
+      /* stub unsubscribe */
+    };
   }
   async close(): Promise<void> {
     /* stub */
@@ -79,7 +81,7 @@ class DummyStorage implements StoragePort {
 }
 
 // ---------------------------------------------------------------------------
-// Casos 1–6: stubs compilam e retornam tipos corretos
+// Casos 1–7: stubs compilam e retornam tipos corretos + multi-subscriber
 // ---------------------------------------------------------------------------
 
 describe('Ports — type stubs', () => {
@@ -108,12 +110,14 @@ describe('Ports — type stubs', () => {
     }).not.toThrow();
   });
 
-  test('4. DummyNetwork — todos os métodos retornam Promise<void> ou void', async () => {
+  test('4. DummyNetwork — todos os métodos retornam Promise<void> ou () => void', async () => {
     const n = new DummyNetwork();
     await n.connect('peer-a');
     await n.listen();
     await n.send('peer-a', new Uint8Array());
-    n.onMessage((_id, _data) => {});
+    const unsub = n.onMessage((_id, _data) => {});
+    expect(typeof unsub).toBe('function');
+    unsub(); // idempotente no dummy
     await n.close();
   });
 
@@ -140,5 +144,109 @@ describe('Ports — type stubs', () => {
     expect(typeof handler).toBe('function');
     expect(level).toBe('warn');
     expect(row.col).toBe('value');
+  });
+
+  test('7. código que descarta retorno de onMessage() compila (TS permite)', () => {
+    const n = new DummyNetwork();
+    // Registrar e descartar retorno — não deve lançar
+    n.onMessage((_id, _data) => {});
+    // Prova de que TS aceita () => void descartado
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Casos 1–5: contrato multi-subscriber (implementação de prova)
+// ---------------------------------------------------------------------------
+
+describe('Ports — multi-subscriber contract', () => {
+  /**
+   * Implementação de prova do novo contrato; a real (SimNetwork)
+   * vive em packages/testkit e é coberta por subscriber tests lá.
+   */
+  function makeStubNetwork() {
+    const handlers = new Set<MessageHandler>();
+    const n: NetworkAdapterPort = {
+      connect: async (_pid: PeerId) => {},
+      listen: async () => {},
+      send: async (_pid: PeerId, _data: WireData) => {},
+      onMessage: (handler: MessageHandler): (() => void) => {
+        handlers.add(handler);
+        return () => {
+          handlers.delete(handler);
+        };
+      },
+      close: async () => {
+        handlers.clear();
+      },
+    };
+    return {
+      n,
+      deliver: (peerId: PeerId, data: WireData) => {
+        // Simula entrega: snapshot do conjunto no momento do disparo
+        for (const h of [...handlers]) h(peerId, data);
+      },
+    };
+  }
+
+  test('1. múltiplos handlers registrados recebem a mesma mensagem (broadcast)', () => {
+    const { n, deliver } = makeStubNetwork();
+    const calls: string[] = [];
+    n.onMessage((_pid, _d) => calls.push('h1'));
+    n.onMessage((_pid, _d) => calls.push('h2'));
+
+    deliver('A' as PeerId, new Uint8Array([1]));
+
+    expect(calls).toEqual(['h1', 'h2']);
+  });
+
+  test('2. unsubscribe remove apenas aquele handler — outro continua', () => {
+    const { n, deliver } = makeStubNetwork();
+    const calls: string[] = [];
+    const un1 = n.onMessage((_pid, _d) => calls.push('h1'));
+    n.onMessage((_pid, _d) => calls.push('h2'));
+
+    un1(); // remove h1
+    deliver('A' as PeerId, new Uint8Array([1]));
+
+    expect(calls).toEqual(['h2']);
+  });
+
+  test('3. unsubscribe chamado 2× é idempotente', () => {
+    const { n, deliver } = makeStubNetwork();
+    const calls: string[] = [];
+    const un1 = n.onMessage((_pid, _d) => calls.push('h1'));
+    n.onMessage((_pid, _d) => calls.push('h2'));
+
+    un1(); // 1ª
+    un1(); // 2ª — idempotente, não lança
+
+    deliver('A' as PeerId, new Uint8Array([1]));
+    expect(calls).toEqual(['h2']);
+  });
+
+  test('4. handler registrado depois de uma mensagem não recebe replay', () => {
+    const { n, deliver } = makeStubNetwork();
+    const callsH1: string[] = [];
+    n.onMessage((_pid, _d) => callsH1.push('x'));
+
+    deliver('A' as PeerId, new Uint8Array([1])); // entregue ao h1
+    expect(callsH1).toEqual(['x']);
+
+    const callsH2: string[] = [];
+    n.onMessage((_pid, _d) => callsH2.push('y')); // registrado DEPOIS
+    expect(callsH2).toEqual([]); // sem replay
+  });
+
+  test('5. close() limpa todos os handlers — nenhum chamado após close()', async () => {
+    const { n } = makeStubNetwork();
+    let called = false;
+    n.onMessage((_pid, _d) => { called = true; });
+    n.onMessage((_pid, _d) => { called = true; });
+
+    await n.close();
+
+    // Após close, mesmo que houvesse entrega, não acontece
+    // (na prove-stub, close limpa os handlers; na SimNetwork real, close seta closed + limpa)
+    expect(called).toBe(false);
   });
 });

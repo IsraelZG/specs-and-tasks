@@ -19,8 +19,13 @@ export interface NetworkAdapterPort {
   listen(): Promise<void>;
   /** Envia dados para um peer conectado. */
   send(peerId: PeerId, data: WireData): Promise<void>;
-  /** Registra callback para mensagens recebidas. Sobrescreve callback anterior. */
-  onMessage(handler: MessageHandler): void;
+  /**
+   * Registra callback para mensagens recebidas.
+   * Suporta múltiplos handlers simultâneos (broadcast — nenhum handler rouba a mensagem do outro).
+   * @returns função de unsubscribe para remover **apenas** este handler.
+   * @remarks Chamar a função de unsubscribe duas vezes é idempotente.
+   */
+  onMessage(handler: MessageHandler): () => void;
   /** Encerra conexão e libera recursos. */
   close(): Promise<void>;
 }

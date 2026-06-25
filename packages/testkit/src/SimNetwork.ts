@@ -3,7 +3,7 @@ import { VirtualClock } from './clock';
 
 interface InternalAdapter {
   peerId: PeerId;
-  onMessage: MessageHandler | null;
+  handlers: Set<MessageHandler>;
   closed: boolean;
 }
 
@@ -37,7 +37,7 @@ export class SimNetwork {
 
     const internal: InternalAdapter = {
       peerId,
-      onMessage: null,
+      handlers: new Set(),
       closed: false,
     };
 
@@ -61,11 +61,15 @@ export class SimNetwork {
       },
 
       onMessage: (handler: MessageHandler) => {
-        internal.onMessage = handler;
+        internal.handlers.add(handler);
+        return () => {
+          internal.handlers.delete(handler);
+        };
       },
 
       close: () => {
         internal.closed = true;
+        internal.handlers.clear();
         this.adapters.delete(peerId);
         return Promise.resolve();
       },
@@ -132,8 +136,11 @@ export class SimNetwork {
     //  - M2: cancela entregas in-flight se o peer fechar antes do disparo.
     const deliverMsg = () => {
       if (target.closed) return; // M2: peer fechou após o send → cancela a entrega pendente
-      const handler = target.onMessage; // M1: lê o handler vigente na hora do disparo
-      if (handler) {
+      // Snapshot do conjunto de handlers no momento da entrega (M1): permite
+      // adicionar/remover handlers entre send e entrega — o snapshot captura
+      // o estado vigente na hora do disparo.
+      const handlers = [...target.handlers];
+      for (const handler of handlers) {
         handler(from, data);
       }
     };

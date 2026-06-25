@@ -178,19 +178,18 @@ describe('SimNetwork', () => {
     expect(onB).toHaveBeenCalledWith('A' as PeerId, new Uint8Array([1]));
   });
 
-  // Caso 9 (regressão M1 / sonda S1): trocar onMessage entre send e entrega usa o NOVO handler
-  it('9. onMessage trocado entre send e entrega → handler vigente na entrega é chamado', async () => {
+  // Caso 9 (regressão M1 / sonda S1): trocar onMessage entre send e entrega → multi-subscriber swap por unsubscribe
+  it('9. onMessage trocado entre send e entrega → handler removido não recebe, novo recebe', async () => {
     const net = new SimNetwork();
     const a = net.createAdapter('A' as PeerId);
     const b = net.createAdapter('B' as PeerId);
 
     const oldHandler = vi.fn();
     const newHandler = vi.fn();
-    b.onMessage(oldHandler);
+    const un = b.onMessage(oldHandler);
 
-    // NÃO dar await no send: o send agenda a entrega (microtask); a troca de handler
-    // acontece de forma síncrona ANTES da microtask rodar — essa é a janela do M1.
     const sendPromise = a.send('B' as PeerId, new Uint8Array([1]));
+    un(); // remove oldHandler
     b.onMessage(newHandler);
     await sendPromise;
 
