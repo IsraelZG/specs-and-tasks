@@ -162,6 +162,7 @@ Toda entidade no grafo (linha temporal de modificações conectada pelo mesmo `e
    * O `previous_hash` aponta diretamente para o hash da assinatura Ed25519 da aresta `MUTATES` anterior.
    * O `previous_hash` é uma coluna plana, plana indexada, permitindo auditorias topológicas rápidas em $O(1)$ sem a necessidade de descriptografar os payloads cifrados dos nós.
    * Esse campo reside exclusivamente na estrutura da aresta `MUTATES`, tendo sido removido de dentro dos payloads dos nós-versão para evitar redundância e contaminação de escopo.
+   * **Invariantes da aresta `MERGES` (RFC-028):** arestas `MERGES` (que ligam um nó de merge aos ramos concorrentes por ele incorporados — ver [[merges]]) **não** carregam `previous_hash` (ou carregam NULL/ZERO_HASH canônico). Elas não participam da cadeia de imutabilidade da ordem linear de `MUTATES` — são atestado de incorporação, não de encadeamento. Invariantes formais: **I-MERGES-1** direção source=merge → target=ramo; **I-MERGES-2** sem `previous_hash`; **I-MERGES-3** `HLC(source) > HLC(target)`; **I-MERGES-4** mesma `entity_id` entre source e target; **I-MERGES-5** unicidade `(merge, branch_tip)` com id composto `${C.id}->${Bi.id}#MERGES`; **I-MERGES-6** sem ciclos.
 
 ### 3.3 Rotação de Épocas e Forward Secrecy
 

@@ -24,7 +24,7 @@ Resumo dos pontos-chave:
 - **Direção:** `source_id` = nova versão → `target_id` = versão anterior.
 - **`previous_hash`:** aponta para o hash da assinatura Ed25519 da aresta `MUTATES` anterior; coluna plana não cifrada, indexada — auditorias topológicas em $O(1)$ sem descriptografar payloads.
 - **Monotonicidade:** `HLC(filho) > HLC(pai)` — violação → nó rejeitado como malformado.
-- **Fork:** detectado estruturalmente quando duas ou mais arestas `MUTATES` ativas compartilham o mesmo `source_id` sem relação ancestral; resolução via nó de merge com dois `MUTATES` (política completa em caderno-2/04 §3.2).
+- **Fork:** detectado estruturalmente quando duas ou mais arestas `MUTATES` ativas compartilham o mesmo `source_id` sem relação ancestral; resolução via nó de merge com 1 aresta `MUTATES` (continuação linear para o ancestral comum) + N arestas [[merges|`MERGES`]] (uma por ramo concorrente incorporado) — política completa em caderno-2/04 §4.2 e verbete [[fork-resolucao]].
 - **Assinatura:** todos os campos planos de `MUTATES` (incluindo `previous_hash`) são cobertos pela assinatura [[chave-mestra-ed25519]] do autor.
 
 ## Implementação

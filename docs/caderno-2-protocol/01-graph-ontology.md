@@ -58,6 +58,7 @@ Os verbos raiz canônicos aceitos na plataforma são:
 Para expressar a estrutura e composição interna do modelo de permissões, a plataforma define duas arestas estruturais permanentes que apontam para o [[entity-id|`entity_id`]] dos nós:
 * **`AGGREGATES`** — Liga uma `ASSET:ROLE` a uma `ASSET:PERMISSION`, indicando que o papel engloba aquela permissão.
 * **`REQUIRES`** — Liga uma `ASSET:PERMISSION` a outra, indicando uma dependência ou pré-requisito de acesso.
+* **[[merges|`MERGES`]]** — Aresta estrutural que liga um **nó de merge** (source) a um **ramo concorrente incorporado** (target), na resolução de fork (ver `caderno-2-protocol/04-automerge-integration-spec.md §4.2`). Diferente de `MUTATES`, não carrega `previous_hash` — não é parte da cadeia de imutabilidade da ordem linear, mas um atestado de incorporação. Suporta fork de 2 ou mais ramos (uma aresta `MERGES` por ramo incorporado).
 
 ### 2.2 Arestas de Transação Serializada (v4)
 

@@ -62,6 +62,7 @@ Atualizado em: 2026-06-03. Cobre todos os cadernos (1–4), glossary.md, caderno
 | `resulted-from` | `glossary.md §RESULTED_FROM` | — | protocol |
 | `resolves` | `glossary.md §RESOLVES` | — | protocol |
 | `mutates` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.2` | `caderno-3-sdk/01-sqlite-and-projections-schema.md §1` (schema); `caderno-5-transport/01-p2p-transport-and-reconciliation.md §2.10.1` | protocol |
+| `merges` | `caderno-2-protocol/02-cryptographic-lineage-and-auth.md §3.2` (RFC-028 — I-MERGES-1..6) | `caderno-3-sdk/01-sqlite-and-projections-schema.md §1` (schema, `type='MERGES'`); `caderno-2-protocol/04-automerge-integration-spec.md §4.2` (mecânica de resolução) | protocol |
 | `spends` | `caderno-2-protocol/01-graph-ontology.md §2.2` | `glossary.md §SPENDS`; `rfc-v4.md §3.2` ★ | protocol |
 | `credits` | `caderno-2-protocol/01-graph-ontology.md §2.2` | `glossary.md §CREDITS`; `rfc-v4.md §3.2` ★ | protocol |
 | `transfers-aresta` | `rfc-v4.md §3.2` | `caderno-2-protocol/01-graph-ontology.md §2.2` (mencionado) | protocol |

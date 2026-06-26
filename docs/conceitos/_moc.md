@@ -6,6 +6,7 @@ Gerado na Fase 3 a partir do glossário consolidado.
 ## Ontologia do Grafo e Primitivas
 
 - [[aresta]] — Relação ou ação entre dois nós no grafo. Sempre representa um verbo.
+- [[merges]] — Aresta estrutural (`MERGES`) que liga um **nó de merge** (source) aos **ramos concorrentes** (target) por ele incorporados na resolução de fork. Diferente de [[mutates]], não carrega `previous_hash` — é atestado de incorporação, não encadeamento linear. RFC-028 / ADR-0005. Ver caderno-2/04 §4.2.
 - [[serves-aresta]] — Aresta `PROFILE → CONTENT` que declara que uma fonte (peer/cloud/IPFS) hospeda um ciphertext; durável no grafo (fontes estáveis) ou no cache efêmero (seeders‑peer). Ver caderno‑3/05 §4.2.
 - [[content]] — Tipo de nó passivo que carrega informação estruturada. Inclui o subtipo `CONTENT:INTENT`.
 - [[mfa-s]] — Mecanismo de auditoria em nível de propriedade que, **apenas em documentos de edição colaborativa**, reconstrói antes/depois de deltas e gera diff semântico legível sob demanda. O cálculo é **lazy** e não-redundante com a Linhagem de Versões do grafo global.

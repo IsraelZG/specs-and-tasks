@@ -34,8 +34,8 @@ CREATE TABLE edges (
   entity_id TEXT NOT NULL,        -- MANTIDO TEXT
   source_id TEXT NOT NULL,        -- sempre nó (11º char 'N')
   target_id TEXT NOT NULL,        -- polimórfico via VFK (nó ou aresta)
-  type TEXT NOT NULL,             -- inclui SPENDS, CREDITS, CONSUMES, CONTRIBUTES, BLOCKS (v4)
-  previous_hash BLOB,             -- v4: TEXT → BLOB (hash de 32 bytes vs 64 em hex)
+  type TEXT NOT NULL,             -- inclui SPENDS, CREDITS, CONSUMES, CONTRIBUTES, BLOCKS (v4), MERGES (RFC-028)
+  previous_hash BLOB,             -- v4: TEXT → BLOB (hash de 32 bytes vs 64 em hex). NULL para arestas MERGES (sem encadeamento linear; I-MERGES-2).
   payload BLOB,                   -- v4: [IV 12 bytes] + [Ciphertext]  (payload_iv fundido)
   -- payload_iv REMOVIDO (fundido no payload)
   epoch INTEGER NOT NULL,

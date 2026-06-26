@@ -179,6 +179,11 @@ A integridade do histórico é protegida pela imutabilidade física das tabelas 
 
 Quando conflitos concorrentes emergem de partições de rede, a convergência é obtida de forma determinística por meio do protocolo de [[fork-resolucao]], cuja especificação de eleição do mergeador e escrita de nós de merge reside em [caderno-2-protocol/04-automerge-integration-spec.md#42-resolucao-de-forks](../caderno-2-protocol/04-automerge-integration-spec.md#L78-L86).
 
+> **Nota (RFC-028):** a topologia do merge introduz a aresta estrutural [[merges|`MERGES`]] (uma por
+> ramo concorrente incorporado) além da `MUTATES` de continuação linear. Peers que ainda não
+> reconhecem `MERGES` (desatualizados) tratam-na como aresta desconhecida e replicam-na via RBSR
+> sem interpretá-la; a degradação é benigna — voltam à detecção "fork ativo", sem corromper o grafo.
+
 #### 2.10.3 — Deleções (Tombstones)
 
 No modelo append-only, as deleções lógicas são implementadas desativando-se a aresta correspondente (`active = 0`), gerando uma lápide cuja indexação e ciclo de vida até a coleta física pelo G4 são regulados conforme [[tombstone-lapide]] ([caderno-3-sdk/01-sqlite-and-projections-schema.md#22-tombstones-e-active-edges](../caderno-3-sdk/01-sqlite-and-projections-schema.md)).

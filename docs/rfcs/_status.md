@@ -1,6 +1,8 @@
 # Status das RFCs
 
-Nenhuma RFC ativa. Todo o conteúdo aceito vive nos cadernos e em `docs/conceitos/`.
+| rfc | status | destino |
+| :--- | :--- | :--- |
+| rfc-028-aresta-merges.md | **Absorvida e deletada (2026-06-26)** | caderno-2/01 §2 (MERGES em arestas estruturais), caderno-2/02 §3.2 (I-MERGES-1..6), caderno-2/04 §4.2 (passo 3 e 4 reescritos), caderno-3/01 §1 (DDL type aceita MERGES, previous_hash nullable), caderno-5/01 §2.10.2 (nota degradação benigna), conceitos/mutates.md (ed Fork), conceitos/fork-resolucao.md (ed Mecânica), conceitos/merges.md (novo), adr/0005-aresta-merges.md (novo), conceitos/_inventario.md + _moc.md (registros), tasks/T-601.md §1+§6 |
 
 | rfc | status | destino |
 | :--- | :--- | :--- |
