@@ -1,6 +1,7 @@
 ---
 name: absorver-rfc
-description: Absorve UMA RFC nos cadernos/conceitos — roteia, revisa, despacha
+description: >
+  Absorve UMA RFC nos cadernos/conceitos — roteia, revisa, despacha
   incorporadores baratos por subtask, audita e deleta a RFC. Invocar com o caminho,
   ex.: /absorver-rfc docs/rfcs/rfc-005.md
 ---

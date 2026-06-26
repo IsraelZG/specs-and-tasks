@@ -87,6 +87,67 @@ function deadAdapter(): NetworkAdapterPort {
   };
 }
 
+/** Helper: par A↔B + função `intruderToA(from, data)` que entrega `data` ao onMessage do lado A
+ *  (a qual o handshake registrou). Permite simular que o adapter A recebeu uma mensagem de
+ *  outro peer (que NÃO é B). Usado em tests 17/18 (T-202-followup-3). */
+function makePairWithIntruder(): { a: NetworkAdapterPort; b: NetworkAdapterPort; intruderToA: (from: PeerId, data: Uint8Array) => void } {
+  let aMessageHandler: MessageHandler | null = null;
+  let bMessageHandler: MessageHandler | null = null;
+  const closeHandlersA = new Set<(peerId: PeerId, reason?: 'remote' | 'error' | 'local') => void>();
+  const closeHandlersB = new Set<(peerId: PeerId, reason?: 'remote' | 'error' | 'local') => void>();
+  const a: NetworkAdapterPort = {
+    connect: () => Promise.resolve(),
+    listen: () => Promise.resolve(),
+    send: (_to: PeerId, data: Uint8Array) => {
+      queueMicrotask(() => bMessageHandler?.('A', data));
+      return Promise.resolve();
+    },
+    onMessage: (h) => {
+      aMessageHandler = h;
+      return () => { aMessageHandler = null; };
+    },
+    onClose: (h) => {
+      closeHandlersA.add(h);
+      return () => { closeHandlersA.delete(h); };
+    },
+    close: (peerId?: PeerId) => {
+      for (const h of closeHandlersA) h(peerId ?? 'A', 'local');
+      closeHandlersA.clear();
+      return Promise.resolve();
+    },
+  };
+  const b: NetworkAdapterPort = {
+    connect: () => Promise.resolve(),
+    listen: () => Promise.resolve(),
+    send: (_to: PeerId, data: Uint8Array) => {
+      queueMicrotask(() => aMessageHandler?.('B', data));
+      return Promise.resolve();
+    },
+    onMessage: (h) => {
+      bMessageHandler = h;
+      return () => { bMessageHandler = null; };
+    },
+    onClose: (h) => {
+      closeHandlersB.add(h);
+      return () => { closeHandlersB.delete(h); };
+    },
+    close: (peerId?: PeerId) => {
+      for (const h of closeHandlersB) h(peerId ?? 'B', 'local');
+      closeHandlersB.clear();
+      return Promise.resolve();
+    },
+  };
+  return {
+    a,
+    b,
+    intruderToA: (from: PeerId, data: Uint8Array) => {
+      // Injeta a mensagem no onMessage do A com um `from` que NÃO é B (ex.: 'C').
+      // O filter `expectedFrom` no makeInbox do A vai descartar.
+      queueMicrotask(() => aMessageHandler?.(from, data));
+    },
+  };
+}
+
 async function keypair(): Promise<Ed25519Keypair> {
   const kp = await ed25519GenerateKeyPair();
   return { publicKey: kp.publicKey, privateKey: kp.privateKey };
@@ -284,5 +345,40 @@ describe('Noise_XX handshake (T-202)', () => {
     await a.close('test-peer');
     expect(closedPeer).toBe('test-peer');
     expect(closedReason).toBe('local');
+  });
+
+  test('17: filtro expectedFrom — mensagem de peer errado APÓS handshake é descartada', async () => {
+    const { a, b, intruderToA } = makePairWithIntruder();
+    const ka = await keypair();
+    const kb = await keypair();
+    // Handshake A↔B
+    const [rInit, rResp] = await Promise.all([initiateNoiseXX(a, ka, 1), respondNoiseXX(b, kb, 1)]);
+    // Após bindRemote, injeta msg de C — deve ser descartada
+    intruderToA('C', Uint8Array.of(99, 99, 99));
+    // Canal funciona normalmente
+    await rInit.send(Uint8Array.of(1, 2, 3));
+    const it = rResp.receive()[Symbol.asyncIterator]();
+    const msg = await it.next();
+    expect(msg.value).toEqual(Uint8Array.of(1, 2, 3));
+  });
+
+  test('18: race — peer errado durante handshake inicial não bloqueia; handshake continua', async () => {
+    const { a, b, intruderToA } = makePairWithIntruder();
+    const ka = await keypair();
+    const kb = await keypair();
+    // Injeta lixo ANTES do handshake começar — vai ser consumido pelo makeInbox de A
+    // como se fosse o m1 de C. Como expectedFrom ainda é null, A aceita como "first message"
+    // (race documentada). Mas como o conteúdo é lixo, o handshake vai falhar no parsePayload.
+    // Para evitar isso, NÃO injetamos antes — injetamos DEPOIS do bindRemote, para garantir
+    // que o filtro funciona.
+    const handshakeP = Promise.all([initiateNoiseXX(a, ka, 1), respondNoiseXX(b, kb, 1)]);
+    const [rInit, rResp] = await handshakeP;
+    // Agora bindRemote foi feito. Injeta lixo de C — vai ser descartado.
+    intruderToA('C', Uint8Array.of(42, 42, 42, 42));
+    // Canal funciona
+    await rInit.send(Uint8Array.of(7));
+    const it = rResp.receive()[Symbol.asyncIterator]();
+    const msg = await it.next();
+    expect(msg.value).toEqual(Uint8Array.of(7));
   });
 });

@@ -159,11 +159,47 @@ pnpm --filter @plataforma/transport lint
 - **package.json:** adicionado `@plataforma/testkit` como devDependency (workspace:*)
 - **Limitação conhecida (test 8):** SimNetwork roteia por peerId, mas noise envia 1ª msg com `''`. O test faz `a.send` wrap para redirecionar `''→'B'`. Isso documenta que o adapter precisa tratar o peerId vestigial do noise (ponto-a-ponto).
 
-### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+### Parecer do Agente Revisor — Ciclo 1 (2026-06-25, Crush/QA):
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória):**
-- **Comentários de Revisão:**
+
+**Evidência de Execução (worktree real T-202-followup-1, 2026-06-25):**
+```
+$ pnpm --filter @plataforma/transport build
+$ tsc
+(EXIT 0)
+
+$ pnpm --filter @plataforma/transport test
+ ✓ tests/mock.test.ts (1 test) 2ms
+ ✓ tests/noiseHandshake.test.ts (10 tests) 653ms
+   ✓ caso 4: wrong_key 311ms
+ Test Files  2 passed (2)  |  Tests  11 passed (11)  (EXIT 0)
+
+$ pnpm --filter @plataforma/transport lint
+$ eslint src/
+(EXIT 0)
+```
+
+**Cobertura dos 5 achados de T-202 (ciclo 3):**
+- **[m1] ✅:** Test 8 — SimNetwork (T-005) como adapter real, handshake feliz + mensagem. Limitação conhecida documentada (peerId vazio → wrap `''→'B'`).
+- **[m2] ✅:** Test 5+9 — `reason === 'invalid_signature'` assertado explicitamente (antes só checava `instanceof NoiseHandshakeError`).
+- **[i1] ✅:** Test 7 — canais pós-epochMismatch exercitados (`send`/`receive` após flag).
+- **[i2] ✅:** Test 11 — simetria do respondedor: `respondNoiseXX(b, kb, 1, 5_000, wrongPub)` → `reason === 'wrong_key'`.
+- **[i5] ✅:** Test 12 — `vi.spyOn(a, 'send')` → `mock.calls[0][0] === ''` (peerId vestigial documentado).
+
+**Checklist DoD (§7):**
+- [x] Test 8 (SimNetwork) passa ✅
+- [x] Test 5 reforçado: `reason === 'invalid_signature'` ✅
+- [x] Test 7 reforçado: canais exercitados pós-mismatch ✅
+- [x] Test 11 (simetria respondedor): `wrong_key` ✅
+- [x] Test 12 (peerId vazio): documentado/assertado ✅
+- [x] 11/11 testes passando ✅
+- [x] Build + test + lint verdes ✅
+- [x] Nenhuma mudança em `noiseHandshake.ts` ✅
+
+**Verificação de escopo (§3):** apenas `noiseHandshake.test.ts` + `package.json` (+ `pnpm-lock.yaml` auto) ✅
+
+**BLOCKER (0) · MAJOR (0) · MINOR (0) · INFO (0)**
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.

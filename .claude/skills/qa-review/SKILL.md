@@ -1,6 +1,7 @@
 ---
 name: qa-review
-description: Roda o ciclo completo de QA em tarefas em status `review`. Sem args revisa
+description: >
+  Roda o ciclo completo de QA em tarefas em status `review`. Sem args revisa
   todas as tarefas em review; com ID revisa uma específica. Ex.: /qa-review T-1011
 model: sonnet
 ---

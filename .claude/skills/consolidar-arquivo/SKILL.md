@@ -1,6 +1,7 @@
 ---
 name: consolidar-arquivo
-description: Orquestra a consolidação de um arquivo da Fase 3 via subagent
+description: >
+  Orquestra a consolidação de um arquivo da Fase 3 via subagent
   consolidador, com auditoria ao final. Invocar com o caminho do arquivo, ex.:
   /consolidar-arquivo docs/caderno-2-protocol/02-cryptographic-lineage-and-auth.md
 ---

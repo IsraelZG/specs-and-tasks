@@ -195,3 +195,60 @@ WSL/opencode foi abandonado para execução de tasks.
 ---
 
 <!-- Adicione novas entradas acima desta linha, no formato P-NNN -->
+
+## P-008 · Skill com frontmatter YAML inválido é silenciosamente ignorada pelo Crush
+
+**Data:** 2026-06-26
+**Sintoma:** Skill existe em `.claude/skills/<nome>/SKILL.md` mas não aparece no `crush_info`
+(como `unloaded`/`loaded`), nem na lista `<available_skills>` injetada no system prompt do agente,
+nem na commands palette (`/<skill>` não funciona). Agentes relatam "não consigo localizar a skill
+X" mesmo com a pasta e o `SKILL.md` presentes. Descoberto quando 6 skills
+(`endurecer-task`, `qa-review`, `absorver-rfc`, `consolidar-arquivo`, `rodar-onda`, `revisar-rfc`)
+sumiram da lista apesar de existirem fisicamente — `crush_info` mostrava 14 skills, a pasta tinha 17.
+**Causa raiz:** O campo `description` do frontmatter YAML usa plain scalar inválido. Dois padrões
+quebram:
+1. Multi-linha com indentação insuficiente para continuação (linha de continuação em col 2, valor
+   começa em col ~14 — o parser acha que é uma nova chave top-level).
+2. Sequência `: ` (colon-space) dentro de uma string plain — é o separador de mapeamento reservado
+   do YAML, e plain scalars não podem conter isso.
+
+Em ambos os casos, `yaml.safe_load` lança `ScannerError: mapping values are not allowed here`. O
+loader do Crush trata o erro como "skill não existe" e pula o arquivo **sem warning visível** — nem
+log, nem entrada em vermelho na UI explicando o motivo (a skill só "some").
+**Diagnóstico (rodar na raiz do repo):**
+```bash
+python -c "
+import yaml, re, sys
+for p in __import__('pathlib').Path('.claude/skills').glob('*/SKILL.md'):
+    raw = p.read_text(encoding='utf-8')
+    parts = re.split(r'^---\s*\$', raw, maxsplit=2, flags=re.M)
+    if len(parts) < 3: continue
+    try: yaml.safe_load(parts[1]); print('OK ', p)
+    except Exception as e: print('BAD', p, '->', type(e).__name__, str(e)[:80])
+"
+```
+`BAD <path>` = este pitfall. `OK <path>` = frontmatter válido, problema é outro.
+**Solução aplicada:** Envolver a `description` em **folded scalar** (`description: >`), padrão já
+usado pelas skills que funcionam (`handoff`, `ponytail`):
+```yaml
+---
+name: minha-skill
+description: >
+  Texto da descrição, pode ter ": " e múltiplas linhas sem problema.
+  Quebras de linha viram espaço no valor final.
+model: haiku  # campo extra opcional, preservado
+---
+```
+Aplicado em 6 skills em commits separados na branch `fix/crush-skill-frontmatter` (1 commit por
+skill, padrão MGTIA "uma unidade por commit").
+**Como prevenir recorrência:**
+1. **Template:** ao criar skill nova, copiar a estrutura de `handoff/SKILL.md` (folded scalar é o
+   padrão, não plain).
+2. **Diagnóstico automatizado:** rodar o snippet Python acima como pre-commit hook ou em CI
+   (`tools/scripts/verify-skills.mjs` candidato). Por enquanto, checar manualmente após criar skill.
+3. **Sinalização na UI:** se a UI do Crush mostrasse "1 skill ignorada (YAML inválido)" em vez de
+   só omitir, o problema seria óbvio — mas isso é upstream (pedir no repo do Crush). Por ora, a
+   contagem `crush_info` × `ls .claude/skills` é a melhor heurística.
+4. **Skill healthcheck:** após criar/editar skills, comparar
+   `crush_info` (campo `skills` — total e lista) com `ls .claude/skills/*/SKILL.md`. Diferença > 0
+   = rodar o diagnóstico acima.
