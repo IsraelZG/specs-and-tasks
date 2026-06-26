@@ -1,6 +1,7 @@
 ---
 name: revisar-rfc
-description: Reconcilia UMA RFC com seu review — tria os achados, portão humano, e emenda
+description: >
+  Reconcilia UMA RFC com seu review — tria os achados, portão humano, e emenda
   a RFC com os aprovados. Invocar com o número/caminho, ex.: /revisar-rfc rfc-009.
 model: sonnet
 ---
