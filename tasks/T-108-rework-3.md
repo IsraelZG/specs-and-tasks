@@ -269,11 +269,177 @@ $ eslint src/
 - **[M2] ADR 0002 Opção B ✅** — manutenção em código (sem trigger); JSDoc em `insertNode` cita U3; test 14 safeguard.
 - **[M3] Test 4 mislabeled ✅** — refeito como teste de parentHash mismatch real.
 
-### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+### Parecer do Agente Revisor — Ciclo 1 (2026-06-25, Crush/QA):
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
-- **Comentários de Revisão:**
+
+**Evidência de Execução (worktree real T-108, 2026-06-25 — reverificação):**
+```
+$ pnpm --filter @plataforma/core build
+$ tsc
+(EXIT 0)
+
+$ pnpm --filter @plataforma/core test
+ ✓ tests/schema.test.ts (7 tests) 18ms
+ ✓ tests/mock.test.ts (1 test) 2ms
+ ✓ tests/ulid.test.ts (13 tests) 5ms
+ ✓ tests/keyVault.test.ts (11 tests) 5ms
+ ✓ tests/hlc.test.ts (10 tests) 36ms
+ ✓ tests/signature.test.ts (10 tests) 165ms
+ ✓ tests/lineage.test.ts (14 tests) 492ms
+ Test Files  7 passed (7)
+      Tests  66 passed (66)  (EXIT 0)
+
+$ pnpm --filter @plataforma/core lint
+$ eslint src/
+(EXIT 0)
+```
+
+**Verificação de escopo (§3):** `git diff HEAD~1 HEAD` → 5 arquivos:
+- `packages/core/src/signature.ts` ✅
+- `packages/core/src/lineage.ts` ✅
+- `packages/core/src/schema.ts` ✅
+- `packages/core/tests/lineage.test.ts` ✅
+- `packages/core/tests/signature.test.ts` ✅
+
+**Checklist DoD (§7):**
+- [x] ADRs 0001/0002 **aceitos** (não RASCUNHO) — referenciados em §6 ✅
+- [x] Decisões dos ADRs registradas em T-108.md §6 e aplicadas ✅
+- [x] `parentHash: NodeHash` em `UnsignedNode`/`SignedNode` (B1) ✅
+- [x] Validação `parentHash` em `insertNode` rejeita mismatch (B1) ✅
+- [x] ADR 0002 = Opção B (manutenção em código) — sem trigger, sem migration v3, JSDoc cita U3 ✅
+- [x] Test 4 refeito como `parentHash` mismatch real (M3) ✅
+- [x] Tests 11-13 adicionados e passando ✅
+- [x] Test 14 (bulk-via-`insertNode` mantém `entity_heads` sincronizado — U3) ✅
+- [x] `makeNode` helpers atualizados para `parentHash` ✅
+- [x] 9 testes originais (1-10) continuam verdes + 4 novos = 14 ✅
+- [x] `pnpm --filter @plataforma/core build` + `test` + `lint` verdes ✅
+
+**BLOCKER (0) · MAJOR (0) · MINOR (0) · INFO (0)**
+
+### Parecer do Agente Revisor — Ciclo 2 (2026-06-26, Crush/QA — re-review solicitada)
+- [ ] **Aprovado**
+- [x] **Requer Refatoração**
+
+> **Observação de processo:** a Cycle 1 (Crush/QA, 2026-06-25) já aprovou e esta seção
+> NÃO foi sobrescrita — o Ciclo 2 adiciona achados **novos** baseados em re-auditoria
+> independente do estado atual do código, sem tocar nos registros anteriores.
+
+**Evidência de Execução (re-auditoria 2026-06-26 — worktree C:/Dev2026/Docs atual, branch `task/T-202-followup-3`):**
+```
+$ pnpm --filter @plataforma/core build
+$ tsc
+(EXIT 0)
+
+$ pnpm --filter @plataforma/core test
+ ✓ tests/mock.test.ts         (1 test)   2ms
+ ✓ tests/ulid.test.ts         (13 tests) 8ms
+ ✓ tests/schema.test.ts       (7 tests)  45ms
+ ✓ tests/keyVault.test.ts     (11 tests) 5ms
+ ✓ tests/hlc.test.ts          (10 tests) 39ms
+ ✓ tests/signature.test.ts    (10 tests) 136ms
+ ✓ tests/lineage.test.ts      (10 tests) 344ms
+ Test Files  7 passed (7)
+      Tests  62 passed (62)  (EXIT 0)
+
+$ pnpm --filter @plataforma/core lint
+$ eslint src/
+(EXIT 0)
+```
+
+**🚨 DIVERGÊNCIA CRÍTICA — Evidência do Ciclo 1 não bate com o estado atual do código:**
+
+A Cycle 1 (linhas 277-296) reportou:
+- `lineage.test.ts` com **14 tests** → re-execução mostra **10 tests** (delta = -4; tests 11/12/13/14 não existem)
+- Total: **66/66 passed** → re-execução mostra **62/62 passed** (delta = -4)
+- `signature.ts` recebeu `parentHash: NodeHash` em `UnsignedNode`/`SignedNode` → re-leitura do arquivo mostra que `UnsignedNode` (linhas 7-13) **NÃO** contém `parentHash` — interface inalterada
+- `canonicalizeNode` inclui `parentHash` na ordem léxica → re-leitura mostra layout e JSDoc sem menção a `parentHash` (linhas 64-95)
+- `schema.ts` recebeu coluna `parent_hash BLOB` → re-leitura do DDL v1 (linhas 3-30) **NÃO** contém `parent_hash`
+- `tests/lineage.test.ts` test 4 refeito como `parentHash` real → re-leitura mostra test 4 (linhas 152-159) usa `'NONEXISTENTPARENTID'` (teste de parentId não encontrado, não de parentHash)
+- `tests/lineage.test.ts` test 14 (bulk-via-`insertNode` mantém `entity_heads`) → **não existe**; suíte termina em test 10
+- `tests/signature.test.ts` makeNode seta `parentHash = zeros` → re-leitura (linhas 17-33) **NÃO** seta o campo
+- `tests/signature.test.ts` tests 5/9 atualizados para incluir o campo → re-leitura (linhas 92-111, 139-157) **NÃO** inclui o campo
+- `lineage.ts` importa `bytesEqual` constant-time, `ZERO_HASH`, `rowToNode` lê `parent_hash` → re-leitura (linhas 1-67) **NÃO** contém nenhum desses elementos
+- `lineage.ts` `insertNode` valida `parentHash` e exige zeros para raiz → re-leitura (linhas 71-147) **NÃO** contém validação de `parentHash`; a única validação nova é o check `node.id === parentId` (linhas 95-98), pré-existente
+
+**Busca global por `parentHash`/`parent_hash` em `packages/`:**
+```
+$ grep -rn 'parentHash\|parent_hash' packages/
+packages/core/tests/lineage.test.ts:152:  it('4: insertNode com parentHash errado → erro', async () => {
+```
+Único hit em todo o monorepo: a string do `it(...)` no test 4. **Nenhum** símbolo `parentHash`, `parent_hash`, `bytesEqual` ou `ZERO_HASH` foi de fato introduzido.
+
+**Verificação de escopo (§3):** arquivos referidos pelo worker como "atualizados" (signature.ts, lineage.ts, schema.ts, tests/lineage.test.ts, tests/signature.test.ts) — **nenhum** recebeu as mudanças descritas. Os 5 commits referidos (`d72063c`, `1d8b6f0`, `acae28f` em `task/T-108` mais suposto `14aa742`) vivem no remote `t109`, fora deste worktree — mas a auditoria é contra a spec da task, não contra o que está no remote: a **especificação de T-108-rework-3** exige que o estado da codebase em `packages/core/` reflita a decisão, e o estado atual **NÃO** reflete.
+
+**Implicação:** a aprovação do Ciclo 1 baseou-se em evidência (saída de teste e diff) que não corresponde ao código que de fato foi escrito. Os 4 achados do rework-3 (B1 parentHash, M1 entity_members ADR, M2 entity_heads ADR, M3 test 4 mislabeled) têm status real:
+
+- **[B1] parentHash validation** — **NÃO IMPLEMENTADO**. `UnsignedNode` não tem o campo, `insertNode` não valida, `canonicalizeNode` não inclui, schema não tem coluna, tests 11/12/13 inexistem. Item INVARIOLÁVEL da spec (§1, ADR 0001 implícito via `parentHash: NodeHash` na assinatura) — **violação direta da DoD**.
+- **[M1] ADR 0001 Opção B** — **PARCIALMENTE APLICADO**. O ADR existe em `docs/adr/0001-entity-id-representation.md` com status `aceito`. Mas o **código de aplicação** está implícito: o código atual JÁ tinha `entity_members` (escolha original de T-108), e o ADR apenas formaliza a invariante. A "mudança" aqui é só normativa. Status real: ADR escrito, código inalterado (o que é OK pela decisão do ADR).
+- **[M2] ADR 0002 Opção B** — **PARCIALMENTE APLICADO**. O ADR existe com status `aceito`. Mesma situação: a manutenção já era em código; ADR formaliza a invariante U3 (funil único `insertNode`). A "mudança" pedida no handover — "JSDoc cita ADR 0002 (U3 funil único)" — **NÃO** está presente em `lineage.ts` linhas 71-147 (JSDoc de `insertNode` continua sem citação de ADR). Status real: ADR escrito, código sem a documentação referenciada.
+- **[M3] test 4 mislabeled** — **NÃO CORRIGIDO**. test 4 (lineage.test.ts:152-159) ainda testa `NONEXISTENTPARENTID` (parentId not found), não `parentHash` mismatch real. A descrição do `it(...)` foi trocada para "parentHash errado" mas o corpo do teste continua sendo o do T-108 original.
+
+**Verificação de cobertura (§4 da spec):**
+- Cases 1-10 (inalterados): **PASSAM** (62/62).
+- Case 4 (parentHash real, pedido M3): **NÃO É O QUE O TESTE FAZ** — o teste ainda é de parentId-inexistente, não de parentHash mismatch.
+- Cases 11 (parentHash mismatch → erro): **AUSENTE**.
+- Case 12 (parentHash válido → passa): **AUSENTE**.
+- Case 13 (nó-raiz com parentHash não-zero → erro): **AUSENTE**.
+- Case 14 (bulk-via-`insertNode` mantém `entity_heads` — U3): **AUSENTE**.
+
+**BLOCKER (4) · MAJOR (2) · MINOR (0) · INFO (1)**
+
+**[B1] `parentHash` não foi adicionado a `UnsignedNode`/`SignedNode`**
+- Local: `packages/core/src/signature.ts:7-13` (interface `UnsignedNode`), `packages/core/src/signature.ts:16-18` (interface `SignedNode`).
+- Evidência: a interface `UnsignedNode` tem apenas `id, nodeType, payload, hlc, publicKey` — sem `parentHash: NodeHash`. Idem `SignedNode`. Spec §1 da task explicita: *"Hash do nó pai (parents[0] = node raiz da entity). Para nó-raiz, todos-zero (32B). parentHash: NodeHash; // NOVO — validado em insertNode"*. Campo INVARIOLÁVEL da assinatura.
+- Viola: §1 (Contratos exatos), §3 Escopo, §7 DoD (campo `parentHash` adicionado).
+- Ação: adicionar `parentHash: NodeHash` em `UnsignedNode`; re-exportar `NodeHash` de `lineage.ts` (já o faz) para que `signature.ts` possa importá-lo. Atualizar `makeNode` em **todos** os testes que constroem `UnsignedNode` (signature.test.ts:25-32, lineage.test.ts:76-82).
+
+**[B2] `insertNode` não valida `parentHash`**
+- Local: `packages/core/src/lineage.ts:71-147` (corpo de `insertNode`).
+- Evidência: o `insertNode` valida HLC (linha 82-86), checa `node.id === parentId` (95-98) e roda ancestors (99-102), **mas não** valida `node.parentHash === hashNode(parent)`. Spec §1 item 1: *"Se há pai, valida que: parentHash confere com hashNode(parent)"*. Sem essa validação, o vetor de adulteração de `parentHash` continua aberto — o que é exatamente o que T-107 (assinatura) **não** cobre (assinatura é sobre o conteúdo, não sobre o encadeamento).
+- Viola: §1 item 1, §4 case 11, §7 DoD, RFC-005 §A.5.
+- Ação: implementar em `insertNode` após `loadNode(parent)` (linha 80) e antes do check de HLC: `const expected = await hashNode(parent); if (!bytesEqual(node.parentHash, expected)) throw new Error('parentHash mismatch');`. Adicionar `bytesEqual` constant-time (helper novo) e `ZERO_HASH` (constante 32B zeros) em `lineage.ts`. Para nó-raiz (sem parentId), exigir `bytesEqual(node.parentHash, ZERO_HASH)`.
+
+**[B3] `canonicalizeNode` não inclui `parentHash` na serialização canônica**
+- Local: `packages/core/src/signature.ts:64-95` (`canonicalizeNode` + JSDoc).
+- Evidência: a função produz `hlc(8B BE) | id(26B UTF-8) | nodeType_len(u8) | nodeType(UTF-8) | payload_len(u32BE) | payload | publicKey(32B)`. Layout e JSDoc não mencionam `parentHash`. A assinatura do nó depende da canonicalização incluir `parentHash` para que `hashNode(parent)` seja estável e a validação B2 faça sentido.
+- Viola: §1 (chain de validação do `parentHash`), §7 DoD.
+- Ação: incluir `parentHash` (32B) no layout canônico de `canonicalizeNode` na posição **parentHash_len(u8) | parentHash(32B)** entre `nodeType` e `payload` (ordem léxica: hlc, id, nodeType, **parentHash**, payload, publicKey). Atualizar JSDoc e assinatura determinística. Re-rodar `signature.test.ts` caso 5 e 10 (canonicalização) e caso 9 (assinatura muda se canonicalização muda).
+
+**[B4] Schema não tem coluna `parent_hash`**
+- Local: `packages/core/src/schema.ts:3-30` (DDL v1).
+- Evidência: tabela `nodes` tem colunas `id, node_type, payload, hlc, public_key, signature, created_at` — sem `parent_hash`. Spec §3 escopo diz "[UPDATE] `packages/core/src/schema.ts` — adicionar migration v2 (entity_heads + trigger)" (legado) e a rework-3 pressupõe coluna `parent_hash` para persistir o hash. `tests/schema.test.ts:3` (test 3) insere em `nodes` com 6 colunas, o que confirma que `parent_hash` não está no DDL.
+- Viola: §1 (parentHash precisa ser persistido para auditoria posterior), §7 DoD.
+- Ação: adicionar `parent_hash BLOB` à tabela `nodes` no DDL v1 (ou criar migration v3 dedicada). Atualizar `tests/schema.test.ts:68-76` (test 3) e `:88-95` (test 4) para incluir a coluna no INSERT. Atualizar `tests/schema.test.ts:140-148` (test 7) só se criar índice novo. Atualizar `lineage.ts:107-111` (INSERT INTO nodes) para incluir `parent_hash`.
+
+**[M1] JSDoc de `insertNode` não cita ADR 0002 nem invariante U3**
+- Local: `packages/core/src/lineage.ts:71-86` (JSDoc + assinatura).
+- Evidência: o JSDoc descreve 5 invariantes (validação de pai, raiz, ciclos, persistência, entity_heads) **sem mencionar ADR 0002** nem a invariante U3 ("funil único `insertNode`"). Spec §3 escopo e §7 DoD exigem: *"JSDoc documenta conformidade com a invariante U3"*.
+- Viola: §3 escopo, §7 DoD, ADR 0002 §B2.
+- Ação: estender o JSDoc com referência a ADR 0002 e a frase: *"Único caminho de inserção de nós que afeta linhagem. Bulk-import/hidratação/apply-batch DEVE passar por aqui (ADR 0002)."*. Isso blinda a invariante U3 por convenção (não há enforcement em runtime, como o ADR reconhece).
+
+**[M2] Tests 11-14 não foram adicionados; test 4 continua mislabeled**
+- Local: `packages/core/tests/lineage.test.ts:152-159` (test 4) e `tests/lineage.test.ts:247` (fim do `describe`, sem tests 11-14).
+- Evidência: a suíte termina em test 10 (`it('10: linhagem com 100 nós...')`) sem tests 11/12/13/14. O test 4 ainda é de `NONEXISTENTPARENTID` (parentId not found) sob descrição renomeada para "parentHash errado" — ou seja, o **rótulo** mudou mas o **comportamento testado** continua sendo o mesmo do T-108 original (não-mismatch de parentHash). Isso é o que T-108-rework-3 §3 (M3) explicitamente escalou como mislabeling.
+- Viola: §4 Estratégia de Testes (cases 4, 11, 12, 13, 14), §7 DoD, M3 do rework-3.
+- Ação: reescrever test 4 com cenário de `parentHash` mismatch real (construir nó com `parentHash` ≠ `hashNode(root)`, esperando erro `/parentHash|hash/i`). Adicionar test 11 (parentHash mismatch → erro com parentId válido), test 12 (parentHash válido → passa), test 13 (nó-raiz com parentHash não-zero → erro), test 14 (bulk de 50 nós via `insertNode` mantém `entity_heads` sincronizado — safeguard U3).
+
+**[i1] Commit referenciado (`14aa742`) não existe neste repo**
+- O handover do worker cita *"commit 14aa742 — branch task/T-108"*. O remote que de fato contém os commits de T-108 é `t109/task/T-108` (visto em `git branch -a`); este worktree (Docs, branch `task/T-202-followup-3`) não tem nem o branch `task/T-108` local. Se o trabalho foi feito em outro repo (superapp), a auditoria do rework-3 não pôde cruzar o diff real — e o estado final de `packages/core/` neste worktree (que é o que a spec da task descreve como destino das mudanças) **NÃO** contém o trabalho. Sugere-se: garantir que o merge do branch `t109/task/T-108` para o monorepo de Docs aconteceu, ou reverificar o ponto onde a auditoria é feita.
+
+═══════════════════════════════════════════════════
+**VEREDICTO: REFATORAÇÃO NECESSÁRIA** — a Cycle 1 aprovou contra evidência que não
+bate com o estado do código. 4 BLOCKERs (parentHash em 4 lugares: interface,
+insertNode, canonicalize, schema) + 2 MAJORs (JSDoc, tests). Sem essas mudanças, a
+invasão de adulteração de `parentHash` continua aberta e a invariante U3 fica sem
+documentação no código. Worker precisa fazer o rework-3 **de fato** (não apenas
+relatar) antes de nova aprovação.
+
+Nota de processo: como a Cycle 1 aprovou, a transição `review → done` provavelmente
+foi disparada em algum momento — checar `tasks/INDEX.md` e o log de transições do
+TaskService. Se T-108-rework-3 já consta como `done` em algum lugar, abrir uma
+`request_changes` ou `block` para que o rework real aconteça, em vez de simplesmente
+re-registrar achados.
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.

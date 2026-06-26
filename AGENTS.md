@@ -2,7 +2,12 @@
 
 > As regras de processo do MGTIA (gestão de tasks, transições, Gate de Evidência, papéis) estão em
 > [`CLAUDE.md`](./CLAUDE.md) — leia-o primeiro. Este arquivo existe para ferramentas que leem
-> `AGENTS.md` como context-file (Crush, OpenCode, Antigravity) e hoje carrega só a camada ponytail.
+> `AGENTS.md` como context-file (Crush, OpenCode, Antigravity) e hoje carrega a camada ponytail
+> e o catálogo de ferramentas.
+>
+> **Ferramentas LSP/MCP:** veja [`docs/playbook/06-ferramentas-lsp-mcp.md`](./docs/playbook/06-ferramentas-lsp-mcp.md)
+> para o catálogo completo. Prefira MCP sobre shell para git/github; use `context7` para confirmar
+> APIs; use LSP diagnostics/references para navegação e validação de código.
 
 <!-- BEGIN ponytail -->
 ## Ponytail — disciplina de código enxuto (ruleset injetado)
