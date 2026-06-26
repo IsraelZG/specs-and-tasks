@@ -1,9 +1,10 @@
-import type { NetworkAdapterPort, PeerId, WireData, MessageHandler } from '@plataforma/protocol';
+import type { NetworkAdapterPort, PeerId, WireData, MessageHandler, PeerCloseHandler } from '@plataforma/protocol';
 import { VirtualClock } from './clock';
 
 interface InternalAdapter {
   peerId: PeerId;
   handlers: Set<MessageHandler>;
+  closeHandlers: Set<PeerCloseHandler>;
   closed: boolean;
 }
 
@@ -38,6 +39,7 @@ export class SimNetwork {
     const internal: InternalAdapter = {
       peerId,
       handlers: new Set(),
+      closeHandlers: new Set(),
       closed: false,
     };
 
@@ -67,8 +69,19 @@ export class SimNetwork {
         };
       },
 
+      onClose: (handler: PeerCloseHandler) => {
+        internal.closeHandlers.add(handler);
+        return () => {
+          internal.closeHandlers.delete(handler);
+        };
+      },
+
       close: () => {
         internal.closed = true;
+        for (const h of internal.closeHandlers) {
+          h(peerId, 'local');
+        }
+        internal.closeHandlers.clear();
         internal.handlers.clear();
         this.adapters.delete(peerId);
         return Promise.resolve();

@@ -21,7 +21,7 @@ export interface NoiseHandshakeResult {
   readonly remoteDeviceId: PeerId;
   readonly remoteEpochIndex: number;
   readonly send: (data: Uint8Array) => Promise<void>;
-  readonly receive: () => AsyncIterable<Uint8Array>;
+  readonly receive: (options?: { signal?: AbortSignal }) => AsyncIterable<Uint8Array>;
   readonly epochMismatch: boolean;
 }
 
@@ -94,7 +94,8 @@ export function decryptWithAd(cs: CipherState, ad: Uint8Array, ciphertext: Uint8
   let pt: Uint8Array;
   try {
     pt = chacha20poly1305(cs.k, noiseNonce(cs.n), ad).decrypt(ciphertext);
-  } catch {
+  } catch (err) {
+    console.error('[noiseHandshake] AEAD decrypt failed:', err);
     throw new NoiseHandshakeError('AEAD tag inválida', 'invalid_signature');
   }
   cs.n += 1;
@@ -251,9 +252,15 @@ async function verifyBinding(bindingHash: Uint8Array, parsed: ParsedPayload, exp
   }
 }
 
-function makeInbox(adapter: NetworkAdapterPort): (timeoutMs: number) => Promise<{ from: PeerId; data: Uint8Array }> {
+function makeInbox(adapter: NetworkAdapterPort): {
+  next: (timeoutMs: number) => Promise<{ from: PeerId; data: Uint8Array }>;
+  bindRemote: (peerId: PeerId) => void;
+  controller: AbortController;
+} {
   const queue: Array<{ from: PeerId; data: Uint8Array }> = [];
   let pending: ((m: { from: PeerId; data: Uint8Array }) => void) | null = null;
+  const controller = new AbortController();
+  let remotePeer: PeerId | null = null;
   adapter.onMessage((from, data) => {
     const msg = { from, data };
     if (pending) {
@@ -264,21 +271,58 @@ function makeInbox(adapter: NetworkAdapterPort): (timeoutMs: number) => Promise<
       queue.push(msg);
     }
   });
-  return (timeoutMs: number) => {
+  adapter.onClose((peerId) => {
+    if (remotePeer !== null && peerId === remotePeer) {
+      controller.abort();
+    }
+  });
+  const next = (timeoutMs: number, externalSignal?: AbortSignal) => {
+    if (controller.signal.aborted) {
+      return Promise.reject(new NoiseHandshakeError('connection closed', 'protocol_error'));
+    }
+    if (externalSignal?.aborted) {
+      return Promise.reject(new NoiseHandshakeError('connection closed', 'protocol_error'));
+    }
     const head = queue.shift();
     if (head) return Promise.resolve(head);
+    const cappedTimeout = Math.min(timeoutMs, 2_147_483_647);
     return new Promise<{ from: PeerId; data: Uint8Array }>((resolve, reject) => {
-      const signal = AbortSignal.timeout(timeoutMs);
-      const onAbort = (): void => {
+      const timeoutSignal = AbortSignal.timeout(cappedTimeout);
+      const cleanup = (): void => {
         pending = null;
+        timeoutSignal.removeEventListener('abort', onAbort);
+        controller.signal.removeEventListener('abort', onInternalAbort);
+        externalSignal?.removeEventListener('abort', onExternalAbort);
+      };
+      const onAbort = (): void => {
+        cleanup();
         reject(new NoiseHandshakeError('handshake timeout', 'timeout'));
       };
-      signal.addEventListener('abort', onAbort, { once: true });
+      const onInternalAbort = (): void => {
+        cleanup();
+        reject(new NoiseHandshakeError('connection closed', 'protocol_error'));
+      };
+      const onExternalAbort = (): void => {
+        cleanup();
+        reject(new NoiseHandshakeError('connection closed', 'protocol_error'));
+      };
+      controller.signal.addEventListener('abort', onInternalAbort, { once: true });
+      timeoutSignal.addEventListener('abort', onAbort, { once: true });
+      if (externalSignal) {
+        externalSignal.addEventListener('abort', onExternalAbort, { once: true });
+      }
       pending = (m): void => {
-        signal.removeEventListener('abort', onAbort);
+        cleanup();
         resolve(m);
       };
     });
+  };
+  return {
+    next,
+    bindRemote: (peerId: PeerId) => {
+      remotePeer = peerId;
+    },
+    controller,
   };
 }
 
@@ -289,17 +333,24 @@ function makeResult(
   localEpochIndex: number,
   txCipher: CipherState,
   rxCipher: CipherState,
-  next: (t: number) => Promise<{ from: PeerId; data: Uint8Array }>,
+  next: (t: number, signal?: AbortSignal) => Promise<{ from: PeerId; data: Uint8Array }>,
+  internalController: AbortController,
 ): NoiseHandshakeResult {
   return {
     remoteDeviceId: deriveDevicePeerId(parsed.devicePub),
     remoteEpochIndex: parsed.epochIndex,
     epochMismatch: parsed.epochIndex !== localEpochIndex,
     send: (data: Uint8Array): Promise<void> => adapter.send(remote, encryptWithAd(txCipher, new Uint8Array(0), data)),
-    receive: async function* (): AsyncIterable<Uint8Array> {
+    receive: async function* (options?: { signal?: AbortSignal }): AsyncIterable<Uint8Array> {
       for (;;) {
-        const msg = await next(Number.MAX_SAFE_INTEGER);
-        yield decryptWithAd(rxCipher, new Uint8Array(0), msg.data);
+        if (options?.signal?.aborted || internalController.signal.aborted) return;
+        try {
+          const msg = await next(Number.MAX_SAFE_INTEGER, options?.signal);
+          yield decryptWithAd(rxCipher, new Uint8Array(0), msg.data);
+        } catch (err) {
+          if (err instanceof NoiseHandshakeError && err.reason === 'protocol_error') return;
+          throw err;
+        }
       }
     },
   };
@@ -312,10 +363,11 @@ export async function initiateNoiseXX(
   timeoutMs = 10_000,
   expectedRemoteDevicePub?: Ed25519PublicKey,
 ): Promise<NoiseHandshakeResult> {
-  const next = makeInbox(adapter);
+  const inbox = makeInbox(adapter);
   const hs = new NoiseXX();
   await adapter.send('', hs.writeA()); // -> e
-  const m2 = await next(timeoutMs); // <- e, ee, s, es
+  const m2 = await inbox.next(timeoutMs); // <- e, ee, s, es
+  inbox.bindRemote(m2.from);
   const b = hs.readB(m2.data);
   const respPayload = parsePayload(b.payload);
   await verifyBinding(b.bindingHash, respPayload, expectedRemoteDevicePub);
@@ -325,7 +377,7 @@ export async function initiateNoiseXX(
   );
   await adapter.send(m2.from, msg3);
   const [c1, c2] = hs.split(); // iniciador: envia em c1, recebe em c2
-  return makeResult(adapter, m2.from, respPayload, localEpochIndex, c1, c2, next);
+  return makeResult(adapter, m2.from, respPayload, localEpochIndex, c1, c2, inbox.next, inbox.controller);
 }
 
 export async function respondNoiseXX(
@@ -335,19 +387,20 @@ export async function respondNoiseXX(
   timeoutMs = 10_000,
   expectedRemoteDevicePub?: Ed25519PublicKey,
 ): Promise<NoiseHandshakeResult> {
-  const next = makeInbox(adapter);
+  const inbox = makeInbox(adapter);
   const hs = new NoiseXX();
-  const m1 = await next(timeoutMs); // <- e
+  const m1 = await inbox.next(timeoutMs); // <- e
+  inbox.bindRemote(m1.from);
   hs.readA(m1.data);
   // -> e, ee, s, es  (assina o h pré-payload via callback)
   const msg2 = await hs.writeB(async (bindingHash) =>
     buildPayload(localKey.publicKey, localEpochIndex, await ed25519Sign(localKey.privateKey, bindingHash)),
   );
   await adapter.send(m1.from, msg2);
-  const m3 = await next(timeoutMs); // <- s, se
+  const m3 = await inbox.next(timeoutMs); // <- s, se
   const c = hs.readC(m3.data);
   const initPayload = parsePayload(c.payload);
   await verifyBinding(c.bindingHash, initPayload, expectedRemoteDevicePub);
   const [c1, c2] = hs.split(); // respondedor: recebe em c1, envia em c2
-  return makeResult(adapter, m1.from, initPayload, localEpochIndex, c2, c1, next);
+  return makeResult(adapter, m1.from, initPayload, localEpochIndex, c2, c1, inbox.next, inbox.controller);
 }
