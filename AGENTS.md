@@ -6,8 +6,46 @@
 > e o catálogo de ferramentas.
 >
 > **Ferramentas LSP/MCP:** veja [`docs/playbook/06-ferramentas-lsp-mcp.md`](./docs/playbook/06-ferramentas-lsp-mcp.md)
-> para o catálogo completo. Prefira MCP sobre shell para git/github; use `context7` para confirmar
-> APIs; use LSP diagnostics/references para navegação e validação de código.
+> para o catálogo completo. As regras operacionais concretas estão na seção seguinte — leia antes
+> de tocar em código, git, GitHub ou API externa.
+
+## MCP/LSP — uso preferencial (INVIOLÁVEL)
+
+Estas regras existem porque agentes tendem a cair em `bash` por padrão e subutilizam os MCPs
+instalados. Telemetria em `%LOCALAPPDATA%\crush\mcp-adoption.jsonl` registra toda tool call —
+aferição fica visível a cada sessão.
+
+**1. `context7` (NUNCA adivinhe API).** Antes de chamar uma função/hook de biblioteca pela primeira
+   vez na task, faça:
+   1. `mcp__context7_resolve-library-id` com o nome da lib
+   2. `mcp__context7_get-library-docs` focado no tópico
+
+   Cite o snippet retornado no retorno ao usuário. Se a lib não tem ID no context7, registre o
+   fallback explícito (versão instalada, código-fonte consultado) — nunca chute a assinatura.
+
+**2. `git` MCP (nunca `bash git ...`).** Use as ferramentas `mcp__git_git_*` para: `status`, `diff`,
+   `log`, `add`, `commit`, `branch`, `checkout`, `worktree`, `stash`, `blame`, `cherry-pick`, `tag`,
+   `merge`, `rebase`, `fetch`, `pull`, `push`, `show`, `remote`, `reset`, `clean`, `reflog`.
+   `bash` é aceitável só para scripts que combinam múltiplas operações (ex.: loop sobre worktrees).
+
+**3. `github` MCP (nunca `gh` direto).** Use `mcp__github_*` para: PRs (`create_pull_request`,
+   `list_pull_requests`, `get_pull_request`, `merge_pull_request`, `update_pull_request_branch`,
+   reviews), issues (`create_issue`, `update_issue`, `list_issues`, `get_issue`,
+   `add_issue_comment`), arquivos (`get_file_contents`, `create_or_update_file`,
+   `search_code`, `search_repositories`, `search_issues`, `search_users`), branches, commits.
+
+**4. LSP após editar.** Após cada `edit`/`write` em arquivo coberto por um LSP, rode
+   `lsp_diagnostics` no arquivo antes de prosseguir. Antes de renomear símbolo exportado, use
+   `lsp_references` para mapear call-sites. Após editar a seção `lsp` do `crush.json` global,
+   rode `lsp_restart`.
+
+**5. `sequential-thinking` (5+ passos).** Use `mcp__sequential-thinking` quando o problema tiver
+   ≥5 passos de raciocínio, múltiplas causas possíveis, ou trade-offs não óbvios. Para tarefas
+   triviais (1-2 passos) é overhead desnecessário — análise direta basta.
+
+**6. Telemetria e auditoria.** O hook `mcp-telemetry.mjs` registra `mcp__*` vs `bash` por sessão.
+   Adoção é medida; esta seção é o contrato. Exceções legítimas a `2` e `3` devem ser declaradas
+   no retorno ("usei `bash` para X porque Y").
 
 <!-- BEGIN ponytail -->
 ## Ponytail — disciplina de código enxuto (ruleset injetado)
