@@ -1,6 +1,7 @@
 ---
 name: rodar-onda
-description: Orquestra a criação de todos os verbetes  de uma onda do plano de Fase 2, despachando um subagent criador-verbete por conceito (contexto isolado), com commit por conceito e auditoria ao final. Invocar explicitamente com o número da onda, ex.: /rodar-onda 2.
+description: >
+  Orquestra a criação de todos os verbetes  de uma onda do plano de Fase 2, despachando um subagent criador-verbete por conceito (contexto isolado), com commit por conceito e auditoria ao final. Invocar explicitamente com o número da onda, ex.: /rodar-onda 2.
 model: haiku
 ---
 # Orquestrar a onda $ARGUMENTS
