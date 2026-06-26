@@ -1,7 +1,7 @@
 ---
 id: T-601-rework-1
 title: "Rework-1 de T-601: rebase contra rework-3 + MERGES (RFC-028) + maxDepth recursivo + projectProvisionalHead async"
-status: ready # bloqueante (B4) resolvido pela RFC-028 — spec sem decisões em aberto
+status: review
 complexity: 3
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -208,17 +208,57 @@ pnpm --filter @plataforma/core lint    # eslint, EXIT 0
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
-- 
+- **Worker:** Crush
+- **Branch (code):** `task/T-601-rework-1` @ `ab295bf` (pushed em `origin/task/T-601-rework-1`)
+- **Worktree:** `C:/Dev2026/.superapp-worktrees/T-601-rework-1`
+- **Base:** `origin/master` @ `6cfb5ba` (já com rework-3 de T-108). Cherry-pick limpo do commit original `6d61907` (rework-3 preservado: `git diff origin/master..HEAD` mostra apenas 3 arquivos).
+- **Mudanças (2 commits no branch):**
+  1. `e49d2ad` — cherry-pick do commit original `6d61907` (adiciona `merge.ts` 154 linhas, `merge.test.ts` 272 linhas, `index.ts` 7 linhas re-exports).
+  2. `ab295bf` — reescrita: `merge.ts` agora 229 linhas (recursive maxDepth + MERGES filter + parentHash + async projectProvisionalHead); `merge.test.ts` 298 linhas (14 casos).
+- **Schema real (PRAGMA table_info(edges)):** coluna de tipo é `edge_type` (não `type` como a spec sugeria). Não há colunas `entity_id`, `epoch`, `active`, `retention_state`, nem `previous_hash` em `edges` — apenas `id, edge_type, source_id, target_id, payload (nullable), hlc, public_key, signature, created_at`. Arestas MERGES usam o mesmo layout das MUTATES com `edge_type='MERGES'` e `payload=NULL` (I-MERGES-2).
+- **Adaptação da spec §1.1:** o INSERT da spec menciona colunas inexistentes (`entity_id`, `previous_hash`, `epoch`, `active`); ajustei para o schema real (apenas `id, edge_type, source_id, target_id, payload, hlc, public_key, signature`).
+- **Bugs do Ciclo 1 resolvidos:** B2 (parentHash=hashNode(forkPoint) via insertNode B1), B3 (maxDepth recursivo com default 100, maxDepth=0=null, maxDepth>1 desce por cadeia linear), B4 (1 MUTATES + N MERGES conforme ADR-0005/RFC-028), M1 (projectProvisionalHead async/await), M2 (cross-check com entity_heads). i1 resolvido pelo rebase contra master pós-rework-3.
 
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
 ```
-(cole aqui a saída real de pnpm build e pnpm test)
+$ pnpm --filter @plataforma/core build
+$ tsc
+(EXIT 0)
+
+$ pnpm --filter @plataforma/core test
+$ vitest run
+
+ RUN  v3.2.6 C:/Dev2026/.superapp-worktrees/T-601-rework-1/packages/core
+
+ ✓ tests/ulid.test.ts         (13 tests) 6ms
+ ✓ tests/keyVault.test.ts     (11 tests) 5ms
+ ✓ tests/hlc.test.ts          (10 tests) 40ms
+ ✓ tests/schema.test.ts       (7 tests)  17ms
+ ✓ tests/signature.test.ts    (10 tests) 154ms
+ ✓ tests/merge.test.ts        (14 tests) 220ms
+ ✓ tests/mock.test.ts         (1 test)   2ms
+ ✓ tests/lineage.test.ts      (14 tests) 471ms
+
+ Test Files  8 passed (8)
+      Tests  80 passed (80)         (EXIT 0)
+
+$ pnpm --filter @plataforma/core lint
+$ eslint src/
+(EXIT 0 — sem warnings/errors)
 ```
+
+- **Validação de escopo (DoD §7):**
+  - `git diff origin/master..HEAD --stat` → 3 arquivos: `merge.ts`, `merge.test.ts`, `index.ts` (+376/-151 no rework, +433 no cherry-pick = total aditivo).
+  - `git diff origin/master..HEAD -- packages/core/src/lineage.ts` → vazio (rework-3 preservado).
+  - `git diff origin/master..HEAD -- packages/core/src/signature.ts` → vazio.
+  - `git diff origin/master..HEAD -- packages/core/src/schema.ts` → vazio.
 - **Comentários de Revisão:**
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-06-26]** - *arquiteto* - `[Task criada]`: Rework-1 de T-601 gerada a partir da Seção 8.1 handoff da T-601. Spec sem decisões em aberto (B4 resolvido via RFC-028 absorvida; ADR-0005 registrado). Status: ready.
+- **[2026-06-26T19:01]** - *Crush* - `[Iniciado]`: iniciando rework-1 de T-601: rebase contra rework-3 + MERGES (RFC-028) + maxDepth recursivo + projectProvisionalHead async
+- **[2026-06-26T19:09]** - *Crush* - `[Finalizado]`: rework-1 finalizada: 80/80 tests verde, lint limpo, build OK; branch pushed (ab295bf); diff 3 arquivos aditivo (merge.ts, merge.test.ts, index.ts); rebase contra master pós-rework-3 de T-108 preservado (lineage.ts/signature.ts/schema.ts sem diff); parentHash + MERGES + maxDepth recursivo + projectProvisionalHead async implementados conforme ADR-0005/RFC-028
