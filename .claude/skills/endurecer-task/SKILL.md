@@ -1,6 +1,7 @@
 ---
 name: endurecer-task
-description: Endurece uma task MGTIA de spec-de-intenção para spec-executável-sem-decisões (assinaturas TS exatas, paths fixos, casos de teste, Capacidade-alvo, gate por comando). Disciplina central — CITE OU ESCALE, NUNCA INVENTE. Delegável a modelo robusto (ex.: DeepSeek V4 Pro).
+description: >
+  Endurece uma task MGTIA de spec-de-intenção para spec-executável-sem-decisões (assinaturas TS exatas, paths fixos, casos de teste, Capacidade-alvo, gate por comando). Disciplina central — CITE OU ESCALE, NUNCA INVENTE. Delegável a modelo robusto (ex.: DeepSeek V4 Pro).
 ---
 
 # Endurecer Task $ARGUMENTS
