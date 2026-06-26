@@ -252,3 +252,46 @@ skill, padrão MGTIA "uma unidade por commit").
 4. **Skill healthcheck:** após criar/editar skills, comparar
    `crush_info` (campo `skills` — total e lista) com `ls .claude/skills/*/SKILL.md`. Diferença > 0
    = rodar o diagnóstico acima.
+
+---
+
+## P-009 · Branch base defasado quebra spec que pressupõe rework anterior
+
+**Data:** 2026-06-26
+**Sintoma:** Worker implementa task T-X contra branch `task/T-X` criado a partir de `master@<commit>`
+e cola gate verde (build/test/lint passam). Parecer do Ciclo 1 reprova: "diff reverte N arquivos e
+destrói rework-N de T-Y". O diff de `task/T-X` contra o master atual mostra arquivos que NÃO são do
+escopo declarado da task, mas sim arquivos que a task presume já estarem atualizados (por
+referência a uma dependência T-Y cujo rework ainda estava em branch, não em master, quando T-X foi
+iniciado).
+**Causa raiz:** A spec de T-X §2 pressupõe símbolos/estruturas (`parentHash`, `bytesEqual`,
+`ZERO_HASH`, etc.) que só existem a partir de um rework de T-Y que ainda **não tinha sido
+mergeado em master**. O worker branched de master pré-rework e nunca verificou que o base
+defasado faltava os pressupostos da spec. O gate fica verde porque o worktree está isolado do
+master atual — não há proteção que detecte "diff contra master reverte código".
+**Diagnóstico:** antes de começar qualquer task que lista dependências em `dependencies:`, rodar:
+```bash
+git fetch origin
+git merge-base HEAD origin/master
+git log --oneline <merge-base>..origin/master
+# se algum dos commits menciona uma task listada em `dependencies:` da task atual,
+# verificar se o branch base contém esses commits. Se não → bloqueie.
+```
+**Solução aplicada (caso T-601 / T-108-rework-3, 2026-06-26):** `git rebase master` (ou cherry-pick
+do commit de T-X em um novo worktree baseado em master atual) → resolver conflitos aceitando
+"theirs" em arquivos que pertencem ao rework de T-Y → re-implementar a própria lógica de T-X que
+depende dos símbolos do rework → re-rodar gate no worktree rebaseado. Ver `tasks/T-601.md §8.1`
+(caminho passo-a-passo) e `tasks/T-601-rework-1.md` (task formal com essa disciplina embutida).
+**Como prevenir recorrência:**
+1. **Obriga e inclui na §0 da task** o branch base esperado (ex.: `master` atual, ou um commit
+   SHA fixo) — não `master` como abstração vaga.
+2. **Worker deve validar antes de codar** que `git merge-base HEAD origin/master == origin/master`
+   (ou que especificamente contém os commits das dependências). Se `merge-base < origin/master`,
+   PARE e faça `rebase` antes.
+3. **Endurecedor:** ao citar "T-X §1 ... (status: done)" como `dependencies`, qualifique o
+   commit/branch exato — ex.: "T-108-rework-3 (pós `6cfb5ba` em master)".
+4. **Long-term:** adicionar hook pre-execution que compara `merge-base` com `origin/master HEAD`
+   e bloqueia `start` se drift > 0 COM qualquer commit referenciando uma `dependency` da task.
+   Fora de escopo agora — pendente em backlog.
+
+---
