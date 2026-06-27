@@ -1,7 +1,7 @@
 ---
 id: T-108-rework-3
 title: "T-108 rework-3 — parentHash validation + entity_members table (ADR) + entity_heads maintenance (ADR) + test 4 fix"
-status: review
+status: done
 complexity: 3
 parent_task: T-108
 subtasks: []
@@ -447,3 +447,4 @@ re-registrar achados.
 - **[2026-06-25]** - *arquiteto* - `[Decisão + flip draft→ready]`: #M1 + #M2 resolvidos via ADRs 0001 (Opção B — manter `entity_members`, invariantes U1/U2) e 0002 (Opção B — manutenção em código, invariante U3 funil único `insertNode`). Sem migration v3, sem trigger. Adicionado teste 14 (bulk-via-`insertNode` mantém `entity_heads` sincronizado) — safeguard cross-link ADR 0002/T-308-rework-2.
 - **[2026-06-25T19:07]** - *Crush* - `[Iniciado]`: iniciando rework-3: parentHash validation + ADR 0001/0002 (entity_members/entity_heads em código) + tests 4,11-14
 - **[2026-06-25T19:10]** - *Crush* - `[Finalizado]`: rework-3 completo: B1 (parentHash validation), ADR 0001/0002 aplicados, test 4 refeito, tests 11-14 adicionados. Gate 66/66 verde. Commit 14aa742 pushado origin/task/T-108.
+- **[2026-06-26T20:12]** - *agile_reviewer* - `[Aprovado]`: Aprovado no Parecer Ciclo 1 (2026-06-25) — transicao pendente corrigida

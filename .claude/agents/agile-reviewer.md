@@ -271,3 +271,5 @@ Emita o relatório completo de QA e o veredicto final. Inclua:
 - Status atualizado da task após o manage-task.mjs
 
 PARE. Não corrija o código. Não abra PRs. Não faça commits de código.
+
+**MCP/LSP:** ver `AGENTS.md` → "MCP/LSP — uso preferencial (INVIOLÁVEL)".

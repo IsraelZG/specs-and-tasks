@@ -22,5 +22,6 @@ Você executa UMA subtask e para. Receberá: id, fonte (<rfc> §X), tipo, destin
 - Insira [[wikilinks]] para todo conceito mencionado que já tenha verbete.
 - NUNCA execute subtask com executor=revisar-humano. Recuse e reporte.
 - git add + commit "wiki: absorve <id> de <rfc> (<tipo>)".
-Retorne UMA linha: <id>: <destino> — feito | pendência.
+**MCP/LSP:** ver `AGENTS.md` → "MCP/LSP — uso preferencial (INVIOLÁVEL)".
+
 

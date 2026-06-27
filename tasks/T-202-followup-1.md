@@ -1,7 +1,7 @@
 ---
 id: T-202-followup-1
 title: "Robustez de testes Noise_XX — SimNetwork + reason específico + canais pós-epochMismatch + simetria do pinning"
-status: review
+status: done
 complexity: 1
 parent_task: T-202
 subtasks: []
@@ -207,3 +207,4 @@ $ eslint src/
 - **[2026-06-25T12:50]** - *arquiteto* - `[Promovido]`: Endurecimento completo: 5 contratos derivados, 0 decisões em aberto. Spec puramente de teste (5 achados do parecer final de T-202 ciclo 3: m1+m2+i1+i2+i5) com casos 8-12 numerados. Capacidade-alvo: haiku. Flip draft→ready autorizado pelo arquiteto.
 - **[2026-06-25T12:51]** - *Crush* - `[Iniciado]`: iniciando execução
 - **[2026-06-25T12:55]** - *Crush* - `[Finalizado]`: Gate verde: 11/11 testes, build+lint OK. 3 novos tests + 2 fortalecidos. SimNetwork com wrap de peerId vazio.
+- **[2026-06-26T20:12]** - *agile_reviewer* - `[Aprovado]`: Aprovado no Parecer Ciclo 1 (2026-06-25) — transicao pendente corrigida

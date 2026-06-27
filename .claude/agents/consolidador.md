@@ -106,6 +106,6 @@ Para cada `<!-- TODO(revisar): ... -->` no arquivo-alvo:
 Processe todas as seções do arquivo antes de commitar.
 Depois: `git add` + `git commit "wiki: consolida <arquivo> (fase 3)"`.
 
-Retorne UMA linha por conceito tratado:
-`<slug>: CASO <A|B|C|D> — <ação tomada> | TODOs: <n restantes>`
+**MCP/LSP:** ver `AGENTS.md` → "MCP/LSP — uso preferencial (INVIOLÁVEL)".
+
 

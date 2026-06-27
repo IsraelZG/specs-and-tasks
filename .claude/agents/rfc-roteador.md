@@ -50,5 +50,6 @@ LISTA DE SUPERSESSÕES em destaque. Depois a tabela:
 | id | fonte | tipo | destino | acao (curta) | executor | status |
 
 Uma linha por subtask atômica; status inicial [ ].
-Retorne o caminho do manifesto e o resumo.
+**MCP/LSP:** ver `AGENTS.md` → "MCP/LSP — uso preferencial (INVIOLÁVEL)".
+
 

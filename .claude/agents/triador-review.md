@@ -44,4 +44,5 @@ Depois a tabela:
 
 `id` = `NNN-01`, `NNN-02`… · `status` inicial `[ ]` (só para linhas aplicáveis: INCORPORAR,
 UI->INVENTARIO; as demais nascem `[x]` pois não geram edição).
-Faça `git add` + commit `rfc: triagem do review da rfc-NNN`. Retorne o caminho e o resumo.
+**MCP/LSP:** ver `AGENTS.md` → "MCP/LSP — uso preferencial (INVIOLÁVEL)".
+

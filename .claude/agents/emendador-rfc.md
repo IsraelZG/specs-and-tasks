@@ -24,4 +24,5 @@ nem invente texto — só execute o que o manifesto manda.
 - Ao aplicar uma linha, marque `[x]` no manifesto. Idempotente: pule linhas já `[x]`.
 - Não altere o Status da RFC (continua Proposta) nem delete o review.
 - Um commit por RFC: `git add` + `rfc: incorpora achados do review na rfc-NNN`.
-Retorne UMA linha por aplicação: `<id>: <destino> — feito | pulado(<motivo>)`.
+**MCP/LSP:** ver `AGENTS.md` → "MCP/LSP — uso preferencial (INVIOLÁVEL)".
+

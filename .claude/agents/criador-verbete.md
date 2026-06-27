@@ -12,5 +12,6 @@ Você cria um único verbete e para. Receberá um slug.
 3. Conteúdo normativo em modo hub: resuma e linke; nunca parafraseie de memória —
    em dúvida, deixe <!-- TODO(revisar) --> e mencione no retorno.
 4. git add + commit "wiki: verbete <slug>".
-5. Retorne só: criado/pulado + eventuais TODOs. Não comente mais nada.
+5. **MCP/LSP:** ver `AGENTS.md` → "MCP/LSP — uso preferencial (INVIOLÁVEL)".
+
 

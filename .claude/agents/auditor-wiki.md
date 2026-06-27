@@ -113,6 +113,7 @@ Sem prosa extra.
   Se quiser remover um placeholder da lista, edite `scripts/audit-links.mjs`.
 - Se quiser auditar só links (sem órfãos): passe `--no-orphans` ao script.
 - O script só varre `docs/`; se o projeto tiver código-fonte com wikilinks,
-  adicione o diretório em `SCAN_DIRS` no script.
+**MCP/LSP:** ver `AGENTS.md` → "MCP/LSP — uso preferencial (INVIOLÁVEL)".
+
 
 

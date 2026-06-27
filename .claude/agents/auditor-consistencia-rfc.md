@@ -45,4 +45,5 @@ Cabeçalho: data, nº de RFCs auditadas, contagem por severidade. Depois a tabel
 
 `tipo` ∈ contradição-entre-rfcs | ordem-conflitante | ref-quebrada | contradiz-canônico | lacuna.
 Encerre com uma seção "Itens para decisão humana" listando só os de severidade alta.
-Faça `git add` + commit `rfc: relatório de consistência das RFCs`. Retorne o caminho e o resumo.
+**MCP/LSP:** ver `AGENTS.md` → "MCP/LSP — uso preferencial (INVIOLÁVEL)".
+
