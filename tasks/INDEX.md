@@ -30,14 +30,14 @@
 | [T-004](./T-004.md) | Portas fundamentais | `done` | logic_agent | 2 |
 | [T-005](./T-005.md) | SimNetwork v1 | `done` | logic_agent | 3 |
 | [T-006](./T-006.md) | SimNetwork v2 — Degradação e NAT | `draft` | logic_agent | 3 |
-| [T-007](./T-007.md) | Asserções de convergência (Testkit) | `done` | logic_agent | 2 |
+| [T-007](./T-007.md) | Asserções de convergência (Testkit) | `review` | logic_agent | 2 |
 | [T-008](./T-008.md) | App Bancada (PWA-ready) | `done` | frontend_agent | 3 |
 | [T-009](./T-009.md) | Reset Local do Peer (client-sdk + Bancada) | `done` | backend_agent | 3 |
 | [T-010](./T-010.md) | Peer do sistema v0 + admin | `done` | devops | 3 |
 | [T-011](./T-011.md) | Incorporar @plataforma/design-system (lib) ao monorepo | `done` | devops_agent | 2 |
 | [T-012](./T-012.md) | Incorporar apps/design-system-showcase | `done` | frontend_agent | 1 |
 | [T-013](./T-013.md) | Pipeline Turbo de tokens + cache (exceção Vite) | `done` | devops_agent | 2 |
-| [T-014](./T-014.md) | Migrar hook de metadados + skill para .claude da raiz | `done` | devops_agent | 1 |
+| [T-014](./T-014.md) | Migrar hook de metadados + skill para .claude da raiz | `review` | devops_agent | 1 |
 | [T-015](./T-015.md) | Quality gate do design system no CI | `done` | devops_agent | 2 |
 | [T-016](./T-016.md) | Implementar RFC de Tema Multi-Nível no Design System | `done` | frontend_agent | 3 |
 | [T-017](./T-017.md) | Decisao e implementacao do destino da prop collapsible do Sidebar | `done` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
@@ -49,7 +49,7 @@
 | [T-018e](./T-018e.md) | Testes — Tier C batch 2 (7 display/estrutural) | `done` | frontend_agent | 1 |
 | [T-018f](./T-018f.md) | Testes — lote final (5 interativos Tier A + Modal Tier B) | `done` | frontend_agent | 2 |
 | [T-019](./T-019.md) | Matriz de CI multiplataforma (linux x64 + linux arm64) | `done` | devops_agent | 2 |
-| [T-020](./T-020.md) | Spike: decidir gate de regressao visual (Lookout vs Playwright toHaveScreenshot) -> ADR | `ready` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [T-020](./T-020.md) | Spike: decidir gate de regressao visual (Lookout vs Playwright toHaveScreenshot) -> ADR | `review` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [T-021](./T-021.md) | Arcabouco de E2E Playwright compartilhado (@plataforma/testkit) + showcase como 1o consumidor | `ready` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
 | [T-1001](./T-1001.md) | Configuração do Monorepo Nexus (Backend e Frontend) | `done` | devops_agent | 2 |
 | [T-1002](./T-1002.md) | Integração do Indexador Semântico (TurboVec) | `done` | backend_agent | 3 |
@@ -85,16 +85,16 @@
 | [T-105](./T-105.md) | PeerId e Multiaddr | `done` | protocol_agent | 2 |
 | [T-106](./T-106.md) | Schema SQLite local (nodes/edges) | `done` | core_agent | 3 |
 | [T-107](./T-107.md) | Assinatura Universal Layer 1 | `done` | core_agent | 4 |
-| [T-108](./T-108.md) | Linhagem Layer 2 | `ready` | logic_agent | 3 |
-| [T-108-rework-3](./T-108-rework-3.md) | T-108 rework-3 — parentHash validation + entity_members table (ADR) + entity_heads maintenance (ADR) + test 4 fix | `done` | logic_agent | 3 |
+| [T-108](./T-108.md) | Linhagem Layer 2 | `blocked` | logic_agent | 3 |
+| [T-108-rework-3](./T-108-rework-3.md) | T-108 rework-3 — parentHash validation + entity_members table (ADR) + entity_heads maintenance (ADR) + test 4 fix | `review` | logic_agent | 3 |
 | [T-109](./T-109.md) | NetworkAdapterPort multi-subscriber (onMessage com unsubscribe) | `done` | logic_agent | 2 |
 | [T-110](./T-110.md) | Key Vault v0 | `done` | core_agent | 3 |
 | [T-200](./T-200.md) | Spike: Noise_XX — biblioteca + binding Ed25519↔X25519 (ADR) | `done` | crypto_agent | 2 |
 | [T-201](./T-201.md) | Wire format v1 | `done` | protocol_agent | 3 |
 | [T-202](./T-202.md) | Noise_XX sobre porta de transporte | `done` | crypto_agent | 4 |
-| [T-202-followup-1](./T-202-followup-1.md) | Robustez de testes Noise_XX — SimNetwork + reason específico + canais pós-epochMismatch + simetria do pinning | `done` | logic_agent | 1 |
+| [T-202-followup-1](./T-202-followup-1.md) | Robustez de testes Noise_XX — SimNetwork + reason específico + canais pós-epochMismatch + simetria do pinning | `review` | logic_agent | 1 |
 | [T-202-followup-2](./T-202-followup-2.md) | Contrato do receive() AsyncIterable + classificacao de excecoes AEAD | `done` | logic_agent | 2 |
-| [T-202-followup-3](./T-202-followup-3.md) | Awareness multi-peer no makeInbox — filtro por peerId do handshake | `rework` | logic_agent | 2 |
+| [T-202-followup-3](./T-202-followup-3.md) | Awareness multi-peer no makeInbox — filtro por peerId do handshake | `in_progress` | logic_agent | 2 |
 | [T-203](./T-203.md) | Codec canonico compartilhado (MessagePack/msgpackr) para payloads de protocolo | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [T-204](./T-204.md) | Adapter WebSocket | `done` | transport_agent | 3 |
 | [T-205](./T-205.md) | SwarmRegistry em RAM | `done` | core_agent | 3 |
@@ -111,8 +111,8 @@
 | [T-404](./T-404.md) | ConnectionPromotionEngine (Hole Punching) | `draft` | logic_agent | 4 |
 | [T-501](./T-501.md) | Motor de UCAN Core | `done` | crypto_agent | 4 |
 | [T-505](./T-505.md) | Rotação de Épocas (Forward Secrecy) | `draft` | crypto_agent | 5 |
-| [T-601](./T-601.md) | Detecção Estrutural de Fork e Merge | `done` | logic_agent | 3 |
-| [T-601-rework-1](./T-601-rework-1.md) | Rework-1 de T-601: rebase contra rework-3 + MERGES (RFC-028) + maxDepth recursivo + projectProvisionalHead async | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-601](./T-601.md) | Detecção Estrutural de Fork e Merge | `rework` | logic_agent | 3 |
+| [T-601-rework-1](./T-601-rework-1.md) | Rework-1 de T-601: rebase contra rework-3 + MERGES (RFC-028) + maxDepth recursivo + projectProvisionalHead async | `review` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
 | [T-604](./T-604.md) | Zen Engine Embarcado + Invariante T1 | `draft` | logic_agent | 3 |
 | [T-701](./T-701.md) | device_state.db — store Local+Persistente | `ready` | core_agent | 3 |
 | [T-801](./T-801.md) | Storage Engine de BLOBs (Chunking) | `done` | core_agent | 4 |

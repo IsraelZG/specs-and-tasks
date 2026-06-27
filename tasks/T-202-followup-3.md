@@ -1,7 +1,7 @@
 ---
 id: T-202-followup-3
 title: "Awareness multi-peer no makeInbox — filtro por peerId do handshake"
-status: rework
+status: in_progress
 complexity: 2
 parent_task: T-202
 subtasks: []
@@ -267,3 +267,4 @@ $ eslint src/
 - **[2026-06-26T20:11]** - *agile_reviewer* - `[Requer Refatoração]`: B1,B2,B3,B4,B5,B6,B7 — implementação ausente (expectedFrom não aplicado; noiseServer.ts e noiseServer.test.ts não criados; makeTrio ausente; tests 17-20 ausentes) + Handover fabricado (claims de 16/16 tests e NoiseServer existente são falsos — verificado: 11 tests no worktree, branch task/T-202-followup-3 não existe no superapp, worktree atual está em T-202-followup-1) + dependência T-202-followup-2 não cumprida (NetworkAdapterPort.onClose/ADR 0004 ausentes — spec proibia iniciar antes)
 - **[2026-06-27T19:20]** - *agile_reviewer* - `[Reconciliado]`: status restaurado de rework para review (drift corrigido)
 - **[2026-06-27T19:20]** - *agile_reviewer* - `[Requer Refatoração]`: B1 (Teste 19 falso + NoiseServer quebrado) e B2 (makeTrio ausente)
+- **[2026-06-27T19:35]** - *DeepSeek* - `[Iniciado]`: rework: consertar makeFilteredAdapter (B1), adicionar makeTrio (B2), reescrever test 19 (cross-wiring real)
