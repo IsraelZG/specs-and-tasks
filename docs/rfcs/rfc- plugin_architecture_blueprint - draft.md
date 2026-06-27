@@ -47,9 +47,18 @@ Os plugins são instanciados sob demanda dependendo da *Task* (tarefa) que o age
 
 A beleza dessa arquitetura é a facilidade de acoplar binários externos ou bibliotecas de terceiros como plugins nativos, abstraindo a complexidade para o Agente.
 
-### 3.1. O Plugin de QA Visual (`lookout-plugin`)
+### 3.1. O Plugin de QA Visual (`lookout-plugin`) — ⚠️ SUPERSEDED
 
-Sistemas baseados puramente em agentes sofrem com testes visuais: LLMs ficam em loops infinitos tentando corrigir CSS porque "acham" que viram um erro. O Lookout (`alexmchughdev/lookout`) é incorporado como o **Gate Determinístico** do fluxo.
+> **SUPERSEDED por [ADR 0006](../adr/0006-gate-regressao-visual.md) (T-020, 2026-06-27).**
+> O gate de regressão visual foi decidido como **Playwright `toHaveScreenshot`** (Opção B),
+> não Lookout. Motivo: o Lookout exige (a) GPU ou credencial de LLM para seu modelo de visão
+> (Confirmação #2 — runners GitHub-hosted não têm GPU; repo não provisiona chave de LLM) e
+> (b) não tem binário pré-compilado para `linux-arm64` (Confirmação #1). O RFC que motivou
+> esta seção está em `draft`, não-absorvido. **Não absorva este trecho** — ao absorver o RFC,
+> remova/substitua `qa-lookout` pela estratégia da ADR 0006. Veja também a Seção 4
+> (`packages/plugins/qa-lookout/`).
+
+~~Sistemas baseados puramente em agentes sofrem com testes visuais: LLMs ficam em loops infinitos tentando corrigir CSS porque "acham" que viram um erro. O Lookout (`alexmchughdev/lookout`) é incorporado como o **Gate Determinístico** do fluxo.~~
 
 *   **O Conceito:** O Lookout é um binário escrito em Go que levanta um navegador (Chromium) de forma determinística, tira uma screenshot e passa para um modelo de visão computacional, retornando um veredito binário estrito: **Pass ou Fail**.
 *   **Como o Plugin funciona:**
@@ -88,7 +97,7 @@ Para materializar essa visão, a árvore de pacotes do monorepo seria estruturad
   │     ├── fs-agent/       # Tool Calling para filesystem e child_process (seguro)
   │     ├── providers/      # Adapters Vercel AI SDK (LLMs locais e remotos)
   │     ├── context-ts/     # web-tree-sitter e Transformers.js
-  │     ├── qa-lookout/     # Wrapper Node.js p/ o binário Go do Lookout (Gate)
+  │     ├── qa-lookout/     # ⚠️ SUPERSEDED por ADR 0006 — ver Seção 3.1. Não criar este pacote; gate visual = Playwright toHaveScreenshot (T-022).
   │     └── reach-skills/   # Coleção de Markdown/Scripts CLI para acesso web profundo
   │
   └── /ui                   # Interface da Plataforma
@@ -101,5 +110,5 @@ O que criamos aqui não é apenas um assistente de código, mas um **Sistema Ope
 
 1. O **TypeScript** garante que o código roda do Edge ao Browser, do Node ao Electron, viabilizando redes P2P sem fricção.
 2. Os **Plugins Core** gerenciam memória e mãos.
-3. O **Lookout** age como um Juiz Incorruptível, barrando alucinações visuais do LLM antes que elas consumam todo o seu orçamento de tokens.
+3. ~~O **Lookout** age como um Juiz Incorruptível, barrando alucinações visuais do LLM antes que elas consumam todo o seu orçamento de tokens.~~ *(SUPERSEDED por [ADR 0006](../adr/0006-gate-regressao-visual.md): gate visual = Playwright `toHaveScreenshot`; Lookout descartado por indisponibilidade de GPU/credencial e ausência de binário arm64.)*
 4. O paradigma do **Agent-Reach** ensina os agentes a hackearem a internet usando CLIs comuns e recursos locais (cookies), em vez de depender de arquiteturas de nuvem engessadas.
