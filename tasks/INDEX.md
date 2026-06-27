@@ -49,7 +49,7 @@
 | [T-018e](./T-018e.md) | Testes — Tier C batch 2 (7 display/estrutural) | `done` | frontend_agent | 1 |
 | [T-018f](./T-018f.md) | Testes — lote final (5 interativos Tier A + Modal Tier B) | `done` | frontend_agent | 2 |
 | [T-019](./T-019.md) | Matriz de CI multiplataforma (linux x64 + linux arm64) | `done` | devops_agent | 2 |
-| [T-020](./T-020.md) | Spike: decidir gate de regressao visual (Lookout vs Playwright toHaveScreenshot) -> ADR | `review` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [T-020](./T-020.md) | Spike: decidir gate de regressao visual (Lookout vs Playwright toHaveScreenshot) -> ADR | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [T-021](./T-021.md) | Arcabouco de E2E Playwright compartilhado (@plataforma/testkit) + showcase como 1o consumidor | `ready` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
 | [T-1001](./T-1001.md) | Configuração do Monorepo Nexus (Backend e Frontend) | `done` | devops_agent | 2 |
 | [T-1002](./T-1002.md) | Integração do Indexador Semântico (TurboVec) | `done` | backend_agent | 3 |
@@ -94,7 +94,7 @@
 | [T-202](./T-202.md) | Noise_XX sobre porta de transporte | `done` | crypto_agent | 4 |
 | [T-202-followup-1](./T-202-followup-1.md) | Robustez de testes Noise_XX — SimNetwork + reason específico + canais pós-epochMismatch + simetria do pinning | `review` | logic_agent | 1 |
 | [T-202-followup-2](./T-202-followup-2.md) | Contrato do receive() AsyncIterable + classificacao de excecoes AEAD | `done` | logic_agent | 2 |
-| [T-202-followup-3](./T-202-followup-3.md) | Awareness multi-peer no makeInbox — filtro por peerId do handshake | `in_progress` | logic_agent | 2 |
+| [T-202-followup-3](./T-202-followup-3.md) | Awareness multi-peer no makeInbox — filtro por peerId do handshake | `review` | logic_agent | 2 |
 | [T-203](./T-203.md) | Codec canonico compartilhado (MessagePack/msgpackr) para payloads de protocolo | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [T-204](./T-204.md) | Adapter WebSocket | `done` | transport_agent | 3 |
 | [T-205](./T-205.md) | SwarmRegistry em RAM | `done` | core_agent | 3 |

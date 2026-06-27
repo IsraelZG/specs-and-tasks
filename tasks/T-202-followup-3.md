@@ -1,7 +1,7 @@
 ---
 id: T-202-followup-3
 title: "Awareness multi-peer no makeInbox — filtro por peerId do handshake"
-status: in_progress
+status: review
 complexity: 2
 parent_task: T-202
 subtasks: []
@@ -198,6 +198,37 @@ pnpm --filter @plataforma/transport lint
 - [ ] `pnpm --filter @plataforma/transport build && test && lint` verdes
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
+### Handover do Executor (rework ciclo 2 — 2026-06-27):
+- **B1 (consertado):** `makeFilteredAdapter` em `noiseServer.ts:69-110` agora (a) adiciona o handler do inbox ao `handlers` set local, (b) agenda `queueMicrotask` para entregar o `initialM1` na próxima microtask (resolve a race entre `inbox.onMessage` e `inbox.next()`), e (c) registra um `wrapped` no `this.adapter.onMessage` que filtra por `peerId` e despacha para os handlers. O bug original (`void handler;` ignorando o handler do inbox + `pending`/`queue` local nunca consumida) está corrigido. Test 19 (cross-wiring real) agora completa ambos os handshakes sequenciais A↔L e B↔L e prova a ausência de cross-talk.
+- **B1 (secundário, dispatch race):** `NoiseServer.dispatch` em `noiseServer.ts:43-56` agora setta `entry.handshake` IMEDIATAMENTE como a `Promise` de `runHandshakeForPeer` (em vez de `void ... .then(...)` que deixava `entry.handshake = undefined` durante o handshake). Isso elimina a race com testes que checam `entries.get(peer).handshake` logo após `await initiateNoiseXX(...)`.
+- **B2 (consertado):** helper `makeTrio()` em `packages/transport/tests/_trio.ts` (novo) retorna 3 adapters A/B/C em topologia mesh com buffer anti-race (mensagens enviadas a peer sem handler são bufferizadas e drenadas quando o primeiro `onMessage` é registrado). `noiseHandshake.test.ts:15` importa de `./_trio.js`; tests 17 e 18 usam `makeTrio` e provam o filtro `expectedFrom` (descarta lixo de C em A↔B handshake).
+- **Test 19 (cross-wiring real):** `noiseServer.test.ts:114-146` usa novo helper local `makeHub()` (topologia hub — A↔L, B↔L, sem A↔B; alinhado com o cenário canônico do peer-do-sistema T-204 §6.6). O makeHub é necessário porque o makeTrio (mesh) vazaria msg1 entre initiators concorrentes. O bug raiz durante o rework foi um `SELF = { a: 'A', b: 'B', l: 'L' }` (lowercase) — corrigido para `{ A: 'A', B: 'B', L: 'L' }`. Log: SELF[self]='A'/'B'/'L' idêntico ao `from` que o initiator usa no `send`.
+- **Placar:** 37/37 transport tests verdes (5 files: mock 1 · SwarmRegistry 14 · SwarmRegistry.audit 7 · noiseServer 2 [19, 20] · noiseHandshake 13 [1, 2+3, 4, 5, 6, 7, 8, 9, 13, 14, 15, 16, 17, 18]).
+
+**Gate de Evidência (rework ciclo 2):**
+```
+$ pnpm --filter @plataforma/transport build
+$ tsc
+(EXIT 0)
+
+$ pnpm --filter @plataforma/transport test
+$ vitest run
+ RUN  v3.2.6 C:/Dev2026/superapp/packages/transport
+
+ ✓ tests/mock.test.ts (1 test) 2ms
+ ✓ tests/SwarmRegistry.test.ts (14 tests) 6ms
+ ✓ tests/SwarmRegistry.audit.test.ts (7 tests) 14ms
+ ✓ tests/noiseServer.test.ts (2 tests) 131ms
+ ✓ tests/noiseHandshake.test.ts (13 tests) 706ms
+
+ Test Files  5 passed (5)
+      Tests  37 passed (37)
+
+$ pnpm --filter @plataforma/transport lint
+$ eslint src/
+(EXIT 0)
+```
+
 ### Handover do Executor:
 - `makeInbox` filtra frames `from !== expectedFrom` (após `bindRemote`); race do primeiro frame documentada no JSDoc.
 - Nova camada `NoiseServer` em `packages/transport/src/noiseServer.ts`: multiplexa `respondNoiseXX` por-peer, registra `onClose` para cleanup de inboxes.
@@ -268,3 +299,5 @@ $ eslint src/
 - **[2026-06-27T19:20]** - *agile_reviewer* - `[Reconciliado]`: status restaurado de rework para review (drift corrigido)
 - **[2026-06-27T19:20]** - *agile_reviewer* - `[Requer Refatoração]`: B1 (Teste 19 falso + NoiseServer quebrado) e B2 (makeTrio ausente)
 - **[2026-06-27T19:35]** - *DeepSeek* - `[Iniciado]`: rework: consertar makeFilteredAdapter (B1), adicionar makeTrio (B2), reescrever test 19 (cross-wiring real)
+- **[2026-06-27T18:00]** - *DeepSeek* - `[Finalizado rework]`: B1 (makeFilteredAdapter consertado — handler do inbox é entregue via queueMicrotask + wrapped filtra por peerId no adapter global) + B1-secundário (dispatch setta entry.handshake imediatamente) + B2 (makeTrio em tests/_trio.ts + tests 17/18 reescritos) + test 19 (cross-wiring real via makeHub local, hub topology). 37/37 tests verdes, build + lint verdes.
+- **[2026-06-27T21:19]** - *DeepSeek* - `[Finalizado]`: B1 + B2 corrigidos. makeFilteredAdapter consertado (handler do inbox é entregue via queueMicrotask + wrapped filtra por peerId no adapter global). dispatch setta entry.handshake imediatamente (elimina race com testes que checam entries). Helper makeTrio criado em tests/_trio.ts (mesh A/B/C com buffer anti-race); tests 17/18 reescritos. Test 19 (cross-wiring real) usa makeHub local (hub topology alinhado com peer-do-sistema T-204 §6.6). 37/37 tests verdes, build + lint verdes.
