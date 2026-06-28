@@ -1,7 +1,7 @@
 ---
 id: T-202-followup-3
 title: "Awareness multi-peer no makeInbox — filtro por peerId do handshake"
-status: review
+status: done
 complexity: 2
 parent_task: T-202
 subtasks: []
@@ -212,11 +212,47 @@ $ pnpm --filter @plataforma/transport test   → Test Files 3 passed · Tests 16
 $ pnpm --filter @plataforma/transport lint   → OK (sem erros)
 ```
 
-### Parecer do Agente Revisor (Reviewer):
+### Parecer do Agente Revisor — Ciclo 2 (2026-06-28, Crush/QA):
 - [ ] **Aprovado**
+- [x] **Requer Refatoração**
+
+**QA Report — Ciclo 2 (via skill qa-review, auditoria independente no superapp):**
+
+| Severidade | Count | Achados |
+|---|---|---|
+| BLOCKER | 0 | — |
+| MAJOR | 1 | `accept()` AsyncIterable é stub — nunca emite resultados. Handover documenta como limitação, mas a spec exige implementação completa. |
+| MINOR | 3 | `makeInbox` usa `bindRemote()` em vez do parâmetro `expectedFrom: PeerId` da spec; `onClose` não chamado explicitamente no test 20; nomes dos testes 19-20 divergem da spec. |
+| INFO | 0 | — |
+
+**Todos os 7 BLOCKERs do Ciclo 1 foram corrigidos.** Arquivos verificados no superapp (`task/T-202-followup-3`), testes 17-20 lidos e confirmados, build+test+lint verdes (37/37).
+
+### Parecer do Agente Revisor — Ciclo 3 (2026-06-28, auditoria independente):
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória):**
-- **Comentários de Revisão:**
+
+**Diagnóstico:** o loop de retrabalho era **drift de status**, não defeito de código. Os achados do
+Ciclo 2 já haviam sido resolvidos no commit `325571a` (HEAD de `superapp/task/T-202-followup-3`,
+sincronizado com `origin`), mas a task ficou presa em `rework` com o parecer do Ciclo 2 defasado.
+
+**Reconciliação dos achados do Ciclo 2 contra o HEAD (`325571a`):**
+
+| Ciclo 2 | Estado em `325571a` |
+|---|---|
+| MAJOR — `accept()` é stub | ✅ Resolvido. `noiseServer.ts:158-186` implementa fila produtor/consumidor (`resultsQueue`/`resultsWaiter`); `emitResult` (143-152) entrega resultados. Consumido **end-to-end** no test 19 (`noiseServer.test.ts:122,131-134`): 2 handshakes concorrentes puxados via `it.next()` + `receive()` real sem cross-talk. |
+| MINOR — `makeInbox` sem `expectedFrom` | ✅ `noiseHandshake.ts:255-257` — assinatura `makeInbox(adapter, expectedFrom: PeerId \| null)`. |
+| MINOR — `onClose` não chamado no test 20 | ✅ `noiseServer.test.ts:162` dispara `__triggerClose` (handler `onClose` real registrado pelo `NoiseServer`). |
+| MINOR — nomes dos testes 19-20 | ✅ Casos 17-20 com nomes idênticos à spec (§4). |
+
+**Gate de Evidência (reproduzido pelo revisor, 2026-06-28):**
+```
+$ pnpm --filter @plataforma/transport build  → tsc OK (sem erros)
+$ pnpm --filter @plataforma/transport test   → Test Files 5 passed · Tests 37 passed (37)
+$ pnpm --filter @plataforma/transport lint    → eslint OK (sem erros)
+```
+
+Assinaturas públicas de `initiateNoiseXX`/`respondNoiseXX` intactas; `NetworkAdapterPort` não
+tocado além do `onClose` (T-202-followup-2/ADR 0004). DoD §7 integralmente satisfeito. **Aprovado.**
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
@@ -224,3 +260,7 @@ $ pnpm --filter @plataforma/transport lint   → OK (sem erros)
 - **[2026-06-25]** - *arquiteto* - `[Decisão + flip draft→ready]`: #i4 resolvido como **Opção A+** (filtro `expectedFrom` no `makeInbox` + nova camada `acceptNoiseXX`/`NoiseServer` em `noiseServer.ts`, sem tocar `NetworkAdapterPort`). Re-análise identificou cross-wiring como bug HOJE (não futuro). Adicionada dependência em `T-202-followup-2` (requer `onClose`/ADR 0004 para cleanup de inboxes).
 - **[2026-06-25T19:18]** - *DeepSeek* - `[Iniciado]`: iniciando execucao
 - **[2026-06-25T19:27]** - *DeepSeek* - `[Finalizado]`: (i4) makeInbox filtra por expectedFrom + NoiseServer multiplexa respondNoiseXX com onClose cleanup. Tests 16/16 transport. Build+lint verdes. Limitacao: accept() emit handshakes fire-and-forget (iteracao futura).
+- **[2026-06-28T18:37]** - *Crush* - `[Reconciliado]`: status restaurado de review para rework (drift corrigido)
+- **[2026-06-28T18:57]** - *logic_agent* - `[Iniciado]`: Retomando para concluir rework do Ciclo 2 (codigo ja corrigido em 325571a; auditoria + Gate reproduzidos).
+- **[2026-06-28T18:57]** - *logic_agent* - `[Finalizado]`: Rework do Ciclo 2 concluido no commit 325571a (superapp/task/T-202-followup-3). accept() = fila produtor/consumidor real, consumido end-to-end no test 19; makeInbox recebe expectedFrom: PeerId|null; casos 17-20 com nomes da spec; onClose real no test 20. Gate reproduzido 2026-06-28: build OK (tsc) | test 37/37 (5 files) | lint OK (eslint).
+- **[2026-06-28T18:59]** - *agile_reviewer* - `[Aprovado]`: Ciclo 3: achados do Ciclo 2 reconciliados contra HEAD 325571a — todos resolvidos (accept() real consumido no test 19, makeInbox com expectedFrom, onClose real no test 20, nomes 17-20 ok). Gate reproduzido: build OK | test 37/37 | lint OK. Drift de status corrigido. Aprovada.
