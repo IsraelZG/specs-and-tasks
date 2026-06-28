@@ -23,6 +23,18 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:net';
 
+// .env é a fonte canônica das chaves (CLAUDE.md / sync-provider). Carrega e SOBREPÕE o
+// env do sistema — que pode ter chaves velhas. ponytail: parser inline, sem dep dotenv.
+function loadDotenv() {
+  const envUrl = new URL('../.env', import.meta.url);
+  if (!existsSync(envUrl)) return;
+  for (const line of readFileSync(envUrl, 'utf8').split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (m) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
+  }
+}
+loadDotenv();
+
 // ── Config ──────────────────────────────────────────────────────────────
 const PROXIES = {
   deepseek: {
@@ -75,7 +87,10 @@ const PID_FILE = join(tmpdir(), 'headroom-proxies.pid.json');
 
 function loadPids() {
   try {
-    return JSON.parse(readFileSync(PID_FILE, 'utf8'));
+    const v = JSON.parse(readFileSync(PID_FILE, 'utf8'));
+    // Precisa ser objeto-plano: se vier array/null (arquivo corrompido), descarta — senão
+    // `pids[name] = {...}` vira prop-string ignorada na serialização e o PID nunca persiste.
+    return v && typeof v === 'object' && !Array.isArray(v) ? v : {};
   } catch { return {}; }
 }
 
@@ -109,7 +124,8 @@ async function waitForHealth(url, timeoutMs = 8000) {
 
 function resolveHeadroom() {
   const candidates = [
-    join(process.env.APPDATA || '', 'Roaming', 'Python', 'Python313', 'Scripts', 'headroom.exe'),
+    // APPDATA já termina em \Roaming — não duplicar (bug antigo: Roaming\Roaming).
+    join(process.env.APPDATA || '', 'Python', 'Python313', 'Scripts', 'headroom.exe'),
     join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python313', 'Scripts', 'headroom.exe'),
     'headroom',
   ];
@@ -143,15 +159,20 @@ async function cmdStart(name, portOverride) {
 
   const headroom = resolveHeadroom();
   const args = [
-    'serve',
+    'proxy',
     '--port', String(port),
     '--backend', proxy.backend,
     '--anyllm-provider', proxy.anyllmProvider,
-    '--api-base', proxy.apiBase,
+    '--openai-api-url', proxy.apiBase,
   ];
 
   const child = spawn(headroom, args, {
-    env: { ...process.env, [proxy.apiBaseEnv]: apiKey },
+    env: {
+      ...process.env,
+      [proxy.apiBaseEnv]: apiKey,
+      OPENAI_API_KEY: apiKey,
+      OPENAI_BASE_URL: proxy.apiBase,
+    },
     stdio: ['ignore', fd, fd],
     windowsHide: true,
   });
