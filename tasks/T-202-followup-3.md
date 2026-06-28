@@ -289,6 +289,60 @@ $ eslint src/
 
 **Veredito:** REFATORAÇÃO NECESSÁRIA — voltar para worker.
 
+### Parecer do Agente Revisor — Ciclo 2 (2026-06-27, Crush/QA):
+- [ ] **Aprovado**
+- [x] **Requer Refatoração**
+
+**QA Report — Ciclo 2:**
+
+| Severidade | Count | Achados |
+|---|---|---|
+| BLOCKER | 0 | — |
+| MAJOR | 1 | `accept()` AsyncIterable é stub — nunca emite resultados. Handover documenta como limitação conhecida. |
+| MINOR | 3 | `makeInbox` usa `bindRemote()` em vez do parâmetro `expectedFrom: PeerId` da spec; `onClose` não chamado explicitamente no test 20; nomes dos testes 19-20 divergem da spec. |
+| INFO | 2 | Handover Ciclo 2 com `onClose` chamado inline em vez de via handler registrado; `await expect().rejects.toThrow()` pode mascarar asserção se a promise não rejeitar. |
+
+**Veredito: Refatoração Necessária.** O `accept()` stub (M1) precisa ser resolvido — a iteração futura documentada precisa ser implementada AGORA para que a task cumpra o DoD. Os MINORs podem ser endereçados na mesma iteração.
+
+**Todos os 7 BLOCKERs do Ciclo 1 foram corrigidos.** Arquivos verificados no superapp, testes 17-20 lidos e confirmados, build+test+lint verdes (37/37).
+
+### Handover do Executor (rework ciclo 2 — 2026-06-28):
+- `makeInbox(adapter, expectedFrom: PeerId | null)` filtra frames `from !== expectedFrom`; auto-bind interno quando `expectedFrom === null` (race do primeiro frame documentada no JSDoc).
+- Nova camada `NoiseServer` em `packages/transport/src/noiseServer.ts`: multiplexa `respondNoiseXX` por-peer, registra `onClose` para cleanup de inboxes, e `accept()` emite handshakes completados via `resultsQueue`+`waiter` (não mais stub).
+- Tests 17/18 (filtro `expectedFrom` via `makeTrio`) + 19/20 (cross-wiring 2 initiadores via `accept()` + cleanup via `__triggerMessage`+`__triggerClose`) passando.
+- 37/37 transport tests verdes. Build + lint verdes.
+
+**Detalhamento técnico:**
+- **MAJOR corrigido:** `NoiseServer.accept()` deixa de ser stub — fila `resultsQueue` + `resultsWaiter` vivem na instância do `NoiseServer`; `dispatch` chama `emitResult(h)` quando o handshake completa, que resolve o waiter ou enfileira. `Symbol.asyncIterator` retorna um `AsyncIterator` real que consome da fila. Erros de handshake NÃO são expostos via `accept()` (consumidor vê a queda via `adapter.onClose`). Tipo de `PeerEntry.handshake`放宽 para `Promise<NoiseHandshakeResult | undefined>` para acomodar o swallow de erros.
+- **MINOR 1 corrigido:** `makeInbox(adapter, expectedFrom: PeerId | null)` — `expectedFrom` agora é parâmetro (não mais `bindRemote()` no retorno). `expectedFrom !== null` (caso do `NoiseServer`): filtro estrito desde o início, `from` é conhecido pelo dispatch. `expectedFrom === null` (caso de `initiateNoiseXX`/`respondNoiseXX`): auto-bind a partir do `from` do primeiro frame aceito, filtro estrito nos subsequentes. Documentação da race no JSDoc. `bindRemote` removido da API pública; call sites passam `null` para auto-bind.
+- **MINOR 2 corrigido:** test 20 agora exercita o `dispatch` real (via `__triggerMessage` adicionado ao `fakeAdapter`), depois chama `__triggerClose` que aciona o `handleClose` registrado (não mais `entries.set` direto). O teste lê `entries` apenas como observador — comportamento público é o que importa.
+- **MINOR 3 corrigido:** test 19 renomeado para "cross-wiring test (2 initiators, 1 listener, 1 NoiseServer): cada handshake pairs com peer correto — A→L e B→L concorrentes, ambos completam sem cross-talk"; test 20 renomeado para "onClose cleanup no NoiseServer — handshake concluído; simular queda remota do peer; próximo handshake no mesmo adapter não reusa inbox". Ambos os tests agora usam a API pública (`server.accept()`) em vez de bypass do `entries`.
+- **INFO 1 confirmado:** `onClose` continua registrado via `adapter.onClose(this.handleClose)` no constructor do `NoiseServer` (handler registrado, não inline). O test 20 dispara o handler via `__triggerClose` que itera todos os handlers `onClose` registrados no fakeAdapter.
+- **INFO 2 confirmado:** test 6 já usa `rejects.toMatchObject({ reason: 'timeout' })` (padrão robusto que falha se a promise não rejeitar). Nenhum `rejects.toThrow()` foi introduzido.
+
+**Gate de Evidência (rework ciclo 2):**
+```
+$ pnpm --filter @plataforma/transport build
+$ tsc
+(EXIT 0)
+
+$ pnpm --filter @plataforma/transport test
+$ vitest run
+ ✓ tests/mock.test.ts (1 test) 2ms
+ ✓ tests/SwarmRegistry.test.ts (14 tests) 7ms
+ ✓ tests/SwarmRegistry.audit.test.ts (7 tests) 14ms
+ ✓ tests/noiseServer.test.ts (2 tests) 133ms
+ ✓ tests/noiseHandshake.test.ts (13 tests) 705ms
+ Test Files  5 passed (5)
+      Tests  37 passed (37)  (EXIT 0)
+
+$ pnpm --filter @plataforma/transport lint
+$ eslint src/
+(EXIT 0)
+```
+
+**Placar:** 37/37 testes verdes. Build + test + lint EXIT 0. Todos os 6 achados do ciclo 2 (1 MAJOR + 3 MINOR + 2 INFO) endereçados.
+
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-06-24T17:xx]** - *arquiteto* - `[Promovido]`: T-202-followup-3 criada. Decisão arquitetural #i4 pendente.
@@ -301,3 +355,5 @@ $ eslint src/
 - **[2026-06-27T19:35]** - *DeepSeek* - `[Iniciado]`: rework: consertar makeFilteredAdapter (B1), adicionar makeTrio (B2), reescrever test 19 (cross-wiring real)
 - **[2026-06-27T18:00]** - *DeepSeek* - `[Finalizado rework]`: B1 (makeFilteredAdapter consertado — handler do inbox é entregue via queueMicrotask + wrapped filtra por peerId no adapter global) + B1-secundário (dispatch setta entry.handshake imediatamente) + B2 (makeTrio em tests/_trio.ts + tests 17/18 reescritos) + test 19 (cross-wiring real via makeHub local, hub topology). 37/37 tests verdes, build + lint verdes.
 - **[2026-06-27T21:19]** - *DeepSeek* - `[Finalizado]`: B1 + B2 corrigidos. makeFilteredAdapter consertado (handler do inbox é entregue via queueMicrotask + wrapped filtra por peerId no adapter global). dispatch setta entry.handshake imediatamente (elimina race com testes que checam entries). Helper makeTrio criado em tests/_trio.ts (mesh A/B/C com buffer anti-race); tests 17/18 reescritos. Test 19 (cross-wiring real) usa makeHub local (hub topology alinhado com peer-do-sistema T-204 §6.6). 37/37 tests verdes, build + lint verdes.
+- **[2026-06-28T02:37]** - *agile_reviewer* - `[Requer Refatoração]`: QA Ciclo 2: 1 MAJOR (accept() stub) + 3 MINOR (makeInbox usa bindRemote, onClose não chamado explicitamente no test 20, nomes dos tests 19-20 divergem da spec) + 2 INFO (onClose inline, rejects.toThrow). Todos 7 BLOCKERs do Ciclo 1 corrigidos.
+- **[2026-06-28T08:37]** - *DeepSeek* - `[Finalizado rework]`: MAJOR (accept() implementado + emite handshakes via resultsQueue+resultsWaiter; erros de handshake não expostos ao consumidor); MINOR 1 (makeInbox recebe expectedFrom: PeerId | null como parâmetro; bindRemote removido da API pública; auto-bind interno quando null); MINOR 2 (test 20 usa __triggerMessage para passar pelo dispatch real antes do __triggerClose); MINOR 3 (nomes dos tests 19-20 alinhados verbatim com spec §4; tests agora usam server.accept() em vez de bypass do entries). 37/37 tests verdes, build+test+lint EXIT 0. Commit superapp: 325571a.
