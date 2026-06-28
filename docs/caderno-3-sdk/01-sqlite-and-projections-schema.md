@@ -30,7 +30,7 @@ CREATE TABLE nodes (
 --  v4: edges  (otimizado)
 -- =========================
 CREATE TABLE edges (
-  id TEXT PRIMARY KEY,            -- ULID; 11º char ≠ 'N'. MANTIDO TEXT
+  id TEXT PRIMARY KEY,            -- ULID; 11º char = 'E'. MANTIDO TEXT
   entity_id TEXT NOT NULL,        -- MANTIDO TEXT
   source_id TEXT NOT NULL,        -- sempre nó (11º char 'N')
   target_id TEXT NOT NULL,        -- polimórfico via VFK (nó ou aresta)
@@ -60,7 +60,7 @@ O SQLite não oferece suporte a chaves estrangeiras polimórficas que possam apo
 * **Solução**: Remoção de FK física no campo `target_id` e aplicação de **[[vfk|Virtual Foreign Keys]]** pela camada do Sync Worker e TinyBase.
 * **Mecanismo**: Inspeção em $O(1)$ do **11º caractere** do ULID (posição `index 10`, logo após o timestamp de 48 bits):
   * Letra **`N`**: Indica tabela `nodes`. Ex: `01J2X3Y4Z5N6Y7Z8A9BC...`
-  * Qualquer outro caractere: Indica tabela `edges`. Ex: `01J2X3Y4Z5E6Y7Z8A9BC...`
+  * Letra **`E`**: Indica tabela `edges`. Ex: `01J2X3Y4Z5E6Y7Z8A9BC...`
 
 ### 2.2 Estado de Vitalidade (`active`), Lápides e Ciclo de Poda
 

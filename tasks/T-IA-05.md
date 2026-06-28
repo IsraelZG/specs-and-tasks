@@ -6,8 +6,9 @@ complexity: 4
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+dependencies: ["T-IA-03"]
+blocks: ["T-IA-06"]
+ui: true
 ---
 
 # T-IA-05 · classificacao de intencao da command palette (busca/acao/geracao) + render progressivo
@@ -16,61 +17,57 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
-- **Capacidade-alvo:** haiku | sonnet | opus-spike *(ver regra "Dimensionamento de Tarefas" no CLAUDE.md: spec sem decisões em aberto, contratos explícitos, sem API externa não-fixada, verificação por comando)*
+- **Test Runner:** `vitest` (classificação) + `playwright` (palette E2E)
+- **Capacidade-alvo:** sonnet
+- **ui:** true — requer Playwright para render progressivo + overlay de palette
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar classificação de intenção da command palette: usuário descreve intenção em linguagem natural → sistema resolve para busca (recuperação híbrida), ação (emite `CONTENT:INTENT`) ou geração (agente produz `SPEC:PAGE`/`SPEC:WORKFLOW`). Heurística/SLM barato primeiro; LLM caro só se necessário. Render progressivo por streaming.
+**Fonte:** `caderno-3-sdk/14-ia-rag-e-agentes.md §7`. **Conceitos:** [[utilitario-de-ia]], [[agente-de-ia]].
+
+### Contratos essenciais
+
+```ts
+// packages/command-palette/src/intent-classifier.ts
+export type PaletteAction = 'search' | 'action' | 'generate';
+export interface ClassifiedIntent { action: PaletteAction; confidence: number; extractedParams: Record<string, unknown>; }
+export interface IntentClassifier { classify(naturalLanguageInput: string): Promise<ClassifiedIntent>; }
+export interface CommandPalette { open(): void; close(): void;
+  submit(input: string): Promise<{ action: PaletteAction; result: unknown; streamedOutput?: AsyncIterable<string> }>; }
+```
+**File paths:** `packages/command-palette/src/intent-classifier.ts` (CREATE), `packages/command-palette/src/CommandPalette.tsx` (CREATE), `packages/command-palette/tests/intent-classifier.test.ts` (CREATE), `packages/command-palette/tests/command-palette.e2e.ts` (CREATE Playwright), `packages/command-palette/src/index.ts` (UPDATE).
 
 ## 2. Contexto RAG (Spec-Driven Development)
-*(A spec é a fonte da verdade. Adicione links absolutos ou relativos)*
-- [ ] `docs/...`
+- [caderno-3-sdk/14-ia-rag-e-agentes.md](../docs/caderno-3-sdk/14-ia-rag-e-agentes.md) — §7 (command palette, busca/ação/geração, classificação barata primeiro, render progressivo)
+- [[utilitario-de-ia]] — LLM como capacidade compute
+- Deps: T-IA-03 (HybridRetrieval para busca)
 
-## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+**Testes (8 casos):** 1. Input "mostrar vendas de março" → classificado como `search`. 2. "criar nota fiscal para o pedido #123" → `action`. 3. "fazer uma página de dashboard de vendas" → `generate`. 4. Heurística resolve "buscar" sem LLM. 5. Input ambíguo → LLM acionado. 6. `submit` retorna `streamedOutput` para `generate`. 7. Palette abre/fecha overlay. 8. Playwright: Cmd+K abre palette, input classified, resultado renderizado.
 
-## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+**Pegadinhas:** Heurística usa keywords ("mostrar"/"buscar" → search, "criar"/"fazer"/"gerar" → generate, verbos de ação → action). Não usar LLM para inputs triviais. Stream: `generate` produz `AsyncIterable<string>`. A palette opera com permissões do usuário — ação acima do privilégio é recusada pelo pipeline.
 
-## 5. Instruções de Execução (Step-by-Step)
-> **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
-
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
-
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+**Gate:** `pnpm --filter @plataforma/command-palette build && pnpm --filter @plataforma/command-palette test && pnpm --filter @plataforma/command-palette test:e2e`
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **ATENÇÃO:** Se a spec (RAG) for ambígua, contraditória ou o design pattern imposto for impossível, **PARE**. Mude o status para `blocked` e escreva o motivo abaixo. Não alucine uma abstração não documentada.
-- *[Nenhum problema identificado]*
+> **DECISÃO EM ABERTO:** T-IA-03 sendo endurecida nesta passada. Classificador usa HybridRetrieval para busca. **Status:** `draft` até T-IA-03 implementada.
+
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] Classificador resolve busca/ação/geração com heurística barata?
+- [ ] LLM só acionado para inputs ambíguos?
+- [ ] `submit` retorna `streamedOutput` para `generate`?
+- [ ] Palette overlay abre/fecha (Cmd+K)?
+- [ ] Playwright: input classificado e resultado renderizado?
+- [ ] `pnpm --filter @plataforma/command-palette build` e `test` verdes?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática (Gate de Evidência)
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/command-palette build
+pnpm --filter @plataforma/command-palette test
+pnpm --filter @plataforma/command-palette test:e2e
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -79,7 +76,7 @@ pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- **Evidência de Execução (obrigatória):**
 ```
 (cole aqui a saída real de pnpm build e pnpm test)
 ```

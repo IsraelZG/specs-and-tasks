@@ -1,38 +1,22 @@
 #!/usr/bin/env node
-// worktree: ciclo de git worktrees por task, no modelo DOIS-REPOS.
-//   - CONTROLE (specs/tasks/ledger/este script): o repo Docs (specs-and-tasks). Rode o comando AQUI.
-//   - CÓDIGO (produto): o repo superapp. As worktrees são DELE.
-// Comandos (rode de dentro do Docs):
-//   node tools/scripts/worktree.mjs new <ID>     cria worktree do superapp em ../.superapp-worktrees/<ID> (branch task/<ID>) + pnpm install
-//   node tools/scripts/worktree.mjs ls           lista as worktrees do superapp
-//   node tools/scripts/worktree.mjs merge <ID>   merge --no-ff de task/<ID> no branch default do superapp (limpo)
+// worktree: automatiza o ciclo de git worktrees por task, pra despachar opencode manualmente.
+//   node tools/scripts/worktree.mjs new <ID>     cria worktree em ../.nexus-worktrees/<ID> (branch task/<ID>) + pnpm install
+//   node tools/scripts/worktree.mjs ls           lista as worktrees
+//   node tools/scripts/worktree.mjs merge <ID>   merge --no-ff de task/<ID> em master (repo principal limpo)
 //   node tools/scripts/worktree.mjs rm <ID>      remove a worktree (preserva a branch)
-// Aponte o repo de código com SUPERAPP_DIR (default: ../superapp, irmão do Docs).
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const docsRoot = path.resolve(__dirname, '..', '..'); // controle: specs/tasks/ledger/manage-task
-const codeRepo = process.env.SUPERAPP_DIR || path.resolve(docsRoot, '..', 'superapp'); // produto
-const baseDir = path.resolve(codeRepo, '..', '.superapp-worktrees');
+const repoRoot = path.resolve(__dirname, '..', '..');
+const baseDir = path.resolve(repoRoot, '..', '.nexus-worktrees');
 
 const die = (msg) => { console.error(`❌ ${msg}`); process.exit(1); };
-const git = (args, opts = {}) => spawnSync('git', args, { cwd: codeRepo, encoding: 'utf8', ...opts });
+const git = (args, opts = {}) => spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8', ...opts });
 const wtPath = (id) => path.join(baseDir, id);
 const branchExists = (b) => git(['rev-parse', '--verify', '--quiet', `refs/heads/${b}`]).status === 0;
-const manageTask = path.join(docsRoot, 'tools', 'scripts', 'manage-task.mjs');
-
-function requireCodeRepo() {
-  if (!fs.existsSync(path.join(codeRepo, '.git'))) {
-    die(`Repo de código não encontrado em ${codeRepo}.\n   Crie-o (cd .. && mkdir superapp && cd superapp && git init && gh repo create) ` +
-      `ou aponte com a env SUPERAPP_DIR.`);
-  }
-}
-function defaultBranch() {
-  return git(['show-ref', '--verify', '--quiet', 'refs/heads/main']).status === 0 ? 'main' : 'master';
-}
 
 /** C:\X\Y -> /mnt/c/X/Y (pro --dir do opencode no WSL). */
 function wslPath(winPath) {
@@ -42,7 +26,6 @@ function wslPath(winPath) {
 
 function cmdNew(id) {
   if (!id) die('uso: worktree new <ID>');
-  requireCodeRepo();
   const wt = wtPath(id);
   const branch = `task/${id}`;
   if (fs.existsSync(wt)) {
@@ -51,51 +34,44 @@ function cmdNew(id) {
     const addArgs = branchExists(branch)
       ? ['worktree', 'add', wt, branch]
       : ['worktree', 'add', '-b', branch, wt];
-    if (git(addArgs, { stdio: 'inherit' }).status !== 0) die('git worktree add (superapp) falhou');
-    console.log(`• worktree do superapp criada: ${wt}  (branch ${branch})`);
-    console.log('• pnpm install (store quente)...');
+    if (git(addArgs, { stdio: 'inherit' }).status !== 0) die('git worktree add falhou');
+    console.log(`• worktree criada: ${wt}  (branch ${branch})`);
+    console.log('• pnpm install (store quente, ~10s)...');
     if (spawnSync('pnpm', ['install'], { cwd: wt, stdio: 'inherit', shell: true }).status !== 0) {
       die('pnpm install falhou na worktree');
     }
   }
-  console.log('\n✅ pronto. Despache o worker (opencode) no WSL apontando pro CÓDIGO:');
-  console.log(`   opencode run --dir ${wslPath(wt)} "Execute /executar-task ${id}"`);
-  console.log('\n   No fluxo dois-repos, o worker:');
-  console.log(`   • lê a spec em      ${path.join(docsRoot, 'tasks', id + '.md')}`);
-  console.log(`   • coda/commita/pusha NA worktree (${wslPath(wt)})`);
-  console.log(`   • rastreia status:  node "${manageTask}" <start|finish> ${id} <worker> "<msg>"`);
+  console.log('\n✅ pronto. Despache o opencode no WSL:');
+  console.log(`   opencode run --dir ${wslPath(wt)} "<prompt da task ${id}>"`);
+  console.log(`   (ou trabalhe direto no WSL:  cd ${wslPath(wt)} )`);
   console.log(`   Ao terminar:  node tools/scripts/worktree.mjs merge ${id}   &&   ...rm ${id}`);
 }
 
 function cmdLs() {
-  requireCodeRepo();
   console.log(git(['worktree', 'list']).stdout.trim());
 }
 
 function cmdMerge(id) {
   if (!id) die('uso: worktree merge <ID>');
-  requireCodeRepo();
   const branch = `task/${id}`;
-  const main = defaultBranch();
-  if (!branchExists(branch)) die(`branch ${branch} não existe no superapp`);
+  if (!branchExists(branch)) die(`branch ${branch} não existe`);
   if (git(['status', '--porcelain']).stdout.trim()) {
-    die('o superapp (checkout principal) tem mudanças não-commitadas — commit/stash antes do merge');
+    die('o repo principal tem mudanças não-commitadas — faça commit/stash antes do merge');
   }
   const cur = git(['rev-parse', '--abbrev-ref', 'HEAD']).stdout.trim();
-  if (cur !== main) die(`o superapp está em '${cur}', não '${main}' — troque antes do merge`);
+  if (cur !== 'master') die(`o repo principal está em '${cur}', não 'master' — troque antes do merge`);
   const r = git(['merge', '--no-ff', branch, '-m', `merge ${branch}`], { stdio: 'inherit' });
-  if (r.status !== 0) die(`merge de ${branch} falhou (conflito?) — resolva manualmente no superapp`);
-  console.log(`✅ ${branch} mergeado em ${main} (superapp)`);
+  if (r.status !== 0) die(`merge de ${branch} falhou (conflito?) — resolva manualmente no repo principal`);
+  console.log(`✅ ${branch} mergeado em master`);
 }
 
 function cmdRm(id) {
   if (!id) die('uso: worktree rm <ID>');
-  requireCodeRepo();
   const wt = wtPath(id);
   if (git(['worktree', 'remove', wt, '--force'], { stdio: 'inherit' }).status !== 0) {
     die('git worktree remove falhou');
   }
-  console.log(`✅ worktree removida: ${wt}  (branch task/${id} preservada — apague com 'git -C "${codeRepo}" branch -D task/${id}' se quiser)`);
+  console.log(`✅ worktree removida: ${wt}  (branch task/${id} preservada — apague com 'git branch -D task/${id}' se quiser)`);
 }
 
 const [cmd, id] = process.argv.slice(2);
@@ -105,6 +81,6 @@ switch (cmd) {
   case 'merge': cmdMerge(id); break;
   case 'rm': cmdRm(id); break;
   default:
-    console.log('uso: node tools/scripts/worktree.mjs <new|ls|merge|rm> [ID]   (rode de dentro do Docs; opera no superapp)');
+    console.log('uso: node tools/scripts/worktree.mjs <new|ls|merge|rm> [ID]');
     process.exit(cmd ? 1 : 0);
 }

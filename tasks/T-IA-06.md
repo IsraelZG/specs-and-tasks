@@ -6,8 +6,8 @@ complexity: 3
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+dependencies: ["T-IA-01", "T-IA-02", "T-IA-03", "T-IA-04", "T-IA-05"]
+blocks: []
 ---
 
 # T-IA-06 · vetores: agente acima do escopo, recuperacao furando bloqueio, embedding restrito para external, fato superado
@@ -16,61 +16,56 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
-- **Capacidade-alvo:** haiku | sonnet | opus-spike *(ver regra "Dimensionamento de Tarefas" no CLAUDE.md: spec sem decisões em aberto, contratos explícitos, sem API externa não-fixada, verificação por comando)*
+- **Test Runner:** `vitest` (pacotes core/protocol)
+- **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Suíte de vetores adversariais cobrindo todo o stack IA: (1) agente tentando intent acima do escopo delegado, (2) recuperação híbrida retornando nó que o principal não pode ler (furando `predicado-de-bloqueio`), (3) embedding de campo restrito enviado para LLM `external` (violação de `PrivacyClass`), (4) agente raciocinando sobre fato superado como se fosse vigente. Cada vetor deve ser bloqueado pelo sistema.
+**Fonte:** `caderno-3-sdk/14-ia-rag-e-agentes.md §4, §5, §6`. **Conceitos:** [[agente-de-ia]], [[recuperacao-hibrida]], [[utilitario-de-ia]].
+
+### Contratos essenciais
+
+```ts
+// packages/ai-vectors/src/adversarial-vectors.ts
+export interface AIVector { id: string; name: string; targetComponent: string; // agente, retrieval, embedding, supersession
+  description: string; setup(): Promise<void>; execute(): Promise<{ passed: boolean; // true = bloqueado (comportamento correto)
+  expected: string; actual: string; }>; }
+export const AI_ADVERSARIAL_VECTORS: AIVector[]; // 4 vetores
+export async function runAIVectors(): Promise<{ total: number; passed: number; failures: { id: string; detail: string }[] }>;
+```
+**File paths:** `packages/ai-vectors/src/adversarial-vectors.ts` (CREATE), `packages/ai-vectors/tests/adversarial-vectors.test.ts` (CREATE), `packages/ai-vectors/src/index.ts` (UPDATE).
 
 ## 2. Contexto RAG (Spec-Driven Development)
-*(A spec é a fonte da verdade. Adicione links absolutos ou relativos)*
-- [ ] `docs/...`
+- [caderno-3-sdk/14-ia-rag-e-agentes.md](../docs/caderno-3-sdk/14-ia-rag-e-agentes.md) — §4 (supersessão: default heads), §5 (teto de abuso), §6 (limites: recuperação só alcança o que principal pode ler)
+- [[agente-de-ia]] — teto de abuso idêntico ao da linguagem de páginas
+- [[recuperacao-hibrida]] — filtro de permissão na recuperação
+- Deps: T-IA-01 a T-IA-05
 
-## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+**Testes (4 vetores, cada um = 1 caso):** V1: Agente com scope `[SPEC:PAGE]` tenta propor `BALANCE_STATE` → rejeitado pelo validador de delegação. V2: Principal sem permissão de leitura no nó X; recuperação híbrida consulta "dados de X" → X não aparece nos resultados. V3: Campo `embeddable: true` mas com `PrivacyClass: local_only`; embedding enviado para `external` → bloqueado pelo privacy gate. V4: Agente consulta "saldo atual"; fato superado (saldo antigo) não aparece — apenas `entity_heads`. Cada vetor: `passed: true` significa que o sistema bloqueou corretamente.
 
-## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+**Pegadinhas:** Vetores são testes de integração — precisam de mocks de todos os componentes do stack. `AI_ADVERSARIAL_VECTORS` é array estático — cada vetor tem `setup()` para configurar estado necessário. `passed: true` = comportamento CORRETO (bloqueou o ataque). Não confundir: se o vetor espera bloqueio e o sistema permite, `passed: false`.
 
-## 5. Instruções de Execução (Step-by-Step)
-> **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
-
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
-
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+**Gate:** `pnpm --filter @plataforma/ai-vectors build && pnpm --filter @plataforma/ai-vectors test`
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **ATENÇÃO:** Se a spec (RAG) for ambígua, contraditória ou o design pattern imposto for impossível, **PARE**. Mude o status para `blocked` e escreva o motivo abaixo. Não alucine uma abstração não documentada.
-- *[Nenhum problema identificado]*
+> **DECISÃO EM ABERTO:** T-IA-01 a T-IA-05 estão sendo endurecidas nesta passada. Todos os tipos necessários (`AgentDelegation`, `HybridRetrieval`, `AIComputeCapability`, `PrivacyClass`) estão definidos nas specs das deps. **Status:** `draft` até todo o stack IA (T-IA-01 a T-IA-05) estar implementado.
+
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] V1: Agente acima do escopo → rejeitado?
+- [ ] V2: Recuperação retorna nó sem permissão → não aparece?
+- [ ] V3: Embedding `local_only` enviado para `external` → bloqueado?
+- [ ] V4: Fato superado não aparece (apenas `entity_heads`)?
+- [ ] Todos os 4 vetores: `passed: true` (sistema bloqueou)?
+- [ ] `pnpm --filter @plataforma/ai-vectors build` e `test` verdes?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática (Gate de Evidência)
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/ai-vectors build
+pnpm --filter @plataforma/ai-vectors test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -79,7 +74,7 @@ pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- **Evidência de Execução (obrigatória):**
 ```
 (cole aqui a saída real de pnpm build e pnpm test)
 ```

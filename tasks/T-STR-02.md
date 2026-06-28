@@ -3,87 +3,162 @@ id: T-STR-02
 title: "renditions como utilitario compute assincrono + irmaos CONTENT"
 status: draft
 complexity: 4
-target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+target_agent: devops_agent
 reviewer_agent: agile_reviewer
-execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+execution_mode: sequential
+dependencies: ["T-STR-01", "T-IA-02"]
+blocks: []
 ---
 
 # T-STR-02 · renditions como utilitario compute assincrono + irmaos CONTENT
 
-## 0. Ambiente de Execução Obrigatório
+## 0. Ambiente de Execucao Obrigatorio
 - **Runtime:** Node.js v20+
-- **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
+- **Package Manager:** `pnpm` (NAO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
-- **Capacidade-alvo:** haiku | sonnet | opus-spike *(ver regra "Dimensionamento de Tarefas" no CLAUDE.md: spec sem decisões em aberto, contratos explícitos, sem API externa não-fixada, verificação por comando)*
+- **Test Runner:** `vitest` (Node puro, sem browser)
+- **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar o pipeline de geracao de renditions como utilitario `compute` assincrono conforme
+`19-streaming-reference-spec.md` S2.2: renditions (qualidades) sao `CONTENT` irmaos do original,
+geradas por utilitario `compute` assincrono (transcode) na fila da RFC-010 (A.5.3). Falha de
+um job de transcode nao invalida a rendition: o orquestrador da fila re-enfileira o job
+imediatamente noutro no, sem perda do `CONTENT` original. Peers que executam jobs de rendition
+recebem `CREDITS` proporcionais ao custo computacional medido (19-streaming S5.3).
+
+### Contratos exatos (assinaturas TS fixadas)
+
+```ts
+// --- apps/nexus-backend/src/modules/streaming/rendition-types.ts ---
+
+export type TranscodeJobStatus = 'pending' | 'running' | 'completed' | 'failed';
+
+export interface TranscodeJob {
+  jobId: string;
+  sourceContentId: string;         // CONTENT original
+  targetSpec: {
+    quality: string;               // ex: '1080p', '720p', '4K'
+    codec: string;                 // ex: 'h264', 'av1', 'vp9'
+    bitrateBps: number;
+    width?: number;
+    height?: number;
+  };
+  status: TranscodeJobStatus;
+  assignedPeerId?: string;         // peer que esta executando
+  resultRenditionId?: string;      // CONTENT:rendition criado apos sucesso
+  errorMessage?: string;
+  retryCount: number;
+  maxRetries: number;              // default: 3
+  estimatedComputeCost: number;    // CREDITS estimados
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface RenditionComputeQueue {
+  /** Enfileira job de transcode para gerar rendition. */
+  enqueue(sourceContentId: string, targetSpec: TranscodeJob['targetSpec']): Promise<TranscodeJob>;
+
+  /** Peer reclama proximo job pendente da fila. */
+  claimJob(peerId: string): Promise<TranscodeJob | null>;
+
+  /** Reporta conclusao do job com o renditionId criado. */
+  completeJob(jobId: string, renditionId: string): Promise<TranscodeJob>;
+
+  /** Reporta falha do job; orquestrador re-enfileira se abaixo de maxRetries. */
+  failJob(jobId: string, error: string): Promise<TranscodeJob>;
+
+  /** Consulta status de um job. */
+  getJobStatus(jobId: string): Promise<TranscodeJob>;
+
+  /** Lista renditions existentes para um conteudo. */
+  listRenditions(contentId: string): Promise<TranscodeJob[]>;
+}
+```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-*(A spec é a fonte da verdade. Adicione links absolutos ou relativos)*
-- [ ] `docs/...`
+- [caderno-3-sdk/19-streaming-reference-spec.md](../docs/caderno-3-sdk/19-streaming-reference-spec.md) S2.2 — Renditions como utilitario compute
+- [[rendition]] — Modelo de rendition, manifesto JSON, arestas `RELATES:MEDIA:RENDITION`
+- [[content-file]] — `CONTENT:FILE` como blob fisico
+- T-STR-01 — MediaCatalog (SPECs e catalogo)
+- T-IA-02 — Utilitario compute (infra de fila)
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `docs/caderno-3-sdk/19-streaming-reference-spec.md` S2.2, S5.3
+- **[READ]** `docs/conceitos/rendition.md` — Contrato de rendition
+- **[READ]** `apps/nexus-backend/src/modules/streaming/media-catalog.ts` — T-STR-01
+- **[CREATE]** `apps/nexus-backend/src/modules/streaming/rendition-types.ts` — Tipos acima
+- **[CREATE]** `apps/nexus-backend/src/modules/streaming/rendition-compute.ts` — RenditionComputeQueue
+- **[CREATE]** `apps/nexus-backend/src/modules/streaming/rendition-compute.test.ts` — Testes TDD
 
-## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+## 4. Estrategia de Testes Estrita (Test-Driven Development)
+- [x] **Framework:** Vitest (Node puro, sem browser)
+- [x] **Ambiente do Teste:** Node puro, `pnpm --filter nexus-backend test`
+- [x] **Fora de Escopo:** Transcode real (ffmpeg); rede P2P; creditos reais
 
-## 5. Instruções de Execução (Step-by-Step)
-> **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
+Casos de teste (numerados):
+1. `enqueue` cria `TranscodeJob` com `status: 'pending'` e `estimatedComputeCost > 0`.
+2. `claimJob(peerId)` retorna o job mais antigo pendente e marca `status: 'running'`.
+3. `claimJob` retorna `null` se fila vazia.
+4. `completeJob` marca `status: 'completed'`, associa `resultRenditionId`, e cria `CONTENT` irmao com `RELATES:MEDIA:RENDITION`.
+5. `failJob` com `retryCount < maxRetries` re-enfileira (status volta a `pending`, `retryCount++`).
+6. `failJob` com `retryCount >= maxRetries` marca `status: 'failed'` definitivo, nao re-enfileira.
+7. `failJob` NAO invalida o `CONTENT` original — apenas o job falha.
+8. `getJobStatus` retorna estado atual do job.
+9. `listRenditions` retorna apenas jobs com `status: 'completed'`.
 
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+## 5. Instrucoes de Execucao (Step-by-Step)
+> **REGRAS DO QUE NAO FAZER:**
+> - **NAO** implemente o transcode real (ffmpeg, etc.) — apenas a fila e o ciclo de vida do job.
+> - **NAO** crie `MUTATES` entre renditions — sao irmaos, nao versoes ([[rendition]]).
+> - **NAO** invalide o `CONTENT` original quando um job de transcode falha.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+### Pegadinhas conhecidas
+- **Armadilha:** A falha de um job de transcode nao invalida a rendition (19-streaming S2.2). O orquestrador re-enfileira o job noutro no. O codigo deve distinguir "falha de job" (retry) de "falha permanente" (maxRetries excedido).
+- **Armadilha:** `CREDITS` sao proporcionais ao custo computacional medido (19-streaming S5.3). O campo `estimatedComputeCost` e uma estimativa; o valor real e liquidado pelo motor economico (RFC-012) apos medicao. Nao liquide creditos neste modulo — apenas estime.
+- **Armadilha:** Renditions sao nos `CONTENT` irmaos do original, ligados por `RELATES:MEDIA:RENDITION`. Nao sao filhos nem versoes — usar `MUTATES` entre elas e proibido.
+- **Armadilha:** A fila e assincrona — `enqueue` nao deve bloquear esperando o transcode. O job e criado como `pending` e um peer reclama via `claimJob`.
 
-## 6. Feedback de Especificação (Spec Feedback Loop)
-> **ATENÇÃO:** Se a spec (RAG) for ambígua, contraditória ou o design pattern imposto for impossível, **PARE**. Mude o status para `blocked` e escreva o motivo abaixo. Não alucine uma abstração não documentada.
-- *[Nenhum problema identificado]*
+1. **[TDD]** Escreva `rendition-compute.test.ts` com os 9 casos da Secao 4.
+2. Crie `rendition-types.ts` com interfaces da Secao 1.
+3. Implemente `rendition-compute.ts` com fila de jobs, ciclo de vida, e re-enfileiramento.
+4. Garanta que `completeJob` cria `CONTENT:rendition` como irmao, nao como versao.
+5. Rode build + test (Secao 7) e cole saida.
+
+## 6. Feedback de Especificacao (Spec Feedback Loop)
+> **DECISOES EM ABERTO — requer definicao do arquiteto:**
+> - **Nenhuma.** Contratos derivados de 19-streaming S2.2 e [[rendition]].
+> **Status:** `draft` ate o arquiteto validar Secoes 1-4 e 7.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
-O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+O agente `agile_reviewer` usara esta checklist para aprovar ou rejeitar o PR:
+- [ ] O codigo segue estritamente os arquivos de Output especificados?
+- [ ] O `pnpm test` roda sem erros (Node puro)?
+- [ ] Linter (`pnpm lint`) nao acusa problemas?
+- [ ] A implementacao respeita a Regra do Que Nao Fazer?
+- [ ] `failJob` re-enfileira abaixo de `maxRetries` e falha definitivo acima?
+- [ ] `completeJob` cria `CONTENT` irmao com `RELATES:MEDIA:RENDITION`?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificacao automatica *(comandos exatos — worker E reviewer rodam e COLAM a saida)*
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter nexus-backend build
+pnpm --filter nexus-backend test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDENCIA:** nem o `finish` (worker) nem o veredito (reviewer) sao validos sem a
+> saida literal desses comandos colada na secao 8. Marcar `[x]` sem evidencia e violacao.
 
-## 8. Log de Handover e Revisão Agile (Code Review)
+## 8. Log de Handover e Revisao Agile (Code Review)
 ### Handover do Executor:
 - 
 
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
-- [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- [ ] **Requer Refatoracao**
+- **Evidencia de Execucao (obrigatoria — colar saida de build/tsc + test):**
 ```
-(cole aqui a saída real de pnpm build e pnpm test)
+(cole aqui a saida real de pnpm build e pnpm test)
 ```
-- **Comentários de Revisão:**
+- **Comentarios de Revisao:**
 
-## 9. Log de Execução (Agent Execution Log)
-> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+## 9. Log de Execucao (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.

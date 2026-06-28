@@ -3,11 +3,11 @@ id: T-PL-06
 title: "vetores: bundle nao-listado, plugin com rede fora das portas, classe restrita para external"
 status: draft
 complexity: 3
-target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+target_agent: logic_agent
 reviewer_agent: agile_reviewer
-execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+execution_mode: sequential
+dependencies: ["T-PL-01", "T-PL-02", "T-PL-03", "T-PL-04", "T-PL-05"]
+blocks: []
 ---
 
 # T-PL-06 · vetores: bundle nao-listado, plugin com rede fora das portas, classe restrita para external
@@ -16,61 +16,113 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
-- **Capacidade-alvo:** haiku | sonnet | opus-spike *(ver regra "Dimensionamento de Tarefas" no CLAUDE.md: spec sem decisões em aberto, contratos explícitos, sem API externa não-fixada, verificação por comando)*
+- **Test Runner:** `vitest` (Node puro)
+- **Capacidade-alvo:** haiku
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Testes de vetores adversariais para plugins: garantir que o loader, sandboxes, ComputePort e fila rejeitam ou contém plugins maliciosos. Cobre: bundle não listado no marketplace, plugin tentando acessar rede fora das portas declaradas, classe de privacidade restrita sendo executada em site external, sideload bypass.
+
+**Justificativa de fontes:**
+- Fonte primária: `docs/caderno-3-sdk/12-plugins-e-computacao.md` §2.1 (marketplace-only, sem sideload), §6.1 (sem rede exceto portas), §6.3 (classe restrita × external proibido)
+- Enriquecimento: [[validacao-de-plugin]] — tiers de validação; [[plugin]] — marketplace-only; [[capacidade-de-runtime]] — restrições de runtime; [[fila-de-computacao]] — idempotência
+
+### Contratos TS (casos de vetor)
+
+```ts
+// --- packages/plugins/tests/vectors.test.ts ---
+
+export interface PluginVectorCase {
+  name: string;
+  description: string;
+  /** Ação maliciosa. */
+  scenario: string;
+  /** Componente que deve rejeitar. */
+  expected_component: 'loader' | 'sandbox_browser' | 'sandbox_node' | 'scheduler' | 'queue';
+  /** Resultado esperado. */
+  expect: 'rejected' | 'blocked' | 'noop';
+  /** Regra violada. */
+  invariant: string;
+}
+```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-*(A spec é a fonte da verdade. Adicione links absolutos ou relativos)*
-- [ ] `docs/...`
+- [caderno-3-sdk/12-plugins-e-computacao.md](../docs/caderno-3-sdk/12-plugins-e-computacao.md) §2 (marketplace-only, sem sideload), §6 (sandbox, sem autoridade ambiente), §6.3 (classe de privacidade × site)
+- [docs/conceitos/plugin.md](../docs/conceitos/plugin.md)
+- [docs/conceitos/validacao-de-plugin.md](../docs/conceitos/validacao-de-plugin.md)
+- [docs/conceitos/capacidade-de-runtime.md](../docs/conceitos/capacidade-de-runtime.md)
+- [docs/conceitos/fila-de-computacao.md](../docs/conceitos/fila-de-computacao.md)
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `packages/plugins/src/loader.ts` (T-PL-01)
+- **[READ]** `packages/plugins/src/sandbox-browser.ts` (T-PL-02)
+- **[READ]** `packages/plugins/src/sandbox-node.ts` (T-PL-03)
+- **[READ]** `packages/plugins/src/compute-port.ts` (T-PL-04)
+- **[READ]** `packages/plugins/src/compute-queue.ts` (T-PL-05)
+- **[CREATE]** `packages/plugins/tests/vectors.test.ts`
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+- [x] **Framework:** Vitest (Node puro)
+- [x] **Ambiente do Teste:** Node puro
+- [x] **Fora de Escopo:** Vetores de rede reais, ataques de cripto
+
+Casos de vetor (numerados):
+1. **Bundle não listado:** plugin com assinatura válida mas não está no set de listados → `loader` rejeita, `rejected`.
+2. **Sideload bypass:** tentativa de carregar bundle por URL direta (não via marketplace) → `loader` rejeita, `rejected`.
+3. **Assinatura forjada:** manifesto adulterado após assinatura → `loader` rejeita, `rejected`.
+4. **Browser: rede fora das portas:** plugin tenta `fetch("https://evil.com")` mas `allowedPorts` é `[]` → `sandbox_browser` bloqueia, `blocked`.
+5. **Browser: DOM access:** plugin tenta `document.querySelector()` → `sandbox_browser` bloqueia (Worker não tem DOM), `blocked`.
+6. **Browser: storage access:** plugin tenta `localStorage.setItem()` → `sandbox_browser` bloqueia, `blocked`.
+7. **Node: acesso a grafo fora do escopo:** plugin lê `entity_id` fora de `read_entity_ids` → `sandbox_node` bloqueia, `blocked`.
+8. **Node: rede não declarada:** plugin tenta `fetch` para porta fora de `network` → `sandbox_node` bloqueia, `blocked`.
+9. **Node: FS fora do escopo:** plugin tenta `fs.readFileSync("/etc/passwd")` → `sandbox_node` bloqueia, `blocked`.
+10. **Classe restrita para external:** capacidade com `privacy_class: 'restricted'` + `allowed_sites: ['external']` → `scheduler` rejeita, `blocked`.
+11. **Runtime mismatch:** plugin `node` sem peer node + sem Electron → `scheduler` retorna `null`, `rejected`.
+12. **Double-claim na fila:** dois workers tentam `claim()` a mesma task simultaneamente → `queue` garante que só um vence, `blocked` para o segundo.
+13. **Complete por worker errado:** worker não-dono tenta `complete()` → `queue` rejeita, `rejected`.
+14. **Heartbeat falsificado:** worker tenta `heartbeat()` em task que não lhe pertence → `queue` rejeita, `rejected`.
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
+> - NÃO modifique os componentes testados para fazer os vetores passarem.
+> - NÃO crie novos arquivos de implementação — esta task é só testes.
 
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+### Pegadinhas conhecidas
+- Vetor 10 (classe restrita × external) é proibido por construção (§6.3) — o scheduler nunca elege `external` para capacidades `restricted`.
+- Vetor 12 (double-claim) testa atomicidade do claim. Em memória, use lock simples; o teste verifica que 2 claims concorrentes na mesma task resultam em exatamente 1 sucesso.
+- Vetor 2 (sideload) testa que o loader exige que o bundle venha de um `SPEC:PLUGIN` listado — carregar por URL arbitrária é rejeitado.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+1. Crie `packages/plugins/tests/vectors.test.ts` com os 14 vetores.
+2. Cada caso testa o componente relevante com entrada maliciosa e assere o resultado esperado.
+3. Rode `pnpm --filter @plataforma/plugins test` — vetores devem passar.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **ATENÇÃO:** Se a spec (RAG) for ambígua, contraditória ou o design pattern imposto for impossível, **PARE**. Mude o status para `blocked` e escreva o motivo abaixo. Não alucine uma abstração não documentada.
-- *[Nenhum problema identificado]*
+**Links validados:**
+- `docs/caderno-3-sdk/12-plugins-e-computacao.md` §2, §6 — OK
+- `docs/conceitos/plugin.md` — OK
+- `docs/conceitos/validacao-de-plugin.md` — OK
+- `docs/conceitos/capacidade-de-runtime.md` — OK
+- `docs/conceitos/fila-de-computacao.md` — OK
+- `packages/plugins/src/loader.ts` — T-PL-01 (dep)
+- `packages/plugins/src/sandbox-browser.ts` — T-PL-02 (dep)
+- `packages/plugins/src/sandbox-node.ts` — T-PL-03 (dep)
+- `packages/plugins/src/compute-port.ts` — T-PL-04 (dep)
+- `packages/plugins/src/compute-queue.ts` — T-PL-05 (dep)
+
+**Abertos:** Nenhum.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
-O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] Todos os 14 vetores passam (sistema contém/rejeita)?
+- [ ] Nenhum vetor causa crash?
+- [ ] Sideload é bloqueado?
+- [ ] Classe restrita nunca vai para external?
+- [ ] Sandboxes bloqueiam rede/DOM/storage/FS não declarados?
+- [ ] Double-claim e heartbeat falsificado são rejeitados?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/plugins build
+pnpm --filter @plataforma/plugins test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:

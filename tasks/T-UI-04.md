@@ -6,8 +6,9 @@ complexity: 4
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+dependencies: ["T-UI-01", "T-UI-02", "T-UI-03"]
+blocks: []
+ui: true
 ---
 
 # T-UI-04 · tier estrito de validacao + vetores (DOM externo/rede nao declarada, intent acima do privilegio)
@@ -16,61 +17,57 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
-- **Capacidade-alvo:** haiku | sonnet | opus-spike *(ver regra "Dimensionamento de Tarefas" no CLAUDE.md: spec sem decisões em aberto, contratos explícitos, sem API externa não-fixada, verificação por comando)*
+- **Test Runner:** `vitest` (validação) + `playwright` (vetores E2E)
+- **Capacidade-alvo:** sonnet
+- **ui:** true — requer Playwright para vetores de DOM/rede em sandbox
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar o tier mais estrito de validação para plugins `ui` iframe de código arbitrário/3D pesado. Análise de recurso, fingerprinting, abuso de GPU. Vetores adversariais testados: plugin tentando acessar DOM externo, abrir rede não declarada, emitir intent acima do privilégio — todos devem ser bloqueados pelo sandbox + validador.
+**Fonte:** `caderno-3-sdk/26-plugins-frontend.md §6-§7`. **Conceitos:** [[validacao-de-plugin]], [[plugin]].
+
+### Contratos essenciais
+
+```ts
+// packages/marketplace/src/validation/ui-validation.ts
+export type ValidationTier = 'light' | 'authorship' | 'medium' | 'strict';
+export interface StrictValidationResult { passed: boolean; violations: string[]; resourceProfile?: { estimatedCpuMs: number; estimatedMemoryMb: number; gpuFingerprintRisk: 'low'|'medium'|'high'; }; }
+export function validateStrictTier(manifest: UIPluginManifest, bundle: ArrayBuffer): StrictValidationResult;
+export interface AdversarialVector { name: string; description: string; expectedBehavior: 'blocked' | 'rejected' | 'throttled'; }
+export const UI_ADVERSARIAL_VECTORS: AdversarialVector[]; // DOM externo, rede não declarada, intent acima do privilégio
+```
+**File paths:** `packages/marketplace/src/validation/ui-validation.ts` (CREATE), `packages/marketplace/tests/ui-validation.test.ts` (CREATE, Vitest), `packages/marketplace/tests/ui-validation.e2e.ts` (CREATE, Playwright), `packages/marketplace/src/index.ts` (UPDATE).
 
 ## 2. Contexto RAG (Spec-Driven Development)
-*(A spec é a fonte da verdade. Adicione links absolutos ou relativos)*
-- [ ] `docs/...`
+- [caderno-3-sdk/26-plugins-frontend.md](../docs/caderno-3-sdk/26-plugins-frontend.md) — §6 (tiers de validação), §7 (limites honestos: custo, escape hatch)
+- [[validacao-de-plugin]] — 4 tiers: spec page, first-party, sandbox, strict
+- Deps: T-UI-01 (`UIPluginManifest`), T-UI-02 (`SandboxHost`), T-UI-03 (`GameEngine`)
 
-## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+**Testes (8 casos):** 1. `validateStrictTier` com bundle limpo → `passed: true`. 2. Bundle com acesso a `document.cookie` → `violations` inclui DOM externo. 3. Bundle com `fetch('https://externo.com')` → violação de rede não declarada. 4. `resourceProfile.gpuFingerprintRisk: 'high'` para WebGPU não declarado. 5. Plugin tenta `postMessage` para outro iframe → bloqueado (sem canal lateral, §3.6). 6. Intent com privilégio acima do declarado no manifesto → rejeitado pelo pipeline. 7. Playwright: iframe malicioso tenta acessar `window.top` → bloqueado. 8. Playwright: plugin sem `camera` no manifesto tenta `getUserMedia` → negado.
 
-## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+**Pegadinhas:** Análise de bundle é estática (regex/AST), não sandbox execution. Fingerprinting de GPU: detecta uso de WebGL/WebGPU via análise de código. Tier estrito é o único que faz análise de recurso pré-listing. O validador de marketplace aplica o tier conforme `[[modalidade-de-rede]]`.
 
-## 5. Instruções de Execução (Step-by-Step)
-> **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
-
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
-
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+**Gate:** `pnpm --filter @plataforma/marketplace build && pnpm --filter @plataforma/marketplace test && pnpm --filter @plataforma/marketplace test:e2e`
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **ATENÇÃO:** Se a spec (RAG) for ambígua, contraditória ou o design pattern imposto for impossível, **PARE**. Mude o status para `blocked` e escreva o motivo abaixo. Não alucine uma abstração não documentada.
-- *[Nenhum problema identificado]*
+> **DECISÃO EM ABERTO:** T-UI-01, T-UI-02, T-UI-03 sendo endurecidas nesta passada. Validador estrito depende de `UIPluginManifest` e `SandboxHost`. **Status:** `draft` até deps implementadas.
+
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] `validateStrictTier` analisa bundle e detecta DOM externo?
+- [ ] Rede não declarada detectada por análise estática?
+- [ ] GPU fingerprinting avalia risco (low/medium/high)?
+- [ ] Playwright: iframe malicioso bloqueado (DOM, getUserMedia)?
+- [ ] Intent acima do privilégio rejeitada pelo pipeline?
+- [ ] `pnpm --filter @plataforma/marketplace build` e `test` verdes?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática (Gate de Evidência)
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/marketplace build
+pnpm --filter @plataforma/marketplace test
+pnpm --filter @plataforma/marketplace test:e2e
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -79,7 +76,7 @@ pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- **Evidência de Execução (obrigatória):**
 ```
 (cole aqui a saída real de pnpm build e pnpm test)
 ```

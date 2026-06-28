@@ -3,11 +3,11 @@ id: T-PG-05
 title: "vetores: componente fora do catalogo, expressao estourando orcamento, intent acima do privilegio"
 status: draft
 complexity: 3
-target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+target_agent: logic_agent
 reviewer_agent: agile_reviewer
-execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+execution_mode: sequential
+dependencies: ["T-PG-01", "T-PG-02", "T-PG-03"]
+blocks: []
 ---
 
 # T-PG-05 · vetores: componente fora do catalogo, expressao estourando orcamento, intent acima do privilegio
@@ -16,61 +16,104 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
-- **Capacidade-alvo:** haiku | sonnet | opus-spike *(ver regra "Dimensionamento de Tarefas" no CLAUDE.md: spec sem decisões em aberto, contratos explícitos, sem API externa não-fixada, verificação por comando)*
+- **Test Runner:** `vitest` (Node puro + JSDOM)
+- **Capacidade-alvo:** haiku
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Testes de vetores adversariais para a linguagem de páginas: garantir que páginas maliciosas são contidas pelo validador (T-PG-01), renderizador (T-PG-02) e mecanismo de segurança. Cobre: componente fora do catálogo, expressão ZEN estourando orçamento, intent acima do privilégio do usuário, página maliciosa tentando injetar HTML/JS.
+
+**Justificativa de fontes:**
+- Fonte primária: `docs/caderno-3-sdk/11-linguagem-de-paginas.md` §3.2 (permissão na fonte, não na página), §5 (teto de abuso — vocabulário fechado de ações), §7 (validador em 3 pontos)
+- Enriquecimento: [[spec-page]] — página não consegue fazer nada que o usuário não pudesse sem ela
+
+### Contratos TS (casos de vetor, não novas interfaces)
+
+```ts
+// --- packages/pages/tests/vectors.test.ts ---
+// Cada vetor é um caso de teste que monta um PageDocument malicioso
+// e verifica que o sistema o rejeita ou contém.
+
+export interface VectorCase {
+  name: string;
+  description: string;
+  /** PageDocument malicioso (ou parcialmente malicioso). */
+  document: PageDocument;
+  /** Resultado esperado. */
+  expect: 'validation_fails' | 'render_aborted' | 'action_blocked';
+  /** Invariante violado (L1–L4) ou regra de segurança. */
+  invariant: string;
+}
+```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-*(A spec é a fonte da verdade. Adicione links absolutos ou relativos)*
-- [ ] `docs/...`
+- [caderno-3-sdk/11-linguagem-de-paginas.md](../docs/caderno-3-sdk/11-linguagem-de-paginas.md) §3.2 (permissão na fonte), §5 (vocabulário fechado de ações), §7 (validação em autoria/ingestão/render)
+- [docs/conceitos/spec-page.md](../docs/conceitos/spec-page.md)
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `packages/pages/src/schema.ts` (T-PG-01)
+- **[READ]** `packages/pages/src/validator.ts` (T-PG-01)
+- **[READ]** `packages/pages/src/renderer.ts` (T-PG-02)
+- **[READ]** `packages/pages/src/page-renderer.tsx` (T-PG-02)
+- **[READ]** `packages/pages/src/extends.ts` (T-PG-03)
+- **[CREATE]** `packages/pages/tests/vectors.test.ts` — casos de vetor adversariais
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+- [x] **Framework:** Vitest (Node puro + JSDOM conforme necessidade)
+- [x] **Ambiente do Teste:** Node puro e JSDOM (`pnpm --filter @plataforma/pages test`)
+- [x] **Fora de Escopo:** Vetores de rede, vetores de grafo
+
+Casos de vetor (numerados):
+1. **Componente fora do catálogo:** `component: "script"` ou `component: "iframe"` → `validation_fails`, L1.
+2. **Prop inválida:** `props: { innerHTML: { $bind: "fontes.maliciosa" } }` → `validation_fails`, L1.
+3. **HTML inline:** `props: { html: "<script>alert(1)</script>" }` → `validation_fails`, L2.
+4. **CSS inline:** campo `css` ou `style` no documento → `validation_fails`, L2.
+5. **URL de script:** `component: "script"` com `props: { src: "https://evil.com/x.js" }` → `validation_fails`, L2.
+6. **Ação não listada:** `actions: { hack: { type: "exec", code: "..." } }` → `validation_fails`, teto de abuso (§5).
+7. **Intento acima do privilégio:** página tenta emitir `intent` com `payload` contendo campo `role: "admin"` — o teste verifica que o intent é assinado pela persona do usuário e validado normalmente (a página não eleva privilégio; o pipeline rejeita se o usuário não tem permissão). → `action_blocked`.
+8. **Expressão ZEN estourando orçamento:** `$zen` com expressão que consome > `evalBudgetMs` → `render_aborted`, L3.
+9. **Profundidade excessiva:** árvore com profundidade 1000 → `validation_fails`, L3.
+10. **Contagem de nós excessiva:** 10.000 nós → `validation_fails`, L3.
+11. **Acesso a fonte sem permissão:** `sources` declara query sobre projeção que o usuário não tem UCAN para ler → fonte retorna erro de permissão, render mostra fallback.
+12. **EXTENDS malicioso:** variante tenta `replace` um nó com `component: "iframe"` → validador rejeita o documento resultante do merge (L1 aplicado pós-merge).
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
+> - NÃO modifique o validador ou renderizador para fazer esses testes passarem — se falharem, o bug está no componente, não no teste.
+> - NÃO crie novos arquivos de implementação — esta task é só testes.
 
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+### Pegadinhas conhecidas
+- O vetor 7 (intento acima do privilégio) testa que o intent é ASSINADO pela persona do usuário — a página propõe, o pipeline valida. O teste deve verificar que o intent emitido não carrega credenciais extras.
+- Vetores de orçamento (8, 9, 10) dependem do ZenEvaluator e dos limites de perfil estarem funcionando (T-PG-02).
+- Vetor 12 (EXTENDS malicioso) requer que T-PG-03 esteja implementado para o merge e T-PG-01 para a validação pós-merge.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+1. Crie `packages/pages/tests/vectors.test.ts` com os 12 vetores.
+2. Cada caso monta o `PageDocument` ofensor, executa validador e/ou renderizador, e assere o resultado esperado.
+3. Rode `pnpm --filter @plataforma/pages test` — vetores devem passar (sistema rejeita/contém).
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **ATENÇÃO:** Se a spec (RAG) for ambígua, contraditória ou o design pattern imposto for impossível, **PARE**. Mude o status para `blocked` e escreva o motivo abaixo. Não alucine uma abstração não documentada.
-- *[Nenhum problema identificado]*
+**Links validados:**
+- `docs/caderno-3-sdk/11-linguagem-de-paginas.md` §3.2, §5, §7 — OK
+- `docs/conceitos/spec-page.md` — OK
+- `packages/pages/src/schema.ts` — T-PG-01 (dep)
+- `packages/pages/src/validator.ts` — T-PG-01 (dep)
+- `packages/pages/src/page-renderer.tsx` — T-PG-02 (dep)
+- `packages/pages/src/extends.ts` — T-PG-03 (dep)
+
+**Abertos:** Nenhum.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
-O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] Todos os 12 vetores passam (sistema contém/rejeita)?
+- [ ] Nenhum vetor causa crash ou comportamento indefinido?
+- [ ] Vetores de validação (1–6, 9–10) retornam `validation_fails`?
+- [ ] Vetor de render (8) retorna `render_aborted`?
+- [ ] Vetor de intent (7) retorna `action_blocked`?
+- [ ] Vetor de EXTENDS (12) valida pós-merge?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/pages build
+pnpm --filter @plataforma/pages test
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:

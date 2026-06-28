@@ -22,7 +22,7 @@ O núcleo do sistema tem cinco camadas. O core lógico está em `@plataforma/pro
 - [[ephemeral-messages|Mensagens efêmeras]] entre peers (presença, recibos ao vivo, sinais WebRTC);
 - [[documento-casca|Documentos casca]] (rendezvous).
 
-**Nunca como storage do grafo.** Dados persistentes usam [[rbsr|RBSR]] (ver `docs/adr/adr-001-automerge-para-transientes.md`).
+**Nunca como storage do grafo.** Dados persistentes usam [[rbsr|RBSR]] (ver `docs/adr/adr-001-automerge-unico.md`).
 
 ## 3. TinyBase e o Acesso ao SQLite
 

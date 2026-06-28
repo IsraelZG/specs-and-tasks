@@ -17,7 +17,7 @@ O modelo é imutável: editar um nó produz um novo nó conectado ao anterior po
 
 ## Contrato
 
-- `id` é um [[ulid]] com o 11º caractere fixo em `N` (para nó) ou qualquer outro caractere (para aresta) — discriminador de tabela para [[vfk|Virtual Foreign Keys]].
+- `id` é um [[ulid]] com o 11º caractere fixo em `N` (nó) ou `E` (aresta) — discriminador de tabela para [[vfk|Virtual Foreign Keys]].
 - `id` é imutável após a criação; qualquer "edição" produz um novo nó com novo `id`, mesmo `entity_id`.
 - `entity_id` de um nó criador (sem pai) é igual ao seu próprio `id`. Versões subsequentes herdam o `entity_id` do nó raiz da linhagem.
 

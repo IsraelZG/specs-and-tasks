@@ -6,8 +6,9 @@ complexity: 5
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
+dependencies: ["T-UI-01", "T-UI-02"]
+blocks: ["T-UI-04"]
+ui: true
 ---
 
 # T-UI-03 · componente rico GameEngine (2D/3D) data-driven com pontos ZEN + emissao de intent
@@ -16,61 +17,53 @@ blocks: [] # IDs de tarefas que esta bloqueia
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
-- **Capacidade-alvo:** haiku | sonnet | opus-spike *(ver regra "Dimensionamento de Tarefas" no CLAUDE.md: spec sem decisões em aberto, contratos explícitos, sem API externa não-fixada, verificação por comando)*
+- **Test Runner:** `vitest` (tipos) + `playwright` (canvas E2E)
+- **Capacidade-alvo:** sonnet
+- **ui:** true — requer Playwright para renderização de canvas + testes de intent
 
 ## 1. Objetivo
-*(Descreva a meta final desta tarefa baseada no plano-de-implementacao.md)*
+Implementar componente rico first-party `GameEngine` (2D/3D) como componente do catálogo (RFC-006), data-driven via spec: cenas, entidades, regras e níveis são dados + ZEN. O loop de render pesado vive no componente provido. Usa Phaser/PixiJS (2D) e three.js/Babylon (3D). Expõe pontos de customização ZEN e emite intents (pontuação, conquista, compra in-game).
+**Fonte:** `caderno-3-sdk/26-plugins-frontend.md §5` — games como páginas. **Conceitos:** [[plugin]].
+
+### Contratos essenciais
+
+```ts
+// packages/rich-components/src/GameEngine/types.ts
+export type GameDimension = '2d' | '3d';
+export interface GameScene { id: string; entities: GameEntity[]; rules: ZenExpression[]; }
+export interface GameEntity { id: string; type: string; props: Record<string, unknown>; }
+export interface GameEngineProps { dimension: GameDimension; scenes: GameScene[]; zenOverrides?: Record<string, string>; onIntent(intent: string, payload: unknown): void; }
+```
+**File paths:** `packages/rich-components/src/GameEngine/GameEngine.tsx` (CREATE), `packages/rich-components/src/GameEngine/GameEngine.test.tsx` (CREATE, vitest + canvas mock), `packages/rich-components/src/GameEngine/GameEngine.e2e.ts` (CREATE, Playwright), `packages/rich-components/src/index.ts` (UPDATE).
 
 ## 2. Contexto RAG (Spec-Driven Development)
-*(A spec é a fonte da verdade. Adicione links absolutos ou relativos)*
-- [ ] `docs/...`
+- [caderno-3-sdk/26-plugins-frontend.md](../docs/caderno-3-sdk/26-plugins-frontend.md) — §5 (games como páginas, GameEngine, data-driven, ZEN + intents)
+- [[plugin]] — componente rico first-party no catálogo
 
-## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+**Testes (8 casos):** 1. GameEngine 2D renderiza canvas. 2. GameEngine 3D renderiza cena three.js. 3. ZEN expression avalia e modifica entidade. 4. `onIntent` chamado ao completar nível. 5. Scene sem entidades renderiza sem erro. 6. Troca de scene limpa estado anterior. 7. Entidade com `props` inválidos → erro tratado. 8. Playwright: canvas renderizado, intents capturadas.
 
-## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
+**Pegadinhas:** Phaser/PixiJS esperam DOM container; three.js precisa de WebGL context. ZEN expressions usam `$entity.props` — avaliador puro. Intents são chamadas async — `onIntent` deve ser `await`-able.
 
-## 5. Instruções de Execução (Step-by-Step)
-> **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
-
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
-
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+**Gate:** `pnpm --filter @plataforma/rich-components build && pnpm --filter @plataforma/rich-components test && pnpm --filter @plataforma/rich-components test:e2e`
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **ATENÇÃO:** Se a spec (RAG) for ambígua, contraditória ou o design pattern imposto for impossível, **PARE**. Mude o status para `blocked` e escreva o motivo abaixo. Não alucine uma abstração não documentada.
-- *[Nenhum problema identificado]*
+> **DECISÃO EM ABERTO:** T-UI-01 e T-UI-02 estão sendo endurecidas nesta passada (ainda `draft`). GameEngine depende de `UIPluginManifest` para intents e de `SandboxHost`... não, GameEngine é first-party, não plugin ui — roda no catálogo, não em sandbox. **Status:** `draft` até deps estarem implementadas.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] GameEngine 2D e 3D renderizam canvas com Phaser/three.js?
+- [ ] ZEN expressions avaliam e modificam entidades corretamente?
+- [ ] Intents (pontuação, conquista, compra) emitidas via `onIntent`?
+- [ ] Playwright: canvas renderizado, intents capturadas?
+- [ ] `pnpm --filter @plataforma/rich-components build` e `test` verdes?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática (Gate de Evidência)
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/rich-components build
+pnpm --filter @plataforma/rich-components test
+pnpm --filter @plataforma/rich-components test:e2e
 ```
-> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -79,7 +72,7 @@ pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- **Evidência de Execução (obrigatória):**
 ```
 (cole aqui a saída real de pnpm build e pnpm test)
 ```

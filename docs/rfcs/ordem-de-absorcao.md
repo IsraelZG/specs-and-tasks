@@ -44,4 +44,4 @@
 A numeração das RFCs reflete a ordem de **criação**, não a de absorção. Esta tabela é a ordem de **absorção**. Discrepâncias conhecidas: 022/024/026/027 (transversais) têm número maior que vários produtos, mas precedem-nos na absorção.
 
 > [!IMPORTANT]
-> **Ordem de Absorção vs. Ordem de Build:** A ordem de absorção de cadernos (esta wiki) respeita a precedência conceitual e de escrita de especificações, sendo diferente da ordem dos marcos de build do produto (focada em marcos demonstráveis/milestones descritos em `plano-de-modulos.md`).
+> **Ordem de Absorção vs. Ordem de Build:** A ordem de absorção de cadernos (esta wiki) respeita a precedência conceitual e de escrita de especificações, sendo diferente da ordem dos marcos de build do produto (focada em marcos demonstráveis/milestones descritos em `docs/plano-aplicacao.md`).
