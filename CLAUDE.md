@@ -36,7 +36,7 @@ Falha de ambiente durante uma transição é ela mesma um BLOCKER — registre c
 `request_changes`), nunca contorne escrevendo o arquivo na mão.
 Ações: start, pause, finish, approve, request_changes, block, unblock.
 Ciclo: draft → ready → in_progress → review → rework → done (+ blocked).
-Cada task iniciada ganha uma branch task/<ID> (isolamento).
+Cada task iniciada ganha uma branch task/<ID> (isolamento) **no repo superapp (código).** No repo Docs (controle), tarefas são editadas diretamente na `master` — o histórico de gestão (status, pareceres, logs) precisa ser visível a todos sem depender de merge.
 
 ### As 6 Regras
 
