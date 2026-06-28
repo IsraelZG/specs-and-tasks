@@ -139,26 +139,21 @@ function resolveHeadroom() {
 
 // ── Commands ────────────────────────────────────────────────────────────
 
-async function cmdStart(name, portOverride) {
+// Núcleo do start: LANÇA Error em falha — nunca process.exit. O dashboard chama isto
+// via HTTP e não pode morrer por uma chave faltando. Retorna {alreadyRunning} se a porta
+// já está ocupada, ou {pid,port} ao subir. NÃO espera health (quem chama decide).
+async function startProxy(name, portOverride) {
   const proxy = PROXIES[name];
-  if (!proxy) { console.error(`Unknown proxy: ${name}`); process.exit(1); }
+  if (!proxy) throw new Error(`proxy desconhecido: ${name}`);
 
   const port = portOverride || proxy.port;
-  const free = await isPortFree(port);
-  if (!free) {
-    console.log(`[${name}] Port ${port} already in use — skipping`);
-    return;
-  }
+  if (!(await isPortFree(port))) return { name, port, alreadyRunning: true };
 
   const apiKey = process.env[proxy.apiBaseEnv];
-  if (!apiKey) {
-    console.error(`[${name}] ${proxy.apiBaseEnv} not set in environment`);
-    process.exit(1);
-  }
+  if (!apiKey) throw new Error(`${proxy.apiBaseEnv} ausente (.env/ambiente)`);
 
   const log = logFile(name, port);
   const fd = openSync(log, 'a');
-
   const headroom = resolveHeadroom();
   const args = [
     'proxy',
@@ -178,37 +173,43 @@ async function cmdStart(name, portOverride) {
     stdio: ['ignore', fd, fd],
     windowsHide: true,
   });
+  child.on('error', () => { /* falha de spawn — reportada via ausência no pidfile/health */ });
 
   const pids = loadPids();
   pids[name] = { pid: child.pid, port, log };
   savePids(pids);
 
-  console.log(`[${name}] Started (PID ${child.pid}, port ${port})`);
-
-  const healthy = await waitForHealth(`http://127.0.0.1:${port}/livez`);
-  console.log(`[${name}] Health check: ${healthy ? 'OK' : 'timeout (continuing)'}`);
-
-  child.on('exit', (code) => {
-    console.log(`[${name}] Exited (code ${code})`);
+  child.on('exit', () => {
     const p = loadPids();
-    if (p[name]?.pid === child.pid) {
-      delete p[name];
-      savePids(p);
-    }
+    if (p[name]?.pid === child.pid) { delete p[name]; savePids(p); }
   });
+  return { name, port, pid: child.pid };
+}
+
+function stopProxy(name) {
+  const pids = loadPids();
+  const entry = pids[name];
+  if (!entry) return { name, wasRunning: false };
+  try { process.kill(entry.pid); } catch {}
+  delete pids[name];
+  savePids(pids);
+  return { name, wasRunning: true, pid: entry.pid };
+}
+
+// Wrappers CLI: imprimem e (no caso do start single) fazem health-check + die em erro.
+async function cmdStart(name, portOverride) {
+  try {
+    const r = await startProxy(name, portOverride);
+    if (r.alreadyRunning) { console.log(`[${name}] Port ${r.port} already in use — skipping`); return; }
+    console.log(`[${name}] Started (PID ${r.pid}, port ${r.port})`);
+    const healthy = await waitForHealth(`http://127.0.0.1:${r.port}/livez`);
+    console.log(`[${name}] Health check: ${healthy ? 'OK' : 'timeout (continuing)'}`);
+  } catch (e) { die(e.message); }
 }
 
 async function cmdStop(name) {
-  const pids = loadPids();
-  const entry = pids[name];
-  if (!entry) { console.log(`[${name}] Not running`); return; }
-
-  try {
-    process.kill(entry.pid);
-  } catch {}
-  delete pids[name];
-  savePids(pids);
-  console.log(`[${name}] Stopped (was PID ${entry.pid})`);
+  const r = stopProxy(name);
+  console.log(r.wasRunning ? `[${name}] Stopped (was PID ${r.pid})` : `[${name}] Not running`);
 }
 
 function cmdStatus() {
@@ -228,7 +229,12 @@ function cmdStatus() {
 
 async function cmdStartAll() {
   for (const name of Object.keys(PROXIES)) {
-    await cmdStart(name);
+    try {
+      const r = await startProxy(name);
+      console.log(r.alreadyRunning
+        ? `[${name}] já em uso na porta ${r.port} — pulando`
+        : `[${name}] Started (PID ${r.pid}, port ${r.port})`);
+    } catch (e) { console.error(`[${name}] falhou: ${e.message}`); }
   }
 }
 
@@ -278,11 +284,26 @@ async function fetchProxyStatus(name) {
 
 function cmdDashboard(portOverride) {
   const port = portOverride || DASHBOARD_PORT;
+  const json = (res, code, body) => {
+    res.writeHead(code, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(body));
+  };
   const server = createHttpServer(async (req, res) => {
     if (req.url === '/api/status') {
-      const data = await Promise.all(Object.keys(PROXIES).map(fetchProxyStatus));
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(data));
+      json(res, 200, await Promise.all(Object.keys(PROXIES).map(fetchProxyStatus)));
+      return;
+    }
+    // POST /api/{start|stop|restart}/<name> — controla os proxies a partir da página.
+    const m = req.method === 'POST' && req.url.match(/^\/api\/(start|stop|restart)\/(.+)$/);
+    if (m) {
+      const [, action, name] = m;
+      if (!PROXIES[name]) { json(res, 404, { ok: false, error: 'proxy desconhecido' }); return; }
+      try {
+        if (action === 'stop') stopProxy(name);
+        else if (action === 'start') await startProxy(name);
+        else { stopProxy(name); await new Promise(r => setTimeout(r, 600)); await startProxy(name); }
+        json(res, 200, { ok: true });
+      } catch (e) { json(res, 500, { ok: false, error: e.message }); }
       return;
     }
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -314,6 +335,10 @@ main{padding:20px 24px;display:grid;gap:14px;grid-template-columns:repeat(auto-f
 .bar{height:5px;background:#232730;border-radius:3px;overflow:hidden;margin-top:5px}
 .bar>i{display:block;height:100%;background:linear-gradient(90deg,#3fb950,#58d977)}
 .off{color:#6b7280;font-style:italic;padding:6px 0}
+.actions{display:flex;gap:8px;margin-top:13px}
+button.act{flex:1;padding:7px 8px;border:1px solid #2b303b;border-radius:7px;background:#1d212a;color:#e6e8ec;font:inherit;font-size:12px;cursor:pointer}
+button.act:hover{background:#252b36}button.act:disabled{opacity:.5;cursor:wait}
+button.start{border-color:#2d5a36}button.stop{border-color:#5a2d2d}
 </style></head><body>
 <header><h1>Headroom Proxies</h1><span id="meta">carregando…</span></header>
 <main id="grid"></main>
@@ -323,7 +348,8 @@ const pct=n=>(n||0).toFixed(1)+'%';
 function card(p){
   if(!p.up) return \`<div class="card"><div class="top"><span class="dot down"></span>
     <span class="name">\${p.name}</span><span class="port">:\${p.port}</span></div>
-    <div class="base">\${p.apiBase}</div><div class="off">⚫ offline — inicie com <code>start-\${p.name}</code></div></div>\`;
+    <div class="base">\${p.apiBase}</div><div class="off">⚫ offline</div>
+    <div class="actions"><button class="act start" onclick="act('\${p.name}','start',this)">▶ Start</button></div></div>\`;
   return \`<div class="card"><div class="top"><span class="dot up"></span>
     <span class="name">\${p.name}</span><span class="port">:\${p.port} · v\${p.version??'?'}</span></div>
     <div class="base">\${p.model?('▸ '+p.model+'  '):''}\${p.apiBase}</div>
@@ -335,7 +361,20 @@ function card(p){
         <div class="bar"><i style="width:\${Math.min(100,p.avgPct||0)}%"></i></div></div>
       <div><div class="k">Economia</div><div class="v">$\${(p.savedUsd||0).toFixed(3)}</div></div>
       <div><div class="k">Uptime</div><div class="v">\${Math.floor(p.uptime/60)}<small>min</small></div></div>
+    </div>
+    <div class="actions">
+      <button class="act stop" onclick="act('\${p.name}','stop',this)">■ Stop</button>
+      <button class="act" onclick="act('\${p.name}','restart',this)">⟳ Restart</button>
     </div></div>\`;
+}
+async function act(name,action,btn){
+  btn.disabled=true;const t=btn.textContent;btn.textContent='…';
+  try{
+    const r=await fetch('/api/'+action+'/'+name,{method:'POST'});
+    const j=await r.json();
+    if(!j.ok) alert(name+': '+(j.error||'falhou'));
+  }catch(e){ alert('erro: '+e.message); }
+  finally{ btn.textContent=t; setTimeout(tick,900); }
 }
 async function tick(){
   try{
