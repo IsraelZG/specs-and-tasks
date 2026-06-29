@@ -31,4 +31,8 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i2][T-021][design-system] Carousel `CarouselNext` nasce `disabled`: `checkScroll` roda no mount antes do layout e marca `canScrollNext=false`; spec E2E usa wheel em vez do botão Next — follow-up p/ corrigir `checkScroll` com `ResizeObserver` ou re-check pós-layout (Carousel.tsx)
 - [ ] [i3][T-021][ci] Link do run de CI ausente da Seção 8 (§7 exige): workflow dispara em push p/ `master` pós-merge; evidência local cobre os 5 comandos do bloco de Verificação — capturar link do run de CI (x64+arm64) e anexar à Seção 8 (ci.yml)
 - [ ] [i4][T-021][testkit] Sondas adversariais do reviewer mutaram `process.env` em runtime p/ testar `CI` toggle; preset lê `process.env.CI` síncrono na chamada. Para concorrência/mutação pós-import, o preset poderia aceitar `ci?: boolean` na `UiE2EOptions` — não é requisito da spec, apenas observação (playwright.ts)
+- [ ] [m1][T-303][protocol] `RangeFooter` usa `rangeStartId`/`rangeEndId` em vez de `range: IdRange` conforme spec §1 — consumidores que esperam `footer.range.lo`/`.range.hi` quebram (rangeFooter.ts)
+- [ ] [i1][T-303][protocol] `sessionNonce` aceito com qualquer tamanho — spec §1 declara "16 bytes" como contrato; adicionar validação `sessionNonce.length === 16` (rangeFooter.ts)
+- [ ] [m1][T-306][protocol] `BTree` importado mas não usado em `waves.ts` — usar `type` na import ou remover (waves.ts:1)
+- [ ] [i1][T-306][protocol] `executeWave2` itera `heads` mesmo com `getEntityHeads = null` (cai em `heads = []` e retorna `completed: true`) — comportamento aceitável mas não documentado; vale uma linha de comentário explicitando o fallback (waves.ts:160)
 <!-- END PENDENCIAS -->
