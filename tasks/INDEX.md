@@ -64,7 +64,7 @@
 | [T-1006](./T-1006.md) | Prompt Builder e Exportador Inteligente (UI) | `done` | frontend_agent | 3 |
 | [T-1007](./T-1007.md) | Integração do EpochDB para Agentic Memory (Lossless) | `done` | backend_agent | 4 |
 | [T-1008](./T-1008.md) | Automação via MCP Safe Runner (Pre-approved Scripts) | `done` | devops_agent | 3 |
-| [T-1009](./T-1009.md) | Convenção PowerShell regex em JSON + helper reusável para hooks Claude Code | `review` | devops_agent | 1 |
+| [T-1009](./T-1009.md) | Convenção PowerShell regex em JSON + helper reusável para hooks Claude Code | `done` | devops_agent | 1 |
 | [T-101](./T-101.md) | Wrappers cripto | `done` | crypto_agent | 3 |
 | [T-1010](./T-1010.md) | Serviço de Tasks (máquina de estados MGTIA) no Nexus | `done` | logic_agent | 4 |
 | [T-1011](./T-1011.md) | Ferramentas MCP + endpoints REST de Tasks | `done` | logic_agent | 4 |

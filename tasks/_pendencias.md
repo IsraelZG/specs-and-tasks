@@ -19,4 +19,6 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i2][T-208][transport] _emit usa console.error para exceções de handler — defensivo, não na spec (fpp.ts:240-248)
 - [ ] [m1][T-212][protocol] Handover do executor contém "snapshot.ts não existe na worktree" — factualmente incorreto (arquivo existe e workaround já removido por T-308-rework-2); item de DoD §7 fica satisfeito pela rework-2 de T-308, não por T-212 — housekeeping, não bloqueia (tasks/T-212.md:119)
 - [ ] [m1][T-802][media] `!` non-null assertion no arquivo de teste — spec §5 proíbe `!` no geral (src está limpo); refatorar `reordered[0]!`/`tampered[0]!`/etc para guards (verifyReassemble.test.ts:53-55, 98, 147-151, 22)
+- [ ] [m1][T-1009][testkit] Desvio do contrato TS: parâmetro `pattern` em vez de `jsonEscapedPattern`; spec §1 diz "como aparece no JSON source" mas §4 caso 1 usa pattern decoded — impl escolheu a interpretação do §4 (alinhada com os testes). Spec §1 precisa ser atualizado para alinhar com a impl (psRegex.ts:13-21, 30-34)
+- [ ] [m2][T-1009][testkit] Spec §3 inconsistente sobre localização do test (src/ vs tests/); impl resolveu com `tests/psRegex.test.ts` (convenção Vitest, consistente com clock.test.ts, random.test.ts do pacote). Spec §3 precisa referenciar a convenção Vitest do pacote
 <!-- END PENDENCIAS -->
