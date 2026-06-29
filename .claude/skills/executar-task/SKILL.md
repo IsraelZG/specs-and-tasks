@@ -23,30 +23,38 @@ Use seu identificador (ex.: `DeepSeek`) onde aparecer `<EU>` — **nunca** `agil
 ## Passo a passo
 1. **Prontidão:** `<CTRL>/tasks/$ARGUMENTS.md` deve estar `status: ready`. Se `draft` → **PARE**
    (precisa endurecer — `/endurecer-task`). Se `review`/`done` → **PARE** (não reexecute).
-2. **Branch:** você já está na worktree do `superapp`, na branch `task/$ARGUMENTS`. Confirme com
-   `git branch --show-current`. **Não troque de branch numa worktree.**
+2. **Worktree (uma por task — disciplina INVIOLÁVEL):**
+   - Se ainda **não** existe, crie do controle: `pnpm wt new $ARGUMENTS` (roda `worktree.mjs`, que
+     cria em `C:\Dev2026\.superapp-worktrees\$ARGUMENTS` na branch `task/$ARGUMENTS` e imprime o
+     caminho do `manage-task.mjs`). **Nunca** crie worktree à mão nem em outro diretório — já
+     quebrou antes (worktrees iam parar em `.nexus-worktrees`). Confira com `pnpm wt ls`.
+   - Trabalhe **dentro** dela. Confirme: `git branch --show-current` → `task/$ARGUMENTS`. **Não
+     troque de branch numa worktree**, **não** abra duas worktrees pra mesma task.
 3. **Inicie** (ledger no controle): `node "<CTRL>/tools/scripts/manage-task.mjs" start $ARGUMENTS <EU> "iniciando"`.
    - Se já em `in_progress` por você, siga. Se `review`/`done` → PARE.
 4. **Implemente no CÓDIGO** (sua pasta) — ESTRITAMENTE a Seção 3 da spec, respeitando a Seção 5
    ("NÃO FAZER"). TDD quando a spec pedir. Nada fora do escopo.
+   - **Commit a cada unidade que fecha** (um teste verde, um arquivo concluído, um sub-passo da
+     Seção 5) — `git add -A && git commit -m "wip($ARGUMENTS): <o que fechou>"`. Não acumule tudo
+     num commit gigante no fim: commits frequentes preservam o trabalho se a sessão estourar tokens
+     ou travar, e dão um handoff legível pro próximo agente. **Pushe** de tempos em tempos
+     (`git push -u origin task/$ARGUMENTS`) — o push barato é melhor que perder uma tarde.
 5. **Gate de Evidência (INVIOLÁVEL):** rode os comandos EXATOS da Seção 7 **na sua pasta (CÓDIGO)** e
    cole a **saída literal** na Seção 8 de `<CTRL>/tasks/$ARGUMENTS.md`. Tudo verde é obrigatório.
    Vermelho → conserte; falha de ambiente → `pause`/`block` (nunca finalize no escuro).
-<<<<<<< HEAD
-=======
    > **Ambiente do Gate (Windows-native):** `pnpm install`/build **trava** se rodado pelo terminal
    > **integrado do VS Code** (PITFALLS P-002). Rode o worker num **terminal standalone** (Windows
    > Terminal/PowerShell) para o Gate ser autônomo; se estiver no VS Code, peça o Gate ao usuário e
    > finalize com a saída colada. **pnpm 11:** se `pnpm install` der `ERR_PNPM_IGNORED_BUILDS`, o campo
    > é `allowBuilds:` → `<pkg>: true` no `pnpm-workspace.yaml` (P-006), **não** `onlyBuiltDependencies`;
    > e config nova só vale após apagar `node_modules`+`pnpm-lock.yaml` (o lock velho pula a resolução).
->>>>>>> t109/task/T-109
 6. **Finalize** (ledger): `node "<CTRL>/tools/scripts/manage-task.mjs" finish $ARGUMENTS <EU> "<resumo + placar de testes>"`.
    - Move pra `review`. Daqui em diante o reviewer assume — você **NÃO** aprova.
-7. **Commit + push do CÓDIGO** (na sua pasta = superapp):
+7. **Commit final + push do CÓDIGO** (na sua pasta = superapp) — fecha o que sobrou desde o último
+   commit incremental (passo 4) e garante que **tudo** está no remoto:
    ```
    git add -A
-   git commit -m "feat($ARGUMENTS): <resumo curto>"
+   git commit -m "feat($ARGUMENTS): <resumo curto>"   # se houver algo não-commitado
    git push -u origin task/$ARGUMENTS
    ```
 8. **Commit do CONTROLE** (no `<CTRL>` = Docs): o `manage-task` + sua edição da Seção 8 alteraram

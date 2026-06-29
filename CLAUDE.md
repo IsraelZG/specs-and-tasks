@@ -75,9 +75,9 @@ Tasks ≤ Sonnet (preferencialmente Haiku). A spec precisa ter: zero decisões a
 
 ## Skills e Agentes
 
-**Skills:** `/verificar` · `/qa-review` · `/integrar-task` · `/agrupar-cleanup` · `/endurecer-task` · `/endurecer-fila` · `/arquiteto-decisoes` · `/arquiteto-promover` · `/vincular-rag` · `/executar-task` · `/absorver-rfc` · `/rodar-onda` · `/consolidar-arquivo` · `/consolidar-glossario` · `/handoff` · `/migrar-caderno` · `/novo-verbete` · `/revisar-rfc` · `/revisar-rfcs` · `/sync-provider`
+**Skills:** `/verificar` · `/qa-review` · `/integrar-task` · `/agrupar-cleanup` · `/endurecer-task` · `/endurecer-fila` · `/arquiteto-decisoes` · `/arquiteto-promover` · `/vincular-rag` · `/executar-task` · `/rework-task` · `/absorver-rfc` · `/rodar-onda` · `/consolidar-arquivo` · `/consolidar-glossario` · `/handoff` · `/migrar-caderno` · `/novo-verbete` · `/revisar-rfc` · `/revisar-rfcs` · `/sync-provider`
 
-> **Pipeline de uma task:** `/endurecer-task` (→ `triaged`/`hardened`/`blocked-decision`) · `/arquiteto-decisoes` (resolve decisões) · `/arquiteto-promover` (`draft→ready` pelo serviço) · `/executar-task` (worker, na worktree) · `/qa-review` (Parecer, review-only) · `/integrar-task` (merge+`approve`, ou `request_changes`) · `/agrupar-cleanup` (drena o ledger de pendências). Painel transversal: `node tools/scripts/hardening.mjs`.
+> **Pipeline de uma task:** `/endurecer-task` (→ `triaged`/`hardened`/`blocked-decision`) · `/arquiteto-decisoes` (resolve decisões) · `/arquiteto-promover` (`draft→ready` pelo serviço) · `/executar-task` (worker, na worktree, commits frequentes) · `/qa-review` (Parecer, review-only) · `/integrar-task` (merge+`approve`, ou `request_changes`→`rework`) · `/rework-task` (corrige os achados do Parecer, volta a `review`) · `/agrupar-cleanup` (drena o ledger de pendências). Painel transversal: `node tools/scripts/hardening.mjs`.
 
 **Agentes** (`.claude/agents/`): `agile-reviewer` · `auditor-consistencia-rfc` · `consolidador` · `criador-verbete` · `emendador-rfc` · `incorporador` · `rfc-roteador` · `triador-review`
 
