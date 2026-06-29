@@ -44,9 +44,6 @@
 | [T-014](./T-014.md) | Migrar hook de metadados + skill para .claude da raiz | `done` | devops_agent | 1 |
 | [T-015](./T-015.md) | Quality gate do design system no CI | `done` | devops_agent | 2 |
 | [T-016](./T-016.md) | Implementar RFC de Tema Multi-Nível no Design System | `done` | frontend_agent | 3 |
-| [T-016a](./T-016a.md) | Tema Multi-Nível: Style Dictionary (outputReferences) | `draft` | frontend_agent | 3 |
-| [T-016b](./T-016b.md) | Tema Multi-Nível: themeEngine (compileScopedOverrides) | `draft` | frontend_agent | 3 |
-| [T-016c](./T-016c.md) | Tema Multi-Nível: ThemeScope (React wrapper) | `draft` | frontend_agent | 2 |
 | [T-017](./T-017.md) | Decisao e implementacao do destino da prop collapsible do Sidebar | `done` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [T-018](./T-018.md) | Expandir cobertura de testes do design-system para os componentes restantes | `done` | frontend_agent | 1 |
 | [T-018a](./T-018a.md) | Testes — Tier A batch 1 (8 interativos) | `done` | frontend_agent | 2 |
@@ -79,9 +76,6 @@
 | [T-1017](./T-1017.md) | Spike: viabilidade do piloto automático (OpenCode) | `done` | devops_agent | 5 |
 | [T-1018](./T-1018.md) | Spike: fixar integração Headroom (interface Compressor) | `done` | logic_agent | 4 |
 | [T-1019](./T-1019.md) | Ciclo completo de branch: merge squash + push + rename main | `done` | devops_agent | 3 |
-| [T-101a](./T-101a.md) | Wrapper Ed25519 (sign/verify/generateKeyPair) | `draft` | crypto_agent | 2 |
-| [T-101b](./T-101b.md) | Wrapper AES-256-GCM + SHA-256 | `draft` | crypto_agent | 2 |
-| [T-101c](./T-101c.md) | Wrapper Blake2s256 + HKDF | `draft` | crypto_agent | 2 |
 | [T-102](./T-102.md) | ULID + EntityId | `done` | logic_agent | 2 |
 | [T-1020](./T-1020.md) | Runner: scheduler (ready-set + pick) do grafo de tasks | `done` | logic_agent | 2 |
 | [T-1021](./T-1021.md) | Runner: gate de verificação determinístico (build+test no worktree) | `done` | logic_agent | 3 |
@@ -93,14 +87,8 @@
 | [T-1027](./T-1027.md) | nexus start: bootstrap idempotente (Headroom WSL único + backend + frontend) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-103](./T-103.md) | HLC (Hybrid Logical Clock) completo | `done` | logic_agent | 3 |
 | [T-104](./T-104.md) | BIP39 + Derivação de Chaves + Desbloqueio | `done` | crypto_agent | 3 |
-| [T-104a](./T-104a.md) | BIP39: Mnemônico + Validação | `draft` | crypto_agent | 2 |
-| [T-104b](./T-104b.md) | BIP39: Derivação seed → chave mestra Ed25519 + chave dispositivo | `draft` | crypto_agent | 2 |
 | [T-105](./T-105.md) | PeerId e Multiaddr | `done` | protocol_agent | 2 |
-| [T-105a](./T-105a.md) | PeerId: Derivação DevicePeerId + PersonaPeerId | `draft` | protocol_agent | 2 |
-| [T-105b](./T-105b.md) | Multiaddr: parser + formatador minimalista | `draft` | protocol_agent | 2 |
 | [T-106](./T-106.md) | Schema SQLite local (nodes/edges) | `done` | core_agent | 3 |
-| [T-106a](./T-106a.md) | Schema SQLite: DDL + migrations v1 | `draft` | core_agent | 2 |
-| [T-106b](./T-106b.md) | Schema SQLite: migrateSchema + teste de integração | `draft` | core_agent | 2 |
 | [T-107](./T-107.md) | Assinatura Universal Layer 1 | `done` | core_agent | 4 |
 | [T-108](./T-108.md) | Linhagem Layer 2 | `ready` | logic_agent | 3 |
 | [T-108-rework-3](./T-108-rework-3.md) | T-108 rework-3 — parentHash validation + entity_members table (ADR) + entity_heads maintenance (ADR) + test 4 fix | `done` | logic_agent | 3 |
@@ -111,14 +99,10 @@
 | [T-111](./T-111.md) | Bancada: aba Identidade | `draft` | frontend_agent | 2 |
 | [T-200](./T-200.md) | Spike: Noise_XX — biblioteca + binding Ed25519↔X25519 (ADR) | `done` | crypto_agent | 2 |
 | [T-201](./T-201.md) | Wire format v1 | `done` | protocol_agent | 3 |
-| [T-201a](./T-201a.md) | Wire format: encodeFrame (MessagePack + framing) | `draft` | protocol_agent | 2 |
-| [T-201b](./T-201b.md) | Wire format: decodeFrame + quarentena | `draft` | protocol_agent | 2 |
 | [T-202](./T-202.md) | Noise_XX sobre porta de transporte | `done` | crypto_agent | 4 |
 | [T-202-followup-1](./T-202-followup-1.md) | Robustez de testes Noise_XX — SimNetwork + reason específico + canais pós-epochMismatch + simetria do pinning | `done` | logic_agent | 1 |
 | [T-202-followup-2](./T-202-followup-2.md) | Contrato do receive() AsyncIterable + classificacao de excecoes AEAD | `done` | logic_agent | 2 |
 | [T-202-followup-3](./T-202-followup-3.md) | Awareness multi-peer no makeInbox — filtro por peerId do handshake | `done` | logic_agent | 2 |
-| [T-202a](./T-202a.md) | Noise_XX: handshake initiator | `draft` | crypto_agent | 3 |
-| [T-202b](./T-202b.md) | Noise_XX: handshake responder + encrypt/decrypt | `draft` | crypto_agent | 3 |
 | [T-203](./T-203.md) | Codec canonico compartilhado (MessagePack/msgpackr) para payloads de protocolo | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [T-204](./T-204.md) | Adapter WebSocket | `done` | transport_agent | 3 |
 | [T-205](./T-205.md) | SwarmRegistry em RAM | `done` | core_agent | 3 |
@@ -130,8 +114,6 @@
 | [T-211](./T-211.md) | Bancada: aba Rede | `draft` | frontend_agent | 2 |
 | [T-212](./T-212.md) | Codec MessagePack — suporte nativo a bigint | `ready` | logic_agent | 2 |
 | [T-301](./T-301.md) | B-Tree de fingerprints (RBSR) | `done` | logic_agent | 4 |
-| [T-301a](./T-301a.md) | RBSR B-Tree: insert/delete + XOR agregado | `draft` | logic_agent | 2 |
-| [T-301b](./T-301b.md) | RBSR B-Tree: compareRange + diff | `draft` | logic_agent | 2 |
 | [T-302](./T-302.md) | Protocolo de troca RBSR | `draft` | protocol_agent | 4 |
 | [T-302a](./T-302a.md) | RBSR exchange: máquina de estados reconcile | `draft` | protocol_agent | 3 |
 | [T-302b](./T-302b.md) | RBSR exchange: applyNodes (validação Layer 1 + inserção) | `draft` | protocol_agent | 2 |
@@ -144,8 +126,6 @@
 | [T-307](./T-307.md) | Coordenação de sync + failover | `draft` | transport_agent | 4 |
 | [T-308](./T-308.md) | Snapshot de bootstrap | `done` | core_agent | 3 |
 | [T-308-rework-2](./T-308-rework-2.md) | T-308 rework-2 — workaround bigint removal + persistência byte-level (ADR 0003) + nodeCount validation + createdAt mask | `done` | logic_agent | 2 |
-| [T-308a](./T-308a.md) | Snapshot: export + encode | `draft` | core_agent | 2 |
-| [T-308b](./T-308b.md) | Snapshot: decode + import (idempotente) | `draft` | core_agent | 2 |
 | [T-309](./T-309.md) | GlobalThrottle | `draft` | core_agent | 3 |
 | [T-310](./T-310.md) | Matriz de transporte IoC | `draft` | transport_agent | 2 |
 | [T-311](./T-311.md) | Bancada: aba Sync | `draft` | frontend_agent | 2 |
@@ -163,9 +143,6 @@
 | [T-408](./T-408.md) | Tracker WSS privado | `draft` | backend_agent | 3 |
 | [T-409](./T-409.md) | Bancada: topologia | `draft` | frontend_agent | 2 |
 | [T-501](./T-501.md) | Motor de UCAN Core | `done` | crypto_agent | 4 |
-| [T-501a](./T-501a.md) | UCAN: codec JWT (encode/decode) | `draft` | crypto_agent | 2 |
-| [T-501b](./T-501b.md) | UCAN: issue + verify (assinatura Ed25519) | `draft` | crypto_agent | 2 |
-| [T-501c](./T-501c.md) | UCAN: isAttenuation + delegação em cadeia | `draft` | crypto_agent | 2 |
 | [T-502](./T-502.md) | ASSET:PERMISSION/ROLE físicos | `draft` | logic_agent | 4 |
 | [T-503](./T-503.md) | Consentimento single-pass | `draft` | logic_agent | 3 |
 | [T-504](./T-504.md) | Revogação + cortesia | `draft` | logic_agent | 3 |
@@ -181,8 +158,6 @@
 | [T-512](./T-512.md) | Bancada: aba Auth | `draft` | frontend_agent | 2 |
 | [T-601](./T-601.md) | Detecção Estrutural de Fork e Merge | `done` | logic_agent | 3 |
 | [T-601-rework-1](./T-601-rework-1.md) | Rework-1 de T-601: rebase contra rework-3 + MERGES (RFC-028) + maxDepth recursivo + projectProvisionalHead async | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-601a](./T-601a.md) | Fork/Merge: detectForks (SQL) | `draft` | logic_agent | 2 |
-| [T-601b](./T-601b.md) | Fork/Merge: resolveFork + createMergeNode | `draft` | logic_agent | 2 |
 | [T-602](./T-602.md) | Ciclo de commit Automerge | `draft` | logic_agent | 4 |
 | [T-603](./T-603.md) | Committer determinístico | `draft` | logic_agent | 4 |
 | [T-604](./T-604.md) | Zen Engine Embarcado + Invariante T1 | `draft` | logic_agent | 3 |
@@ -200,8 +175,6 @@
 | [T-706](./T-706.md) | Documentação padrões descoberta | `draft` | protocol_agent | 1 |
 | [T-707](./T-707.md) | device_state.db | `draft` | core_agent | 3 |
 | [T-801](./T-801.md) | Storage Engine de BLOBs (Chunking) | `done` | core_agent | 4 |
-| [T-801a](./T-801a.md) | Storage BLOBs: Chunker (fragmentação + reassembly) | `draft` | core_agent | 2 |
-| [T-801b](./T-801b.md) | Storage BLOBs: MerkleTree (construção + prova) | `draft` | core_agent | 2 |
 | [T-802](./T-802.md) | Remontagem verificada por Merkle/InfoHash (fronteira de confiança do BlobStorage) | `ready` | core_agent | 3 |
 | [T-803](./T-803.md) | Adapter WebTorrent | `draft` | transport_agent | 4 |
 | [T-804](./T-804.md) | Cloud WebSeed + Edge translation | `draft` | backend_agent | 4 |
