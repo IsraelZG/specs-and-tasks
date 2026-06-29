@@ -121,14 +121,14 @@
 | [T-305](./T-305.md) | Sync dirigido por UCAN | `draft` | logic_agent | 3 |
 | [T-305a](./T-305a.md) | Sync UCAN: scopeRBSRTree (filtro por UCAN) | `done` | logic_agent | 3 |
 | [T-305b](./T-305b.md) | Sync UCAN: canAccess (verificação pontual) | `done` | logic_agent | 2 |
-| [T-306](./T-306.md) | Ondas 0–2 | `review` | protocol_agent | 4 |
-| [T-307](./T-307.md) | Coordenação de sync + failover | `review` | transport_agent | 4 |
+| [T-306](./T-306.md) | Ondas 0–2 | `rework` | protocol_agent | 4 |
+| [T-307](./T-307.md) | Coordenação de sync + failover | `done` | transport_agent | 4 |
 | [T-308](./T-308.md) | Snapshot de bootstrap | `done` | core_agent | 3 |
 | [T-308-rework-2](./T-308-rework-2.md) | T-308 rework-2 — workaround bigint removal + persistência byte-level (ADR 0003) + nodeCount validation + createdAt mask | `done` | logic_agent | 2 |
 | [T-309](./T-309.md) | GlobalThrottle | `draft` | core_agent | 3 |
 | [T-310](./T-310.md) | Matriz de transporte IoC | `done` | transport_agent | 2 |
 | [T-311](./T-311.md) | Bancada: aba Sync | `done` | frontend_agent | 2 |
-| [T-312](./T-312.md) | Eleição de dono do banco por Web Locks | `review` | core_agent | 4 |
+| [T-312](./T-312.md) | Eleição de dono do banco por Web Locks | `rework` | core_agent | 4 |
 | [T-313](./T-313.md) | Archive Cargo | `draft` | core_agent | 5 |
 | [T-313a](./T-313a.md) | Archive Cargo: pack/unpack/verify (zstd + AES-256-GCM + blake2s256) | `ready` | core_agent | 3 |
 | [T-313b](./T-313b.md) | Archive Cargo: assignCustodian (consistent hashing sobre blind_scope_id) | `ready` | core_agent | 2 |
@@ -149,7 +149,7 @@
 | [T-503](./T-503.md) | Consentimento single-pass | `draft` | logic_agent | 3 |
 | [T-504](./T-504.md) | Revogação + cortesia | `draft` | logic_agent | 3 |
 | [T-505](./T-505.md) | Rotação de Épocas (Forward Secrecy) | `draft` | crypto_agent | 5 |
-| [T-505a](./T-505a.md) | EpochRotation: rotate/revoke (geração de chave + UCAN gate) | `draft` | crypto_agent | 3 |
+| [T-505a](./T-505a.md) | EpochRotation: rotate/revoke (geração de chave + UCAN gate) | `ready` | crypto_agent | 3 |
 | [T-505b](./T-505b.md) | EpochRotation: getCurrent/listEpochs (query) | `draft` | crypto_agent | 2 |
 | [T-506](./T-506.md) | Predicado de bloqueio na liberação | `draft` | logic_agent | 3 |
 | [T-507](./T-507.md) | STALE_EPOCH no transporte | `draft` | transport_agent | 3 |
@@ -168,7 +168,7 @@
 | [T-607](./T-607.md) | Política de serialização em SPEC | `draft` | protocol_agent | 3 |
 | [T-608](./T-608.md) | Bancada: aba Dados | `draft` | frontend_agent | 2 |
 | [T-701](./T-701.md) | device_state.db — store Local+Persistente | `ready` | core_agent | 3 |
-| [T-701a](./T-701a.md) | LinkCipher: encryptFrame/decryptFrame (AES-256-GCM) | `draft` | crypto_agent | 3 |
+| [T-701a](./T-701a.md) | device_state.db: DDL e migrations | `ready` | core_agent | 2 |
 | [T-701b](./T-701b.md) | LinkCipher: deriveSessionKey (HKDF) | `draft` | crypto_agent | 2 |
 | [T-702](./T-702.md) | Canal do Private Swarm | `draft` | transport_agent | 4 |
 | [T-703](./T-703.md) | Estratégias de merge por classe | `draft` | logic_agent | 3 |
