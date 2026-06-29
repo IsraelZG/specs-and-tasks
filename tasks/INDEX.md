@@ -113,7 +113,7 @@
 | [T-212](./T-212.md) | Codec MessagePack — suporte nativo a bigint | `done` | logic_agent | 2 |
 | [T-301](./T-301.md) | B-Tree de fingerprints (RBSR) | `done` | logic_agent | 4 |
 | [T-302](./T-302.md) | Protocolo de troca RBSR | `draft` | protocol_agent | 4 |
-| [T-302a](./T-302a.md) | RBSR exchange: máquina de estados reconcile | `rework` | protocol_agent | 3 |
+| [T-302a](./T-302a.md) | RBSR exchange: máquina de estados reconcile | `done` | protocol_agent | 3 |
 | [T-302b](./T-302b.md) | RBSR exchange: applyNodes (validação Layer 1 + inserção) | `draft` | protocol_agent | 2 |
 | [T-303](./T-303.md) | RangeFooter + rodada de desafio | `draft` | protocol_agent | 3 |
 | [T-304](./T-304.md) | ConcurrentReconciliationGuard | `draft` | core_agent | 4 |
@@ -125,7 +125,7 @@
 | [T-308](./T-308.md) | Snapshot de bootstrap | `done` | core_agent | 3 |
 | [T-308-rework-2](./T-308-rework-2.md) | T-308 rework-2 — workaround bigint removal + persistência byte-level (ADR 0003) + nodeCount validation + createdAt mask | `done` | logic_agent | 2 |
 | [T-309](./T-309.md) | GlobalThrottle | `draft` | core_agent | 3 |
-| [T-310](./T-310.md) | Matriz de transporte IoC | `ready` | transport_agent | 2 |
+| [T-310](./T-310.md) | Matriz de transporte IoC | `review` | transport_agent | 2 |
 | [T-311](./T-311.md) | Bancada: aba Sync | `draft` | frontend_agent | 2 |
 | [T-312](./T-312.md) | Eleição de dono do banco por Web Locks | `in_progress` | core_agent | 4 |
 | [T-313](./T-313.md) | Archive Cargo | `draft` | core_agent | 5 |
