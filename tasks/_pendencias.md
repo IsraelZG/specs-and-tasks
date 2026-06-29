@@ -35,4 +35,7 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i1][T-303][protocol] `sessionNonce` aceito com qualquer tamanho — spec §1 declara "16 bytes" como contrato; adicionar validação `sessionNonce.length === 16` (rangeFooter.ts)
 - [ ] [m1][T-306][protocol] `BTree` importado mas não usado em `waves.ts` — usar `type` na import ou remover (waves.ts:1)
 - [ ] [i1][T-306][protocol] `executeWave2` itera `heads` mesmo com `getEntityHeads = null` (cai em `heads = []` e retorna `completed: true`) — comportamento aceitável mas não documentado; vale uma linha de comentário explicitando o fallback (waves.ts:160)
+- [ ] [m1][T-302b][protocol] Lint warning pré-existente em `codec.ts:29` (unused eslint-disable directive, T-203) — NÃO introduzido por T-302b mas re-rodado pelo gate. Housekeeping (codec.ts:29)
+- [ ] [m2][T-302b][protocol] `applyNodes` chama `insertNode(storage, node)` SEM `parentId` — caller que precisar de lineage chain deve chamar `insertNode` diretamente. Spec §1 já implica (camada RBSR = sig validation, lineage = T-108a) (exchange.ts:171)
+- [ ] [m3][T-302b][protocol] Wire format gap: `respondNodes` (T-302a) envia apenas `{id, fingerprint}`, não o `SignedNode` completo. `applyNodes` fica testada e pronta, mas integração end-to-end com `reconcile` de T-302a depende de decisão arquitetural — T-302c futuro (3 opções: evoluir respondNodes, nova MSG_FULL_NODES, reusar T-802 blob) (T-302b §6)
 <!-- END PENDENCIAS -->
