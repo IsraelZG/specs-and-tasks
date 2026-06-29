@@ -56,7 +56,7 @@
 | [T-019](./T-019.md) | Matriz de CI multiplataforma (linux x64 + linux arm64) | `done` | devops_agent | 2 |
 | [T-020](./T-020.md) | Spike: decidir gate de regressao visual (Lookout vs Playwright toHaveScreenshot) -> ADR | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [T-021](./T-021.md) | Arcabouco de E2E Playwright compartilhado (@plataforma/testkit) + showcase como 1o consumidor | `done` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-022](./T-022.md) | Ativar regressao visual Playwright toHaveScreenshot no design-system (gate ADR-0006) | `review` | frontend_agent | 3 |
+| [T-022](./T-022.md) | Ativar regressao visual Playwright toHaveScreenshot no design-system (gate ADR-0006) | `done` | frontend_agent | 3 |
 | [T-1001](./T-1001.md) | Configuração do Monorepo Nexus (Backend e Frontend) | `done` | devops_agent | 2 |
 | [T-1002](./T-1002.md) | Integração do Indexador Semântico (TurboVec) | `done` | backend_agent | 3 |
 | [T-1003](./T-1003.md) | Roteamento Inteligente com SmolLM2 (llmlingua-js) | `done` | backend_agent | 4 |
@@ -122,13 +122,13 @@
 | [T-305a](./T-305a.md) | Sync UCAN: scopeRBSRTree (filtro por UCAN) | `done` | logic_agent | 3 |
 | [T-305b](./T-305b.md) | Sync UCAN: canAccess (verificação pontual) | `done` | logic_agent | 2 |
 | [T-306](./T-306.md) | Ondas 0–2 | `review` | protocol_agent | 4 |
-| [T-307](./T-307.md) | Coordenação de sync + failover | `rework` | transport_agent | 4 |
+| [T-307](./T-307.md) | Coordenação de sync + failover | `in_progress` | transport_agent | 4 |
 | [T-308](./T-308.md) | Snapshot de bootstrap | `done` | core_agent | 3 |
 | [T-308-rework-2](./T-308-rework-2.md) | T-308 rework-2 — workaround bigint removal + persistência byte-level (ADR 0003) + nodeCount validation + createdAt mask | `done` | logic_agent | 2 |
 | [T-309](./T-309.md) | GlobalThrottle | `draft` | core_agent | 3 |
 | [T-310](./T-310.md) | Matriz de transporte IoC | `done` | transport_agent | 2 |
-| [T-311](./T-311.md) | Bancada: aba Sync | `review` | frontend_agent | 2 |
-| [T-312](./T-312.md) | Eleição de dono do banco por Web Locks | `review` | core_agent | 4 |
+| [T-311](./T-311.md) | Bancada: aba Sync | `done` | frontend_agent | 2 |
+| [T-312](./T-312.md) | Eleição de dono do banco por Web Locks | `in_progress` | core_agent | 4 |
 | [T-313](./T-313.md) | Archive Cargo | `draft` | core_agent | 5 |
 | [T-313a](./T-313a.md) | Archive Cargo: pack/unpack/verify (zstd + AES-256-GCM + blake2s256) | `ready` | core_agent | 3 |
 | [T-313b](./T-313b.md) | Archive Cargo: assignCustodian (consistent hashing sobre blind_scope_id) | `ready` | core_agent | 2 |
