@@ -90,10 +90,8 @@
 | [T-105](./T-105.md) | PeerId e Multiaddr | `done` | protocol_agent | 2 |
 | [T-106](./T-106.md) | Schema SQLite local (nodes/edges) | `done` | core_agent | 3 |
 | [T-107](./T-107.md) | Assinatura Universal Layer 1 | `done` | core_agent | 4 |
-| [T-108](./T-108.md) | Linhagem Layer 2 | `ready` | logic_agent | 3 |
+| [T-108](./T-108.md) | Linhagem Layer 2 | `done` | logic_agent | 3 |
 | [T-108-rework-3](./T-108-rework-3.md) | T-108 rework-3 — parentHash validation + entity_members table (ADR) + entity_heads maintenance (ADR) + test 4 fix | `done` | logic_agent | 3 |
-| [T-108a](./T-108a.md) | Linhagem Layer 2: insertNode (validação + persistência) | `draft` | logic_agent | 3 |
-| [T-108b](./T-108b.md) | Linhagem Layer 2: getLineage/getHead/validateChain/detectFork | `draft` | logic_agent | 2 |
 | [T-109](./T-109.md) | NetworkAdapterPort multi-subscriber (onMessage com unsubscribe) | `done` | logic_agent | 2 |
 | [T-110](./T-110.md) | Key Vault v0 | `done` | core_agent | 3 |
 | [T-111](./T-111.md) | Bancada: aba Identidade | `draft` | frontend_agent | 2 |
