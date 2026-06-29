@@ -1,6 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-<<<<<<< HEAD
   "model": "deepinfra/deepseek-ai/DeepSeek-V4-Flash",
   "small_model": "deepinfra/meta-llama/Llama-4-Scout-17B-16E-Instruct",
   "provider": {
@@ -14,8 +13,6 @@
   "skills": {
     "paths": [".claude/skills"]
   },
-  "instructions": ["CLAUDE.md"]
-=======
+  "instructions": ["CLAUDE.md"],
   "plugin": ["./.opencode/plugins/ponytail.mjs"]
->>>>>>> t109/task/T-109
 }

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Dependencies
 node_modules/
 package-lock.json
@@ -6,8 +5,8 @@ yarn.lock
 
 # Environment variables
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
 # IDE & Editor
 .vscode/
@@ -47,6 +46,13 @@ desktop.ini
 dist/
 build/
 out/
+*.tsbuildinfo
+
+# Test artifacts
+coverage/
+test-results/
+playwright-report/
+playwright/.cache/
 
 # Nexus ledger (integridade local, não versionado)
 .nexus/
@@ -56,19 +62,3 @@ out/
 
 *.txt
 generate_project_summary.js
-=======
-node_modules/
-dist/
-.turbo/
-*.tsbuildinfo
-coverage/
-test-results/
-playwright-report/
-playwright/.cache/
-.nexus/
-.env
-.env.*
-!.env.example
-*.log
-.DS_Store
->>>>>>> t109/task/T-109
