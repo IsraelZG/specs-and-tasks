@@ -28,6 +28,7 @@
 | [T-002](./T-002.md) | Pipeline de CI (GitHub Actions) | `done` | devops | 2 |
 | [T-003](./T-003.md) | Pacote testkit: Relógio e Random | `done` | logic_agent | 2 |
 | [T-004](./T-004.md) | Portas fundamentais | `done` | logic_agent | 2 |
+| [T-004a](./T-004a.md) | Adapter SQLite concreto do StoragePort (WAL, exec/transaction/migrate, wal_checkpoint) | `draft` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-005](./T-005.md) | SimNetwork v1 | `done` | logic_agent | 3 |
 | [T-006](./T-006.md) | SimNetwork v2 — Degradação e NAT | `draft` | logic_agent | 3 |
 | [T-006a](./T-006a.md) | SimNetwork v2: degradação (drop/latência/jitter/bandwidth) | `draft` | logic_agent | 3 |
@@ -116,10 +117,10 @@
 | [T-302a](./T-302a.md) | RBSR exchange: máquina de estados reconcile | `done` | protocol_agent | 3 |
 | [T-302b](./T-302b.md) | RBSR exchange: applyNodes (validação Layer 1 + inserção) | `review` | protocol_agent | 2 |
 | [T-303](./T-303.md) | RangeFooter + rodada de desafio | `review` | protocol_agent | 3 |
-| [T-304](./T-304.md) | ConcurrentReconciliationGuard | `draft` | core_agent | 4 |
+| [T-304](./T-304.md) | ConcurrentReconciliationGuard | `ready` | core_agent | 4 |
 | [T-305](./T-305.md) | Sync dirigido por UCAN | `draft` | logic_agent | 3 |
 | [T-305a](./T-305a.md) | Sync UCAN: scopeRBSRTree (filtro por UCAN) | `done` | logic_agent | 3 |
-| [T-305b](./T-305b.md) | Sync UCAN: canAccess (verificação pontual) | `ready` | logic_agent | 2 |
+| [T-305b](./T-305b.md) | Sync UCAN: canAccess (verificação pontual) | `in_progress` | logic_agent | 2 |
 | [T-306](./T-306.md) | Ondas 0–2 | `review` | protocol_agent | 4 |
 | [T-307](./T-307.md) | Coordenação de sync + failover | `ready` | transport_agent | 4 |
 | [T-308](./T-308.md) | Snapshot de bootstrap | `done` | core_agent | 3 |
