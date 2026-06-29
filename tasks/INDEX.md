@@ -125,7 +125,7 @@
 | [T-308](./T-308.md) | Snapshot de bootstrap | `done` | core_agent | 3 |
 | [T-308-rework-2](./T-308-rework-2.md) | T-308 rework-2 — workaround bigint removal + persistência byte-level (ADR 0003) + nodeCount validation + createdAt mask | `done` | logic_agent | 2 |
 | [T-309](./T-309.md) | GlobalThrottle | `draft` | core_agent | 3 |
-| [T-310](./T-310.md) | Matriz de transporte IoC | `review` | transport_agent | 2 |
+| [T-310](./T-310.md) | Matriz de transporte IoC | `done` | transport_agent | 2 |
 | [T-311](./T-311.md) | Bancada: aba Sync | `draft` | frontend_agent | 2 |
 | [T-312](./T-312.md) | Eleição de dono do banco por Web Locks | `in_progress` | core_agent | 4 |
 | [T-313](./T-313.md) | Archive Cargo | `draft` | core_agent | 5 |
