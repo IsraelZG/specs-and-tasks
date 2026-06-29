@@ -54,8 +54,11 @@ ENDURECIMENTO EM LOTE — fila "$ARGUMENTS"
 Prontas p/ ready (zero abertas): T-..., T-...
 Precisam de VOCÊ (arquiteto) p/ destravar: T-... (decisão: ...), ...
 ```
-O arquiteto resolve as abertas, faz os flips `draft→ready`, e re-roda a skill (iterativo: a
-coluna "#aberto" deve encolher a cada passada).
+**Ao final do lote, rode o painel** e cole a saída: `node tools/scripts/hardening.mjs $ARGUMENTS`.
+
+O arquiteto então resolve as decisões abertas com `/arquiteto-decisoes` e promove os hardened com
+`/arquiteto-promover` (o flip `draft→ready` agora é automatizado pelo serviço, não manual). Re-rode
+esta skill iterativamente — "#aberto" e o nº de `triaged` devem encolher a cada passada/onda.
 
 ## NÃO faça
 - NÃO invente contrato sem fonte (vira ABERTO).

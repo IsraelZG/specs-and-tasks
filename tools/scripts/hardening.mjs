@@ -76,6 +76,10 @@ const reharden = tasks.filter(pick).filter((t) =>
   t.deps.some((d) => byId.get(d)?.status === 'done'),
 );
 
+// (4) promovíveis — spec já hardened mas lifecycle ainda draft (o flip draft→ready que o
+// /arquiteto-promover faz pelo serviço). É a lista de "drafts que já podiam ser ready".
+const promotable = tasks.filter(pick).filter((t) => t.spec_status === 'hardened' && t.status === 'draft');
+
 console.log(`hardening — backlog${prefix ? ` (prefixo ${prefix})` : ''}\n`);
 
 console.log('▸ Estado de endurecimento (spec_status):');
@@ -90,6 +94,10 @@ for (const t of blocked) {
   if (t.decisions.length) t.decisions.forEach((d) => console.log(`      • ${d}`));
   else console.log('      • (decisões na Seção 6 — campo decisions: vazio)');
 }
+
+console.log('\n▸ PROMOVÍVEIS (spec hardened, lifecycle ainda draft → `/arquiteto-promover`):');
+if (!promotable.length) console.log('   ✅ nenhuma — nenhum draft hardened esperando o flip.');
+for (const t of promotable) console.log(`   ${t.id}${t.capacity ? ` [${t.capacity}]` : ''}`);
 
 console.log('\n▸ Candidatas a REENDURECER (deps já done, spec hardened cedo):');
 if (!reharden.length) console.log('   ✅ nenhuma — nenhum endurecimento ficou stale.');

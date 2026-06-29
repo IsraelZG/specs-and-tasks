@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 const [, , action, taskId, agentName, ...messageParts] = process.argv;
 
 if (!action || !taskId || !agentName) {
-  console.error('Uso: node manage-task.mjs <start|pause|finish|approve|request_changes|block|unblock|reconcile> <TaskID> <NomeDoAgente> [Mensagem...]');
+  console.error('Uso: node manage-task.mjs <start|promote|pause|finish|approve|request_changes|block|unblock|reconcile> <TaskID> <NomeDoAgente> [Mensagem...]');
   process.exit(1);
 }
 

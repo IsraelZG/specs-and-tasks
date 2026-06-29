@@ -53,8 +53,15 @@ que já está na Seção 8 da task. É o passo que faltava e que causou o gap de
 8. **Fecha o status pelo serviço:** `node tools/scripts/manage-task.mjs approve $ARGUMENTS
    <SeuNome> "Integrado: merge na master (commit <hash>), worktree removida, Gate verde
    (<evidência>). N não-bloqueantes → ledger de pendências."`
-9. **Commit do controle (master do Docs):** `git add tasks/$ARGUMENTS.md tasks/INDEX.md
-   tasks/_pendencias.md && git commit && git push`.
+9. **Reendurece os dependentes (JIT).** Agora que `$ARGUMENTS` é `done`, a fundação que os
+   dependentes dela só podiam citar vagamente **existe de verdade**. Rode
+   `node tools/scripts/hardening.mjs` e olhe **REENDURECER**. Para cada dependente de `$ARGUMENTS`
+   (task com `$ARGUMENTS` em `dependencies:`, ou em `blocks:` desta) **cujas deps agora estão TODAS
+   `done`**, rode `/endurecer-task <dep>` — troca placeholder pela assinatura real e re-carimba
+   `hardened_at`. Dependente com **outra** dep ainda aberta: **pule** (reendurecer seria prematuro;
+   o painel o pega quando fechar). Em seguida `/arquiteto-promover` promove os que ficaram `hardened`.
+10. **Commit do controle (master do Docs):** `git add tasks/ && git commit && git push` (inclui
+   `$ARGUMENTS.md`, `INDEX.md`, `_pendencias.md` e os dependentes reendurecidos).
 
 ## Caminho B — Parecer = REQUER REFATORAÇÃO
 

@@ -14,6 +14,7 @@ export type TaskStatus =
 
 export type TaskAction =
   | 'start'
+  | 'promote'
   | 'pause'
   | 'finish'
   | 'approve'
@@ -32,6 +33,7 @@ export interface TransitionRule {
 /** Máquina de estados MGTIA: draft → ready → in_progress → review → rework → done (+ blocked). */
 export const TRANSITIONS: Record<TaskAction, TransitionRule> = {
   start: { from: ['draft', 'ready', 'rework'], to: 'in_progress', logLabel: '[Iniciado]' },
+  promote: { from: ['draft'], to: 'ready', logLabel: '[Promovida p/ ready]' },
   pause: { from: ['in_progress'], to: 'in_progress', logLabel: '[Pausado/Handoff]' },
   finish: { from: ['in_progress'], to: 'review', logLabel: '[Finalizado]' },
   approve: { from: ['review'], to: 'done', logLabel: '[Aprovado]' },

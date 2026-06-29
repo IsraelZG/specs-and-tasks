@@ -47,7 +47,7 @@ export const TASK_TOOL_DEFS = [
   {
     name: 'nexus_transition_task',
     description:
-      'Applies an MGTIA state transition (start|pause|finish|approve|request_changes|block|unblock), appends the execution log and rebuilds the INDEX.',
+      'Applies an MGTIA state transition (start|promote|pause|finish|approve|request_changes|block|unblock), appends the execution log and rebuilds the INDEX.',
     inputSchema: {
       type: 'object',
       properties: {

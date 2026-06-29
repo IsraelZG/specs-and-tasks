@@ -84,6 +84,10 @@ Status final: ready | draft (N decisões em aberto)
 Capacidade-alvo: haiku | sonnet | opus-spike
 ```
 
+**Sempre rode o painel ao final** e cole a saída: `node tools/scripts/hardening.mjs`. Ele mostra o
+estado do backlog, a fila de decisões, os promovíveis e as candidatas a reendurecer — é a forma de
+o arquiteto ver o efeito do seu endurecimento sem reler specs.
+
 ## ⛔ NÃO faça
 - NÃO escreva código de implementação nem testes reais — só a **spec** da task.
 - NÃO toque em nenhum arquivo além de `tasks/$ARGUMENTS.md`.
