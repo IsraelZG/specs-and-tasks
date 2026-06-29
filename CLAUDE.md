@@ -38,6 +38,8 @@ Ações: start, pause, finish, approve, request_changes, block, unblock.
 Ciclo: draft → ready → in_progress → review → rework → done (+ blocked).
 Cada task iniciada ganha uma branch task/<ID> (isolamento) **no repo superapp (código).** No repo Docs (controle), tarefas são editadas diretamente na `master` — o histórico de gestão (status, pareceres, logs) precisa ser visível a todos sem depender de merge.
 
+> **Paralelismo no controle (INVIOLÁVEL).** O Docs é um working tree único na `master` com vários agentes ao mesmo tempo. Para não varrer o trabalho não-commitado de outro agente: **commit ESTREITO** — adicione **só o(s) arquivo(s) da SUA task, por path explícito** (`git add tasks/T-XXX.md`); **NUNCA** `git add -A`/`tasks/`/`tasks/*.md` no repo de controle. O `tasks/INDEX.md` (e `meta-tasks/INDEX.md`) é **artefato derivado gitignored** — o `TaskService` o regenera local a cada transição; **não** o commite nem o adicione. Colisão de `index.lock` em commit concorrente → `git pull --rebase` e repita.
+
 ### As 6 Regras
 
 **1. SDD — Spec é a fonte absoluta.** Leia o bloco "Contexto RAG" da task antes de codar. Se a spec estiver ambígua ou impossível → `pause` com o bloqueio descrito.

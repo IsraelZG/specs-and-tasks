@@ -60,8 +60,12 @@ que já está na Seção 8 da task. É o passo que faltava e que causou o gap de
    `done`**, rode `/endurecer-task <dep>` — troca placeholder pela assinatura real e re-carimba
    `hardened_at`. Dependente com **outra** dep ainda aberta: **pule** (reendurecer seria prematuro;
    o painel o pega quando fechar). Em seguida `/arquiteto-promover` promove os que ficaram `hardened`.
-10. **Commit do controle (master do Docs):** `git add tasks/ && git commit && git push` (inclui
-   `$ARGUMENTS.md`, `INDEX.md`, `_pendencias.md` e os dependentes reendurecidos).
+10. **Commit do controle (master do Docs) — COMMIT ESTREITO.** Adicione **só os arquivos que VOCÊ
+   tocou, por path explícito** — `tasks/$ARGUMENTS.md`, `tasks/_pendencias.md` e **cada dependente
+   que reendureceu** (liste por nome). **NUNCA** `git add tasks/`/`tasks/*.md`/`-A` (varre o trabalho
+   não-commitado de outros agentes paralelos). **NÃO** adicione `INDEX.md` — é artefato gitignored.
+   Ex.: `git add tasks/$ARGUMENTS.md tasks/_pendencias.md tasks/T-305.md && git commit && git push`.
+   Se o push colidir no `index.lock` (commit concorrente), `git pull --rebase` e repita.
 
 ## Caminho B — Parecer = REQUER REFATORAÇÃO
 

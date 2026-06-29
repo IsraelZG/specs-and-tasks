@@ -57,6 +57,12 @@ playwright/.cache/
 # Nexus ledger (integridade local, não versionado)
 .nexus/
 
+# Dashboards derivados do frontmatter das tasks — regenerados pelo TaskService a cada
+# transição (rebuild-index.mjs). NÃO versionar: era o único arquivo compartilhado que
+# todo agente reescrevia, causando contenção em trabalho paralelo. Fonte viva = Nexus frontend.
+tasks/INDEX.md
+meta-tasks/INDEX.md
+
 # Serena MCP (cache local de ferramenta)
 .serena/
 
