@@ -1,15 +1,25 @@
 ---
 name: qa-review
 description: >
-  Roda o ciclo completo de QA em tarefas em status `review`. Sem args revisa
-  todas as tarefas em review; com ID revisa uma específica. Ex.: /qa-review T-1011
+  Audita tarefas em `review` e emite o Parecer (Seção 8) — REVIEW-ONLY, não transiciona nem faz
+  merge. Sem args revisa todas em review; com ID revisa uma. Com a flag `--integrar`, encadeia o
+  `integrar-task` ao final (merge+approve se aprovado, request_changes se não). Ex.: /qa-review
+  T-1011  ·  /qa-review --integrar T-204
 model: sonnet
 ---
 # QA Review $ARGUMENTS
 
+> **Review-only por padrão.** Esta skill produz o **Parecer** (via `agile-reviewer`, na Seção 8) e
+> **para** — a task fica em `review`. A decisão (merge na master + `approve`, ou `request_changes`)
+> é da operação **`/integrar-task`**, que roda depois. Isso existe de propósito: `approve` sem o
+> merge foi o que criou o gap de integração. Para fazer os dois de uma vez, use **`--integrar`**.
+
 ## 1. Identificar tarefas a revisar
 
-Se `$ARGUMENTS` for um ID de task (ex.: `T-1011`):
+Primeiro **separe a flag**: se `$ARGUMENTS` contém `--integrar`, retire-a e guarde "modo integrar
+ligado"; o que sobra (um ID ou vazio) é o alvo. Ex.: `--integrar T-204` → alvo `T-204`, integrar=on.
+
+Se o alvo for um ID de task (ex.: `T-1011`):
 - Localize `tasks/$ARGUMENTS.md` ou `meta-tasks/$ARGUMENTS.md`.
 - Confirme status `review`. Se não estiver em `review`, informe e PARE.
 
@@ -45,9 +55,17 @@ Total: N tasks · A aprovadas · R precisam refatoração
 
 Ao final, liste apenas as tasks que precisam de ação do worker com seus BLOCKERs resumidos.
 
-## 4. Não faça
+## 4. Encadear a integração (só com `--integrar`)
+
+Se `$ARGUMENTS` contém a flag **`--integrar`**, depois de o Parecer estar gravado na Seção 8, rode
+**`/integrar-task <ID>`** para cada task revisada. O `integrar-task` lê o próprio Parecer e decide:
+APROVADO → merge na master + Gate + `approve`; REFATORAÇÃO → `request_changes`. **Sem** a flag, NÃO
+integre — apenas apresente o Parecer e pare (a task fica em `review` para o integrador rodar depois).
+
+## 5. Não faça
 
 - Não modifique código-fonte.
 - Não inicie nenhuma correção.
-- Não marque tarefas como `done` manualmente.
+- Não transicione status você mesmo (nem `approve`/`request_changes`, nem `done` à mão) — isso é do
+  `integrar-task`. Sem `--integrar`, a task **fica em `review`**.
 - Não dispare o worker. O ciclo de fix volta ao worker humano ou ao agente executor.

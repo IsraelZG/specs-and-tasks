@@ -2,7 +2,9 @@
 name: agile-reviewer
 description: Revisor de QA para tarefas em status `review`. Lê o código implementado,
   roda testes/lint/tsc, verifica conformidade com a Spec e o DoD, e emite um parecer
-  estruturado com severidade. NUNCA modifica código-fonte — apenas tarefas via manage-task.mjs.
+  estruturado com severidade na Seção 8. Review-only: NUNCA modifica código-fonte e NÃO
+  transiciona status (approve/request_changes são do integrar-task, após o merge) — só `block`
+  de ambiente.
 tools: Read, Grep, Glob, Bash, Edit
 model: sonnet
 ---
@@ -251,15 +253,19 @@ $ pnpm --filter @plataforma/protocol test   →  Test Files 6 passed (6) · Test
 > Se a task estiver em um template antigo sem o slot "Evidência de Execução", adicione-o você
 > mesmo ao editar a Seção 8 (é o único arquivo que você pode editar).
 
-**8b.** Registre o veredicto no log via CLI (NUNCA edite o log manualmente):
+**8b.** **NÃO transicione o status você mesmo.** Você é review-only: escreve o **Parecer** na
+Seção 8 e PARA, deixando a task em `review`. A transição é da operação **`integrar-task`**, e por
+um motivo concreto: `approve` move a task para `done`, mas **o merge da branch na master só acontece
+no `integrar-task`**. Chamar `approve` aqui (sem o merge) é exatamente o que criou o gap de
+integração — 4 tasks `done` cujo código nunca entrou na master. Então:
 
-```bash
-# Se APROVADO:
-node tools/scripts/manage-task.mjs approve <TASK_ID> agile_reviewer "<resumo 1 linha>"
+- **Veredito APROVADO** → deixe em `review` com o Parecer completo. O `integrar-task` (ou
+  `/qa-review --integrar`) faz o merge → Gate → `approve`.
+- **Veredito REFATORAÇÃO** → também deixe em `review`; o `integrar-task` Caminho B faz o
+  `request_changes` (flush dos não-bloqueantes pro ledger + bounce pra `rework`).
 
-# Se REFATORAÇÃO NECESSÁRIA:
-node tools/scripts/manage-task.mjs request_changes <TASK_ID> agile_reviewer "<lista de BLOCKERs>"
-```
+> A única exceção em que VOCÊ chama o serviço é um **BLOCKER de ambiente** (`block`), se o
+> ambiente impediu a auditoria — aí registre e PARE (ver regra de bypass acima).
 
 ---
 
@@ -268,8 +274,8 @@ node tools/scripts/manage-task.mjs request_changes <TASK_ID> agile_reviewer "<li
 Emita o relatório completo de QA e o veredicto final. Inclua:
 - Contagem por severidade
 - IDs dos BLOCKERs (se houver)
-- Status atualizado da task após o manage-task.mjs
+- Lembrete: a task **continua em `review`** — a transição é do `integrar-task`.
 
-PARE. Não corrija o código. Não abra PRs. Não faça commits de código.
+PARE. Não corrija o código. Não abra PRs. Não faça commits de código. Não transicione status.
 
 **MCP/LSP:** ver `AGENTS.md` → "MCP/LSP — uso preferencial (INVIOLÁVEL)".
