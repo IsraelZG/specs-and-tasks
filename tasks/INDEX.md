@@ -56,7 +56,7 @@
 | [T-019](./T-019.md) | Matriz de CI multiplataforma (linux x64 + linux arm64) | `done` | devops_agent | 2 |
 | [T-020](./T-020.md) | Spike: decidir gate de regressao visual (Lookout vs Playwright toHaveScreenshot) -> ADR | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [T-021](./T-021.md) | Arcabouco de E2E Playwright compartilhado (@plataforma/testkit) + showcase como 1o consumidor | `done` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-022](./T-022.md) | Ativar regressao visual Playwright toHaveScreenshot no design-system (gate ADR-0006) | `ready` | frontend_agent | 3 |
+| [T-022](./T-022.md) | Ativar regressao visual Playwright toHaveScreenshot no design-system (gate ADR-0006) | `review` | frontend_agent | 3 |
 | [T-1001](./T-1001.md) | Configuração do Monorepo Nexus (Backend e Frontend) | `done` | devops_agent | 2 |
 | [T-1002](./T-1002.md) | Integração do Indexador Semântico (TurboVec) | `done` | backend_agent | 3 |
 | [T-1003](./T-1003.md) | Roteamento Inteligente com SmolLM2 (llmlingua-js) | `done` | backend_agent | 4 |
@@ -116,13 +116,13 @@
 | [T-302](./T-302.md) | Protocolo de troca RBSR | `draft` | protocol_agent | 4 |
 | [T-302a](./T-302a.md) | RBSR exchange: máquina de estados reconcile | `done` | protocol_agent | 3 |
 | [T-302b](./T-302b.md) | RBSR exchange: applyNodes (validação Layer 1 + inserção) | `done` | protocol_agent | 2 |
-| [T-303](./T-303.md) | RangeFooter + rodada de desafio | `review` | protocol_agent | 3 |
+| [T-303](./T-303.md) | RangeFooter + rodada de desafio | `done` | protocol_agent | 3 |
 | [T-304](./T-304.md) | ConcurrentReconciliationGuard | `ready` | core_agent | 4 |
 | [T-305](./T-305.md) | Sync dirigido por UCAN | `draft` | logic_agent | 3 |
 | [T-305a](./T-305a.md) | Sync UCAN: scopeRBSRTree (filtro por UCAN) | `done` | logic_agent | 3 |
 | [T-305b](./T-305b.md) | Sync UCAN: canAccess (verificação pontual) | `done` | logic_agent | 2 |
 | [T-306](./T-306.md) | Ondas 0–2 | `review` | protocol_agent | 4 |
-| [T-307](./T-307.md) | Coordenação de sync + failover | `in_progress` | transport_agent | 4 |
+| [T-307](./T-307.md) | Coordenação de sync + failover | `rework` | transport_agent | 4 |
 | [T-308](./T-308.md) | Snapshot de bootstrap | `done` | core_agent | 3 |
 | [T-308-rework-2](./T-308-rework-2.md) | T-308 rework-2 — workaround bigint removal + persistência byte-level (ADR 0003) + nodeCount validation + createdAt mask | `done` | logic_agent | 2 |
 | [T-309](./T-309.md) | GlobalThrottle | `draft` | core_agent | 3 |
