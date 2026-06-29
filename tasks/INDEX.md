@@ -64,7 +64,7 @@
 | [T-1006](./T-1006.md) | Prompt Builder e Exportador Inteligente (UI) | `done` | frontend_agent | 3 |
 | [T-1007](./T-1007.md) | Integração do EpochDB para Agentic Memory (Lossless) | `done` | backend_agent | 4 |
 | [T-1008](./T-1008.md) | Automação via MCP Safe Runner (Pre-approved Scripts) | `done` | devops_agent | 3 |
-| [T-1009](./T-1009.md) | Convenção PowerShell regex em JSON + helper reusável para hooks Claude Code | `ready` | devops_agent | 1 |
+| [T-1009](./T-1009.md) | Convenção PowerShell regex em JSON + helper reusável para hooks Claude Code | `in_progress` | devops_agent | 1 |
 | [T-101](./T-101.md) | Wrappers cripto | `done` | crypto_agent | 3 |
 | [T-1010](./T-1010.md) | Serviço de Tasks (máquina de estados MGTIA) no Nexus | `done` | logic_agent | 4 |
 | [T-1011](./T-1011.md) | Ferramentas MCP + endpoints REST de Tasks | `done` | logic_agent | 4 |
@@ -106,7 +106,7 @@
 | [T-205](./T-205.md) | SwarmRegistry em RAM | `done` | core_agent | 3 |
 | [T-206](./T-206.md) | Heartbeat implícito/explícito + evicção | `draft` | core_agent | 3 |
 | [T-207](./T-207.md) | RelayTrustModel v0 | `draft` | transport_agent | 3 |
-| [T-208](./T-208.md) | First Peer Protocol (FPP) | `review` | logic_agent | 4 |
+| [T-208](./T-208.md) | First Peer Protocol (FPP) | `rework` | logic_agent | 4 |
 | [T-209](./T-209.md) | Gênese gerida | `draft` | backend_agent | 3 |
 | [T-210](./T-210.md) | Convite ASSET:INVITE | `draft` | logic_agent | 4 |
 | [T-211](./T-211.md) | Bancada: aba Rede | `draft` | frontend_agent | 2 |
