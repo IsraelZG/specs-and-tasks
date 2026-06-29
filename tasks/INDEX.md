@@ -120,7 +120,7 @@
 | [T-304](./T-304.md) | ConcurrentReconciliationGuard | `ready` | core_agent | 4 |
 | [T-305](./T-305.md) | Sync dirigido por UCAN | `draft` | logic_agent | 3 |
 | [T-305a](./T-305a.md) | Sync UCAN: scopeRBSRTree (filtro por UCAN) | `done` | logic_agent | 3 |
-| [T-305b](./T-305b.md) | Sync UCAN: canAccess (verificação pontual) | `review` | logic_agent | 2 |
+| [T-305b](./T-305b.md) | Sync UCAN: canAccess (verificação pontual) | `done` | logic_agent | 2 |
 | [T-306](./T-306.md) | Ondas 0–2 | `review` | protocol_agent | 4 |
 | [T-307](./T-307.md) | Coordenação de sync + failover | `in_progress` | transport_agent | 4 |
 | [T-308](./T-308.md) | Snapshot de bootstrap | `done` | core_agent | 3 |
