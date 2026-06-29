@@ -39,6 +39,23 @@ Um relatório **sem a Evidência de Execução** (saída real de build/tsc + tes
 `N passed`) é inválido — devolva ao `agile-reviewer` para rodar e colar a saída antes de
 consolidar. Nunca apresente um veredito baseado só em inspeção.
 
+### 2b. Segunda revisão independente (quando já há um parecer Aprovado)
+
+Um parecer **Aprovado** já na Seção 8 **NÃO** dispensa nem encerra a revisão — ele é o gate
+**ideal** para um segundo par de olhos. A própria regra do CLAUDE.md ("revisor de modelo diferente
+do que codou") e o `integrar-task` (que decide pelo **agregado** de pareceres) pressupõem que
+tasks importantes recebam **mais de uma** revisão independente. Então:
+
+- **Não pule** uma task só porque a Seção 8 já tem `[x] Aprovado`. Se o usuário pediu a revisão
+  dela (ID explícito), **revise**.
+- **Rode com um modelo DIFERENTE** do que assinou o parecer existente (e do que codou) — o ganho de
+  uma 2ª revisão é descorrelacionar pontos cegos; repetir o mesmo modelo não agrega.
+- **Revise FRIO (anti-ancoragem):** forme seu próprio veredito a partir da spec + código + Gate +
+  sondas **antes** de ler o parecer anterior. Só depois compare. Não herde o "Aprovado" alheio.
+- **APPEND, nunca sobrescreva:** o `agile-reviewer` anexa um **novo bloco** de parecer (Reviewer 2,
+  3…) — o parecer anterior fica preservado. Se a 2ª revisão achar um bloqueante, o **agregado**
+  vira REFATORAÇÃO (o `integrar-task` só aprova se o ÚLTIMO veredito é Aprovado e zero `Bn` aberto).
+
 ## 3. Consolidar e apresentar
 
 Se apenas uma task: exiba o relatório completo diretamente.

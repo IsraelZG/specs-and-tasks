@@ -83,6 +83,13 @@ Leia o arquivo inteiro. Extraia:
 
 Se a task não estiver em status `review`, PARE e informe. Não revise tarefas em outros estados.
 
+> **Já existe um parecer Aprovado na Seção 8? Revise mesmo assim — de forma INDEPENDENTE.** A task
+> em `review` é o único gate; um `[x] Aprovado` anterior **não** te dispensa nem encerra a revisão
+> (é justamente o caso em que um 2º par de olhos vale mais — regra do "revisor de modelo diferente").
+> **NÃO leia o parecer anterior antes de formar o seu** (anti-ancoragem): rode spec + código + Gate +
+> sondas e chegue ao SEU veredito primeiro; só então compare. Você vai **anexar** um novo bloco de
+> parecer (passo 8a), nunca sobrescrever o existente.
+
 ---
 
 ## 2. Verificar escopo dos arquivos
@@ -234,12 +241,19 @@ Se houver qualquer BLOCKER ou MAJOR: `REFATORAÇÃO NECESSÁRIA`.
 
 ## 8. Registrar o parecer na task
 
-**8a.** Preencha a Seção 8 do arquivo de task com `Edit` (somente o arquivo de task).
-A "Evidência de Execução" é **obrigatória** e precede o veredito:
+**8a.** Registre seu parecer na Seção 8 com `Edit` (somente o arquivo de task).
+A "Evidência de Execução" é **obrigatória** e precede o veredito.
+
+> **APPEND, nunca sobrescreva.** Se a Seção 8 **já tem** um parecer de outro reviewer, **NÃO o
+> edite** — **adicione um novo bloco abaixo**, numerado (`Reviewer 2`, `Reviewer 3`…), assinado com
+> o seu modelo. Pareceres anteriores são preservados; o `integrar-task` decide pelo **agregado**
+> (só aprova se o ÚLTIMO veredito é Aprovado e zero `Bn` em aberto). Use o cabeçalho com o número e
+> o modelo, ex.: `### Parecer do Reviewer 2 (<seu-modelo>, independente):`. Se for o **primeiro**
+> parecer, use o cabeçalho padrão abaixo.
 
 ```markdown
-### Parecer do Agente Revisor (Reviewer):
-- [x] **Aprovado**         ← marque conforme o veredicto
+### Parecer do Agente Revisor (Reviewer):     ← ou "### Parecer do Reviewer N (<modelo>, independente):" se já houver um
+- [x] **Aprovado**         ← marque conforme o SEU veredicto (formado antes de ler os anteriores)
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória):**
 ```
@@ -248,6 +262,7 @@ $ pnpm --filter @plataforma/protocol build  →  (tsc, sem erros)
 $ pnpm --filter @plataforma/protocol test   →  Test Files 6 passed (6) · Tests 45 passed (45)
 ```
 - **Comentários de Revisão:** <resumo dos achados — cite IDs dos BLOCKERs com Evidência + Ação Corretiva>
+- **Divergência do parecer anterior (se houver):** <em que você discorda do Reviewer 1 e por quê>
 ```
 
 > Se a task estiver em um template antigo sem o slot "Evidência de Execução", adicione-o você
