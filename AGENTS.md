@@ -43,7 +43,11 @@ aferição fica visível a cada sessão.
    ≥5 passos de raciocínio, múltiplas causas possíveis, ou trade-offs não óbvios. Para tarefas
    triviais (1-2 passos) é overhead desnecessário — análise direta basta.
 
-**6. Telemetria e auditoria.** O hook `mcp-telemetry.mjs` registra `mcp__*` vs `bash` por sessão.
+**6. `headroom_retrieve` (CCR).** Quando o proxy headroom comprimir uma saída grande e deixar um
+   marcador, use o tool `headroom_retrieve` (MCP headroom — `headroom mcp serve`, configurado no
+   `crush.json`) para expandir o conteúdo integral, em vez de re-rodar o comando.
+
+**7. Telemetria e auditoria.** O hook `mcp-telemetry.mjs` registra `mcp__*` vs `bash` por sessão.
    Adoção é medida; esta seção é o contrato. Exceções legítimas a `2` e `3` devem ser declaradas
    no retorno ("usei `bash` para X porque Y").
 
