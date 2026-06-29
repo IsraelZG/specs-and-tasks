@@ -1,0 +1,28 @@
+#!/bin/sh
+# Bloqueia commit com marcadores de conflito de merge crus no conteúdo staged.
+# Nasceu do incidente t109/task/T-109: um merge foi commitado com conflitos não
+# resolvidos, deixando turbo.json / settings.json como JSON inválido na master.
+#
+# Instalar (uma vez por clone): git config core.hooksPath .githooks
+#
+# Casa só `<<<<<<<` e `>>>>>>>` (7 chars no início da linha) — nunca aparecem em
+# markdown/código normal. O `=======` sozinho é setext/divisor de markdown legítimo,
+# então NÃO é checado (um conflito real sempre tem os outros dois de qualquer forma).
+
+hit=0
+for f in $(git diff --cached --name-only --diff-filter=ACM); do
+  if git show ":$f" 2>/dev/null | grep -nIE '^(<<<<<<<|>>>>>>>)' >/dev/null 2>&1; then
+    if [ "$hit" -eq 0 ]; then
+      echo "✖ commit bloqueado — marcadores de conflito de merge não resolvidos:" >&2
+      hit=1
+    fi
+    echo "   $f" >&2
+  fi
+done
+
+if [ "$hit" -ne 0 ]; then
+  echo "Resolva os conflitos (ou edite o arquivo) antes de commitar." >&2
+  echo "Para inspecionar:  git grep -nE '^(<<<<<<< |>>>>>>> )'" >&2
+  exit 1
+fi
+exit 0
