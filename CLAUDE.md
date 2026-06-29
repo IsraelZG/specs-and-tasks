@@ -69,6 +69,8 @@ registrar o que encontrou; não tenta o próximo verbo só porque o serviço ace
 
 Tasks ≤ Sonnet (preferencialmente Haiku). A spec precisa ter: zero decisões abertas, assinaturas e tipos explícitos, APIs fixadas, verificação por comando. O que exige Opus → **spike** (entregável = ADR/PoC com critério claro) ou **épico** subdividido. Inclua `Capacidade-alvo: haiku | sonnet | opus-spike` no corpo da task.
 
+**Eixo de qualidade da spec (`spec_status`, ≠ lifecycle `status`).** O frontmatter carrega um eixo separado, editável pelo `/endurecer-task` (metadado de autoria, não transição de serviço): `draft → triaged → hardened` (+ `blocked-decision` / `decomposed`). "Preferir Haiku" é viés, não proibição — Sonnet é o workhorse de tasks complexas mas totalmente especificadas; Haiku é a cauda mecânica. **Endureça em dois passes:** triagem cedo (pega spikes/decisões), endurecimento profundo just-in-time (quando as deps já são `done`, troca placeholder por assinatura real e re-carimba `hardened_at` — *reendurecimento*). Painel: `node tools/scripts/hardening.mjs [prefixo]` (estado do backlog · fila de decisões do arquiteto · candidatas a reendurecer).
+
 ---
 
 ## Skills e Agentes

@@ -24,6 +24,10 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: [] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+spec_status: draft # EIXO DE QUALIDADE DA SPEC (≠ lifecycle status): draft | triaged | hardened | blocked-decision | decomposed
+capacity_target: # haiku | sonnet | opus-spike — preenchido no endurecimento (pass 2)
+# hardened_at: <data/commit>  ← carimbado pelo endurecer-task no pass 2 (baseline p/ reendurecer)
+# decisions: ["..."]          ← só quando spec_status: blocked-decision (espelha a Seção 6)
 ---
 
 # ${taskId} · ${taskTitle}
