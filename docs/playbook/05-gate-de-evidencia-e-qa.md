@@ -1,5 +1,8 @@
 # 05 - Gate de Evidência e QA
 
+> **Referência canônica completa:** [`docs/conceitos/mgtia-workflow.md §4`](../conceitos/mgtia-workflow.md)
+> cobre Gate, segunda revisão independente e separação de papéis Reviewer/Integrador.
+
 Para proteger a base de código (e garantir que agentes não cometam commits alucinados que quebram o repositório), aplicamos o conceito do **Gate de Evidência Inviolável**.
 
 ## 1. O que é o Gate de Evidência?

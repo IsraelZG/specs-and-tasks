@@ -1,6 +1,10 @@
 # 02 - Gestão de Tarefas (MGTIA)
 
-O **MGTIA** é o motor de controle de fluxo de trabalho do repositório. O painel global de tarefas vive em `tasks/INDEX.md`, mas ele é um arquivo **read-only** para humanos e agentes em operação manual.
+> **Referência canônica completa:** [`docs/conceitos/mgtia-workflow.md`](../conceitos/mgtia-workflow.md)
+> — pipeline end-to-end, dois eixos, paralelismo, skills, papéis. Leia lá primeiro.
+> Este playbook cobre só os detalhes operacionais do `manage-task.mjs`.
+
+O **MGTIA** é o motor de controle de fluxo de trabalho do repositório. O painel global de tarefas vive em `tasks/INDEX.md`, mas ele é um arquivo **read-only** para humanos e agentes em operação manual (gitignored — regenerado pelo serviço a cada transição).
 
 ## 1. O Script de Transição (`manage-task.mjs`)
 
