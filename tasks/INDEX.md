@@ -30,8 +30,8 @@
 | [T-004](./T-004.md) | Portas fundamentais | `done` | logic_agent | 2 |
 | [T-004a](./T-004a.md) | Adapter SQLite concreto do StoragePort (WAL, exec/transaction/migrate, wal_checkpoint) | `draft` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-005](./T-005.md) | SimNetwork v1 | `done` | logic_agent | 3 |
-| [T-006](./T-006.md) | SimNetwork v2 — Degradação e NAT | `draft` | logic_agent | 3 |
-| [T-006a](./T-006a.md) | SimNetwork v2: degradação (drop/latência/jitter/bandwidth) | `draft` | logic_agent | 3 |
+| [T-006](./T-006.md) | SimNetwork v2 — Degradação e NAT | `ready` | logic_agent | 3 |
+| [T-006a](./T-006a.md) | SimNetwork v2: degradação (drop/latência/jitter/bandwidth) | `ready` | logic_agent | 3 |
 | [T-006b](./T-006b.md) | SimNetwork v2: perfis NAT (open/cone/symmetric) | `draft` | logic_agent | 2 |
 | [T-007](./T-007.md) | Asserções de convergência (Testkit) | `done` | logic_agent | 2 |
 | [T-008](./T-008.md) | App Bancada (PWA-ready) | `done` | frontend_agent | 3 |
@@ -105,12 +105,12 @@
 | [T-203](./T-203.md) | Codec canonico compartilhado (MessagePack/msgpackr) para payloads de protocolo | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [T-204](./T-204.md) | Adapter WebSocket | `done` | transport_agent | 3 |
 | [T-205](./T-205.md) | SwarmRegistry em RAM | `done` | core_agent | 3 |
-| [T-206](./T-206.md) | Heartbeat implícito/explícito + evicção | `draft` | core_agent | 3 |
-| [T-207](./T-207.md) | RelayTrustModel v0 | `draft` | transport_agent | 3 |
+| [T-206](./T-206.md) | Heartbeat implícito/explícito + evicção | `ready` | core_agent | 3 |
+| [T-207](./T-207.md) | RelayTrustModel v0 | `ready` | transport_agent | 3 |
 | [T-208](./T-208.md) | First Peer Protocol (FPP) | `done` | logic_agent | 4 |
-| [T-209](./T-209.md) | Gênese gerida | `draft` | backend_agent | 3 |
-| [T-210](./T-210.md) | Convite ASSET:INVITE | `draft` | logic_agent | 4 |
-| [T-211](./T-211.md) | Bancada: aba Rede | `draft` | frontend_agent | 2 |
+| [T-209](./T-209.md) | Gênese gerida | `ready` | backend_agent | 3 |
+| [T-210](./T-210.md) | Convite ASSET:INVITE | `ready` | logic_agent | 4 |
+| [T-211](./T-211.md) | Bancada: aba Rede | `ready` | frontend_agent | 2 |
 | [T-212](./T-212.md) | Codec MessagePack — suporte nativo a bigint | `done` | logic_agent | 2 |
 | [T-301](./T-301.md) | B-Tree de fingerprints (RBSR) | `done` | logic_agent | 4 |
 | [T-302](./T-302.md) | Protocolo de troca RBSR | `draft` | protocol_agent | 4 |
@@ -121,28 +121,28 @@
 | [T-305](./T-305.md) | Sync dirigido por UCAN | `draft` | logic_agent | 3 |
 | [T-305a](./T-305a.md) | Sync UCAN: scopeRBSRTree (filtro por UCAN) | `done` | logic_agent | 3 |
 | [T-305b](./T-305b.md) | Sync UCAN: canAccess (verificação pontual) | `done` | logic_agent | 2 |
-| [T-306](./T-306.md) | Ondas 0–2 | `rework` | protocol_agent | 4 |
+| [T-306](./T-306.md) | Ondas 0–2 | `in_progress` | protocol_agent | 4 |
 | [T-307](./T-307.md) | Coordenação de sync + failover | `done` | transport_agent | 4 |
 | [T-308](./T-308.md) | Snapshot de bootstrap | `done` | core_agent | 3 |
 | [T-308-rework-2](./T-308-rework-2.md) | T-308 rework-2 — workaround bigint removal + persistência byte-level (ADR 0003) + nodeCount validation + createdAt mask | `done` | logic_agent | 2 |
 | [T-309](./T-309.md) | GlobalThrottle | `draft` | core_agent | 3 |
 | [T-310](./T-310.md) | Matriz de transporte IoC | `done` | transport_agent | 2 |
 | [T-311](./T-311.md) | Bancada: aba Sync | `done` | frontend_agent | 2 |
-| [T-312](./T-312.md) | Eleição de dono do banco por Web Locks | `rework` | core_agent | 4 |
+| [T-312](./T-312.md) | Eleição de dono do banco por Web Locks | `review` | core_agent | 4 |
 | [T-313](./T-313.md) | Archive Cargo | `draft` | core_agent | 5 |
 | [T-313a](./T-313a.md) | Archive Cargo: pack/unpack/verify (zstd + AES-256-GCM + blake2s256) | `ready` | core_agent | 3 |
 | [T-313b](./T-313b.md) | Archive Cargo: assignCustodian (consistent hashing sobre blind_scope_id) | `ready` | core_agent | 2 |
 | [T-313c](./T-313c.md) | Archive Cargo: GC + migration blind_archives (storage ops) | `ready` | core_agent | 2 |
-| [T-401](./T-401.md) | Signaling no peer do sistema | `draft` | backend_agent | 4 |
+| [T-401](./T-401.md) | Signaling no peer do sistema | `ready` | backend_agent | 4 |
 | [T-402](./T-402.md) | Adapter WebRTC DataChannel | `draft` | transport_agent | 4 |
 | [T-403](./T-403.md) | Documentos casca Automerge | `draft` | transport_agent | 4 |
 | [T-404](./T-404.md) | ConnectionPromotionEngine (Hole Punching) | `draft` | logic_agent | 4 |
 | [T-404a](./T-404a.md) | CPE: tryPromote (core loop + NAT decision) | `draft` | logic_agent | 3 |
 | [T-404b](./T-404b.md) | CPE: getState/cancel/directCount (query) | `draft` | logic_agent | 2 |
 | [T-405](./T-405.md) | Relay de circuito | `draft` | transport_agent | 3 |
-| [T-406](./T-406.md) | Descoberta morna Graph Routing | `draft` | transport_agent | 3 |
-| [T-407](./T-407.md) | Link multiaddr out-of-band | `draft` | protocol_agent | 2 |
-| [T-408](./T-408.md) | Tracker WSS privado | `draft` | backend_agent | 3 |
+| [T-406](./T-406.md) | Descoberta morna Graph Routing | `ready` | transport_agent | 3 |
+| [T-407](./T-407.md) | Link multiaddr out-of-band | `ready` | protocol_agent | 2 |
+| [T-408](./T-408.md) | Tracker WSS privado | `ready` | backend_agent | 3 |
 | [T-409](./T-409.md) | Bancada: topologia | `draft` | frontend_agent | 2 |
 | [T-501](./T-501.md) | Motor de UCAN Core | `done` | crypto_agent | 4 |
 | [T-502](./T-502.md) | ASSET:PERMISSION/ROLE físicos | `draft` | logic_agent | 4 |
@@ -170,7 +170,7 @@
 | [T-701](./T-701.md) | device_state.db — store Local+Persistente | `ready` | core_agent | 3 |
 | [T-701a](./T-701a.md) | device_state.db: DDL e migrations | `ready` | core_agent | 2 |
 | [T-701b](./T-701b.md) | LinkCipher: deriveSessionKey (HKDF) | `draft` | crypto_agent | 2 |
-| [T-702](./T-702.md) | Canal do Private Swarm | `draft` | transport_agent | 4 |
+| [T-702](./T-702.md) | Canal do Private Swarm | `ready` | transport_agent | 4 |
 | [T-703](./T-703.md) | Estratégias de merge por classe | `draft` | logic_agent | 3 |
 | [T-704](./T-704.md) | Bancada: simulador 2º device | `draft` | frontend_agent | 2 |
 | [T-705](./T-705.md) | Cerimônia QR + SAS | `draft` | crypto_agent | 5 |
