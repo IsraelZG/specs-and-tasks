@@ -6,7 +6,7 @@ complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
-dependencies: ["T-004", "T-801a"]
+dependencies: ["T-004", "T-801"]
 blocks: ["T-STR-02", "T-STR-03", "T-STR-04"]
 ---
 
