@@ -27,10 +27,9 @@ não-draft. Aqui você só transcreve esse sinal para o lifecycle, **pelo servi�
    - Se o serviço rejeitar (`requer status draft`), a task já saiu de `draft` (corrida com outro
      agente) — **pule**, não force.
 3. **Re-rode o painel:** `node tools/scripts/hardening.mjs $ARGUMENTS` — PROMOVÍVEIS deve esvaziar.
-4. **Commit do controle (master do Docs) — COMMIT ESTREITO.** Adicione **só os arquivos das tasks
-   que você promoveu, por path explícito** (nunca `tasks/*.md`/`tasks/`/`-A`). **Não** adicione
-   `INDEX.md` (artefato gitignored). Ex.: `git add tasks/T-206.md tasks/T-212.md && git commit -m
-   "chore(arquiteto): promove N tasks hardened draft→ready" && git push`.
+4. **Commit do controle (master do Docs) — ATÔMICO por path.** `git commit -m "chore(arquiteto):
+   promove N tasks hardened draft→ready" -- tasks/T-206.md tasks/T-212.md && git push` (só as tasks
+   que VOCÊ promoveu; nunca `git add … && git commit` nem `-A`/`tasks/*.md`). **Não** commite `INDEX.md`.
 
 ## NÃO faça
 - **NÃO** promova task que não esteja em **PROMOVÍVEIS** (se está `draft` mas não `hardened`, falta

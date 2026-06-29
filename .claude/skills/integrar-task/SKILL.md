@@ -64,8 +64,9 @@ que já está na Seção 8 da task. É o passo que faltava e que causou o gap de
    tocou, por path explícito** — `tasks/$ARGUMENTS.md`, `tasks/_pendencias.md` e **cada dependente
    que reendureceu** (liste por nome). **NUNCA** `git add tasks/`/`tasks/*.md`/`-A` (varre o trabalho
    não-commitado de outros agentes paralelos). **NÃO** adicione `INDEX.md` — é artefato gitignored.
-   Ex.: `git add tasks/$ARGUMENTS.md tasks/_pendencias.md tasks/T-305.md && git commit && git push`.
-   Se o push colidir no `index.lock` (commit concorrente), `git pull --rebase` e repita.
+   **Use commit ATÔMICO por path** (não `git add … && git commit` — racy sob agente concorrente):
+   `git commit -m "<msg>" -- tasks/$ARGUMENTS.md tasks/_pendencias.md tasks/T-305.md && git push`.
+   Se colidir no `index.lock`/push, `git pull --rebase` e repita.
 
 ## Caminho B — Parecer = REQUER REFATORAÇÃO
 

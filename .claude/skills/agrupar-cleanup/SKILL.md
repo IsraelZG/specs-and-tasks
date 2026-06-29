@@ -35,10 +35,10 @@ poluir a fila com dezenas de `-followup`. Uma task de cleanup por **área**, com
        achado for de lógica não-trivial. Marque `spec_status: triaged` (endurece JIT antes de rodar).
 4. **Remova do ledger** as linhas consumidas — reescreva o bloco entre os marcadores mantendo só as
    linhas que você NÃO agrupou. Não apague os marcadores nem o cabeçalho.
-5. **Commit do controle — COMMIT ESTREITO.** O `generate-task.mjs` já regenerou o INDEX local
-   (artefato gitignored — não commite). Adicione **só os arquivos que você criou/editou, por path
-   explícito** (a nova `tasks/C-NN.md` + `tasks/_pendencias.md`) — nunca `tasks/`/`-A`. Ex.:
-   `git add tasks/C-01.md tasks/_pendencias.md && git commit -m "chore(cleanup): agrupa N pendências em C-01" && git push`.
+5. **Commit do controle — ATÔMICO por path.** O `generate-task.mjs` já regenerou o INDEX local
+   (artefato gitignored — não commite). `git commit -m "chore(cleanup): agrupa N pendências em C-01"
+   -- tasks/C-01.md tasks/_pendencias.md && git push` (só o que VOCÊ criou/editou; nunca `git add …
+   && git commit` nem `tasks/`/`-A`).
 
 ## NÃO faça
 - **NÃO** crie task `-followup` por achado (é o anti-padrão que o ledger existe pra matar).

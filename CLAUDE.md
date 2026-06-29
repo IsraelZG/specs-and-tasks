@@ -38,7 +38,11 @@ Ações: start, pause, finish, approve, request_changes, block, unblock.
 Ciclo: draft → ready → in_progress → review → rework → done (+ blocked).
 Cada task iniciada ganha uma branch task/<ID> (isolamento) **no repo superapp (código).** No repo Docs (controle), tarefas são editadas diretamente na `master` — o histórico de gestão (status, pareceres, logs) precisa ser visível a todos sem depender de merge.
 
-> **Paralelismo no controle (INVIOLÁVEL).** O Docs é um working tree único na `master` com vários agentes ao mesmo tempo. Para não varrer o trabalho não-commitado de outro agente: **commit ESTREITO** — adicione **só o(s) arquivo(s) da SUA task, por path explícito** (`git add tasks/T-XXX.md`); **NUNCA** `git add -A`/`tasks/`/`tasks/*.md` no repo de controle. O `tasks/INDEX.md` (e `meta-tasks/INDEX.md`) é **artefato derivado gitignored** — o `TaskService` o regenera local a cada transição; **não** o commite nem o adicione. Colisão de `index.lock` em commit concorrente → `git pull --rebase` e repita.
+> **Paralelismo no controle (INVIOLÁVEL).** O Docs é um working tree único na `master` com vários agentes ao mesmo tempo. Para não varrer (nem ter varrido) o trabalho de outro agente:
+> - **Commit ATÔMICO por path:** `git commit -m "<msg>" -- tasks/T-XXX.md [outros-paths-seus]`. Esse comando fotografa **só os paths nomeados** no instante do commit — resiste ao `git add -A` de um agente concorrente. **NÃO** use o par `git add <x> && git commit`: o index é compartilhado e a corrida entre os dois passos faz seu commit levar o arquivo do outro (já aconteceu — ver commit `fb5459b`).
+> - **NUNCA** `git add -A`/`tasks/`/`tasks/*.md` no repo de controle.
+> - **`tasks/INDEX.md`** (e `meta-tasks/INDEX.md`) é **artefato derivado gitignored** — o `TaskService` o regenera local a cada transição; nunca commite.
+> - Colisão de `index.lock`/push concorrente → `git pull --rebase` e repita.
 
 ### As 6 Regras
 

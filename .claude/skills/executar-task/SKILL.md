@@ -58,11 +58,12 @@ Use seu identificador (ex.: `DeepSeek`) onde aparecer `<EU>` — **nunca** `agil
    git push -u origin task/$ARGUMENTS
    ```
 8. **Commit do CONTROLE** (no `<CTRL>` = Docs): o `manage-task` + sua edição da Seção 8 alteraram
-   `tasks/$ARGUMENTS.md` lá. Persista:
+   `tasks/$ARGUMENTS.md` lá. Persista com **commit ATÔMICO por path** (o Docs é compartilhado por
+   vários agentes — `git add … && git commit` é racy; ver regra de Paralelismo no CLAUDE.md):
    ```
-   git -C "<CTRL>" add tasks/$ARGUMENTS.md && git -C "<CTRL>" commit -m "chore($ARGUMENTS): review + evidência"
+   git -C "<CTRL>" commit -m "chore($ARGUMENTS): review + evidência" -- tasks/$ARGUMENTS.md
    ```
-   (NÃO commite `.nexus/` — é gitignored. O push do controle é do usuário.)
+   NÃO commite `INDEX.md` (artefato gitignored) nem `.nexus/`. O push do controle é do usuário.
 9. **Próxima task:** só depois desta em `review`, com código pushado e controle commitado. **PARE.**
 
 ## NÃO faça
