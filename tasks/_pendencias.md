@@ -17,4 +17,6 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [m3][T-208][transport] Cobertura incompleta do caso 8: idempotência de writeGenesis só cobre GENESIS já assentado via start() idempotente, não re-entrada em GENESIS (fpp.test.ts:118-130)
 - [ ] [i1][T-208][transport] onPeerFound descarta o peerId silenciosamente (void peerId) — útil para logging/diagnóstico (fpp.ts:128-130)
 - [ ] [i2][T-208][transport] _emit usa console.error para exceções de handler — defensivo, não na spec (fpp.ts:240-248)
+- [ ] [m1][T-212][protocol] Handover do executor contém "snapshot.ts não existe na worktree" — factualmente incorreto (arquivo existe e workaround já removido por T-308-rework-2); item de DoD §7 fica satisfeito pela rework-2 de T-308, não por T-212 — housekeeping, não bloqueia (tasks/T-212.md:119)
+- [ ] [m1][T-802][media] `!` non-null assertion no arquivo de teste — spec §5 proíbe `!` no geral (src está limpo); refatorar `reordered[0]!`/`tampered[0]!`/etc para guards (verifyReassemble.test.ts:53-55, 98, 147-151, 22)
 <!-- END PENDENCIAS -->

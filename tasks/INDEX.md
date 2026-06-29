@@ -110,7 +110,7 @@
 | [T-209](./T-209.md) | Gênese gerida | `draft` | backend_agent | 3 |
 | [T-210](./T-210.md) | Convite ASSET:INVITE | `draft` | logic_agent | 4 |
 | [T-211](./T-211.md) | Bancada: aba Rede | `draft` | frontend_agent | 2 |
-| [T-212](./T-212.md) | Codec MessagePack — suporte nativo a bigint | `review` | logic_agent | 2 |
+| [T-212](./T-212.md) | Codec MessagePack — suporte nativo a bigint | `done` | logic_agent | 2 |
 | [T-301](./T-301.md) | B-Tree de fingerprints (RBSR) | `done` | logic_agent | 4 |
 | [T-302](./T-302.md) | Protocolo de troca RBSR | `draft` | protocol_agent | 4 |
 | [T-302a](./T-302a.md) | RBSR exchange: máquina de estados reconcile | `draft` | protocol_agent | 3 |
@@ -173,7 +173,7 @@
 | [T-706](./T-706.md) | Documentação padrões descoberta | `draft` | protocol_agent | 1 |
 | [T-707](./T-707.md) | device_state.db | `draft` | core_agent | 3 |
 | [T-801](./T-801.md) | Storage Engine de BLOBs (Chunking) | `done` | core_agent | 4 |
-| [T-802](./T-802.md) | Remontagem verificada por Merkle/InfoHash (fronteira de confiança do BlobStorage) | `review` | core_agent | 3 |
+| [T-802](./T-802.md) | Remontagem verificada por Merkle/InfoHash (fronteira de confiança do BlobStorage) | `done` | core_agent | 3 |
 | [T-803](./T-803.md) | Adapter WebTorrent | `draft` | transport_agent | 4 |
 | [T-804](./T-804.md) | Cloud WebSeed + Edge translation | `draft` | backend_agent | 4 |
 | [T-805](./T-805.md) | Reidratação no browser | `draft` | frontend_agent | 4 |
