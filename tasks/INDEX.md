@@ -106,7 +106,7 @@
 | [T-205](./T-205.md) | SwarmRegistry em RAM | `done` | core_agent | 3 |
 | [T-206](./T-206.md) | Heartbeat implícito/explícito + evicção | `draft` | core_agent | 3 |
 | [T-207](./T-207.md) | RelayTrustModel v0 | `draft` | transport_agent | 3 |
-| [T-208](./T-208.md) | First Peer Protocol (FPP) | `in_progress` | logic_agent | 4 |
+| [T-208](./T-208.md) | First Peer Protocol (FPP) | `review` | logic_agent | 4 |
 | [T-209](./T-209.md) | Gênese gerida | `draft` | backend_agent | 3 |
 | [T-210](./T-210.md) | Convite ASSET:INVITE | `draft` | logic_agent | 4 |
 | [T-211](./T-211.md) | Bancada: aba Rede | `draft` | frontend_agent | 2 |
