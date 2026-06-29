@@ -54,7 +54,7 @@
 | [T-018f](./T-018f.md) | Testes — lote final (5 interativos Tier A + Modal Tier B) | `done` | frontend_agent | 2 |
 | [T-019](./T-019.md) | Matriz de CI multiplataforma (linux x64 + linux arm64) | `done` | devops_agent | 2 |
 | [T-020](./T-020.md) | Spike: decidir gate de regressao visual (Lookout vs Playwright toHaveScreenshot) -> ADR | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
-| [T-021](./T-021.md) | Arcabouco de E2E Playwright compartilhado (@plataforma/testkit) + showcase como 1o consumidor | `in_progress` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-021](./T-021.md) | Arcabouco de E2E Playwright compartilhado (@plataforma/testkit) + showcase como 1o consumidor | `review` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
 | [T-022](./T-022.md) | Ativar regressao visual Playwright toHaveScreenshot no design-system (gate ADR-0006) | `ready` | frontend_agent | 3 |
 | [T-1001](./T-1001.md) | Configuração do Monorepo Nexus (Backend e Frontend) | `done` | devops_agent | 2 |
 | [T-1002](./T-1002.md) | Integração do Indexador Semântico (TurboVec) | `done` | backend_agent | 3 |
