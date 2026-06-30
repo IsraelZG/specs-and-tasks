@@ -41,6 +41,17 @@ function ensureQueue() {
   fs.mkdirSync(queueDir, { recursive: true });
 }
 
+/**
+ * Existência CASE-SENSITIVE — o Windows FS é case-insensitive (`existsSync('tasks/ledger.md')` casa
+ * com `LEDGER.md`), mas o pathspec do git é case-sensitive: o descasamento vira erro permanente.
+ * Confere o basename exato no listing do diretório. Pega `T-004A.md` vs `T-004a.md` (typo de agente).
+ */
+function existsExact(rel) {
+  const abs = path.join(root, rel);
+  if (!fs.existsSync(abs)) return false;
+  try { return fs.readdirSync(path.dirname(abs)).includes(path.basename(abs)); } catch { return false; }
+}
+
 // ---- add -------------------------------------------------------------------
 function add(taskId, message, extraPaths) {
   if (!taskId || !message) {
@@ -85,7 +96,7 @@ function flush(author = 'fila') {
   for (const f of files) {
     const full = path.join(queueDir, f);
     const [message, ...paths] = fs.readFileSync(full, 'utf8').trim().split('\n');
-    const existing = paths.filter((p) => fs.existsSync(path.join(root, p)));
+    const existing = paths.filter(existsExact);
     if (!existing.length) {
       skipped.push(`${f}: nenhum path existe (${paths.join(', ')})`);
       fs.rmSync(full);
@@ -101,12 +112,12 @@ function flush(author = 'fila') {
       fs.rmSync(full); // consumido só se o commit deu certo
     } catch (e) {
       const out = (e.stdout || '') + (e.stderr || '');
-      if (/nothing to commit|no changes added/i.test(out)) {
-        // O arquivo não tem mudança (já commitado, ou edição revertida) — descarta a intenção.
-        skipped.push(`${f}: nada a commitar (${existing.join(', ')})`);
+      if (/nothing to commit|no changes added|did not match|pathspec/i.test(out)) {
+        // Permanente (nada a commitar, ou path inexistente/typo) — descarta; reter só repetiria o erro.
+        skipped.push(`${f}: descartado (${out.trim().split('\n')[0]})`);
         fs.rmSync(full);
       } else {
-        // Erro real (ex.: index.lock de OUTRO flush) — NÃO descarta; tenta na próxima rodada.
+        // Transiente (ex.: index.lock de OUTRO flush) — NÃO descarta; tenta na próxima rodada.
         skipped.push(`${f}: ERRO git, mantido na fila — ${out.trim().split('\n')[0]}`);
       }
     }
