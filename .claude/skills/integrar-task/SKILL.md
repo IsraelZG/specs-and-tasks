@@ -53,7 +53,13 @@ que já está na Seção 8 da task. É o passo que faltava e que causou o gap de
 8. **Fecha o status pelo serviço:** `node tools/scripts/manage-task.mjs approve $ARGUMENTS
    <SeuNome> "Integrado: merge na master (commit <hash>), worktree removida, Gate verde
    (<evidência>). N não-bloqueantes → ledger de pendências."`
-9. **Reendurece os dependentes (JIT).** Agora que `$ARGUMENTS` é `done`, a fundação que os
+9. **Encerra pais decomposed (se aplicável).** Se `$ARGUMENTS` é uma task filha (ID com sufixo
+   `a`/`b`/`c` ou nome indica split), verifique se existe um pai com `spec_status: decomposed`.
+   Leia o frontmatter `blocks:` do pai para encontrar todas as filhas. Se **todas** estiverem `done`:
+   fast-track o pai pelo serviço: `promote → start → finish → approve agile_reviewer` com mensagem
+   "decomposed — filhas <lista> concluídas". Nunca edite o status do pai na mão. Se alguma filha
+   ainda não for `done`, pule — o pai será encerrado quando a última filha for integrada.
+10. **Reendurece os dependentes (JIT).** Agora que `$ARGUMENTS` é `done`, a fundação que os
    dependentes dela só podiam citar vagamente **existe de verdade**. Rode
    `node tools/scripts/hardening.mjs` e olhe **REENDURECER**. Para cada dependente de `$ARGUMENTS`
    (task com `$ARGUMENTS` em `dependencies:`, ou em `blocks:` desta) **cujas deps agora estão TODAS

@@ -101,6 +101,12 @@ O projeto usa **dois repositórios git separados** com papéis distintos:
                     └──► volta para [status: review] ──► /qa-review
 ```
 
+**Tasks pai `decomposed`:** se a task integrada é filha de um pai com `spec_status: decomposed`,
+o integrador verifica se **todas** as filhas do pai estão `done` (lê o campo `blocks:` do pai).
+Se sim, fast-track o pai: `promote → start → finish → approve agile_reviewer "filhas <lista> done"`.
+Nunca edite o status do pai na mão; se alguma filha ainda estiver aberta, pule (o pai é encerrado
+quando a última filha fechar).
+
 Ledger de não-bloqueantes acumula em `tasks/_pendencias.md` e é drenado periodicamente por:
 
 ```
