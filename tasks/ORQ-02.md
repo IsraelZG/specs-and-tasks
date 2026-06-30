@@ -1,7 +1,7 @@
 ---
 id: ORQ-02
 title: "orquestrar.mjs --dry-run + orquestrador.config.json — núcleo de decisão (sem spawn)"
-status: draft
+status: ready
 complexity: 5
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -146,3 +146,4 @@ node tools/scripts/orquestrar.mjs --dry-run --ledger-file /tmp/led.json
 
 ## 9. Log de Execução (Agent Execution Log)
 > Registrem via `manage-task.mjs`. Identidade = modelo real.
+- **[2026-06-30T18:35]** - *claude-sonnet* - `[Promovida p/ ready]`: ORQ-01 done — JSON shape confirmado, deps_ok true — flip draft→ready

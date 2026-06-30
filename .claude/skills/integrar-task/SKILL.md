@@ -27,6 +27,24 @@ que já está na Seção 8 da task. É o passo que faltava e que causou o gap de
 - Em tasks complexas há **vários** pareceres (review-only). Considere o **agregado**: só prossiga
   para aprovar se TODOS os bloqueantes (`Bn`) estão resolvidos e o último veredito é Aprovado.
 
+## Detecta tooling-do-controle (sem worktree) — ANTES de escolher o caminho
+
+Algumas tasks (ex.: `ORQ-*`) são **tooling do Docs** — editam scripts/skills direto no controle, sem
+branch/worktree no superapp (§0 da spec diz "Tarefa de TOOLING do CONTROLE"). Confirme:
+`node tools/scripts/worktree.mjs ls | grep task/$ARGUMENTS` — **vazio** = tooling. Para essas, use
+**Caminho A-tooling** (pula merge — não existe o que mergear) em vez do Caminho A normal.
+**NUNCA** rode `manage-task.mjs approve` direto fora desta skill — é exatamente esse atalho que pula
+os passos 7-11 (pendências, encerra pais, **reendurece dependentes**, promove) e foi o que travou
+ORQ-02 esperando ORQ-01 (aprovada na mão, sem a propagação JIT).
+
+## Caminho A-tooling — Parecer = APROVADO, SEM worktree (task de tooling do controle)
+
+1. **Gate (sem merge — não há branch a integrar):** confirme que a evidência colada na §8 é a saída
+   real dos comandos da §7 da própria spec (não invente). Se o parecer aponta achado não resolvido,
+   trate como Caminho B.
+2. Pule os passos 1-6 do Caminho A (não há `git`/worktree/superapp aqui). Vá direto para os passos
+   **7 a 11** abaixo (pendências → approve → pais decomposed → **reendurecer dependentes** → enfileirar).
+
 ## Caminho A — Parecer = APROVADO
 
 1. **Pré-flight.** `git -C ../superapp status` deve estar limpo e em `master`. Rode
