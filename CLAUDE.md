@@ -78,6 +78,8 @@ Tasks ≤ Sonnet (preferencialmente Haiku). A spec precisa ter: zero decisões a
 
 **Eixo de qualidade da spec (`spec_status`, ≠ lifecycle `status`).** O frontmatter carrega um eixo separado, editável pelo `/endurecer-task` (metadado de autoria, não transição de serviço): `draft → triaged → hardened` (+ `blocked-decision` / `decomposed`). "Preferir Haiku" é viés, não proibição — Sonnet é o workhorse de tasks complexas mas totalmente especificadas; Haiku é a cauda mecânica. **Endureça em dois passes:** triagem cedo (pega spikes/decisões), endurecimento profundo just-in-time (quando as deps já são `done`, troca placeholder por assinatura real e re-carimba `hardened_at` — *reendurecimento*). Painel: `node tools/scripts/hardening.mjs [prefixo]` (estado do backlog · fila de decisões do arquiteto · candidatas a reendurecer).
 
+**Ledger de ciclo de vida.** `node tools/scripts/ledger.mjs [prefixo]` regenera `tasks/LEDGER.md` (gitignored): tabela agrupada por status com **quem fez cada papel** — worker, reviewer, cada rework (`N× (ator → ator)`), endurecedor. **Não é fonte nova nem passo a mais pro agente:** é uma *projeção* dos Logs §9 que o `manage-task.mjs` já escreve a cada transição (o ator é o `<SeuNome>` passado). Reworks variáveis não viram colunas fixas — viram uma célula. `/drenar-fila` o refresca no heartbeat periódico.
+
 ---
 
 ## Skills e Agentes

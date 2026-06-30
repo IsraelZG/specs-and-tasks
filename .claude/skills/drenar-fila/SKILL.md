@@ -31,7 +31,10 @@ tem branch isolada, não há working tree compartilhado.
 3. **Se o push falhar** (colisão com push externo): o script para com exit 1. Rode
    `git pull --rebase` à mão, resolva o que aparecer, e **re-rode** `fila.mjs flush` — o que já foi
    commitado não re-entra (a intenção já foi consumida); só o push restante acontece.
-4. **Reporte** quantos commitou e o que pulou (o flush já imprime). **PARE.**
+4. **Refresca o ledger de ciclo de vida** (barato, é o heartbeat periódico): `node tools/scripts/ledger.mjs`.
+   Regenera `tasks/LEDGER.md` (gitignored) projetando os Logs §9 — quem foi worker/reviewer/rework de
+   cada task, agrupado por status. Não commita nada (artefato local).
+5. **Reporte** quantos commitou e o que pulou (o flush já imprime). **PARE.**
 
 ## NÃO faça
 - **NÃO** rode `git add -A`/`git add tasks/` no Docs — nem aqui. O flush commita só os paths das

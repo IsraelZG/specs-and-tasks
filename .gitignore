@@ -63,6 +63,10 @@ playwright/.cache/
 tasks/INDEX.md
 meta-tasks/INDEX.md
 
+# Ledger de ciclo de vida — projeção dos Logs §9 (quem fez worker/reviewer/rework), regenerado por
+# ledger.mjs. Derivado dos Logs (que SÃO versionados nas tasks); como o INDEX, é artefato local.
+tasks/LEDGER.md
+
 # Fila de commits do controle — intenções enfileiradas pelos agentes (fila.mjs add), consumidas
 # pela skill /drenar-fila (fila.mjs flush). Transiente, nunca versionado. Tira o git do caminho
 # quente dos agentes: eles editam o md + enfileiram; um único committer serial commita+pusha.
