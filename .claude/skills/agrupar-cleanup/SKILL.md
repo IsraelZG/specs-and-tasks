@@ -35,10 +35,11 @@ poluir a fila com dezenas de `-followup`. Uma task de cleanup por **área**, com
        achado for de lógica não-trivial. Marque `spec_status: triaged` (endurece JIT antes de rodar).
 4. **Remova do ledger** as linhas consumidas — reescreva o bloco entre os marcadores mantendo só as
    linhas que você NÃO agrupou. Não apague os marcadores nem o cabeçalho.
-5. **Commit do controle — ATÔMICO por path.** O `generate-task.mjs` já regenerou o INDEX local
-   (artefato gitignored — não commite). `git commit -m "chore(cleanup): agrupa N pendências em C-01"
-   -- tasks/C-01.md tasks/_pendencias.md && git push` (só o que VOCÊ criou/editou; nunca `git add …
-   && git commit` nem `tasks/`/`-A`).
+5. **Persiste o controle — ENFILEIRE** (agentes não rodam git no Docs; ver Paralelismo no CLAUDE.md).
+   O `generate-task.mjs` já regenerou o INDEX local (gitignored — fora da fila). Enfileire com os paths
+   que VOCÊ criou/editou: `node tools/scripts/fila.mjs add C-01 "chore(cleanup): agrupa N pendências
+   em C-01" tasks/_pendencias.md` (o default `tasks/C-01.md` já entra; `tasks/_pendencias.md` é o path
+   extra). Um `/drenar-fila` commita+pusha depois.
 
 ## NÃO faça
 - **NÃO** crie task `-followup` por achado (é o anti-padrão que o ledger existe pra matar).

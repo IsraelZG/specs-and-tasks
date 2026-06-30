@@ -63,6 +63,11 @@ playwright/.cache/
 tasks/INDEX.md
 meta-tasks/INDEX.md
 
+# Fila de commits do controle — intenções enfileiradas pelos agentes (fila.mjs add), consumidas
+# pela skill /drenar-fila (fila.mjs flush). Transiente, nunca versionado. Tira o git do caminho
+# quente dos agentes: eles editam o md + enfileiram; um único committer serial commita+pusha.
+tasks/.commit-queue/
+
 # Serena MCP (cache local de ferramenta)
 .serena/
 

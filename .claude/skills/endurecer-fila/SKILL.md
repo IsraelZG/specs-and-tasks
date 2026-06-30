@@ -56,6 +56,11 @@ Precisam de VOCÊ (arquiteto) p/ destravar: T-... (decisão: ...), ...
 ```
 **Ao final do lote, rode o painel** e cole a saída: `node tools/scripts/hardening.mjs $ARGUMENTS`.
 
+**Persiste o lote — ENFILEIRE, não comite** (agentes não rodam git no Docs; ver Paralelismo no
+CLAUDE.md). Enfileire UMA intenção com todas as tasks que editou (a 1ª é o id, as demais são paths
+extras): `node tools/scripts/fila.mjs add T-301 "chore(endurece): lote $ARGUMENTS — N tasks"
+tasks/T-302.md tasks/T-303.md`. Um `/drenar-fila` commita+pusha depois.
+
 O arquiteto então resolve as decisões abertas com `/arquiteto-decisoes` e promove os hardened com
 `/arquiteto-promover` (o flip `draft→ready` agora é automatizado pelo serviço, não manual). Re-rode
 esta skill iterativamente — "#aberto" e o nº de `triaged` devem encolher a cada passada/onda.

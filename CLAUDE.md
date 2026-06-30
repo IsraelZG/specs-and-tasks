@@ -38,11 +38,12 @@ Ações: start, pause, finish, approve, request_changes, block, unblock.
 Ciclo: draft → ready → in_progress → review → rework → done (+ blocked).
 Cada task iniciada ganha uma branch task/<ID> (isolamento) **no repo superapp (código).** No repo Docs (controle), tarefas são editadas diretamente na `master` — o histórico de gestão (status, pareceres, logs) precisa ser visível a todos sem depender de merge.
 
-> **Paralelismo no controle (INVIOLÁVEL).** O Docs é um working tree único na `master` com vários agentes ao mesmo tempo. Para não varrer (nem ter varrido) o trabalho de outro agente:
-> - **Commit ATÔMICO por path:** `git commit -m "<msg>" -- tasks/T-XXX.md [outros-paths-seus]`. Esse comando fotografa **só os paths nomeados** no instante do commit — resiste ao `git add -A` de um agente concorrente. **NÃO** use o par `git add <x> && git commit`: o index é compartilhado e a corrida entre os dois passos faz seu commit levar o arquivo do outro (já aconteceu — ver commit `fb5459b`).
-> - **NUNCA** `git add -A`/`tasks/`/`tasks/*.md` no repo de controle.
-> - **`tasks/INDEX.md`** (e `meta-tasks/INDEX.md`) é **artefato derivado gitignored** — o `TaskService` o regenera local a cada transição; nunca commite.
-> - Colisão de `index.lock`/push concorrente → `git pull --rebase` e repita.
+> **Paralelismo no controle (INVIOLÁVEL).** O Docs é um working tree único na `master` com vários agentes ao mesmo tempo. **Agentes NÃO rodam git no Docs** — nem `commit`, nem `push`, nem `add`. Isso tirava tempo (sobretudo do QA) com `index.lock`, disputa de push e "filtrar o que é meu". Em vez disso:
+> - **Edite só o markdown da sua task** (`tasks/T-XXX.md`, `tasks/_pendencias.md`, etc.) e **ENFILEIRE** a intenção de commit: `node tools/scripts/fila.mjs add <ID> "<msg>" [paths extra]`. Pronto — você não toca git. O default de path é `tasks/<ID>.md`; passe paths extra se editou outros arquivos.
+> - **Um único consumidor serial** (`/drenar-fila` → `fila.mjs flush`) faz TODOS os commits pendentes (atômicos por path) + um push, periodicamente. Um só committer ⇒ zero corrida de index/push.
+> - **NUNCA** `git commit`/`git push`/`git add` no Docs a partir de uma skill de worker/reviewer/arquiteto. Se precisar persistir, **enfileire**.
+> - **`tasks/INDEX.md`** (e `meta-tasks/INDEX.md`) e **`tasks/.commit-queue/`** são **gitignored** — o `TaskService` regenera o INDEX a cada transição; a fila é transiente. Nunca commite.
+> - **No superapp (código) o git continua igual:** cada task tem branch `task/<ID>` isolada (worktree), o worker commita+pusha lá normalmente. A fila é **só do controle**.
 
 ### As 6 Regras
 
@@ -81,9 +82,9 @@ Tasks ≤ Sonnet (preferencialmente Haiku). A spec precisa ter: zero decisões a
 
 ## Skills e Agentes
 
-**Skills:** `/verificar` · `/qa-review` · `/integrar-task` · `/agrupar-cleanup` · `/endurecer-task` · `/endurecer-fila` · `/arquiteto-decisoes` · `/arquiteto-promover` · `/vincular-rag` · `/executar-task` · `/rework-task` · `/absorver-rfc` · `/rodar-onda` · `/consolidar-arquivo` · `/consolidar-glossario` · `/handoff` · `/migrar-caderno` · `/novo-verbete` · `/revisar-rfc` · `/revisar-rfcs` · `/sync-provider`
+**Skills:** `/verificar` · `/qa-review` · `/integrar-task` · `/agrupar-cleanup` · `/endurecer-task` · `/endurecer-fila` · `/arquiteto-decisoes` · `/arquiteto-promover` · `/drenar-fila` · `/vincular-rag` · `/executar-task` · `/rework-task` · `/absorver-rfc` · `/rodar-onda` · `/consolidar-arquivo` · `/consolidar-glossario` · `/handoff` · `/migrar-caderno` · `/novo-verbete` · `/revisar-rfc` · `/revisar-rfcs` · `/sync-provider`
 
-> **Pipeline de uma task:** `/endurecer-task` (→ `triaged`/`hardened`/`blocked-decision`) · `/arquiteto-decisoes` (resolve decisões) · `/arquiteto-promover` (`draft→ready` pelo serviço) · `/executar-task` (worker, na worktree, commits frequentes) · `/qa-review` (Parecer, review-only) · `/integrar-task` (merge+`approve`, ou `request_changes`→`rework`) · `/rework-task` (corrige os achados do Parecer, volta a `review`) · `/agrupar-cleanup` (drena o ledger de pendências). Painel transversal: `node tools/scripts/hardening.mjs`.
+> **Pipeline de uma task:** `/endurecer-task` (→ `triaged`/`hardened`/`blocked-decision`) · `/arquiteto-decisoes` (resolve decisões) · `/arquiteto-promover` (`draft→ready` pelo serviço) · `/executar-task` (worker, na worktree, commits frequentes) · `/qa-review` (Parecer, review-only) · `/integrar-task` (merge+`approve`, ou `request_changes`→`rework`) · `/rework-task` (corrige os achados do Parecer, volta a `review`) · `/agrupar-cleanup` (drena o ledger de pendências). Painel transversal: `node tools/scripts/hardening.mjs`. **Persistência no controle:** cada skill **enfileira** o commit (`fila.mjs add`); `/drenar-fila` commita+pusha em lote (nenhum agente roda git no Docs).
 
 **Agentes** (`.claude/agents/`): `agile-reviewer` · `auditor-consistencia-rfc` · `consolidador` · `criador-verbete` · `emendador-rfc` · `incorporador` · `rfc-roteador` · `triador-review`
 

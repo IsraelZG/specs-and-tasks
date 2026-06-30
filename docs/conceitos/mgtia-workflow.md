@@ -30,10 +30,19 @@ O projeto usa **dois repositórios git separados** com papéis distintos:
 
 **Regra de paralelismo no controle (INVIOLÁVEL):**
 - O Docs é um **working tree único na `master`** com vários agentes simultâneos.
-- Commit atômico por path: `git commit -m "…" -- tasks/T-XXX.md` (fotografa só os paths nomeados no instante do commit).
-- **NUNCA** `git add -A`, `git add tasks/`, `git add tasks/*.md` — o index é compartilhado e a corrida entre `git add` e `git commit` faz seu commit levar arquivos de outro agente (aconteceu no commit `fb5459b`).
-- `tasks/INDEX.md` e `meta-tasks/INDEX.md` são **artefatos derivados gitignored** — o `TaskService` os regenera a cada transição; nunca commite.
-- Colisão de `index.lock` ou push concorrente → `git pull --rebase` e repita.
+- **Agentes NÃO rodam git no Docs** (nem `commit`, nem `push`, nem `add`). Isso gastava tempo
+  (sobretudo do QA) com `index.lock`, disputa de push e "filtrar o que é meu".
+- O agente **edita só o markdown da sua task** e **enfileira** a intenção de commit:
+  `node tools/scripts/fila.mjs add <ID> "<msg>" [paths extra]`. O default de path é `tasks/<ID>.md`.
+- Um **único consumidor serial** — `/drenar-fila` (`fila.mjs flush`) — faz TODOS os commits pendentes
+  (atômicos por path) + um push, periodicamente. Um só committer ⇒ zero corrida de index/push.
+  (A fila é um diretório de arquivos-intenção, um por enfileiramento — sem append a arquivo
+  compartilhado, sem contenção. Por que histórico: o commit atômico por path resolvia a corrupção
+  do índice — `fb5459b` levou arquivo de outro agente — mas não a contenção; a fila resolve as duas.)
+- `tasks/INDEX.md`, `meta-tasks/INDEX.md` e `tasks/.commit-queue/` são **gitignored** — INDEX é
+  regenerado pelo `TaskService` a cada transição; a fila é transiente. Nunca commite.
+- **No superapp (código) o git continua igual:** cada task tem branch `task/<ID>` isolada (worktree),
+  o worker commita+pusha lá normalmente. A fila é **só do controle**.
 
 ---
 
@@ -228,6 +237,7 @@ Rode ao final de qualquer `/endurecer-task`, `/endurecer-fila`, `/arquiteto-deci
 | `/integrar-task <ID>` | Merge + approve ou request_changes após parecer | sonnet |
 | `/rework-task <ID>` | Task em `rework` — corrige só bloqueantes do Parecer | sonnet |
 | `/agrupar-cleanup [área]` | Drena `tasks/_pendencias.md` em tasks C-NN por área | sonnet |
+| `/drenar-fila` | Committer serial do controle — drena a fila de commits (`fila.mjs flush`), periodicamente | haiku |
 
 ---
 
@@ -236,9 +246,13 @@ Rode ao final de qualquer `/endurecer-task`, `/endurecer-fila`, `/arquiteto-deci
 Múltiplos agentes trabalham simultaneamente no mesmo working tree. Cada um:
 
 1. Lê e edita **apenas** os arquivos da sua task.
-2. Commita **atomicamente por path**: `git -C <CTRL> commit -m "…" -- tasks/T-XXX.md`
-3. Pusha **imediatamente** após o commit (colisão de push → `git pull --rebase`, repita).
-4. **NUNCA** edita `tasks/INDEX.md` (gitignored, regenerado pelo serviço).
+2. **Enfileira** o commit em vez de rodar git: `node tools/scripts/fila.mjs add <ID> "<msg>" [paths]`.
+3. **Nunca** roda `git commit`/`push`/`add` no Docs — o git do controle é exclusivo do `/drenar-fila`.
+4. **Nunca** edita/enfileira `tasks/INDEX.md` (gitignored, regenerado pelo serviço) nem `.commit-queue/`.
+
+O **committer serial** (`/drenar-fila`, rodado periodicamente por humano ou loop) drena a fila:
+commita cada intenção atômica por path, em ordem cronológica, e dá um único push. Idempotente —
+intenção sem mudança real é descartada; erro de git é mantido pra próxima rodada.
 
 ---
 

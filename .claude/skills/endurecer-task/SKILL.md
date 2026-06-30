@@ -88,6 +88,11 @@ Capacidade-alvo: haiku | sonnet | opus-spike
 estado do backlog, a fila de decisões, os promovíveis e as candidatas a reendurecer — é a forma de
 o arquiteto ver o efeito do seu endurecimento sem reler specs.
 
+**Persiste a spec — ENFILEIRE, não comite** (agentes não rodam git no Docs; ver Paralelismo no
+CLAUDE.md): `node tools/scripts/fila.mjs add $ARGUMENTS "chore($ARGUMENTS): endurece spec → <spec_status>"`.
+Um `/drenar-fila` commita+pusha depois. (Quando chamada por `/arquiteto-decisoes`/`/endurecer-fila`,
+o orquestrador pode enfileirar o lote de uma vez — não enfileire em duplicidade.)
+
 ## ⛔ NÃO faça
 - NÃO escreva código de implementação nem testes reais — só a **spec** da task.
 - NÃO toque em nenhum arquivo além de `tasks/$ARGUMENTS.md`.

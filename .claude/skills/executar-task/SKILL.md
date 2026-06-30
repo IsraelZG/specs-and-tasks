@@ -57,18 +57,19 @@ Use seu identificador (ex.: `DeepSeek`) onde aparecer `<EU>` — **nunca** `agil
    git commit -m "feat($ARGUMENTS): <resumo curto>"   # se houver algo não-commitado
    git push -u origin task/$ARGUMENTS
    ```
-8. **Commit do CONTROLE** (no `<CTRL>` = Docs): o `manage-task` + sua edição da Seção 8 alteraram
-   `tasks/$ARGUMENTS.md` lá. Persista com **commit ATÔMICO por path** (o Docs é compartilhado por
-   vários agentes — `git add … && git commit` é racy; ver regra de Paralelismo no CLAUDE.md):
+8. **Persiste o CONTROLE — ENFILEIRE** (no `<CTRL>` = Docs): o `manage-task` + sua edição da Seção 8
+   alteraram `tasks/$ARGUMENTS.md`. O Docs é compartilhado e **agentes não rodam git lá** (ver regra
+   de Paralelismo no CLAUDE.md). Enfileire a intenção de commit:
    ```
-   git -C "<CTRL>" commit -m "chore($ARGUMENTS): review + evidência" -- tasks/$ARGUMENTS.md
+   node "<CTRL>/tools/scripts/fila.mjs" add $ARGUMENTS "chore($ARGUMENTS): review + evidência"
    ```
-   NÃO commite `INDEX.md` (artefato gitignored) nem `.nexus/`. O push do controle é do usuário.
-9. **Próxima task:** só depois desta em `review`, com código pushado e controle commitado. **PARE.**
+   Um único `/drenar-fila` (consumidor serial) commita+pusha depois. Você não toca git no Docs.
+9. **Próxima task:** só depois desta em `review`, com código pushado e controle **enfileirado**. **PARE.**
 
 ## NÃO faça
 - NÃO toque arquivos fora da Seção 3 (no CÓDIGO); NÃO toque o repo do nexus.
 - NÃO chame `approve`/`request_changes` — nem pra "destravar" uma task presa em `review`.
 - NÃO finalize sem a saída literal do Gate colada na Seção 8.
 - NÃO edite `status`/`INDEX`/Log na mão (use `manage-task.mjs`).
+- NÃO rode `git commit`/`push`/`add` no Docs — **enfileire** (`fila.mjs add`). O git do controle é só do `/drenar-fila`. (No superapp/worktree o git continua igual.)
 - NÃO faça `merge` no branch default do `superapp` — é do reviewer/integração (`pnpm wt merge` após `approve`).

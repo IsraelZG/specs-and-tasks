@@ -39,9 +39,10 @@ opções reais, e — com a escolha dele — destrava as tasks. Você NÃO inven
    `hardened_at`. (O `/endurecer-task` já roda o painel ao final.)
 6. **Promova.** Encaminhe para **`/arquiteto-promover $ARGUMENTS`** — o flip `draft→ready` das que
    agora estão `hardened`. (Pode chamar a skill diretamente como passo final.)
-7. **Commit do controle — ATÔMICO por path.** `git commit -m "decisão(arquiteto): <resumo>" --
-   tasks/T-304.md tasks/T-309.md && git push` (só os arquivos que VOCÊ editou; nunca `git add … &&
-   git commit` nem `-A`/`tasks/*.md` — racy/varre o trabalho de outros). **Não** commite `INDEX.md`.
+7. **Persiste o controle — ENFILEIRE** (agentes não rodam git no Docs; ver Paralelismo no CLAUDE.md).
+   Enfileire UMA intenção com os arquivos que VOCÊ editou (a 1ª task é o id, as demais são paths
+   extras): `node tools/scripts/fila.mjs add T-304 "decisão(arquiteto): <resumo>" tasks/T-309.md`.
+   Um `/drenar-fila` commita+pusha depois. **Não** enfileire `INDEX.md`.
 
 ## Quando uma decisão é grande demais para uma opção rápida
 Se o grupo não é "escolha A ou B" e sim "precisa de exploração/ADR" → não force uma opção. Marque a

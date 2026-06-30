@@ -66,20 +66,20 @@ que já está na Seção 8 da task. É o passo que faltava e que causou o gap de
    `done`**, rode `/endurecer-task <dep>` — troca placeholder pela assinatura real e re-carimba
    `hardened_at`. Dependente com **outra** dep ainda aberta: **pule** (reendurecer seria prematuro;
    o painel o pega quando fechar). Em seguida `/arquiteto-promover` promove os que ficaram `hardened`.
-10. **Commit do controle (master do Docs) — COMMIT ESTREITO.** Adicione **só os arquivos que VOCÊ
-   tocou, por path explícito** — `tasks/$ARGUMENTS.md`, `tasks/_pendencias.md` e **cada dependente
-   que reendureceu** (liste por nome). **NUNCA** `git add tasks/`/`tasks/*.md`/`-A` (varre o trabalho
-   não-commitado de outros agentes paralelos). **NÃO** adicione `INDEX.md` — é artefato gitignored.
-   **Use commit ATÔMICO por path** (não `git add … && git commit` — racy sob agente concorrente):
-   `git commit -m "<msg>" -- tasks/$ARGUMENTS.md tasks/_pendencias.md tasks/T-305.md && git push`.
-   Se colidir no `index.lock`/push, `git pull --rebase` e repita.
+10. **Persiste o controle — ENFILEIRE** (agentes não rodam git no Docs; ver Paralelismo no CLAUDE.md).
+   Enfileire UMA intenção com **só os arquivos que VOCÊ tocou** (a 1ª é o id, as demais são paths
+   extras) — `tasks/$ARGUMENTS.md` (default), `tasks/_pendencias.md` e **cada dependente que
+   reendureceu** (liste por nome): `node tools/scripts/fila.mjs add $ARGUMENTS "<msg>"
+   tasks/_pendencias.md tasks/T-305.md`. **NÃO** enfileire `INDEX.md` (gitignored). Um `/drenar-fila`
+   commita+pusha depois — você não toca git no Docs (no superapp, o push do merge já foi no passo 4).
 
 ## Caminho B — Parecer = REQUER REFATORAÇÃO
 
 1. **Pendências:** anexe os **não-bloqueantes** ao `tasks/_pendencias.md` (mesmo formato).
 2. **Devolve:** `node tools/scripts/manage-task.mjs request_changes $ARGUMENTS <SeuNome>
    "Rework: <lista dos Bn/Mn bloqueantes a corrigir>. Não-bloqueantes → ledger."` (review→rework).
-3. **NÃO** faça merge, **NÃO** remova a worktree (o worker volta a usá-la). Commit do controle.
+3. **NÃO** faça merge, **NÃO** remova a worktree (o worker volta a usá-la). **Enfileire** o controle:
+   `node tools/scripts/fila.mjs add $ARGUMENTS "chore($ARGUMENTS): request_changes" tasks/_pendencias.md`.
 
 ## NÃO faça
 

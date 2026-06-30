@@ -79,10 +79,20 @@ Se `$ARGUMENTS` contém a flag **`--integrar`**, depois de o Parecer estar grava
 APROVADO → merge na master + Gate + `approve`; REFATORAÇÃO → `request_changes`. **Sem** a flag, NÃO
 integre — apenas apresente o Parecer e pare (a task fica em `review` para o integrador rodar depois).
 
+## 4b. Persiste o Parecer — ENFILEIRE (sem `--integrar`)
+
+O `agile-reviewer` escreveu o Parecer na Seção 8 de `tasks/<ID>.md`, mas **agentes não rodam git no
+Docs** (ver Paralelismo no CLAUDE.md). Para cada task revisada, enfileire a intenção de commit:
+`node tools/scripts/fila.mjs add <ID> "chore(<ID>): parecer QA"`. Um `/drenar-fila` commita+pusha
+depois. **(Com `--integrar` você NÃO precisa disso aqui** — o `/integrar-task` já enfileira tudo no
+passo 10, incluindo o parecer.) Nunca `git commit`/`push` no Docs.
+
 ## 5. Não faça
 
 - Não modifique código-fonte.
 - Não inicie nenhuma correção.
 - Não transicione status você mesmo (nem `approve`/`request_changes`, nem `done` à mão) — isso é do
   `integrar-task`. Sem `--integrar`, a task **fica em `review`**.
+- Não rode `git commit`/`push`/`add` no Docs — **enfileire** (`fila.mjs add`); o git do controle é só
+  do `/drenar-fila`.
 - Não dispare o worker. O ciclo de fix volta ao worker humano ou ao agente executor.

@@ -41,13 +41,13 @@ do Reviewer**. Use seu identificador onde aparecer `<EU>` — nunca `agile_revie
 7. **Finalize:** `node "<CTRL>/tools/scripts/manage-task.mjs" finish $ARGUMENTS <EU> "rework pronto:
    B1..Bn corrigidos + placar de testes"` (move pra `review`). O reviewer/integrar-task reassume.
 8. **Push do CÓDIGO** (worktree): `git push origin task/$ARGUMENTS`.
-9. **Commit do CONTROLE** (`<CTRL>`) — **atômico por path** (Docs é compartilhado; ver regra de
-   Paralelismo no CLAUDE.md): `git -C "<CTRL>" commit -m "chore($ARGUMENTS): rework + evidência" --
-   tasks/$ARGUMENTS.md`. Não commite `INDEX.md`. **PARE.**
+9. **Persiste o CONTROLE — ENFILEIRE, não comite** (Docs é compartilhado; agentes não rodam git lá —
+   ver regra de Paralelismo no CLAUDE.md): `node "<CTRL>/tools/scripts/fila.mjs" add $ARGUMENTS
+   "chore($ARGUMENTS): rework + evidência"`. Um único `/drenar-fila` commita+pusha depois. **PARE.**
 
 ## NÃO faça
 - NÃO corrija além dos achados bloqueantes do Parecer (escopo fechado).
 - NÃO mexa nos não-bloqueantes do `_pendencias.md` — são do `/agrupar-cleanup`.
 - NÃO chame `approve`/`request_changes` — nem pra "destravar".
 - NÃO finalize sem a saída literal do Gate na Seção 8.
-- NÃO edite `status`/`INDEX`/Log na mão.
+- NÃO edite `status`/`INDEX`/Log na mão. **NÃO rode `git commit`/`push` no Docs — enfileire.**
