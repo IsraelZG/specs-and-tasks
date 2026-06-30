@@ -73,9 +73,12 @@ function ls() {
 
 // ---- flush -----------------------------------------------------------------
 function flush(author = 'fila') {
-  if (!fs.existsSync(queueDir)) return console.log('fila vazia — nada a commitar.');
-  const files = fs.readdirSync(queueDir).filter((f) => f.endsWith('.txt')).sort(); // ordem cronológica
-  if (!files.length) return console.log('fila vazia — nada a commitar.');
+  // Fila vazia NÃO retorna cedo: ainda pode haver commit local não-pushado de uma rodada anterior
+  // cujo push falhou (self-heal mais abaixo). Só não há nada a fazer se a fila vazia E o push em dia.
+  const files = fs.existsSync(queueDir)
+    ? fs.readdirSync(queueDir).filter((f) => f.endsWith('.txt')).sort() // ordem cronológica
+    : [];
+  if (!files.length) console.log('fila vazia — verificando commits pendentes de push…');
 
   let committed = 0;
   const skipped = [];
@@ -112,13 +115,20 @@ function flush(author = 'fila') {
   console.log(`commits: ${committed}` + (skipped.length ? `  ·  pulados: ${skipped.length}` : ''));
   for (const s of skipped) console.log(`  ⚠ ${s}`);
 
-  if (committed > 0) {
+  // Empurra se há QUALQUER commit local não-pushado — não só os desta rodada. Torna o flush
+  // self-healing: se uma rodada anterior commitou mas o push falhou, a próxima ainda empurra.
+  let ahead = '0';
+  try { ahead = git(['rev-list', '--count', '@{u}..HEAD']).trim(); } catch { ahead = committed > 0 ? '?' : '0'; }
+  if (committed > 0 || ahead !== '0') {
     try {
-      git(['pull', '--rebase']);
+      // --autostash: o working tree quase sempre tem edição não-commitada de OUTRO agente; sem
+      // isso o rebase recusa ("unstaged changes"). O autostash guarda e repõe só o que é tracked-mod.
+      git(['pull', '--rebase', '--autostash']);
       git(['push']);
       console.log('✅ push concluído.');
     } catch (e) {
-      console.error('⚠ push falhou (resolva e re-rode flush):', (e.stderr || e.message).trim());
+      console.error('⚠ push falhou (resolva e re-rode flush — ele reempurra os commits pendentes):',
+        (e.stderr || e.message).trim());
       process.exit(1);
     }
   }
