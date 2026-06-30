@@ -189,10 +189,15 @@ export class TaskService {
       const reviewerAgent = (
         this.parseFrontmatterNaive(content).reviewer_agent || 'agile_reviewer'
       ).trim().toLowerCase();
-      if (agent.trim().toLowerCase() !== reviewerAgent) {
+      // O ator pode vir como "<papel>:<modelo>" (ex.: "agile_reviewer:gemini") — o LEDGER quer saber
+      // qual modelo real revisou, mas a AUTORIZAÇÃO continua sendo só do papel (o ":<modelo>" é
+      // metadado, não credencial). Compara só o prefixo antes de ":" contra o papel exigido.
+      const actorRole = agent.trim().toLowerCase().split(':')[0];
+      if (actorRole !== reviewerAgent) {
         throw new ForbiddenRoleError(
           `Ação '${action}' é exclusiva do Reviewer ('${reviewerAgent}'). O agente '${agent}' ` +
-            `não pode aprovar/rejeitar a própria tarefa — use 'pause' para handoff e aguarde o /qa-review.`,
+            `não pode aprovar/rejeitar a própria tarefa — use 'pause' para handoff e aguarde o /qa-review. ` +
+            `(Para registrar o modelo revisor no ledger, use '${reviewerAgent}:<modelo>'.)`,
         );
       }
     }

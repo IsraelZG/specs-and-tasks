@@ -176,6 +176,29 @@ describe('Tasks REST API (createApp)', () => {
     expect(res.status).toBe(403);
   });
 
+  it('POST transition approve com agent "agile_reviewer:<modelo>" → 200 (papel autorizado, modelo registrado)', async () => {
+    write('T-811b', 'review');
+    const res = await post('/api/tasks/T-811b/transition', {
+      action: 'approve',
+      agent: 'agile_reviewer:gemini',
+      message: 'ok',
+    });
+    expect(res.status).toBe(200);
+    const dto = await res.json();
+    expect(dto.status).toBe('done');
+    expect(dto.log.at(-1).agent).toBe('agile_reviewer:gemini');
+  });
+
+  it('POST transition approve com agent "outropapel:modelo" → 403 (prefixo de papel ainda é checado)', async () => {
+    write('T-811c', 'review');
+    const res = await post('/api/tasks/T-811c/transition', {
+      action: 'approve',
+      agent: 'dev:gemini',
+      message: 'ok',
+    });
+    expect(res.status).toBe(403);
+  });
+
   it('POST transition sob drift (status adulterado) → 409', async () => {
     write('T-812', 'ready');
     // Semeia o ledger com start

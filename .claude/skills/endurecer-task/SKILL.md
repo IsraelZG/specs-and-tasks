@@ -52,7 +52,7 @@ mole, porque finge dureza. Na dúvida entre derivar e inventar: é ABERTO.
 
    | Destino (`spec_status`) | Quando | Ação |
    |---|---|---|
-   | **`hardened`** | zero decisões em aberto, tudo derivado+citado, executável | atribua `capacity_target` (ver abaixo) + carimbe `hardened_at: <hoje ou commit>` **e `hardened_by: <SeuNome>`** (alimenta a coluna "Endurecido por" do `ledger.mjs` — o endurecimento não passa pelo serviço, então é o único registro do ator). Recomende `ready` no relatório — o arquiteto faz o flip de `status`. |
+   | **`hardened`** | zero decisões em aberto, tudo derivado+citado, executável | atribua `capacity_target` (ver abaixo) + carimbe `hardened_at: <hoje ou commit>` **e `hardened_by: <SeuModelo>`** — o **modelo real**, não harness/papel (alimenta a coluna "Endurecido por" do `ledger.mjs` — o endurecimento não passa pelo serviço, então é o único registro do ator). Recomende `ready` no relatório — o arquiteto faz o flip de `status`. |
    | **`blocked-decision`** | resta decisão de arquiteto (não de arquitetura grande, só uma escolha) | preencha `decisions: ["..."]` espelhando a Seção 6. Fica fora da fila de execução até o arquiteto decidir. `status` segue `draft`. |
    | **`decomposed`** | grande/multi-concern, **fatia limpo** em peças menores | crie filhos `T-XXXa/b/c` (`dependencies`/parent), cada um endurecido por sua vez. Esta vira casca. `status` segue `draft`. |
    | **`triaged`** (pass-1 só) | você só triou (capacidade/spike/decompor) sem ter as deps reais p/ assinaturas | deixe `triaged`; o pass-2 profundo roda just-in-time, quando as deps estiverem `done`. |

@@ -36,6 +36,19 @@ Falha de ambiente durante uma transição é ela mesma um BLOCKER — registre c
 `request_changes`), nunca contorne escrevendo o arquivo na mão.
 Ações: start, pause, finish, approve, request_changes, block, unblock.
 Ciclo: draft → ready → in_progress → review → rework → done (+ blocked).
+
+> **Identidade do agente (`<SeuNome>`/`<EU>`) — INVIOLÁVEL.** O Log §9 e o `ledger.mjs` só têm valor
+> se `<SeuNome>` for o **modelo real** que está rodando — não o harness, não o papel. Regras:
+> - **SIM:** o identificador do modelo subjacente — `deepseek`, `gemini`, `claude-opus`, `minimax`, `claude-sonnet` etc.
+> - **NÃO o harness/ferramenta** que hospeda o modelo — `Crush`, `Antigravity`, `opencode` não são
+>   identidade de modelo, são o TUI/orquestrador. Se você roda via Crush (que roteia por Headroom),
+>   passe o modelo que o Headroom de fato serviu, não "Crush".
+> - **NÃO o papel/perfil** da task — `agile_reviewer`, `devops_agent`, `logic_agent`, `spec_hardener`,
+>   `arquiteto` são `target_agent`/`reviewer_agent` (rótulos de função no frontmatter), não identidade.
+> - **Exceção (gate do serviço):** `approve`/`request_changes` exigem que o ator comece com o **papel**
+>   exigido por `reviewer_agent` (default `agile_reviewer`) — é o que impede auto-aprovação. Para
+>   registrar o modelo revisor mesmo assim, use o formato **`agile_reviewer:<modelo>`** (ex.:
+>   `agile_reviewer:gemini`) — o serviço autoriza pelo prefixo antes de `:`, o ledger exibe só o modelo.
 Cada task iniciada ganha uma branch task/<ID> (isolamento) **no repo superapp (código).** No repo Docs (controle), tarefas são editadas diretamente na `master` — o histórico de gestão (status, pareceres, logs) precisa ser visível a todos sem depender de merge.
 
 > **Paralelismo no controle (INVIOLÁVEL).** O Docs é um working tree único na `master` com vários agentes ao mesmo tempo. **Agentes NÃO rodam git no Docs** — nem `commit`, nem `push`, nem `add`. Isso tirava tempo (sobretudo do QA) com `index.lock`, disputa de push e "filtrar o que é meu". Em vez disso:

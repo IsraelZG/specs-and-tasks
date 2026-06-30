@@ -12,7 +12,10 @@ Você é um **Worker**. Há **DOIS repos**:
 - **CÓDIGO** = a **sua pasta atual** (a worktree do `superapp`, já na branch `task/$ARGUMENTS`). É
   onde você **implementa, commita e pusha**.
 
-Use seu identificador (ex.: `DeepSeek`) onde aparecer `<EU>` — **nunca** `agile_reviewer`.
+Use o **MODELO real** (ex.: `deepseek`, `gemini`, `claude-sonnet`, `minimax`) onde aparecer `<EU>` —
+**nunca** o harness/TUI que te hospeda (`Crush`, `Antigravity`, `opencode` não são identidade) e
+**nunca** um papel (`agile_reviewer`, `devops_agent`, `logic_agent`). Ver "Identidade do agente" no
+CLAUDE.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
 
 ## Contrato inegociável
 - A **spec é a fonte da verdade**. Leia `<CTRL>/tasks/$ARGUMENTS.md` INTEIRA antes de codar.

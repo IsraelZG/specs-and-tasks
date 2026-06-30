@@ -22,8 +22,9 @@ não-draft. Aqui você só transcreve esse sinal para o lifecycle, **pelo servi�
 ## Passos
 1. **Liste os promovíveis:** `node tools/scripts/hardening.mjs $ARGUMENTS` → seção **PROMOVÍVEIS**
    (`spec_status: hardened` + lifecycle `draft`). Se vazia, **pare** — nada a fazer.
-2. **Promova cada um pelo serviço:**
-   `node tools/scripts/manage-task.mjs promote <ID> <SeuNome> "spec_status hardened — flip draft→ready"`.
+2. **Promova cada um pelo serviço.** `<SeuModelo>` é o **modelo real** (ex.: `haiku`), nunca o literal
+   "arquiteto" (isso é o papel, não a identidade — ver "Identidade do agente" no CLAUDE.md):
+   `node tools/scripts/manage-task.mjs promote <ID> <SeuModelo> "spec_status hardened — flip draft→ready"`.
    - Se o serviço rejeitar (`requer status draft`), a task já saiu de `draft` (corrida com outro
      agente) — **pule**, não force.
 3. **Re-rode o painel:** `node tools/scripts/hardening.mjs $ARGUMENTS` — PROMOVÍVEIS deve esvaziar.

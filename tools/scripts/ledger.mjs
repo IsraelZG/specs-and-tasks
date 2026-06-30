@@ -48,12 +48,23 @@ function parseLog(txt) {
   return out;
 }
 
+/**
+ * Atores de `approve`/`request_changes` vêm como `<papel>:<modelo>` (ex.: "agile_reviewer:gemini")
+ * — o papel autoriza a ação (gate do serviço), o modelo é o que o LEDGER quer mostrar. Para dados
+ * legados sem ":" (ex.: "agile_reviewer" sozinho, ou harness "Crush"/"Antigravity"), mostra como está.
+ */
+function displayActor(actor) {
+  const i = actor.indexOf(':');
+  return i === -1 ? actor : actor.slice(i + 1).trim() || actor;
+}
+
 /** Atribui papéis a partir da sequência de labels. */
 function roles(log) {
   let worker = null, finisher = null, promotedBy = null;
   const reviewers = [], reworks = [];
   let pendingReqChanges = false;
-  for (const { actor, label } of log) {
+  for (const { actor: rawActor, label } of log) {
+    const actor = displayActor(rawActor);
     if (/Iniciado/i.test(label)) {
       if (!worker) worker = actor;            // 1ª execução
       else if (pendingReqChanges) reworks.push(actor); // start logo após request_changes = rework
@@ -88,7 +99,7 @@ function cellRework(r) {
 }
 function cellLast(r) {
   if (!r.last) return '—';
-  return `${r.last.ts.slice(0, 10)} ${r.last.actor} \`${r.last.label}\``;
+  return `${r.last.ts.slice(0, 10)} ${displayActor(r.last.actor)} \`${r.last.label}\``;
 }
 
 // ---- coleta ----------------------------------------------------------------

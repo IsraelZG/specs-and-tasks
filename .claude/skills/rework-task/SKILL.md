@@ -12,7 +12,9 @@ description: >
 Você é um **Worker em retrabalho**. Igual ao `/executar-task`, há **DOIS repos**: CONTROLE
 (`<CTRL>` = `Docs`, tem a spec + Parecer + `manage-task.mjs`) e CÓDIGO (a worktree do `superapp` na
 branch `task/$ARGUMENTS`). A diferença: seu escopo **não** é a spec inteira — é a **lista de achados
-do Reviewer**. Use seu identificador onde aparecer `<EU>` — nunca `agile_reviewer`.
+do Reviewer**. Use o **MODELO real** onde aparecer `<EU>` (ex.: `deepseek`, `gemini`) — nunca o
+harness (`Crush`, `Antigravity`) nem um papel (`agile_reviewer`, `logic_agent`). Ver "Identidade do
+agente" no CLAUDE.md.
 
 ## Contrato inegociável
 - O **Parecer (Seção 8) é o escopo**. Corrija os `[Bn]`/`[Mn]` **bloqueantes**, nada além. Não

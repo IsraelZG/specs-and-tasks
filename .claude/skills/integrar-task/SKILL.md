@@ -50,15 +50,16 @@ que já está na Seção 8 da task. É o passo que faltava e que causou o gap de
 7. **Pendências:** extraia os achados **não-bloqueantes** (`MAJOR`/`MINOR`/`INFO`) dos pareceres da
    Seção 8 e **anexe** ao `tasks/_pendencias.md` (entre os marcadores `BEGIN/END PENDENCIAS`), uma
    linha por achado: `- [ ] [M|m|i][$ARGUMENTS][pacote] achado — ref`. (Não crie task `-followup`.)
-8. **Fecha o status pelo serviço:** `node tools/scripts/manage-task.mjs approve $ARGUMENTS
-   <SeuNome> "Integrado: merge na master (commit <hash>), worktree removida, Gate verde
-   (<evidência>). N não-bloqueantes → ledger de pendências."`
+8. **Fecha o status pelo serviço:** o ator é `agile_reviewer:<SeuModelo>` (papel autoriza, modelo fica
+   no ledger — ver "Identidade do agente" no CLAUDE.md): `node tools/scripts/manage-task.mjs approve
+   $ARGUMENTS agile_reviewer:<SeuModelo> "Integrado: merge na master (commit <hash>), worktree
+   removida, Gate verde (<evidência>). N não-bloqueantes → ledger de pendências."`
 9. **Encerra pais decomposed (se aplicável).** Se `$ARGUMENTS` é uma task filha (ID com sufixo
    `a`/`b`/`c` ou nome indica split), verifique se existe um pai com `spec_status: decomposed`.
    Leia o frontmatter `blocks:` do pai para encontrar todas as filhas. Se **todas** estiverem `done`:
-   fast-track o pai pelo serviço: `promote → start → finish → approve agile_reviewer` com mensagem
-   "decomposed — filhas <lista> concluídas". Nunca edite o status do pai na mão. Se alguma filha
-   ainda não for `done`, pule — o pai será encerrado quando a última filha for integrada.
+   fast-track o pai pelo serviço: `promote → start → finish → approve agile_reviewer:<SeuModelo>` com
+   mensagem "decomposed — filhas <lista> concluídas". Nunca edite o status do pai na mão. Se alguma
+   filha ainda não for `done`, pule — o pai será encerrado quando a última filha for integrada.
 10. **Reendurece os dependentes (JIT).** Agora que `$ARGUMENTS` é `done`, a fundação que os
    dependentes dela só podiam citar vagamente **existe de verdade**. Rode
    `node tools/scripts/hardening.mjs` e olhe **REENDURECER**. Para cada dependente de `$ARGUMENTS`
@@ -66,7 +67,7 @@ que já está na Seção 8 da task. É o passo que faltava e que causou o gap de
    `done`**, rode `/endurecer-task <dep>` — troca placeholder pela assinatura real e re-carimba
    `hardened_at`. Dependente com **outra** dep ainda aberta: **pule** (reendurecer seria prematuro;
    o painel o pega quando fechar). Em seguida `/arquiteto-promover` promove os que ficaram `hardened`.
-10. **Persiste o controle — ENFILEIRE** (agentes não rodam git no Docs; ver Paralelismo no CLAUDE.md).
+11. **Persiste o controle — ENFILEIRE** (agentes não rodam git no Docs; ver Paralelismo no CLAUDE.md).
    Enfileire UMA intenção com **só os arquivos que VOCÊ tocou** (a 1ª é o id, as demais são paths
    extras) — `tasks/$ARGUMENTS.md` (default), `tasks/_pendencias.md` e **cada dependente que
    reendureceu** (liste por nome): `node tools/scripts/fila.mjs add $ARGUMENTS "<msg>"
@@ -76,7 +77,7 @@ que já está na Seção 8 da task. É o passo que faltava e que causou o gap de
 ## Caminho B — Parecer = REQUER REFATORAÇÃO
 
 1. **Pendências:** anexe os **não-bloqueantes** ao `tasks/_pendencias.md` (mesmo formato).
-2. **Devolve:** `node tools/scripts/manage-task.mjs request_changes $ARGUMENTS <SeuNome>
+2. **Devolve:** `node tools/scripts/manage-task.mjs request_changes $ARGUMENTS agile_reviewer:<SeuModelo>
    "Rework: <lista dos Bn/Mn bloqueantes a corrigir>. Não-bloqueantes → ledger."` (review→rework).
 3. **NÃO** faça merge, **NÃO** remova a worktree (o worker volta a usá-la). **Enfileire** o controle:
    `node tools/scripts/fila.mjs add $ARGUMENTS "chore($ARGUMENTS): request_changes" tasks/_pendencias.md`.

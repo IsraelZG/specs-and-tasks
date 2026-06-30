@@ -205,7 +205,7 @@ Estrutura obrigatória:
 ```
 QA REPORT — <TASK_ID> — <título>
 ═══════════════════════════════════════════════════
-Data: <ISO>  |  Revisor: agile_reviewer
+Data: <ISO>  |  Revisor: agile_reviewer (<seu-modelo-real>)
 Spec consultada: seções 1–7  |  Arquivos auditados: N
 Testes: M rodados · P passaram · F falharam
 tsc: OK / <N erros>  |  lint: OK / <N erros>
