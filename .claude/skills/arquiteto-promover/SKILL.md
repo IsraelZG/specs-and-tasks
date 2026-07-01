@@ -32,6 +32,10 @@ não-draft. Aqui você só transcreve esse sinal para o lifecycle, **pelo servi�
    Enfileire UMA intenção com todas as tasks que VOCÊ promoveu (a 1ª é o id, as demais são paths
    extras): `node tools/scripts/fila.mjs add T-206 "chore(arquiteto): promove N tasks hardened
    draft→ready" tasks/T-212.md`. Um `/drenar-fila` commita+pusha depois. **Não** enfileire `INDEX.md`.
+5. **Dispara o orquestrador (fire-and-forget) para cada task promovida.** Para cada `<ID>` que você
+   promoveu, rode **sem aguardar** `node tools/scripts/orquestrar.mjs --on-finish <ID>` — para
+   liberar os slots e deixar o orquestrador despachar os próximos passos. NÃO espere a saída nem
+   cole no Gate; é disparar e seguir.
 
 ## NÃO faça
 - **NÃO** promova task que não esteja em **PROMOVÍVEIS** (se está `draft` mas não `hardened`, falta

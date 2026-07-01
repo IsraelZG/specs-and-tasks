@@ -46,6 +46,9 @@ agente" no CLAUDE.md.
 9. **Persiste o CONTROLE — ENFILEIRE, não comite** (Docs é compartilhado; agentes não rodam git lá —
    ver regra de Paralelismo no CLAUDE.md): `node "<CTRL>/tools/scripts/fila.mjs" add $ARGUMENTS
    "chore($ARGUMENTS): rework + evidência"`. Um único `/drenar-fila` commita+pusha depois. **PARE.**
+10. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
+   `node tools/scripts/orquestrar.mjs --on-finish $ARGUMENTS` — para liberar seu slot e deixar o
+   orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; é disparar e seguir.
 
 ## NÃO faça
 - NÃO corrija além dos achados bloqueantes do Parecer (escopo fechado).

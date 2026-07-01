@@ -67,7 +67,10 @@ CLAUDE.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
    node "<CTRL>/tools/scripts/fila.mjs" add $ARGUMENTS "chore($ARGUMENTS): review + evidência"
    ```
    Um único `/drenar-fila` (consumidor serial) commita+pusha depois. Você não toca git no Docs.
-9. **Próxima task:** só depois desta em `review`, com código pushado e controle **enfileirado**. **PARE.**
+9. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
+   `node tools/scripts/orquestrar.mjs --on-finish $ARGUMENTS` — para liberar seu slot e deixar o
+   orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; é disparar e seguir.
+10. **Próxima task:** só depois desta em `review`, com código pushado e controle **enfileirado**. **PARE.**
 
 ## NÃO faça
 - NÃO toque arquivos fora da Seção 3 (no CÓDIGO); NÃO toque o repo do nexus.

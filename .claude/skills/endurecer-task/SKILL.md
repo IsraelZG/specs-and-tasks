@@ -93,6 +93,10 @@ CLAUDE.md): `node tools/scripts/fila.mjs add $ARGUMENTS "chore($ARGUMENTS): endu
 Um `/drenar-fila` commita+pusha depois. (Quando chamada por `/arquiteto-decisoes`/`/endurecer-fila`,
 o orquestrador pode enfileirar o lote de uma vez — não enfileire em duplicidade.)
 
+**Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
+`node tools/scripts/orquestrar.mjs --on-finish $ARGUMENTS` — para liberar seu slot e deixar o
+orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; é disparar e seguir.
+
 ## ⛔ NÃO faça
 - NÃO escreva código de implementação nem testes reais — só a **spec** da task.
 - NÃO toque em nenhum arquivo além de `tasks/$ARGUMENTS.md`.

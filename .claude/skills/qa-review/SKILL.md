@@ -87,6 +87,11 @@ Docs** (ver Paralelismo no CLAUDE.md). Para cada task revisada, enfileire a inte
 depois. **(Com `--integrar` você NÃO precisa disso aqui** — o `/integrar-task` já enfileira tudo no
 passo 10, incluindo o parecer.) Nunca `git commit`/`push` no Docs.
 
+**Após enfileirar cada task, dispare o orquestrador (fire-and-forget):** rode **sem aguardar**
+`node tools/scripts/orquestrar.mjs --on-finish <ID>` — para liberar seu slot e deixar o
+orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; é disparar e seguir.
+(Com `--integrar`, o `/integrar-task` já faz isso — não duplique.)
+
 ## 5. Não faça
 
 - Não modifique código-fonte.

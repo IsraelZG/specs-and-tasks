@@ -91,6 +91,9 @@ ORQ-02 esperando ORQ-01 (aprovada na mão, sem a propagação JIT).
    reendureceu** (liste por nome): `node tools/scripts/fila.mjs add $ARGUMENTS "<msg>"
    tasks/_pendencias.md tasks/T-305.md`. **NÃO** enfileire `INDEX.md` (gitignored). Um `/drenar-fila`
    commita+pusha depois — você não toca git no Docs (no superapp, o push do merge já foi no passo 4).
+12. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
+   `node tools/scripts/orquestrar.mjs --on-finish $ARGUMENTS` — para liberar seu slot e deixar o
+   orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; é disparar e seguir.
 
 ## Caminho B — Parecer = REQUER REFATORAÇÃO
 
@@ -99,6 +102,9 @@ ORQ-02 esperando ORQ-01 (aprovada na mão, sem a propagação JIT).
    "Rework: <lista dos Bn/Mn bloqueantes a corrigir>. Não-bloqueantes → ledger."` (review→rework).
 3. **NÃO** faça merge, **NÃO** remova a worktree (o worker volta a usá-la). **Enfileire** o controle:
    `node tools/scripts/fila.mjs add $ARGUMENTS "chore($ARGUMENTS): request_changes" tasks/_pendencias.md`.
+4. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
+   `node tools/scripts/orquestrar.mjs --on-finish $ARGUMENTS` — para que o orquestrador veja o rework
+   e despache o próximo agente. NÃO espere a saída nem cole no Gate; é disparar e seguir.
 
 ## NÃO faça
 
