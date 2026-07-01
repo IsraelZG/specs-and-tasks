@@ -18,10 +18,11 @@
  *   PIDs: %TEMP%/headroom-proxies.pid.json
  *   Logs: %TEMP%/headroom-<name>-<port>.log
  */
-import { spawn } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync, openSync } from 'node:fs';
+import { spawn, execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync, openSync, readdirSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 import { createServer as createHttpServer } from 'node:http';
 
@@ -122,6 +123,15 @@ async function waitForHealth(url, timeoutMs = 8000) {
     await new Promise(r => setTimeout(r, 500));
   }
   return false;
+}
+
+function rootDir() {
+  return join(dirname(fileURLToPath(import.meta.url)), '..');
+}
+
+function die(msg) {
+  console.error(msg);
+  process.exit(1);
 }
 
 function resolveHeadroom() {
@@ -306,6 +316,56 @@ function cmdDashboard(portOverride) {
       } catch (e) { json(res, 500, { ok: false, error: e.message }); }
       return;
     }
+    // GET /api/ledger — estado das tasks via ledger.mjs
+    if (req.url === '/api/ledger' || req.url?.startsWith('/api/ledger?')) {
+      try {
+        const args = ['tools/scripts/ledger.mjs', '--json'];
+        if (req.url.includes('?status=')) {
+          const status = req.url.split('?status=')[1]?.split('&')[0];
+          if (status) args.push('--status', status);
+        }
+        const out = execFileSync('node', args, { encoding: 'utf8', cwd: rootDir() });
+        json(res, 200, JSON.parse(out.trim()));
+      } catch (e) { json(res, 500, { ok: false, error: e.message }); }
+      return;
+    }
+    // GET /api/instances — pidfiles do orquestrador com prune de mortos
+    if (req.url === '/api/instances') {
+      try {
+        const orchDir = join(rootDir(), 'tasks', '.orchestrator');
+        const instances = [];
+        if (existsSync(orchDir)) {
+          for (const f of readdirSync(orchDir)) {
+            if (!f.endsWith('.json')) continue;
+            const fp = join(orchDir, f);
+            try {
+              const data = JSON.parse(readFileSync(fp, 'utf8'));
+              if (typeof data.pid !== 'number') continue;
+              try { process.kill(data.pid, 0); } catch { unlinkSync(fp); continue; }
+              instances.push(data);
+            } catch { try { unlinkSync(fp); } catch {} }
+          }
+        }
+        json(res, 200, instances);
+      } catch (e) { json(res, 500, { ok: false, error: e.message }); }
+      return;
+    }
+    // GET /api/saldo — saldos dos provedores
+    if (req.url === '/api/saldo') {
+      try {
+        const out = execFileSync('node', ['tools/scripts/saldo.mjs', '--json'], { encoding: 'utf8', cwd: rootDir() });
+        json(res, 200, JSON.parse(out.trim()));
+      } catch { json(res, 200, []); }
+      return;
+    }
+    // POST /api/dispatch — dispara o orquestrador
+    if (req.method === 'POST' && req.url === '/api/dispatch') {
+      try {
+        const out = execFileSync('node', ['tools/scripts/orquestrar.mjs', '--once'], { encoding: 'utf8', cwd: rootDir() });
+        json(res, 200, { ok: true, output: out.trim() });
+      } catch (e) { json(res, 500, { ok: false, error: e.message, output: e.stdout?.toString() || '' }); }
+      return;
+    }
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(DASHBOARD_HTML);
   });
@@ -317,7 +377,7 @@ function cmdDashboard(portOverride) {
 
 const DASHBOARD_HTML = `<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Headroom Proxies</title><style>
+<title>Painel MGTIA</title><style>
 *{box-sizing:border-box}body{margin:0;font:14px/1.5 system-ui,sans-serif;background:#0f1115;color:#e6e8ec}
 header{padding:18px 24px;border-bottom:1px solid #232730;display:flex;align-items:baseline;gap:14px}
 h1{font-size:18px;margin:0;font-weight:650}#meta{color:#8b93a1;font-size:12px}
@@ -336,12 +396,43 @@ main{padding:20px 24px;display:grid;gap:14px;grid-template-columns:repeat(auto-f
 .bar>i{display:block;height:100%;background:linear-gradient(90deg,#3fb950,#58d977)}
 .off{color:#6b7280;font-style:italic;padding:6px 0}
 .actions{display:flex;gap:8px;margin-top:13px}
-button.act{flex:1;padding:7px 8px;border:1px solid #2b303b;border-radius:7px;background:#1d212a;color:#e6e8ec;font:inherit;font-size:12px;cursor:pointer}
-button.act:hover{background:#252b36}button.act:disabled{opacity:.5;cursor:wait}
-button.start{border-color:#2d5a36}button.stop{border-color:#5a2d2d}
+button{flex:1;padding:7px 8px;border:1px solid #2b303b;border-radius:7px;background:#1d212a;color:#e6e8ec;font:inherit;font-size:12px;cursor:pointer}
+button:hover{background:#252b36}button:disabled{opacity:.5;cursor:wait}
+button.stop{border-color:#5a2d2d}
+button.dispatch{background:#1a3a1f;border-color:#2d5a36;font-size:14px;font-weight:600;padding:10px}
+button.dispatch:hover{background:#1f4527}
+/* sections */
+section{margin:0 24px 20px}
+section h2{font-size:15px;font-weight:650;margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid #232730}
+/* instances */
+.inst-grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.inst-card{background:#171a21;border:1px solid #232730;border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center}
+.inst-id{font-weight:650;font-size:14px}.inst-meta{color:#8b93a1;font-size:11px}
+/* ledger */
+.ledger-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.ledger-group{background:#171a21;border:1px solid #232730;border-radius:10px;padding:12px}
+.ledger-status{font-weight:650;font-size:13px;margin-bottom:6px;text-transform:uppercase}
+.ledger-item{font-size:12px;color:#8b93a1;padding:2px 0}
+.ledger-item span{color:#e6e8ec;font-weight:550}
+/* saldo */
+.saldo-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.saldo-card{background:#171a21;border:1px solid #232730;border-radius:10px;padding:12px}
+.saldo-name{font-weight:650;font-size:14px}.saldo-val{font-size:18px;font-weight:600;margin-top:4px}
+.saldo-val.ok{color:#3fb950}.saldo-val.low{color:#d29922}.saldo-val.bad{color:#f85149}
+.saldo-meta{color:#6b7280;font-size:11px;margin-top:2px}
+/* toolbar */
+.toolbar{display:flex;gap:10px;margin:0 24px 16px;flex-wrap:wrap}
+.empty{color:#6b7280;font-style:italic;padding:6px 0}
 </style></head><body>
-<header><h1>Headroom Proxies</h1><span id="meta">carregando…</span></header>
+<header><h1>Painel MGTIA</h1><span id="meta">carregando…</span></header>
+<div class="toolbar">
+  <button class="dispatch" onclick="dispatch()">▶ Despachar</button>
+  <span id="dispatch-msg" style="color:#8b93a1;font-size:12px;padding:10px 0"></span>
+</div>
 <main id="grid"></main>
+<section><h2>Instâncias (Orquestrador)</h2><div id="instances"><div class="empty">carregando…</div></div></section>
+<section><h2>Ledger</h2><div id="ledger"><div class="empty">carregando…</div></div></section>
+<section><h2>Saldos</h2><div id="saldo"><div class="empty">carregando…</div></div></section>
 <script>
 const fmt=n=>n>=1000?(n/1000).toFixed(1)+'k':String(n);
 const pct=n=>(n||0).toFixed(1)+'%';
@@ -349,7 +440,7 @@ function card(p){
   if(!p.up) return \`<div class="card"><div class="top"><span class="dot down"></span>
     <span class="name">\${p.name}</span><span class="port">:\${p.port}</span></div>
     <div class="base">\${p.apiBase}</div><div class="off">⚫ offline</div>
-    <div class="actions"><button class="act start" onclick="act('\${p.name}','start',this)">▶ Start</button></div></div>\`;
+    <div class="actions"><button onclick="act('\${p.name}','start',this)">▶ Start</button></div></div>\`;
   return \`<div class="card"><div class="top"><span class="dot up"></span>
     <span class="name">\${p.name}</span><span class="port">:\${p.port} · v\${p.version??'?'}</span></div>
     <div class="base">\${p.model?('▸ '+p.model+'  '):''}\${p.apiBase}</div>
@@ -363,8 +454,8 @@ function card(p){
       <div><div class="k">Uptime</div><div class="v">\${Math.floor(p.uptime/60)}<small>min</small></div></div>
     </div>
     <div class="actions">
-      <button class="act stop" onclick="act('\${p.name}','stop',this)">■ Stop</button>
-      <button class="act" onclick="act('\${p.name}','restart',this)">⟳ Restart</button>
+      <button class="stop" onclick="act('\${p.name}','stop',this)">■ Stop</button>
+      <button onclick="act('\${p.name}','restart',this)">⟳ Restart</button>
     </div></div>\`;
 }
 async function act(name,action,btn){
@@ -384,7 +475,46 @@ async function tick(){
     document.getElementById('meta').textContent=\`\${up}/\${d.length} online · atualizado \${new Date().toLocaleTimeString()}\`;
   }catch(e){document.getElementById('meta').textContent='erro ao buscar status';}
 }
-tick();setInterval(tick,4000);
+// Instances
+async function tickInstances(){
+  try{
+    const r=await fetch('/api/instances');const d=await r.json();
+    if(!d.length){document.getElementById('instances').innerHTML='<div class="empty">nenhuma instância rodando</div>';return;}
+    document.getElementById('instances').innerHTML='<div class="inst-grid">'+d.map(i=>\`<div class="inst-card"><div><div class="inst-id">\${i.id||'?'}</div><div class="inst-meta">\${i.model||'?'} · \${i.role||'?'}</div></div><div class="inst-meta">desde \${i.started?new Date(i.started).toLocaleTimeString():'?'}</div></div>\`).join('')+'</div>';
+  }catch(e){document.getElementById('instances').innerHTML='<div class="empty">erro ao carregar</div>';}
+}
+// Ledger
+async function tickLedger(){
+  try{
+    const r=await fetch('/api/ledger');const d=await r.json();
+    if(!d.length){document.getElementById('ledger').innerHTML='<div class="empty">ledger vazio</div>';return;}
+    const groups={};
+    for(const t of d){const s=t.status||'?';if(!groups[s])groups[s]=[];groups[s].push(t);}
+    const statusColors={ready:'#3fb950',in_progress:'#58a6ff',review:'#d29922',rework:'#f85149',done:'#8b93a1',draft:'#6b7280'};
+    document.getElementById('ledger').innerHTML='<div class="ledger-grid">'+Object.entries(groups).map(([s,ts])=>\`<div class="ledger-group"><div class="ledger-status" style="color:\${statusColors[s]||'#8b93a1'}">\${s} (\${ts.length})</div>\`+ts.map(t=>\`<div class="ledger-item"><span>\${t.id}</span> \${t.title||''} <small>\${t.capacity_target||''}</small></div>\`).join('')+'</div>').join('')+'</div>';
+  }catch(e){document.getElementById('ledger').innerHTML='<div class="empty">erro ao carregar</div>';}
+}
+// Saldo
+async function tickSaldo(){
+  try{
+    const r=await fetch('/api/saldo');const d=await r.json();
+    if(!d.length){document.getElementById('saldo').innerHTML='<div class="empty">sem dados de saldo</div>';return;}
+    document.getElementById('saldo').innerHTML='<div class="saldo-grid">'+d.map(s=>\`<div class="saldo-card"><div class="saldo-name">\${s.provider||'?'}</div><div class="saldo-val \${!s.ok?'bad':(s.available_usd<0.50?'low':'ok')}">\${s.available_usd!=null?'$'+Number(s.available_usd).toFixed(2):'?'}</div><div class="saldo-meta">\${s.ok!==false?'ok':'erro'}\${s.pending_usd!=null?' · pendente $'+Number(s.pending_usd).toFixed(2):''}</div></div>\`).join('')+'</div>';
+  }catch(e){document.getElementById('saldo').innerHTML='<div class="empty">erro ao carregar</div>';}
+}
+// Dispatch
+async function dispatch(){
+  const btn=document.querySelector('button.dispatch');const msg=document.getElementById('dispatch-msg');
+  btn.disabled=true;btn.textContent='⏳ Despachando…';msg.textContent='';
+  try{
+    const r=await fetch('/api/dispatch',{method:'POST'});const j=await r.json();
+    msg.textContent=j.ok?'✅ Despacho concluído':('❌ '+ (j.error||'falhou'));
+    setTimeout(()=>{tickInstances();tickLedger();},1200);
+  }catch(e){msg.textContent='❌ erro: '+e.message;}
+  finally{btn.textContent='▶ Despachar';btn.disabled=false;setTimeout(()=>{msg.textContent='';},5000);}
+}
+tick();tickInstances();tickLedger();tickSaldo();
+setInterval(tick,4000);setInterval(tickInstances,5000);setInterval(tickLedger,8000);setInterval(tickSaldo,15000);
 </script></body></html>`;
 
 // ── Main ────────────────────────────────────────────────────────────────
