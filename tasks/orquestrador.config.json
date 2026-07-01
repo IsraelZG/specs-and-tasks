@@ -1,0 +1,34 @@
+{
+  "max_concurrent": 5,
+  "roster": {
+    "by_level": {
+      "haiku":  ["deepinfra/deepseek-v4-flash", "minimax/minimax-m2.5"],
+      "sonnet": ["aihubmix/deepseek-v4-pro", "minimax/minimax-m3"],
+      "opus":   ["anthropic/claude-opus-4-8"]
+    },
+    "by_capability": {
+      "vision": ["aihubmix/qwen-vl-max", "gemini/gemini-3-pro"]
+    }
+  },
+  "routing": {
+    "frontend_qa": { "requires": ["vision"], "min_level": "sonnet" }
+  },
+  "action_skill": {
+    "work": "executar-task",
+    "rework": "rework-task",
+    "review": "qa-review",
+    "harden": "endurecer-task",
+    "promote": "arquiteto-promover"
+  },
+  "priority": ["review", "rework", "work", "harden", "promote"],
+  "circuit_breaker": { "max_review_cycles": 3 },
+  "provider_accounts": {
+    "deepinfra": "deepseek",
+    "aihubmix": "deepseek",
+    "openrouter": "openrouter",
+    "minimax": "minimax",
+    "anthropic": "anthropic",
+    "gemini": "gemini"
+  },
+  "providers_balance": { "skip_below_usd": 0.50 }
+}

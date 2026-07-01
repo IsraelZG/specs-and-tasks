@@ -1,7 +1,7 @@
 ---
 id: ORQ-02
 title: "orquestrar.mjs --dry-run + orquestrador.config.json — núcleo de decisão (sem spawn)"
-status: ready
+status: done
 complexity: 5
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -136,14 +136,91 @@ node tools/scripts/orquestrar.mjs --dry-run --ledger-file /tmp/led.json
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
--
+- `tools/scripts/orquestrar.mjs` criado com todas as funções exportadas: `loadConfig`, `fetchLedger`, `fetchBalances`, `selectModel`, `planDispatch`.
+- `tasks/orquestrador.config.json` já existia (criado por deepseek na sessão anterior). Config validada no `loadConfig()`.
+- `--dry-run` funcional com fixture e ledger real.
+- `--once`/`--on-finish` são stubs (ORQ-04).
+- Degradação de `saldo.mjs` testada: fetchBalances retorna `[]` em erro.
+
 ### Parecer do Agente Revisor (Reviewer):
+- [ ] **Aprovado**  - [ ] **Requer Refatoração**
+- **Evidência:**
+```
+Slots disponíveis: 5 (max_concurrent - 0 em execução)
+
+Plano de despacho:
+  ID   Ação    Modelo                       Motivo
+  ---  ------  ---------------------------  -----------------
+  T-A  review  minimax/minimax-m3           sonnet / minimax
+  T-B  work    deepinfra/deepseek-v4-flash  haiku / deepinfra
+
+Pulados:
+  T-C: sem modelo p/ capacidade vision
+```
 - [ ] **Aprovado**  - [ ] **Requer Refatoração**
 - **Evidência:**
 ```
 (cole aqui)
 ```
 
+### Parecer do Agente Revisor (Reviewer 1 — minimax-m3, independente):
+- [x] **Aprovado**  - [ ] **Requer Refatoração**
+- **Evidência de Execução (obrigatória):**
+
+```
+$ node tools/scripts/orquestrar.mjs --dry-run --ledger-file tools/scripts/__probe_led.json
+Slots disponíveis: 5 (max_concurrent - 0 em execução)
+
+Plano de despacho:
+  ID   Ação    Modelo                       Motivo
+  ---  ------  ---------------------------  -----------------
+  T-A  review  minimax/minimax-m3           sonnet / minimax
+  T-B  work    deepinfra/deepseek-v4-flash  haiku / deepinfra
+
+Pulados:
+  T-C: sem modelo p/ capacidade vision
+```
+
+Sondas adicionais:
+```
+$ node tools/scripts/orquestrar.mjs --once        → "não implementado (ORQ-04)"  (exit 0)
+$ node tools/scripts/orquestrar.mjs --on-finish   → "não implementado (ORQ-04)"  (exit 0)
+$ node tools/scripts/orquestrar.mjs               → usage multi-linha            (exit 0)
+$ # fixture com rework_count=3 e next_action=review:
+  Pulados: T-A: circuit breaker (3 ciclos)        # circuit breaker ok
+$ # saldo.mjs inexistente → fetchBalances retorna [] sem throw
+```
+
+- **Comentários de Revisão:**
+  - DoD §7.1 (`--dry-run` plano coerente; reviewer ≠ worker; teto respeitado): **OK** — T-A
+    recebe `minimax/minimax-m3` (≠ `deepseek-v4-pro`); T-B vai para haiku; T-C (ui=true)
+    corretamente pulado por interseção vazia com vision; plano = 2 ≤ max_concurrent=5.
+  - DoD §7.2 (funções de decisão exportadas): **OK** — `loadConfig`, `fetchLedger`,
+    `fetchBalances`, `selectModel`, `planDispatch` são named exports (verificável por
+    `node --check` + parse do módulo).
+  - DoD §7.3 (degrada sem `saldo.mjs`): **OK** — `fetchBalances` envolve `execFileSync`
+    em try/catch retornando `[]`; o orquestrador continua sem erro.
+  - Algoritmo `selectModel` (§5): **OK** — nível → pool; routing `ui:true` → interseção
+    com `by_capability`; review anti-correlação via `modelName` + `displayActor`; filtro
+    de provedores quebrados via `provider_accounts`; retorna 1º do pool.
+  - Algoritmo `planDispatch` (§5): **OK** — `slots = max - running`; sort por `priority`
+    (review>rework>work>harden>promote); circuit breaker com `max_review_cycles=3`;
+    `cwd` correto (work/rework → `C:\Dev2026\superapp`; demais → `root`).
+  - `loadConfig` valida `max_concurrent`, `roster`, `priority`, `roster.by_level` —
+    falha clara em campo ausente.
+  - [INFO] `loadConfig` aceita JSONC (strip de `//` e `/* */`) — extensão útil, não
+    contradiz a spec.
+  - [INFO] `cwd` para non-work/rework é o path absoluto `root` (`C:\Dev2026\Docs`),
+    spec diz "."; equivalente em runtime.
+
+- **Veredito:** APROVADO
+  Implementação atende integralmente à spec e ao DoD; output literal do `--dry-run`
+  bate com o exemplo da §7; funções exportadas e degradação verificadas. Nenhum
+  BLOCKER ou MAJOR.
+
 ## 9. Log de Execução (Agent Execution Log)
 > Registrem via `manage-task.mjs`. Identidade = modelo real.
 - **[2026-06-30T18:35]** - *claude-sonnet* - `[Promovida p/ ready]`: ORQ-01 done — JSON shape confirmado, deps_ok true — flip draft→ready
+- **[2026-06-30T18:45]** - *deepseek* - `[Iniciado]`: iniciando implementação do orquestrar.mjs + config
+- **[2026-07-01T10:07]** - *deepseek* - `[Finalizado]`: orquestrar.mjs implementado: loadConfig, fetchLedger, fetchBalances, selectModel, planDispatch exportados. --dry-run funcional c/ fixture. --once/--on-finish stubs. Degradação saldo.mjs ok. Testes: T-A→review modelo≠worker; T-B→haiku; T-C→skip vision; teto concorrência ok.
+- **[2026-07-01T10:16]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: Integrado (A-tooling): Gate verde — --dry-run com fixture (T-A→review/minimax-m3, T-B→work/haiku, T-C skip vision; plano=2 ≤ max_concurrent=5); --once/--on-finish stubs; circuit breaker (rework_count=3 → skip 'circuit breaker (3 ciclos)'); fetchBalances degrada sem saldo.mjs; 5 funções exportadas (loadConfig/fetchLedger/fetchBalances/selectModel/planDispatch). 2 INFOs não-bloqueantes → ledger de pendências.
