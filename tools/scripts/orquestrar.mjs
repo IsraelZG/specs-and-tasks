@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..', '..');
+
+const REGISTRY_DIR = path.join(root, 'tasks', '.orchestrator');
+const LOCK_DIR = path.join(REGISTRY_DIR, '.lock');
+const DATA_DIR = path.join(REGISTRY_DIR, 'data');
+const LOCK_MAX_AGE_MS = 120_000;
 
 function displayActor(actor) {
   if (!actor) return null;
@@ -95,10 +100,10 @@ export function selectModel(task, config, brokeProviders) {
   return { model: chosen, reason: `${level} / ${chosen.split('/')[0]}` };
 }
 
-export function planDispatch(ledger, config, balances) {
+export function planDispatch(ledger, config, balances, _runningCount) {
   const { max_concurrent = 5, circuit_breaker = {}, providers_balance = {} } = config;
-  const runningCount = ledger.filter(t => t.busy).length;
-  const slots = Math.max(0, max_concurrent - runningCount);
+  const rc = _runningCount !== undefined ? _runningCount : ledger.filter(t => t.busy).length;
+  const slots = Math.max(0, max_concurrent - rc);
 
   const skipBelow = providers_balance.skip_below_usd ?? 0;
   const brokeProviders = balances
@@ -118,7 +123,7 @@ export function planDispatch(ledger, config, balances) {
     return a.id.localeCompare(b.id);
   });
 
-  const result = { planned: [], skipped: [], slots, running: runningCount };
+  const result = { planned: [], skipped: [], slots, running: rc };
 
   for (const task of candidates) {
     if (result.planned.length >= slots) {
@@ -188,41 +193,192 @@ function renderTable(plan) {
   return lines.join('\n');
 }
 
+export function pruneRegistry() {
+  fs.mkdirSync(REGISTRY_DIR, { recursive: true });
+  const files = fs.readdirSync(REGISTRY_DIR).filter(f => f.endsWith('.json'));
+  const alive = [];
+  for (const file of files) {
+    const filePath = path.join(REGISTRY_DIR, file);
+    try {
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      if (typeof data.pid !== 'number') continue; // not a pidfile — skip
+      if (processAlive(data.pid)) {
+        alive.push(data);
+      } else {
+        fs.unlinkSync(filePath);
+      }
+    } catch {
+      fs.unlinkSync(filePath);
+    }
+  }
+  return alive;
+}
+
+function processAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function runningCount() {
+  return pruneRegistry().length;
+}
+
+export function withLock(fn) {
+  fs.mkdirSync(REGISTRY_DIR, { recursive: true });
+  try {
+    fs.mkdirSync(LOCK_DIR);
+  } catch (err) {
+    if (err.code === 'EEXIST') {
+      const stat = fs.statSync(LOCK_DIR);
+      const age = Date.now() - stat.mtimeMs;
+      if (age < LOCK_MAX_AGE_MS) {
+        console.log('dispatch em andamento (lock ativo)');
+        return;
+      }
+      fs.rmSync(LOCK_DIR, { recursive: true, force: true });
+      fs.mkdirSync(LOCK_DIR);
+    } else {
+      throw err;
+    }
+  }
+  try {
+    fn();
+  } finally {
+    try { fs.rmSync(LOCK_DIR, { recursive: true, force: true }); } catch { /* ignore */ }
+  }
+}
+
+export function assemblePrompt(action, id, model) {
+  const config = loadConfig();
+  const skillName = config.action_skill?.[action];
+  if (!skillName) throw new Error(`ação desconhecida: ${action}`);
+
+  const skillPath = path.join(root, '.claude', 'skills', skillName, 'SKILL.md');
+  if (!fs.existsSync(skillPath)) throw new Error(`skill não encontrada: ${skillPath}`);
+
+  let content = fs.readFileSync(skillPath, 'utf8');
+  content = content.replace(/\$ARGUMENTS/g, id);
+
+  const preambulo = [
+    `Você é um agente rodando o modelo "${model}". Em TODO comando manage-task.mjs/fila.mjs use`,
+    `"${model}" como sua identidade (<EU>/<SeuNome>) — para review use "agile_reviewer:${model}".`,
+    `Execute a tarefa abaixo seguindo estas instruções à risca:`,
+    `---`,
+  ].join('\n');
+
+  return `${preambulo}\n${content}`;
+}
+
+export function spawnAgent({ id, action, role, model, cwd }) {
+  const dataDir = path.join(DATA_DIR, id);
+  fs.mkdirSync(dataDir, { recursive: true });
+
+  const prompt = assemblePrompt(action, id, model);
+  const proc = spawn('crush', [
+    'run',
+    '-m', model,
+    '--quiet',
+    '--cwd', cwd,
+    '--data-dir', dataDir,
+    prompt,
+  ], {
+    detached: true,
+    stdio: 'ignore',
+    cwd: root,
+  });
+  proc.unref();
+
+  const pidfile = {
+    pid: proc.pid,
+    model,
+    role,
+    started: new Date().toISOString(),
+    cwd,
+  };
+  fs.writeFileSync(path.join(REGISTRY_DIR, `${id}.json`), JSON.stringify(pidfile));
+
+  console.log(`spawned ${id}: action=${action} model=${model} pid=${proc.pid}`);
+  return proc.pid;
+}
+
+export function removePidfile(id) {
+  const p = path.join(REGISTRY_DIR, `${id}.json`);
+  try { fs.unlinkSync(p); } catch { /* ignore */ }
+}
+
+export function dispatchOnce(ledgerFile) {
+  const config = loadConfig();
+  const ledger = fetchLedger(ledgerFile);
+  const balances = fetchBalances();
+  const alive = pruneRegistry();
+  const rc = alive.length;
+
+  const plan = planDispatch(ledger, config, balances, rc);
+  console.log(renderTable(plan));
+
+  for (const item of plan.planned) {
+    spawnAgent(item);
+  }
+
+  if (plan.planned.length === 0 && plan.skipped.length > 0) {
+    console.log('nenhum agente spawnado');
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
   const once = args.includes('--once');
-  const onFinish = args.includes('--on-finish');
+  const onFinishIdx = args.indexOf('--on-finish');
+  const onFinish = onFinishIdx !== -1;
+  const onFinishId = onFinish ? args[onFinishIdx + 1] || null : null;
 
   let ledgerFile = null;
   const lfIdx = args.indexOf('--ledger-file');
   if (lfIdx !== -1 && lfIdx + 1 < args.length) ledgerFile = args[lfIdx + 1];
 
   if (once) {
-    console.log('não implementado (ORQ-04)');
-    return;
-  }
-  if (onFinish) {
-    console.log('não implementado (ORQ-04)');
-    return;
-  }
-  if (!dryRun) {
-    console.log('Uso: node tools/scripts/orquestrar.mjs [--dry-run] [--ledger-file <path>] [--once] [--on-finish]');
-    console.log('  --dry-run        Imprime o plano de despacho (sem efeito colateral)');
-    console.log('  --ledger-file    Usa arquivo JSON como fixture de ledger (testes)');
-    console.log('  --once           (stub ORQ-04)');
-    console.log('  --on-finish      (stub ORQ-04)');
+    withLock(() => dispatchOnce(ledgerFile));
     return;
   }
 
-  const config = loadConfig();
-  const ledger = fetchLedger(ledgerFile);
-  const balances = fetchBalances();
-  const plan = planDispatch(ledger, config, balances);
-  console.log(renderTable(plan));
+  if (onFinish) {
+    if (!onFinishId) {
+      console.error('--on-finish requer <id>');
+      process.exit(1);
+    }
+    removePidfile(onFinishId);
+    console.log(`slot liberado: ${onFinishId}`);
+    withLock(() => dispatchOnce(ledgerFile));
+    return;
+  }
+
+  if (dryRun) {
+    const config = loadConfig();
+    const ledger = fetchLedger(ledgerFile);
+    const balances = fetchBalances();
+    const alive = pruneRegistry();
+    const plan = planDispatch(ledger, config, balances, alive.length);
+    console.log(renderTable(plan));
+    return;
+  }
+
+  console.log('Uso: node tools/scripts/orquestrar.mjs [--dry-run] [--ledger-file <path>] [--once] [--on-finish <id>]');
+  console.log('  --dry-run        Imprime o plano de despacho (sem efeito colateral)');
+  console.log('  --ledger-file    Usa arquivo JSON como fixture de ledger (testes)');
+  console.log('  --once           Despacha agentes respeitando max_concurrent');
+  console.log('  --on-finish <id> Remove pidfile e re-despacha');
 }
 
-main().catch(err => {
-  console.error('Erro:', err.message);
-  process.exit(1);
-});
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+
+if (isMain) {
+  main().catch(err => {
+    console.error('Erro:', err.message);
+    process.exit(1);
+  });
+}
