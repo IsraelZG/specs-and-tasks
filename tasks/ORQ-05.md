@@ -1,7 +1,7 @@
 ---
 id: ORQ-05
 title: "Propaga o hook --on-finish do orquestrador no passo final de cada skill MGTIA"
-status: draft
+status: done
 complexity: 2
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -79,13 +79,57 @@ for s in endurecer-fila arquiteto-decisoes agrupar-cleanup drenar-fila; do \
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
--
+- Hook `orquestrar.mjs --on-finish` adicionado às 6 skills MGTIA (executar-task, rework-task, qa-review, integrar-task, arquiteto-promover, endurecer-task).
+- integrar-task tem o hook nos dois caminhos (Path A approve, Path B request_changes).
+- Skills não-ciclo (endurecer-fila, arquiteto-decisoes, agrupar-cleanup, drenar-fila) não receberam hook.
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**  - [ ] **Requer Refatoração**
 - **Evidência:**
 ```
-(cole aqui)
+executar-task: 1
+rework-task: 1
+qa-review: 1
+integrar-task: 2
+arquiteto-promover: 1
+endurecer-task: 1
+---
+endurecer-fila: 0
+arquiteto-decisoes: 0
+agrupar-cleanup: 0
+drenar-fila: 0
 ```
+
+### Parecer QA — Reviewer 1 (agile_reviewer:minimax-m3, 2026-07-01)
+- [x] **Aprovado**
+- **Veredito:** Aprovado. Gate verde; escopo completo; sem `await`/bloqueio.
+- **Escopo (§3):** os 6 arquivos declarados foram editados, todos com o hook `--on-finish` inserido logo após o passo de `fila.mjs add`. Nenhum arquivo fora de escopo tocado.
+- **Gate (§7) — re-execução independente (findstr /R /C:"orquestrar.mjs --on-finish" .claude\skills\<skill>\SKILL.md):**
+  ```
+  executar-task:           1 linha
+  rework-task:             1 linha
+  qa-review:               1 linha
+  integrar-task:           2 linhas  (Path A approve + Path B request_changes, conforme §5)
+  arquiteto-promover:      1 linha
+  endurecer-task:          1 linha
+  endurecer-fila:          0         (não-ciclo — OK)
+  arquiteto-decisoes:      0         (não-ciclo — OK)
+  agrupar-cleanup:         0         (não-ciclo — OK)
+  drenar-fila:             0         (não-ciclo — OK)
+  ```
+  Match 1:1 com a evidência colada pelo worker (deepseek). Esperado 1/1/1/2/1/1 + 0/0/0/0.
+- **Fire-and-forget (§5 — "NÃO faça o agente aguardar"):** os 6 passos inseridos contêm o
+  "Dispara o orquestrador (fire-and-forget) … rode **sem aguardar**" e a frase
+  "NÃO espere a saída nem cole no Gate". Verificado por grep em todas as 6 skills.
+- **Sem smoke de UI/TS:** N/A — task de tooling do Docs, gate é o próprio grep.
+- **Sondas adversariais:** N/A — diff puramente documental (Markdown de skills), sem lógica executável
+  a quebrar; gate mecânico já cobre o requisito.
+- **Ripple de assinatura:** N/A — nenhuma função/assinatura alterada; só texto de skill.
+- **Conclusão:** entregar. Encadear `/integrar-task ORQ-05` (Caminho A-tooling: tooling do controle,
+  sem worktree; só passos 7-11 do Caminho A).
 
 ## 9. Log de Execução (Agent Execution Log)
 > Registrem via `manage-task.mjs`. Identidade = modelo real.
+- **[2026-07-01T11:57]** - *claude-sonnet* - `[Promovida p/ ready]`: spec_status hardened — flip draft→ready (ORQ-04 done)
+- **[2026-07-01T12:02]** - *deepseek* - `[Iniciado]`: iniciando propagacao do hook --on-finish nas skills
+- **[2026-07-01T12:05]** - *deepseek* - `[Finalizado]`: Hook --on-finish propagado em 6 skills MGTIA. Nao-ciclo sem hook. Gate grep ok.
+- **[2026-07-01T12:44]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: Integrado (Caminho A-tooling, sem worktree): hook --on-finish propagado nas 6 skills MGTIA (executar-task, rework-task, qa-review, integrar-task [Path A+Path B], arquiteto-promover, endurecer-task) e ausente nas 4 não-ciclo (endurecer-fila, arquiteto-decisoes, agrupar-cleanup, drenar-fila). Gate findstr: 1/1/1/2/1/1 + 0/0/0/0 — match 1:1 com §8 do worker. Fire-and-forget em todos os 6 passos. 0 não-bloqueantes → ledger (veredito limpo).
