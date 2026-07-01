@@ -1,7 +1,7 @@
 ---
 id: ORQ-07
 title: "UI na nuvem (Lovable/Vercel) + agente local via WebSocket outbound — acesso remoto modelo B"
-status: draft
+status: review
 complexity: 6
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -39,8 +39,30 @@ máquina. Substitui o cloudflared (modelo A) quando a UI amadurecer.
   relaia requests para `localhost:8780`, faz heartbeat, reconecta.
 - **[CREATE]** ADR do protocolo WS + auth + modelo de hosting.
 
-## 4–7. (a preencher no endurecimento JIT)
-Verificação, DoD e passos dependem das decisões da §6.
+## 4–7. Entregue (spike executado 2026-07-01, opus)
+
+**Decisões A/B/C/D resolvidas** → ver o ADR. **Entregáveis:**
+- **docs/adr/0007-painel-remoto-modelo-b.md** — ADR: 4 decisões, arquitetura, risco do D (dispatch
+  aberto atrás do token) explícito, runbook de deploy (broker Ably + Lovable).
+- **tools/scripts/painel-agente.mjs** — PoC do agente relay, dependency-free (WebSocket nativo Node 22).
+  Load-bearing `handleCommand()`: token → allowlist de rotas → rate-limit → relay p/ 127.0.0.1:8780.
+- **docs/painel-remoto/ui-poc.html** — esqueleto mínimo da UI na nuvem (ponto de partida p/ Lovable).
+
+**Decisões travadas:** A=Lovable (estático) · B=broker gerenciado (Ably/Supabase, sem WS self-hosted) ·
+C=token secreto compartilhado · D=dispatch aberto atrás do token (+rate-limit/allowlist/audit).
+
+**Gate (PoC provado via `--selftest` contra o dashboard ORQ-06 real):**
+```
+=== SELFTEST ===
+  ✅ token inválido → 401
+  ✅ rota não permitida → 403
+  ✅ GET /api/ledger relaiado → 200
+  ✅ rate-limit: 3 ok + 1 bloqueado (429)
+✅ selftest OK   (exit=0)
+```
+
+**Destrava** uma futura `ORQ-08` (implementação hardened do modelo B) — mecânica agora: broker=Ably,
+auth=token, dispatch=aberto+rate-limit, agente já existe, UI=Lovable consumindo o envelope definido.
 
 ## 6. Feedback de Especificação — DECISÕES EM ABERTO (resolver com `/arquiteto-decisoes` quando entrar na fila)
 
@@ -65,3 +87,5 @@ allowlist de quem dispara? Definir antes de expor.
 
 ## 9. Log de Execução (Agent Execution Log)
 > Registrem via `manage-task.mjs`. Identidade = modelo real.
+- **[2026-07-01T13:05]** - *claude-opus* - `[Iniciado]`: spike: ORQ-06 done (deps satisfeitas) — resolvendo decisões A/B/C/D + ADR + PoC do agente relay
+- **[2026-07-01T13:12]** - *claude-opus* - `[Finalizado]`: spike concluído: ADR 0007 + painel-agente.mjs (PoC, selftest 4/4 verde) + ui-poc.html. Decisões A/B/C/D resolvidas. Destrava ORQ-08 (impl hardened do modelo B).
