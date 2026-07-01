@@ -72,6 +72,9 @@ tasks/LEDGER.md
 # quente dos agentes: eles editam o md + enfileiram; um único committer serial commita+pusha.
 tasks/.commit-queue/
 
+# Orquestrador — registry de pidfiles e locks de dispatch (ORQ-04)
+tasks/.orchestrator/
+
 # Serena MCP (cache local de ferramenta)
 .serena/
 
