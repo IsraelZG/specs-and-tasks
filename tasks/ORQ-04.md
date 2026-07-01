@@ -1,7 +1,7 @@
 ---
 id: ORQ-04
 title: "orquestrar.mjs spawn real — registry + lock + prompt assembly + --on-finish + circuit breaker"
-status: draft
+status: ready
 complexity: 6
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -125,3 +125,4 @@ git check-ignore tasks/.orchestrator/x.json && echo "gitignored ok"
 
 ## 9. Log de Execução (Agent Execution Log)
 > Registrem via `manage-task.mjs`. Identidade = modelo real.
+- **[2026-07-01T10:22]** - *claude-sonnet* - `[Promovida p/ ready]`: ORQ-02 done — deps_ok true — flip draft→ready
