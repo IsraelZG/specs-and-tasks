@@ -73,3 +73,39 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i1][T-408][system-peer] `announce` retorna `interval: 1800` fixo (tracker.ts:136) — spec §1 não exige configurabilidade, mas a forma "tracker hint to client" sugere que deveria ser configurável na service. Não-bloqueante.
 - [ ] [i2][T-408][system-peer] O `swarm.downloaded` é incrementado em `announce` quando `event === 'completed'`, mas a spec não diz se deve ser incrementado em cada announce completed ou em algum tipo de deduplicação por peer — sem ambiguidade funcional hoje, mas é um lugar onde a regra do BitTorrent original (só conta a primeira vez por peer/infohash) poderia divergir. Deixar para M8. (tracker.ts:124-126)
 <!-- END PENDENCIAS -->
+
+<!-- BEGIN SPEC-PENDENCIAS -->
+<!-- Achados de spec/decisão recuperados de C-01..C-09 (2026-07-02). Destino explícito por achado.
+     O `/endurecer-task` ou `/arquiteto-decisoes` consome e resolve cada linha. -->
+
+<!-- C-01 — protocol -->
+- [ ] [spec→T-407] [m1][T-407][protocol] Spec §1 declara `generateOobLink(multiaddr, ephemeralPubKey, relayHint?)` com 3 params, mas `nonce: Uint8Array` é obrigatório na impl — reendurecer assinatura (tasks/T-407.md:44-48 vs outOfBand.ts:38-43)
+- [ ] [spec→T-208] [m1][T-208][protocol] ClockPort estendido com `setTimeout`/`clearTimeout` — mudança de escopo não declarada na spec §3 (ports.ts:58-78)
+- [ ] [spec→T-302a] [m2][T-302a][protocol] `respondNodes` exportado em `index.ts` mas sem entrada no contrato §1 da spec — adicionar à spec ou remover do export (src/rbsr/exchange.ts:161-175, src/index.ts:24)
+- [ ] [spec→T-302a] [m3][T-302a][protocol] Spec §1 declara `ids: ULID[]` em `requestNodes`; impl usa `string[]` — alinhar assinatura nominal (src/rbsr/exchange.ts:152-158)
+- [ ] [decision→T-306] [m1][T-306][protocol] Rework escolheu injetar remote state via parâmetro (`rootRange`/`remoteRootXor`/`remoteTree`). Decisão NÃO formalizada em §6 da spec nem §1 atualizada — capturar como Decisão 6 do arquiteto (waves.ts:55-90, 94-167, 171-240, 244-252)
+- [ ] [defer→T-302c] [m3][T-302b][protocol] Wire format gap: `respondNodes` envia `{id, fingerprint}` não `SignedNode` completo — integração end-to-end depende de decisão arquitetural (3 opções: evoluir respondNodes, nova MSG_FULL_NODES, reusar T-802 blob)
+
+<!-- C-02 — core -->
+- [ ] [spec→T-004a] [i3][T-004a][core] `transaction` propaga valor retornado pelo callback (`Promise<T> → Promise<T>`) mas spec §3 não cita propagação — documentar em `StoragePort` quando interface for endurecida (sqliteStorage.ts:25-35)
+- [ ] [spec→T-313a] [m1][T-313a][core] `packArchive` não aceita `hlcRange`/`expiresAt` no signature; hardcoded em archiveCargo.ts:135-137 — spec gap + impl gap (archiveCargo.ts:117-141)
+- [ ] [spec→T-313a] [i1][T-313a][core] Spec §1 exemplo de import mostra `import type { EntityId, ULID } from '@plataforma/protocol'` mas esses tipos não são exportados por `@plataforma/protocol` — corrigir spec (T-313a §1 vs archiveCargo.ts:6)
+- [ ] [spec→T-313a] [i3][T-313a][core] `manifest.size` reflete tamanho total pós-assemble (ciphertext puro vs envelope) — spec §1 (`size: number`) é ambíguo, documentar convenção (archiveCargo.ts:136)
+- [ ] [spec→T-313b] [m1][T-313b][core] `canServeArchive` NÃO usa `scopeRBSRTree` de T-305a — impl faz magic-string check que ignora `blindScopeId`. Reendurecer spec (assignCustodian.ts:83-89)
+- [ ] [spec→T-313b] [m2][T-313b][core] Assinaturas async divergem da spec §1 (que declara sync): `buildHashRing`/`assignCustodian`/`assignCustodianWithRing` retornam `Promise<>` — reendurecer spec para `Promise<...>` (assignCustodian.ts:22,65,75)
+- [ ] [decision→T-210] [m1][T-210][core] `PRAGMA foreign_keys = OFF/ON` toggled dentro da transação de `consumeInvite` para contornar FK com nó remoto — solução robusta: stub `PEER:REMOTE` ou `source_id` nullable (invite.ts:168, 198)
+- [ ] [decision→T-210] [m2][T-210][core] `signature: new Uint8Array(64)` é placeholder para `PROFILE:AUTHENTICATION`/`VOUCHES_FOR` — buraco aberto de segurança (invite.ts:179, 194)
+- [ ] [spec→T-313c] [i1][T-313c][core] `listBlindArchivesByScope` tem 4º param `now?: number` não declarado na spec — reendurecer spec (blindArchives.ts:69-81)
+- [ ] [spec→T-313c] [i1][T-701a][core] T-313c referencia T-106 para migration `blind_archives` mas destino real é `device_state.db` (T-701a); colunas camelCase vs snake_case — alinhar com DEVICE_STATE_MIGRATIONS
+
+<!-- C-04 — bancada -->
+- [ ] [spec→T-311] [m1][T-311][bancada] `SyncStatus` interface lista 6 campos mas NÃO declara `forceReconcile: () => void` — spec §1 incompleta (useSyncStatus.ts:12)
+- [ ] [spec→T-211] [i2][T-211][bancada] Spec §1 e §4 caso 4 inconsistentes: §1 diz "connected()" mas §4 exige mostrar peer em state `connecting` — worker mudou test 4, perdeu cobertura do requisito (RedeTab.test.tsx)
+
+<!-- C-05 — control -->
+- [ ] [spec→ORQ-04] [m1][ORQ-04][control] Spec §5 step 1 + §7 referem `crush run --yolo` mas `--yolo` não existe no Crush (v0.79.1); impl usa `--quiet` — reendurecer spec para `--quiet` (tools/scripts/orquestrar.mjs:284)
+
+<!-- C-08 — testkit -->
+- [ ] [spec→T-1009] [m1][T-1009][testkit] Desvio do contrato TS: parâmetro `pattern` em vez de `jsonEscapedPattern`; impl alinhada com §4, spec §1 que precisa atualizar (psRegex.ts:13-21, 30-34)
+- [ ] [spec→T-1009] [m2][T-1009][testkit] Spec §3 inconsistente sobre localização do test (`src/` vs `tests/`); impl resolveu com `tests/psRegex.test.ts` (convenção Vitest) — atualizar spec §3
+<!-- END SPEC-PENDENCIAS -->

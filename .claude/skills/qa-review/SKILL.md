@@ -39,6 +39,24 @@ Um relatório **sem a Evidência de Execução** (saída real de build/tsc + tes
 `N passed`) é inválido — devolva ao `agile-reviewer` para rodar e colar a saída antes de
 consolidar. Nunca apresente um veredito baseado só em inspeção.
 
+### 2a. Verificação de Disposição por Achado (C-tasks — INVIOLÁVEL)
+
+Para tasks de cleanup (`C-NN`), além do Gate (build verde), o reviewer **VERIFICA** que **CADA
+achado da §5** tem disposição explícita no Handover (§8). Taxonomia válida:
+
+- `fixed` — corrigido no código (com ref de arquivo/commit).
+- `no-op` — já consistente na impl; justificativa em 1 linha.
+- `spec→T-XXX` — exige reendurecer a spec da task-origem.
+- `decision→T-XXX` — exige decisão de arquiteto.
+- `defer→T-YYY` — trabalho adiado a task futura nomeada.
+
+**Achado sem destino = achado não resolvido → veredito REFATORAÇÃO NECESSÁRIA**, mesmo que o build
+esteja verde. "Os demais são spec-only" genérico sem destino per-item é **insuficiente**.
+
+Se o worker classificou achados como `spec→` ou `decision→`, confirme que eles constam no bloco
+`<!-- BEGIN SPEC-PENDENCIAS -->` do `_pendencias.md` (o `/agrupar-cleanup` já os roteou; o worker
+pode adicionar novos durante a execução).
+
 ### 2b. Segunda revisão independente (quando já há um parecer Aprovado)
 
 Um parecer **Aprovado** já na Seção 8 **NÃO** dispensa nem encerra a revisão — ele é o gate
