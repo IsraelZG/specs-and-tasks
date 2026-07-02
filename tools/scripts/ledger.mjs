@@ -168,7 +168,8 @@ function nextAction(task) {
   return null;
 }
 
-function depsOk(depIds, allById) {
+function depsOk(task, allById) {
+  const depIds = task.depIds || [];
   return depIds.every(depId => {
     const dep = allById.get(depId);
     return dep && dep.status === 'done';
@@ -214,7 +215,7 @@ if (jsonMode) {
   );
 
   const result = tasks.map(t => {
-    const dOk = depsOk(t.depIds, allById);
+    const dOk = depsOk(t, allById);
     const na = nextAction({ status: t.status, specStatus: t.specStatus, depsOk: dOk });
     return {
       id: t.id,
