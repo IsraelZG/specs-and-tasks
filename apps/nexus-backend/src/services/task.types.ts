@@ -4,23 +4,25 @@
  */
 
 export type TaskStatus =
-  | 'draft'
+  | 'draft'                    // LEGACY: alias of draft:placeholder (tolerated until T-1030 migration runs)
+  | 'draft:placeholder'
+  | 'draft:triaged'
+  | 'draft:pending_decision'
+  | 'draft:hardened'
+  | 'draft:decomposed'
   | 'ready'
   | 'in_progress'
   | 'review'
+  | 'in_review'
   | 'rework'
   | 'done'
   | 'blocked';
 
 export type TaskAction =
-  | 'start'
-  | 'promote'
-  | 'pause'
-  | 'finish'
-  | 'approve'
-  | 'request_changes'
-  | 'block'
-  | 'unblock';
+  | 'triage' | 'harden' | 'decide' | 'block_decision' | 'decompose'  // endurecimento (draft ladder)
+  | 'promote' | 'start' | 'pause' | 'finish'
+  | 'claim' | 'approve' | 'request_changes'
+  | 'block' | 'unblock';
 
 export interface TransitionRule {
   /** Estados de origem permitidos, ou '*' para qualquer estado. */
@@ -30,20 +32,33 @@ export interface TransitionRule {
   logLabel: string;
 }
 
-/** Máquina de estados MGTIA: draft → ready → in_progress → review → rework → done (+ blocked). */
+/** Máquina de estados MGTIA: draft → ready → in_progress → review → in_review → done (+ rework, blocked). */
 export const TRANSITIONS: Record<TaskAction, TransitionRule> = {
-  start: { from: ['draft', 'ready', 'rework'], to: 'in_progress', logLabel: '[Iniciado]' },
-  promote: { from: ['draft'], to: 'ready', logLabel: '[Promovida p/ ready]' },
-  pause: { from: ['in_progress'], to: 'in_progress', logLabel: '[Pausado/Handoff]' },
-  finish: { from: ['in_progress'], to: 'review', logLabel: '[Finalizado]' },
-  approve: { from: ['review'], to: 'done', logLabel: '[Aprovado]' },
-  request_changes: { from: ['review'], to: 'rework', logLabel: '[Requer Refatoração]' },
-  block: { from: '*', to: 'blocked', logLabel: '[Bloqueado]' },
-  unblock: { from: ['blocked'], to: 'ready', logLabel: '[Desbloqueado]' },
+  // --- endurecimento (draft ladder) ---
+  triage:         { from: ['draft', 'draft:placeholder'],                        to: 'draft:triaged',          logLabel: '[Triado]' },
+  harden:         { from: ['draft:triaged'],                                     to: 'draft:hardened',         logLabel: '[Endurecido]' },
+  decide:         { from: ['draft:pending_decision'],                            to: 'draft:hardened',         logLabel: '[Decidido]' },
+  block_decision: { from: ['draft', 'draft:placeholder', 'draft:triaged'],       to: 'draft:pending_decision', logLabel: '[Decisão pendente]' },
+  decompose:      { from: '*',                                                   to: 'draft:decomposed',       logLabel: '[Decomposto]' },
+  // --- lifecycle ---
+  start:          { from: ['ready', 'rework'],                                   to: 'in_progress',            logLabel: '[Iniciado]' },
+  promote:        { from: ['draft', 'draft:placeholder', 'draft:triaged', 'draft:hardened'], to: 'ready',      logLabel: '[Promovida p/ ready]' },
+  pause:          { from: ['in_progress'],                                       to: 'in_progress',            logLabel: '[Pausado/Handoff]' },
+  finish:         { from: ['in_progress'],                                       to: 'review',                 logLabel: '[Finalizado]' },
+  claim:          { from: ['review'],                                            to: 'in_review',              logLabel: '[Em revisão]' },
+  approve:        { from: ['review', 'in_review'],                               to: 'done',                   logLabel: '[Aprovado]' },
+  request_changes:{ from: ['review', 'in_review'],                               to: 'rework',                 logLabel: '[Requer Refatoração]' },
+  block:          { from: '*',                                                   to: 'blocked',                logLabel: '[Bloqueado]' },
+  unblock:        { from: ['blocked'],                                           to: 'ready',                  logLabel: '[Desbloqueado]' },
 };
 
 /** Rótulo usado por logProgress (registro sem mudança de status). */
 export const PROGRESS_LABEL = '[Progresso]';
+
+/** Base do status: 'draft:hardened' → 'draft'. Usado pelos consumidores (T-1030) p/ agrupar draft:*. */
+export function baseStatus(s: TaskStatus | string): string {
+  return s.includes(':') ? s.split(':')[0] : s;
+}
 
 export interface LogEntry {
   timestamp: string;
@@ -65,6 +80,10 @@ export interface TaskFrontmatter {
   execution_mode?: string;
   dependencies?: string[];
   blocks?: string[];
+  /** IDs das tarefas filhas (pai decomposto). */
+  subtasks?: string[];
+  /** ID da tarefa pai (se for filha). */
+  parent?: string;
   /** Branch git de isolamento (preenchida pela T-1012). */
   branch?: string;
   worktreePath?: string;
@@ -131,6 +150,14 @@ export class ForbiddenRoleError extends TaskError {
   constructor(message: string) {
     super(message);
     this.name = 'ForbiddenRoleError';
+  }
+}
+
+/** Start num pai decomposto (tem subtasks ou status draft:decomposed). */
+export class DecomposedParentStartError extends TaskError {
+  constructor(id: string) {
+    super(`Task '${id}' é um pai decomposto (tem subtasks ou status draft:decomposed) e não pode ser iniciada. Trabalhe as filhas.`);
+    this.name = 'DecomposedParentStartError';
   }
 }
 

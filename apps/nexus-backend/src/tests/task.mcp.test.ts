@@ -55,6 +55,11 @@ describe('MCP task tools (handleTaskTool)', () => {
 
   it('fluxo de transição start via MCP', async () => {
     await handleTaskTool(controller, 'nexus_create_task', { id: 'T-701', title: 'X' });
+    await handleTaskTool(controller, 'nexus_transition_task', {
+      id: 'T-701',
+      action: 'promote',
+      agent: 'architect',
+    });
     const started = await handleTaskTool(controller, 'nexus_transition_task', {
       id: 'T-701',
       action: 'start',

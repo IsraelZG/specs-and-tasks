@@ -58,7 +58,7 @@ describe('Ledger + gate anti-drift', () => {
 
   // Caso 1: transição normal cria .nexus/transitions.jsonl com seed + entrada da transição
   it('primeira transição cria ledger com seed + entrada da transição', async () => {
-    write('T-001', 'draft');
+    write('T-001', 'ready');
     await svc.transition('T-001', 'start', 'dev', 'iniciando');
 
     const lines = readLedger();
@@ -68,13 +68,13 @@ describe('Ledger + gate anti-drift', () => {
     expect(seed.id).toBe('T-001');
     expect(seed.action).toBe('seed');
     expect(seed.from).toBeNull();
-    expect(seed.to).toBe('draft');
+    expect(seed.to).toBe('ready');
     expect(seed.agent).toBe('system');
 
     const tx = JSON.parse(lines[1]);
     expect(tx.id).toBe('T-001');
     expect(tx.action).toBe('start');
-    expect(tx.from).toBe('draft');
+    expect(tx.from).toBe('ready');
     expect(tx.to).toBe('in_progress');
     expect(tx.agent).toBe('dev');
     expect(tx.ts).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);

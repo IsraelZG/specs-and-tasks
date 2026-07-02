@@ -127,8 +127,8 @@ describe('Tasks REST API (createApp)', () => {
     expect(r3.status).toBe(400);
   });
 
-  it('POST transition start: draft → in_progress', async () => {
-    write('T-805', 'draft');
+  it('POST transition start: ready → in_progress', async () => {
+    write('T-805', 'ready');
     const res = await post('/api/tasks/T-805/transition', { action: 'start', agent: 'claude', message: 'go' });
     expect(res.status).toBe(200);
     expect((await res.json()).status).toBe('in_progress');
@@ -217,5 +217,29 @@ describe('Tasks REST API (createApp)', () => {
     expect(res.status).toBe(409);
     const body = await res.json();
     expect(body.error).toContain('Drift de status');
+  });
+
+  // ── T-1028: claim via HTTP ──
+
+  it('POST transition claim com agile_reviewer:gemini → 200, status in_review', async () => {
+    write('T-2001', 'review');
+    const res = await post('/api/tasks/T-2001/transition', {
+      action: 'claim',
+      agent: 'agile_reviewer:gemini',
+      message: 'reivindicando',
+    });
+    expect(res.status).toBe(200);
+    const dto = await res.json();
+    expect(dto.status).toBe('in_review');
+  });
+
+  it('POST transition claim com dev:gemini (papel errado) → 403', async () => {
+    write('T-2002', 'review');
+    const res = await post('/api/tasks/T-2002/transition', {
+      action: 'claim',
+      agent: 'dev:gemini',
+      message: 'quero revisar',
+    });
+    expect(res.status).toBe(403);
   });
 });

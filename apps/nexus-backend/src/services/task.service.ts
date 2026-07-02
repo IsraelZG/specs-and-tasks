@@ -14,6 +14,7 @@ import path from 'path';
 import matter from 'gray-matter';
 import {
   CreateTaskInput,
+  DecomposedParentStartError,
   ForbiddenRoleError,
   InvalidTransitionError,
   LedgerEntry,
@@ -179,13 +180,25 @@ export class TaskService {
       throw new StatusDriftError(id, head.to, current);
     }
 
+    // (1) Trava start em pai decomposto
+    if (action === 'start') {
+      const fm = this.parseFrontmatterNaive(content);
+      const rawSubtasks = fm['subtasks'] || '';
+      const hasSubtasks = typeof rawSubtasks === 'string'
+        ? rawSubtasks.replace(/[\[\]"\s]/g, '').split(',').filter(Boolean).length > 0
+        : false;
+      if (hasSubtasks || current === 'draft:decomposed') {
+        throw new DecomposedParentStartError(id);
+      }
+    }
+
     if (rule.from !== '*' && !rule.from.includes(current)) {
       throw new InvalidTransitionError(
         `Transição inválida: '${action}' requer status ${rule.from.join('|')}, mas a task ${id} está em '${current}'.`,
       );
     }
 
-    if (action === 'approve' || action === 'request_changes') {
+    if (action === 'approve' || action === 'request_changes' || action === 'claim') {
       const reviewerAgent = (
         this.parseFrontmatterNaive(content).reviewer_agent || 'agile_reviewer'
       ).trim().toLowerCase();
@@ -240,6 +253,62 @@ export class TaskService {
     }
 
     this.rebuildIndexes();
+
+    // (2) Auto-promote on harden: deps done → ready
+    if ((action === 'harden' || action === 'decide') && rule.to === 'draft:hardened') {
+      const fm = this.parseFrontmatterNaive(content);
+      const deps = fm['dependencies'] || '[]';
+      const depIds: string[] = typeof deps === 'string'
+        ? deps.replace(/[\[\]"\s]/g, '').split(',').filter(Boolean)
+        : [];
+      const pool = this.loadAllTasks();
+      if (this.depsAllDone(depIds, pool)) {
+        this.autoTransition(id, 'ready', '[Auto-promovida]', 'deps todas done');
+      }
+    }
+
+    // (3) autoPromoteDependents + (4) parentAutoClose (só no approve → done)
+    if (action === 'approve') {
+      const pool = this.loadAllTasks();
+
+      // (3) Promove dependentes elegíveis
+      for (const [, rec] of pool) {
+        if (rec.frontmatter.status !== 'draft:hardened') continue;
+        const rawDeps = this.parseFrontmatterNaive(
+          fs.readFileSync(rec.path, 'utf8')
+        )['dependencies'] || '[]';
+        const recDeps: string[] = typeof rawDeps === 'string'
+          ? rawDeps.replace(/[\[\]"\s]/g, '').split(',').filter(Boolean)
+          : [];
+        if (!recDeps.includes(id)) continue;
+        if (this.depsAllDone(recDeps, pool)) {
+          this.autoTransition(rec.id, 'ready', '[Auto-promovida]', 'dep ' + id + ' concluída');
+        }
+      }
+
+      // (4) parentAutoClose: se esta task tem pai, verifica se todas as filhas estão done
+      const thisFm = this.parseFrontmatterNaive(fs.readFileSync(filePath, 'utf8'));
+      const parentId = thisFm['parent'];
+      if (parentId && typeof parentId === 'string' && parentId.length > 0) {
+        const parentRecord = pool.get(parentId);
+        if (parentRecord) {
+          const rawSubs = this.parseFrontmatterNaive(
+            fs.readFileSync(parentRecord.path, 'utf8')
+          )['subtasks'] || '[]';
+          const subtaskIds: string[] = typeof rawSubs === 'string'
+            ? rawSubs.replace(/[\[\]"\s]/g, '').split(',').filter(Boolean)
+            : [];
+          const allDone = subtaskIds.length > 0 && subtaskIds.every((sid) => {
+            const child = pool.get(sid);
+            return child && child.frontmatter.status === 'done';
+          });
+          if (allDone) {
+            this.autoTransition(parentId, 'done', '[Auto-encerrado]', 'todas as filhas done');
+          }
+        }
+      }
+    }
+
     return this.getTask(id);
   }
 
@@ -309,6 +378,52 @@ export class TaskService {
   }
 
   // ------------------------------------------------------------- utilitários
+
+  /** Carrega todas as tasks de ambos os diretórios num Map<id, record>. */
+  private loadAllTasks(): Map<string, TaskRecord> {
+    const map = new Map<string, TaskRecord>();
+    for (const record of this.listTasks({})) {
+      map.set(record.id, record);
+    }
+    return map;
+  }
+
+  /** true se TODAS as deps (por id) estão 'done'. Ids inexistentes contam como NÃO-done (conservador). */
+  private depsAllDone(depIds: string[], byId: Map<string, TaskRecord>): boolean {
+    return depIds.length > 0 && depIds.every((id) => {
+      const rec = byId.get(id);
+      return rec && rec.frontmatter.status === 'done';
+    });
+  }
+
+  /** Transição interna SEM gate de papel — usada pelos auto-side-effects.
+   *  Idempotente: no-op se já está em `to`. Grava status + ledger + Log, regenera INDEX. */
+  private autoTransition(id: string, to: TaskStatus, logLabel: string, reason: string, agent = 'system'): void {
+    const filePath = this.resolvePath(id);
+    let content = fs.readFileSync(filePath, 'utf8');
+    const current = this.readStatus(content);
+    if (current === to) return; // idempotente
+
+    const ts = new Date().toISOString().slice(0, 16);
+
+    // Anti-drift: garante consistência com o ledger
+    const head = this.readLedgerHead(id);
+    if (head && head.to !== current) {
+      content = this.replaceStatus(content, head.to);
+      content = this.appendLog(content, agent, '[Reconciliado]',
+        `drift corrigido de ${current} para ${head.to}`, ts);
+      fs.writeFileSync(filePath, content, 'utf8');
+      this.appendLedger({ ts, id, from: current, to: head.to, action: 'reconcile', agent });
+      content = fs.readFileSync(filePath, 'utf8');
+    }
+
+    const beforeStatus = this.readStatus(content);
+    content = this.replaceStatus(content, to);
+    content = this.appendLog(content, agent, logLabel, reason, ts);
+    fs.writeFileSync(filePath, content, 'utf8');
+    this.appendLedger({ ts, id, from: beforeStatus, to, action: 'auto', agent });
+    this.rebuildIndexes();
+  }
 
   private readStatus(content: string): TaskStatus {
     const m = content.match(/^status:\s*(.*)$/m);
