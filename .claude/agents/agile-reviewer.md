@@ -176,6 +176,28 @@ Para cada item `[ ]` ou `[x]` da Seção 7 (DoD), valide manualmente:
 Para itens de DoD marcados `[x]` pelo worker, **verifique que realmente passam**.
 Não aceite o check-mark sem evidência.
 
+### 5.1 Gates arquiteturais transversais (aplicam-se mesmo se o DoD da task não os lista)
+
+Testes verdes provam comportamento unitário, não conformidade arquitetural. Verifique SEMPRE,
+independente do que a Seção 7 lista:
+
+- **Gate de wiring (primitivas de segurança/privacidade).** Se a task entrega uma primitiva de
+  **autorização, privacidade ou controle de acesso** (ex.: filtro por UCAN, checagem de
+  capability, escopamento de dados), ela só está "entregue" quando um **caller de produção** a
+  consome no caminho real — OU há uma **task de integração explícita, criada e linkada** antes do
+  `done`. Uma primitiva testada mas nunca chamada é código morto que dá falsa garantia de
+  segurança. `Grep` pelos callers em `src/**` (fora de `tests/**`); se só aparecem em testes →
+  **MAJOR** ("primitiva não-ligada; feature não entregue") e exija a task de integração.
+  *(Precedente: T-305a/305b entregaram `scopeRBSRTree`/`canAccess` `done`, mas o enforcement de
+  sync nunca foi ligado — gap só detectado em auditoria posterior; ver T-1032.)*
+- **Gate de acoplamento/aciclicidade.** Se a task adiciona um `import` **cruzando pacote**
+  (`@plataforma/X` dentro de `packages/Y`), verifique que **não fecha um ciclo**: cheque a direção
+  de dependência declarada (`docs/visao-arquitetural.md §1`: `protocol ← crypto ← core ← transport`).
+  Um DoD que diz "tipos importados de `@plataforma/core`" dentro de `protocol` é **suspeito** —
+  `core` já depende de `protocol`. Se o import inverte a seta → **MAJOR** (acoplamento não
+  declarado / ciclo). *(Precedente: T-302b endossou `protocol → core` e criou o ciclo
+  `core ↔ protocol`; ver T-1033.)*
+
 ---
 
 ## 6. Classificar achados

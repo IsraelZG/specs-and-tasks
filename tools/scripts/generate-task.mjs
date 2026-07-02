@@ -87,6 +87,8 @@ O agente \`agile_reviewer\` usará esta checklist para aprovar ou rejeitar o PR:
 - [ ] O \`pnpm test\` roda sem erros no ambiente especificado (Node/JSDOM)?
 - [ ] Linter (\`pnpm lint\`) não acusa problemas?
 - [ ] A implementação respeita a Regra do Que Não Fazer?
+- [ ] **[gate de wiring — se a task entrega primitiva de autorização/privacidade]** existe caller de produção em \`src/**\` que a consome no caminho real, OU há task de integração linkada? (primitiva só testada = feature NÃO entregue)
+- [ ] **[gate de acoplamento — se a task adiciona import cruzando pacote]** o import respeita a direção \`protocol ← crypto ← core ← transport\` (\`visao-arquitetural.md §1\`) e NÃO fecha ciclo?
 
 ### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 \`\`\`bash
