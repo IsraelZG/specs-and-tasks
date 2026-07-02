@@ -25,7 +25,7 @@ O princípio central: a B-Tree de reconciliação e seus [[fingerprint|fingerpri
 
 Conforme `caderno-2-protocol/03-set-reconciliation-protocol.md §2`:
 
-> **Filtragem por UCAN**: Ao iniciar a sincronização, o Sync Worker local lê o token UCAN de autorização ativo, extrai a query de traversal (que define `root`, `depth`, `direction` e filtros de arestas/nós da `ASSET:PERMISSION` correspondente) e a injeta como uma restrição de filtragem na consulta recursiva (Common Table Expressions - CTE) local do SQLite. Isso garante que a B-Tree de sincronização e seus respectivos fingerprints de ranges sejam calculados e expostos exclusivamente sobre o subgrafo explicitamente autorizado.
+> **Filtragem por UCAN**: Ao iniciar a sincronização, o Sync Worker local lê o token UCAN de autorização ativo, extrai a query de traversal (que define `root`, `depth`, `direction` e filtros de arestas/nós da `ASSET:PERMISSION` correspondente) e a injeta como uma restrição de filtragem sobre a travessia recursiva do subgrafo local — o mecanismo de armazenamento é um detalhe da implementação, não do protocolo (na implementação de referência SDK, uma CTE recursiva do SQLite; ver `caderno-3-sdk`). Isso garante que a B-Tree de sincronização e seus respectivos fingerprints de ranges sejam calculados e expostos exclusivamente sobre o subgrafo explicitamente autorizado.
 
 > **Execução Restrita**: A troca de XORs de ranges da B-Tree ocorre estritamente nos escopos autorizados comuns. Um peer sem um UCAN ativo contendo permissão de acesso sobre um subgrafo nunca receberá, transmitirá ou verificará fingerprints de ranges pertencentes a esse subgrafo, blindando metadados na camada de transporte.
 
