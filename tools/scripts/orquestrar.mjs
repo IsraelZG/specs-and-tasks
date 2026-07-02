@@ -273,7 +273,17 @@ export function assemblePrompt(action, id, model) {
   return `${preambulo}\n${content}`;
 }
 
+// ponytail: kill-switch emergencial (2026-07-01) — orquestrador com comportamento incorreto.
+// Bloqueia SÓ o spawn real de agentes; leitura de ledger/config/plano continua funcionando
+// (--dry-run mostra o plano normalmente). Remover este bloco reativa o disparo.
+const EMERGENCY_DISABLE_SPAWN = true;
+
 export function spawnAgent({ id, action, role, model, cwd }) {
+  if (EMERGENCY_DISABLE_SPAWN) {
+    console.error(`✖ spawn BLOQUEADO (kill-switch emergencial): ${id} action=${action} model=${model}`);
+    console.error('  Orquestrador não está disparando novos agentes até o kill-switch ser removido em tools/scripts/orquestrar.mjs.');
+    return null;
+  }
   const dataDir = path.join(DATA_DIR, id);
   fs.mkdirSync(dataDir, { recursive: true });
 

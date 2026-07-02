@@ -1,17 +1,33 @@
 {
-  "max_concurrent": 5,
+  "max_concurrent": 0,
   "roster": {
     "by_level": {
-      "haiku":  ["deepinfra/deepseek-v4-flash", "minimax/minimax-m2.5"],
-      "sonnet": ["aihubmix/deepseek-v4-pro", "minimax/minimax-m3"],
-      "opus":   ["anthropic/claude-opus-4-8"]
+      "haiku": [
+        "deepseek/deepseek-v4-flash",
+        "opencode-zen-ent/mimo-v2.5"
+      ],
+      "sonnet": [
+        "opencode-go-ent/minimax-m3",
+        "deepseek/deepseek-v4-pro"
+      ],
+      "opus": [
+        "anthropic/claude-opus-4-8"
+      ]
     },
     "by_capability": {
-      "vision": ["aihubmix/qwen-vl-max", "gemini/gemini-3-pro"]
+      "vision": [
+        "aihubmix/qwen-vl-max",
+        "gemini/gemini-3-pro"
+      ]
     }
   },
   "routing": {
-    "frontend_qa": { "requires": ["vision"], "min_level": "sonnet" }
+    "frontend_qa": {
+      "requires": [
+        "vision"
+      ],
+      "min_level": "sonnet"
+    }
   },
   "action_skill": {
     "work": "executar-task",
@@ -20,9 +36,20 @@
     "harden": "endurecer-task",
     "promote": "arquiteto-promover"
   },
-  "priority": ["review", "rework", "work", "harden", "promote"],
-  "circuit_breaker": { "max_review_cycles": 3 },
+  "priority": [
+    "review",
+    "rework",
+    "work",
+    "harden",
+    "promote"
+  ],
+  "circuit_breaker": {
+    "max_review_cycles": 3
+  },
   "provider_accounts": {
+    "deepseek": "deepseek",
+    "opencode-go-ent": "opencode-ent",
+    "opencode-zen-ent": "opencode-ent",
     "deepinfra": "deepseek",
     "aihubmix": "deepseek",
     "openrouter": "openrouter",
@@ -30,5 +57,7 @@
     "anthropic": "anthropic",
     "gemini": "gemini"
   },
-  "providers_balance": { "skip_below_usd": 0.50 }
+  "providers_balance": {
+    "skip_below_usd": 0.00
+  }
 }
