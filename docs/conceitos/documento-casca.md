@@ -57,6 +57,7 @@ Os canais de comunicação estabelecidos por meio do Documento Casca são estrit
 * Propagação em tempo real de [[changes]] (micro-edições) de digitação entre co-editores antes de um commit formal.
 * Coordenação de eleição de committer de novo nó-versão.
 * Troca e validação de assinaturas criptográficas Ed25519 em tempo real usando [[ephemeral-messages]] (ex: co-assinatura/multisig exigida em especificações de governança).
+* Coordenação de sessão de agentes de IA e resultados de plugins em andamento (streaming de progresso, tool-calls) — mesmo mecanismo, sem motor de CRDT paralelo (`caderno-3-sdk/14-ia-rag-e-agentes.md §1`).
 * **Restrição**: Os Documentos Casca não realizam persistência no grafo de dados de linhagem. A gravação final e persistente de commits ocorre nas tabelas físicas `nodes` e `edges`.
 
 ## Implementação

@@ -15,3 +15,4 @@ Um agente de IA atua no grafo exclusivamente via `CONTENT:INTENT`, com `ASSET:RO
 - [[agente-de-sistema]] — Atua em nome da plataforma (distinto do agente de IA)
 - [[recuperacao-hibrida]] — Substrato de retrieval
 - [[command-palette]] — Superfície primária de invocação
+- [[plugin]] — Capacidades (mãos, cérebro, contexto) são injetadas por plugins; o `ASSET:ROLE` do plugin invocado intersecta o do agente, nunca o excede
