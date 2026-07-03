@@ -42,17 +42,23 @@ mesmo desenho, fronteira diferente.
 
 ## §3 — Padrão: compressão reversível na fronteira de tool (CCR)
 
-**Mecanismo** (fonte: Headroom, SDK `headroom-ai`). O que enche a janela de um agente de código
-não é a conversa — são os **outputs de tool**: arquivos lidos, saídas de build, resultados de
-busca. O padrão CCR (*Compress-Cache-Retrieve*) intercepta esses outputs antes de entrarem no
-contexto: comprime (`compress(messages) → {messages, tokensSaved, compressionRatio}`), guarda o
-original num store local, e registra uma tool `retrieve` para o modelo **re-hidratar sob demanda**
-só o trecho que for realmente usar. É lazy-loading de contexto — compressão sem perda do ponto de
-vista do agente, porque o original continua a um tool-call de distância.
+**Mecanismo** (fonte conceitual: Headroom). O que enche a janela de um agente de código não é a
+conversa — são os **outputs de tool**: arquivos lidos, saídas de build, resultados de busca. O padrão
+CCR (*Compress-Cache-Retrieve*) intercepta esses outputs antes de entrarem no contexto: guarda o
+original num store local por hash, coloca no contexto só um resumo/marcador, e registra uma tool
+`retrieve(hash)` para o modelo **re-hidratar sob demanda** só o trecho que for usar. Lazy-loading de
+contexto — sem perda do ponto de vista do agente, porque o original está a um tool-call de distância.
 
-**Anti-padrão que este substitui:** proxy de compressão por provedor (uma instância standing por
-upstream, comprimindo o tráfego inteiro, ~10% de ganho — ver [[project_headroom_integration]]).
-O CCR é in-process e provider-agnóstico; mede-se no spike `ORQ-12` antes de integrar.
+**Achado do spike ORQ-12 (ADR-0009):** o SDK `headroom-ai` **não é in-process** — é um cliente HTTP
+de um **proxy standing** (`localhost:8787`); toda a compressão roda server-side. Adotá-lo reintroduz o
+serviço standing que o ADR-0008 evitou. Então o CCR que a plataforma constrói é **próprio e
+in-process**: um store local de ~12 linhas (`stash`/`retrieve`, reversibilidade provada byte-a-byte na
+bancada), pareado com o resumo do §4. É a materialização do princípio §1 — extrair o mecanismo
+(CCR + retrieve tool) da fonte aberta, sem arrastar o proxy.
+
+**Anti-padrão que este substitui:** proxy de compressão standing (por provedor no desenho antigo, ~10%
+de ganho — ver [[project_headroom_integration]]; ou o proxy Headroom :8787). O CCR próprio é in-process
+e provider-agnóstico.
 
 **No superapp.** Todo plugin de agente comprime outputs de tool e chunks de RAG na entrada do
 contexto. O store CCR é uma **projeção local** (cache derivado, reconstituível) — compatível com o
@@ -63,8 +69,9 @@ modelo local-first: não é dado canônico, não replica, pode ser descartado.
 **Mecanismo** (fonte: fastcontext). Antes de um output grande chegar ao modelo caro, um modelo
 barato ("nano" — no nosso roster, `deepseek-v4-flash`) o filtra/resume com uma instrução
 específica ("liste só os símbolos exportados", "só as linhas de erro"). O modelo caro recebe o
-destilado; o custo do nano é ordens de magnitude menor que os tokens que ele poupa — hipótese a
-medir (`ORQ-12`, Decisão D), incluindo o limiar de tamanho a partir do qual vale disparar.
+destilado. **Medido (ORQ-12/ADR-0009):** 81% em prosa e 99% em listagem, a **~US$0.0004** por
+lote — custo desprezível vs. tokens poupados. Gatilho: só acima de ~2.000 tokens de output (abaixo,
+a latência 2–5s não paga). É **lossy** → sempre pareado com o CCR do §3 (original recuperável).
 
 **Combina com o §3:** o nano pode ser o classificador do CCR — decide o que comprimir, o que
 resumir e o que passar cru.
@@ -130,8 +137,8 @@ demanda". Ver fusão no §7.
 | Fonte aberta | Mecanismo extraído | Onde já existe no lab | Plugin no superapp |
 |---|---|---|---|
 | Vercel AI SDK (loop) | loop in-process + tools Zod + gating | ADR-0008 / `tools/orchestrator/` | plugin de agente (caderno 12) |
-| Headroom | CCR: compress + store + retrieve | spike `ORQ-12` | interceptor de contexto de todo plugin de agente |
-| fastcontext | nano-preprocess multi-modelo | roster haiku (`deepseek-v4-flash`); spike `ORQ-12` | job barato no utilitário de inferência |
+| Headroom | CCR: store + retrieve tool (o mecanismo — **não** o proxy :8787, ADR-0009) | store local ~12 ln (ORQ-12) | interceptor de contexto de todo plugin de agente |
+| fastcontext | nano-preprocess multi-modelo (medido 81–99%, ADR-0009) | roster haiku (`deepseek-v4-flash`) | job barato no utilitário de inferência |
 | OKF / Mega-Brain | grafo md+links como contexto navegável | a própria wiki + Seção RAG das tasks | traversal do grafo (GraphRAG, caderno 14 §3) |
 | dotcontext (PREVC) | contrato de task + gate de evidência | MGTIA (CLAUDE.md, 6 Regras) | `SPEC:WORKFLOW` com guards Zen |
 | Sift | índice trigram → blocos que casam | (Grep/ripgrep cobre no dev) | projeção de busca léxica (SQLite, irmã do FTS) |
@@ -148,8 +155,9 @@ entregue o todo quando um link para o resto basta.**
 
 ## §8 — Limites honestos
 
-- Os números de ganho (CCR, nano) são **hipóteses até o spike medir** (`ORQ-12`) — este capítulo
-  registra os padrões, não os vereditos.
+- Os números de ganho de CCR/nano foram **medidos** no spike `ORQ-12` (ADR-0009): nano 81–99% a
+  sub-centavo; crusher nativo fraco sozinho (1–11%); Headroom-proxy alto (32–95%) mas exige serviço
+  standing. O que segue como hipótese é o ganho *integrado no adapter de produção* (ORQ-09b).
 - Tree-sitter dá estrutura sintática, não resolução de tipos — a fatia simbólica do superapp será
   mais fraca que o Serena/LSP em codebases com inferência pesada. Aceitável para "editar
   componente sob demanda"; insuficiente para refactors globais (esses continuam no dev externo).

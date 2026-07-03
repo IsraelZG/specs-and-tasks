@@ -1,7 +1,7 @@
 ---
 id: ORQ-12
 title: "SPIKE: Otimização de contexto no AgentAdapter — Headroom CCR in-process + nano-preprocess (ADR + números reais)"
-status: in_progress
+status: review
 complexity: 5
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -109,7 +109,39 @@ node --env-file=../../.env context-bench.poc.mjs
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
--
+- **Entregáveis:** `docs/adr/0009-otimizacao-de-contexto-agent-adapter.md` (Accepted, decisões A–E) +
+  `tools/orchestrator/context-bench.poc.mjs` (bancada) + `headroom-ai@0.22.4` pinado no `package.json` +
+  correções no caderno `30-*` (§3/§4/§7/§8 — a afirmação "compress() in-process" foi falsificada e corrigida).
+- **Achado central (Decisão A):** `headroom-ai` NÃO comprime in-process — é cliente HTTP do proxy Headroom
+  (`DEFAULT_BASE_URL http://localhost:8787`, mesma porta do proxy deepseek). Toda a lógica é server-side.
+  Adotá-lo reintroduz o serviço standing que o ADR-0008 evitou.
+- **Achado de comportamento (Decisão B):** o router do Headroom protege `system`/`user`/código recente;
+  só comprime `tool_result`/`rag`/turnos velhos. Medir passando o payload como `user` dava 0% (engano).
+- **Números (Decisão C):** crusher nativo in-process 1/1/11% (guarda, fraco sozinho); Headroom-proxy
+  −6%/32%/95% (alto mas standing); **nano-preprocess 81%/99% a ~US$0.0004** (o ganho, lossy); CCR store
+  local reversível byte-a-byte (`idêntico=true`).
+- **Veredito (Decisão E):** **GO** num otimizador PRÓPRIO in-process (crusher → nano gated>2k tok → CCR
+  store) para ORQ-09b; **NO-GO** em plugar o proxy Headroom. Não ressuscita o :8787.
+- **Gate — saída literal da bancada:**
+```
+=== ORQ-12 · context-bench — 3 vias de encolher tool-output ===
+payloads reais: código (.mjs) (3442 tok est.) · prosa (.md) (1960 tok est.) · listagem (ls -R) (123478 tok est.)
+
+payload                 base    nativo   Δnat   headroom  nano-out   Δnano  nano-ms
+--------------------------------------------------------------------------------------------
+código (.mjs)           3442      3400     1%  3660(-6%)         —      —       —
+prosa (.md)             1960      1946     1%  1326(32%)       379    81%    5196
+listagem (ls -R)      123478    110364    11%  5952(95%)        65    99%    2317
+--------------------------------------------------------------------------------------------
+headroom-ai: ✓ proxy respondeu — transforms=router:protected:system_message,router:protected:user_message,router:protected:recent_code
+nano custo: in=13221 out=545 tok · ~US$0.000393 (ordem de grandeza)
+
+check: crusher na listagem 123478→110364 tok (11%), exemplo preservado ✓
+check: crusher no código 3442→3400 tok (1%) — ~intacto, como esperado ✓
+
+reversibilidade: original 123478 tok → stash(hash=7ee119cf00a2) → retrieve → idêntico=true ✓
+```
+
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
@@ -123,3 +155,4 @@ node --env-file=../../.env context-bench.poc.mjs
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-03T18:27]** - *claude-fable* - `[Promovida p/ ready]`: spike destravado (triaged, opus-spike) — flip draft->ready
 - **[2026-07-03T18:27]** - *claude-fable* - `[Iniciado]`: iniciando spike: medir CCR (headroom-ai) + nano-preprocess no adapter in-process. Achado inicial via MCP headroom: router protege codigo recente (0% economia) — CCR mira listagens/logs/prosa, nao codigo ativo.
+- **[2026-07-03T21:24]** - *claude-fable* - `[Finalizado]`: Spike concluido — ADR-0009 (Accepted). Achado: headroom-ai e cliente HTTP de proxy standing (:8787), NAO comprime in-process; router protege codigo. Numeros (bancada): crusher nativo 1/1/11%, headroom-proxy -6/32/95%, nano-preprocess 81/99% a ~US0.0004, CCR store local reversivel (identico=true). Veredito: GO em otimizador proprio in-process (crusher->nano gated->CCR) p/ ORQ-09b; NO-GO no proxy Headroom. Gate colado na §8.
