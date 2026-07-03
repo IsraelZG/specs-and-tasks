@@ -1,4 +1,4 @@
-# MGTIA — Workflow Completo (v3)
+# MGTIA — Workflow Completo (v4)
 
 > **Leitura obrigatória para qualquer agente.** Este documento é a fonte canônica do fluxo MGTIA.
 > Os SKILL.md individuais descrevem o "como fazer" de cada skill; este documento descreve o "por que"
@@ -6,16 +6,44 @@
 
 ---
 
-## 1. Os dois eixos (distinção fundamental)
+## 1. Um eixo só — `status` com sub-status de draft
 
-Toda task tem **dois eixos ortogonais**. Confundi-los é o erro mais comum:
+Diferente da v3, **não há mais eixo separado `spec_status`**. A qualidade da spec agora é um
+**sub-status do `status`** no próprio lifecycle:
 
-| Eixo | Campo | Quem edita | Valores |
-|------|-------|-----------|---------|
-| **Lifecycle** (em que fase está a execução) | `status` | Só o serviço (`manage-task.mjs` / MCP `nexus_transition_task`) | `draft → ready → in_progress → review → rework → done` (+ `blocked`) |
-| **Qualidade da spec** (quão pronta a spec está para execução) | `spec_status` | Só skills de autoria (`/endurecer-task`, `/arquiteto-decisoes`) | `draft → triaged → hardened` (+ `blocked-decision` / `decomposed`) |
+| Status | Significado |
+|--------|------------|
+| `draft:placeholder` | Spec vazia ou rascunho inicial |
+| `draft:triaged` | Triada (capacidade, spike, decompor), aguardando pass-2 JIT |
+| `draft:pending_decision` | Tem decisão de arquiteto pendente (campo `decisions:` no frontmatter) |
+| `draft:hardened` | Espec completamente endurecida, zero decisões abertas, assinaturas reais |
+| `draft:decomposed` | Task grande quebrada em filhas; esta vira casca |
+| `ready` | Pronta para execução (Worker pode pegar) |
+| `in_progress` | Em execução pelo Worker |
+| `review` | Aguardando revisão |
+| `in_review` | Revisão em andamento (travada por `claim` — reviewer único) |
+| `rework` | Devolvida para correção (worker reabre) |
+| `done` | Integrada e encerrada |
+| `blocked` | Bloqueada por problema externo |
 
-**Nunca** edite `status` no markdown na mão. **Nunca** chame o serviço para mudar `spec_status`.
+**Regra de ouro: NUNCA edite `status` no markdown na mão.** Só use os verbos do serviço
+(`manage-task.mjs` / MCP `nexus_transition_task`).
+
+### Verbos de endurecimento (escalam `draft:<sub>`)
+
+| Verbo | De → Para | Quem usa |
+|-------|-----------|---------|
+| `triage` | `draft:placeholder` → `draft:triaged` | `/endurecer-task` |
+| `harden` | `draft:triaged` → `draft:hardened` | `/endurecer-task` |
+| `block_decision` | `draft:triaged` → `draft:pending_decision` | `/endurecer-task` |
+| `decide` | `draft:pending_decision` → `draft:hardened` | `/arquiteto-decisoes` |
+| `decompose` | qualquer → `draft:decomposed` | `/endurecer-task` |
+
+### Automatismos (T-1029 — rodam sem intervenção humana)
+
+- **Auto-promote on harden:** se `harden`/`decide` resultou em `draft:hardened` e as deps estão todas `done`, promove automaticamente para `ready`.
+- **autoPromoteDependents:** ao `approve → done`, promove todo dependente em `draft:hardened` cujas deps agora estão todas `done`.
+- **parentAutoClose:** ao `approve → done` da última filha de um pai decomposto, encerra o pai automaticamente (`→ done`).
 
 ---
 
@@ -30,17 +58,12 @@ O projeto usa **dois repositórios git separados** com papéis distintos:
 
 **Regra de paralelismo no controle (INVIOLÁVEL):**
 - O Docs é um **working tree único na `master`** com vários agentes simultâneos.
-- **Agentes NÃO rodam git no Docs** (nem `commit`, nem `push`, nem `add`). Isso gastava tempo
-  (sobretudo do QA) com `index.lock`, disputa de push e "filtrar o que é meu".
+- **Agentes NÃO rodam git no Docs** (nem `commit`, nem `push`, nem `add`).
 - O agente **edita só o markdown da sua task** e **enfileira** a intenção de commit:
-  `node tools/scripts/fila.mjs add <ID> "<msg>" [paths extra]`. O default de path é `tasks/<ID>.md`.
+  `node tools/scripts/fila.mjs add <ID> "<msg>" [paths extra]`.
 - Um **único consumidor serial** — `/drenar-fila` (`fila.mjs flush`) — faz TODOS os commits pendentes
-  (atômicos por path) + um push, periodicamente. Um só committer ⇒ zero corrida de index/push.
-  (A fila é um diretório de arquivos-intenção, um por enfileiramento — sem append a arquivo
-  compartilhado, sem contenção. Por que histórico: o commit atômico por path resolvia a corrupção
-  do índice — `fb5459b` levou arquivo de outro agente — mas não a contenção; a fila resolve as duas.)
-- `tasks/INDEX.md`, `meta-tasks/INDEX.md` e `tasks/.commit-queue/` são **gitignored** — INDEX é
-  regenerado pelo `TaskService` a cada transição; a fila é transiente. Nunca commite.
+  (atômicos por path) + um push, periodicamente.
+- `tasks/INDEX.md`, `meta-tasks/INDEX.md` e `tasks/.commit-queue/` são **gitignored**.
 - **No superapp (código) o git continua igual:** cada task tem branch `task/<ID>` isolada (worktree),
   o worker commita+pusha lá normalmente. A fila é **só do controle**.
 
@@ -49,26 +72,23 @@ O projeto usa **dois repositórios git separados** com papéis distintos:
 ## 3. O pipeline completo
 
 ```
-[spec_status: draft]
+[draft:placeholder]
        │
        ▼
   /endurecer-task ──────────────────────────────────────────────────────┐
        │                                                                  │
-       ├─► hardened (zero decisões abertas, deps não-draft)              │
-       ├─► blocked-decision (precisa do arquiteto)                        │
-       ├─► triaged (pass-1 raso, aguarda pass-2 JIT)                     │
-       └─► decomposed (quebrada em tasks filhas)                          │
+       ├─► draft:hardened (zero decisões, deps done → auto-promove)     │
+       ├─► draft:pending_decision (precisa do arquiteto)                  │
+       ├─► draft:triaged (pass-1 raso, aguarda pass-2 JIT)               │
+       └─► draft:decomposed (quebrada em tasks filhas)                    │
                                                                           │
-       │ (blocked-decision)                                               │
+       │ (draft:pending_decision)                                         │
        ▼                                                                  │
   /arquiteto-decisoes                                                     │
-  (consolida, pergunta ao humano, grava DECIDIDO na §6)                  │
+  (consolida, pergunta ao humano, grava DECIDIDO na §6, chama decide)    │
        │                                                                  │
-       └──► re-roda /endurecer-task ──────────────────────────────────────┘
-                    │ (hardened)
-                    ▼
-  /arquiteto-promover  (flip draft → ready via serviço — mecânico)
-                    │
+       └──► decide → draft:hardened ──────────────────────────────────────┘
+                    │ (draft:hardened + deps done → auto-promote)
                     ▼
              [status: ready]
                     │
@@ -79,13 +99,14 @@ O projeto usa **dois repositórios git separados** com papéis distintos:
           • commits frequentes por unidade
           • Gate de Evidência (build + test + lint)
           • manage-task finish
-          • push código + commit atômico no controle
+          • push código
                     │
                     ▼
              [status: review]
                     │
                     ▼
-          /qa-review  (Reviewer — review-only, NUNCA transiciona)
+          /qa-review  (Reviewer — review-only)
+          • manage-task claim (review → in_review, trava a task)
           • lê a spec + Gate colado na §8
           • forma opinião INDEPENDENTE (anti-anchoring se já há parecer)
           • escreve Parecer na §8 (bloqueantes [Bn], major [Mn], minor [mn])
@@ -96,8 +117,12 @@ O projeto usa **dois repositórios git separados** com papéis distintos:
           • merge da worktree → master do superapp
           • re-roda Gate pós-merge
           • non-blockers → ledger tasks/_pendencias.md
-          • re-endurece tasks dependentes desbloqueadas
           • manage-task approve  ──────────────────► [status: done]
+                │                                        │
+                │  auto-side-effects (T-1029):            │
+                │  • autoPromoteDependents                │
+                │  • parentAutoClose (pai decomposto)     │
+                │                                        │
           • manage-task request_changes ──────────► [status: rework]
                     │ (rework)
                     ▼
@@ -105,16 +130,15 @@ O projeto usa **dois repositórios git separados** com papéis distintos:
           • lê achados [Bn]/[Mn] do Parecer
           • corrige só os bloqueantes, commit por achado
           • re-roda Gate, manage-task finish
-          • push código + commit atômico no controle
+          • push código
                     │
                     └──► volta para [status: review] ──► /qa-review
 ```
 
-**Tasks pai `decomposed`:** se a task integrada é filha de um pai com `spec_status: decomposed`,
-o integrador verifica se **todas** as filhas do pai estão `done` (lê o campo `blocks:` do pai).
-Se sim, fast-track o pai: `promote → start → finish → approve agile_reviewer "filhas <lista> done"`.
-Nunca edite o status do pai na mão; se alguma filha ainda estiver aberta, pule (o pai é encerrado
-quando a última filha fechar).
+**autoPromoteDependents e parentAutoClose são automáticos** (T-1029): o `approve → done` no
+`/integrar-task` dispara os side-effects no serviço, sem intervenção do integrador. A skill
+`/arquiteto-promover` existe como **safety-net** para o caso raro de uma task `draft:hardened`
+com deps done que o auto-promote não pegou.
 
 Ledger de não-bloqueantes acumula em `tasks/_pendencias.md` e é drenado periodicamente por:
 
@@ -134,8 +158,7 @@ pnpm --filter <pacote> test
 pnpm --filter <pacote> lint   # quando a spec exigir
 ```
 
-colada na **Seção 8** da task. Tudo verde. Vermelho → conserte antes. Falha de ambiente
-(VS Code terminal integrado trava — ver PITFALLS P-002) → `pause`/`block`, nunca finalize no escuro.
+colada na **Seção 8** da task. Tudo verde. Vermelho → conserte antes.
 
 ---
 
@@ -143,60 +166,75 @@ colada na **Seção 8** da task. Tudo verde. Vermelho → conserte antes. Falha 
 
 | Papel | Pode chamar | Nunca chama |
 |-------|------------|-------------|
-| **Worker** | `start`, `finish`, `pause`, `block`, `unblock` | `approve`, `request_changes` |
-| **Reviewer** (skill `qa-review` / agent `agile-reviewer`) | `block` (só ambiente) | `approve`, `request_changes` (esses ficam no `/integrar-task`) |
+| **Worker** | `start`, `finish`, `pause`, `block`, `unblock` | `approve`, `request_changes`, `claim` |
+| **Endurecedor** (`/endurecer-task`) | `triage`, `harden`, `block_decision`, `decompose` | `promote`, `start`, `approve` |
+| **Arquiteto** (`/arquiteto-decisoes`) | `decide` | — |
+| **Safety-net** (`/arquiteto-promover`) | `promote` | — |
+| **Reviewer** (`qa-review`) | `claim` (trava a task) | `approve`, `request_changes` |
 | **Integrador** (`/integrar-task`) | `approve`, `request_changes` | — |
-| **Arquiteto** (`/arquiteto-promover`) | `promote` | — |
 
-O `/qa-review` e o `agile-reviewer` são **review-only**: escrevem o Parecer na §8 e param.
-O merge e a transição de status ficam no `/integrar-task` — isso evita o gap "aprovado sem merge".
+O `/qa-review` é **review-only**: escreve o Parecer na §8 e para. O merge e a transição de status
+ficam no `/integrar-task`. O `claim` (`review → in_review`) é o lock: impede que dois reviewers
+peguem a mesma task; o orquestrador trata `in_review` como ocupado.
 
 ---
 
-## 6. Endurecimento da spec (dois passes)
+## 6. Lock de revisão (`in_review` + `claim`)
+
+Quando o `/qa-review` pega uma task em `review`, o **primeiro** passo é `claim`:
+`manage-task.mjs claim <ID> agile_reviewer:<modelo> "revisando"`.
+
+- `review → in_review` se a task está livre.
+- Se a task **já está `in_review`** → o `claim` falha (outro reviewer já a pegou). A skill **PARA** — não rouba a revisão.
+- O `orquestrar.mjs` trata `in_review` como "slot ocupado" e não despacha outro reviewer.
+
+O reviewer ainda pode `approve`/`request_changes` direto de `review` (sem `claim`) — retrocompatível
+mas desencorajado: o lock evita revisão duplicada.
+
+---
+
+## 7. Endurecimento da spec (dois passes)
 
 ### Pass 1 — Triagem rasa (cedo, qualquer momento)
 Rode `/endurecer-task` assim que a task existe. Objetivo: classificar capacidade, detectar spikes,
-capturar decisões abertas óbvias. Destino provável: `triaged` ou `blocked-decision`.
+capturar decisões abertas óbvias. Usa `triage` ou `block_decision`.
 
 ### Pass 2 — Endurecimento profundo (JIT, just-in-time)
 Rode novamente quando as **deps estão `done`** — agora você tem código real para referenciar.
-Troca placeholders por assinaturas reais, carimba `hardened_at`. Destino: `hardened`.
+Troca placeholders por assinaturas reais. Usa `harden`. Se as deps estão todas `done`, o
+auto-promote (T-1029) leva direto para `ready`.
 
 ### Reendurecimento
 `/endurecer-task` é re-entrante. Rode quantas vezes precisar:
 - Depois que deps são integradas (stale por antecipação).
 - Depois que `/arquiteto-decisoes` resolve uma decisão aberta.
 
-O `/integrar-task` re-endurece automaticamente as tasks desbloqueadas após cada integração.
-
 ### Gate de 4 destinos do `/endurecer-task`
 
 | Destino | Condição |
 |---------|---------|
-| `hardened` | Zero decisões abertas, deps não-draft, assinaturas reais |
-| `blocked-decision` | ≥1 decisão que só o humano pode resolver |
-| `triaged` | Pass-1 completo, pass-2 adiado (deps ainda não concluídas) |
-| `decomposed` | Task grande demais — quebrada em filhas; esta é descartada |
+| `draft:hardened` | Zero decisões abertas, deps não-draft, assinaturas reais (auto-promove se deps done) |
+| `draft:pending_decision` | ≥1 decisão que só o humano pode resolver |
+| `draft:triaged` | Pass-1 completo, pass-2 adiado (deps ainda não concluídas) |
+| `draft:decomposed` | Task grande demais — quebrada em filhas; esta vira casca |
 
 ---
 
-## 7. Capacidade alvo (`capacity_target`)
+## 8. Capacidade alvo (`capacity_target`)
 
-Orthogonal ao `spec_status`. Define o modelo adequado para executar:
+Define o modelo adequado para executar:
 
 | Valor | Quando usar |
 |-------|------------|
 | `haiku` | Tarefa mecânica — transformações simples, cleanup, plumbing |
-| `sonnet` | Workhorse — tarefa complexa mas **totalmente** especificada (assinaturas reais, zero decisão aberta) |
-| `opus-spike` | Requer exploração — entregável = ADR ou PoC com critério claro; não é task normal |
+| `sonnet` | Workhorse — tarefa complexa mas **totalmente** especificada |
+| `opus-spike` | Requer exploração — entregável = ADR ou PoC com critério claro |
 
-"Preferir Haiku" é viés, não proibição. Sonnet é o padrão real para tasks de lógica não-trivial
-plenamente especificadas. Só suba para opus-spike quando a decisão arquitetural for genuinamente aberta.
+"Preferir Haiku" é viés, não proibição.
 
 ---
 
-## 8. Segunda revisão independente
+## 9. Segunda revisão independente
 
 Quando uma task já tem um Parecer `[APROVADO]` na §8 e um segundo reviewer a analisa:
 
@@ -204,56 +242,33 @@ Quando uma task já tem um Parecer `[APROVADO]` na §8 e um segundo reviewer a a
 2. **Appende** um novo bloco abaixo: `### Parecer do Reviewer N (<modelo>, independente):`.
 3. **Nunca sobrescreva** o parecer anterior.
 
-O `/integrar-task` decide pelo **veredito agregado** (último parecer + zero `[Bn]` no conjunto).
-
 ---
 
-## 9. Painel transversal: `hardening.mjs`
+## 10. Painel transversal: `hardening.mjs`
 
 ```bash
 node tools/scripts/hardening.mjs [prefixo]
 ```
 
-Quatro seções:
-1. **Estado do spec_status** — quantas tasks em cada valor do eixo de qualidade.
-2. **Fila de DECISÕES** — tasks `blocked-decision` com o campo `decisions:` expandido.
-3. **PROMOVÍVEIS** — `spec_status: hardened` + lifecycle `draft` (prontas para `/arquiteto-promover`).
-4. **Candidatas a REENDURECIMENTO** — `hardened`, `not-started`, deps agora `done`.
-
-Rode ao final de qualquer `/endurecer-task`, `/endurecer-fila`, `/arquiteto-decisoes` ou `/arquiteto-promover`.
+Seções:
+1. **Estado dos draft:<sub>** — quantas tasks em cada sub-status.
+2. **Fila de DECISÕES** — tasks `draft:pending_decision` com `decisions:`.
+3. **PROMOVÍVEIS** — `draft:hardened` com deps done que o auto-promote não pegou (safety-net).
+4. **Candidatas a REENDURECIMENTO** — `draft:hardened`, deps agora `done`.
 
 ---
 
-## 10. Skills e quando chamar cada uma
+## 11. Skills e quando chamar cada uma
 
 | Skill | Quando | Modelo típico |
 |-------|--------|--------------|
-| `/endurecer-task <ID>` | Task criada / deps concluídas / decisão resolvida | sonnet |
-| `/endurecer-fila [prefixo]` | Endurecimento em lote por ordem topológica | sonnet |
-| `/arquiteto-decisoes [prefixo]` | Há tasks `blocked-decision` — consolida e pergunta ao humano | sonnet + humano |
-| `/arquiteto-promover [prefixo]` | Há tasks `hardened` + `draft` — flip mecânico draft→ready | haiku |
-| `/executar-task <ID>` | Task `ready`, worktree do superapp | sonnet / haiku |
-| `/qa-review <ID> [--integrar]` | Task em `review` — parecer independente; `--integrar` encadeia merge | sonnet / opus |
-| `/integrar-task <ID>` | Merge + approve ou request_changes após parecer | sonnet |
-| `/rework-task <ID>` | Task em `rework` — corrige só bloqueantes do Parecer | sonnet |
-| `/agrupar-cleanup [área]` | Drena `tasks/_pendencias.md` em tasks C-NN por área | sonnet |
-| `/drenar-fila` | Committer serial do controle — drena a fila de commits (`fila.mjs flush`), periodicamente | haiku |
-
----
-
-## 11. Fluxo do controle (Docs) em paralelo
-
-Múltiplos agentes trabalham simultaneamente no mesmo working tree. Cada um:
-
-1. Lê e edita **apenas** os arquivos da sua task.
-2. **Enfileira** o commit em vez de rodar git: `node tools/scripts/fila.mjs add <ID> "<msg>" [paths]`.
-3. **Nunca** roda `git commit`/`push`/`add` no Docs — o git do controle é exclusivo do `/drenar-fila`.
-4. **Nunca** edita/enfileira `tasks/INDEX.md` (gitignored, regenerado pelo serviço) nem `.commit-queue/`.
-
-O **committer serial** (`/drenar-fila`, rodado periodicamente por humano ou loop) drena a fila:
-commita cada intenção atômica por path, em ordem cronológica, e dá um único push. Idempotente —
-intenção sem mudança real é descartada; erro de git é mantido pra próxima rodada.
-
----
-
-*Atualizado 2026-06-29. Ver também: [[endurecer-task]] · [[integrar-task]] · [[qa-review]] · CLAUDE.md §MGTIA*
+| `/endurecer-task` | Triar ou endurecer uma task específica | Sonnet |
+| `/endurecer-fila` | Endurecer em lote (ordem topológica) | DeepSeek V4 Pro |
+| `/arquiteto-decisoes` | Destravar tasks `draft:pending_decision` | Sonnet |
+| `/arquiteto-promover` | Safety-net: promover `draft:hardened` que o auto-promote não pegou | Haiku |
+| `/vincular-rag` | Preencher Seção 2 (Contexto RAG) de tasks novas | DeepSeek V4 Pro |
+| `/executar-task` | Executar task `ready` (Worker) | Sonnet/Haiku |
+| `/qa-review` | Revisar task em `review` | Agile Reviewer |
+| `/integrar-task` | Merge + approve/request_changes | Sonnet |
+| `/rework-task` | Corrigir task em `rework` | Haiku |
+| `/agrupar-cleanup` | Drenar ledger de pendências | Sonnet |

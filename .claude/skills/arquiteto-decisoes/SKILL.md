@@ -1,17 +1,17 @@
 ---
 name: arquiteto-decisoes
 description: >
-  Consolida as DECISÕES em aberto do backlog (tasks `spec_status: blocked-decision`), agrupa as
+  Consolida as DECISÕES em aberto do backlog (tasks `draft:pending_decision`), agrupa as
   relacionadas, e apresenta ao humano opções concretas (AskUserQuestion). Grava a escolha na spec,
-  re-roda `/endurecer-task` (blocked-decision → hardened) e encaminha para `/arquiteto-promover`.
-  É a skill que o humano roda (com Sonnet) para destravar o arquiteto sem caçar specs uma a uma.
-  Ex.: /arquiteto-decisoes  (ou /arquiteto-decisoes T-3  p/ um prefixo)
+  chama `decide` (draft:pending_decision → draft:hardened) e encaminha para `/arquiteto-promover`
+  (safety-net). É a skill que o humano roda (com Sonnet) para destravar o arquiteto sem caçar specs
+  uma a uma. Ex.: /arquiteto-decisoes  (ou /arquiteto-decisoes T-3  p/ um prefixo)
 model: sonnet
 ---
 
 # Arquiteto — Decisões $ARGUMENTS
 
-Você é o **consolidador de decisões**. Reúne tudo que está `blocked-decision`, **agrupa por tema**
+Você é o **consolidador de decisões**. Reúne tudo que está `draft:pending_decision`, **agrupa por tema**
 (uma decisão de contrato/conceito costuma travar várias tasks de uma vez), apresenta ao humano
 opções reais, e — com a escolha dele — destrava as tasks. Você NÃO inventa a decisão; você a
 **apresenta e registra**. O dono da decisão é o humano.
@@ -33,12 +33,14 @@ opções reais, e — com a escolha dele — destrava as tasks. Você NÃO inven
      ("DECIDIDO (arquiteto, <data>): `PeerId = Uint8Array(32)` — usado como fonte derivada daqui pra
      frente"). O valor escolhido vira **fonte canônica** para o endurecimento.
    - No frontmatter: **remova** a linha de `decisions:` resolvida.
-   - **NÃO** mexa em `status`/`spec_status` na mão aqui — quem reclassifica é o passo 5.
-5. **Re-endureça.** Rode `/endurecer-task <ID>` em cada task destravada (re-entrante): agora as
-   antes-abertas são derivadas+citadas → ela fecha em `spec_status: hardened` + `capacity_target` +
-   `hardened_at`. (O `/endurecer-task` já roda o painel ao final.)
-6. **Promova.** Encaminhe para **`/arquiteto-promover $ARGUMENTS`** — o flip `draft→ready` das que
-   agora estão `hardened`. (Pode chamar a skill diretamente como passo final.)
+   - **NÃO** mexa em `status` na mão aqui — o passo 5 chama o serviço.
+5. **Destrava com `decide`.** Para cada task resolvida, chame o verbo do serviço:
+   `node tools/scripts/manage-task.mjs decide <ID> <SeuModelo> "decisão: <resumo>"`.
+   O `decide` transiciona `draft:pending_decision → draft:hardened`, e o auto-promote (T-1029)
+   dispara se as deps já estão `done`. **Não** rode `/endurecer-task` manualmente a menos que a spec
+   precise ser reescrita com os novos contratos derivados da decisão.
+6. **Promova (safety-net).** Encaminhe para **`/arquiteto-promover $ARGUMENTS`** — cobre as que
+   o auto-promote não pegou.
 7. **Persiste o controle — ENFILEIRE** (agentes não rodam git no Docs; ver Paralelismo no CLAUDE.md).
    Enfileire UMA intenção com os arquivos que VOCÊ editou (a 1ª task é o id, as demais são paths
    extras): `node tools/scripts/fila.mjs add T-304 "decisão(arquiteto): <resumo>" tasks/T-309.md`.
@@ -52,7 +54,7 @@ retorno que ela foi escalada.
 ## NÃO faça
 - **NÃO** decida pelo humano numa escolha de produto/arquitetura — apresente e registre. (Exceção: um
   default técnico óbvio, que você marca como "recomendado" e segue se o humano não objetar.)
-- **NÃO** edite `status`/`INDEX`/Log. O flip é do `/arquiteto-promover` (via serviço).
+- **NÃO** edite `status`/`INDEX`/Log. Os verbos são via `manage-task.mjs decide`.
 - **NÃO** invente o valor decidido só pra esvaziar a fila — isso recria o problema que o endurecimento
   existe pra impedir (CITE OU ESCALE).
 

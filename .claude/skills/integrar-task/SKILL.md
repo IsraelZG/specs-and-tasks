@@ -43,7 +43,8 @@ ORQ-02 esperando ORQ-01 (aprovada na mão, sem a propagação JIT).
    real dos comandos da §7 da própria spec (não invente). Se o parecer aponta achado não resolvido,
    trate como Caminho B.
 2. Pule os passos 1-6 do Caminho A (não há `git`/worktree/superapp aqui). Vá direto para os passos
-   **7 a 11** abaixo (pendências → approve → pais decomposed → **reendurecer dependentes** → enfileirar).
+   **7 a 8** (pendências → approve). Os side-effects automáticos (T-1029: autoPromoteDependents,
+   parentAutoClose) rodam no `approve` sem intervenção manual.
 
 ## Caminho A — Parecer = APROVADO
 
@@ -72,26 +73,14 @@ ORQ-02 esperando ORQ-01 (aprovada na mão, sem a propagação JIT).
    no ledger — ver "Identidade do agente" no CLAUDE.md): `node tools/scripts/manage-task.mjs approve
    $ARGUMENTS agile_reviewer:<SeuModelo> "Integrado: merge na master (commit <hash>), worktree
    removida, Gate verde (<evidência>). N não-bloqueantes → ledger de pendências."`
-9. **Encerra pais decomposed (se aplicável).** Se `$ARGUMENTS` é uma task filha (ID com sufixo
-   `a`/`b`/`c` ou nome indica split), verifique se existe um pai com `spec_status: decomposed`.
-   Leia o frontmatter `blocks:` do pai para encontrar todas as filhas. Se **todas** estiverem `done`:
-   fast-track o pai pelo serviço: `promote → start → finish → approve agile_reviewer:<SeuModelo>` com
-   mensagem "decomposed — filhas <lista> concluídas". Nunca edite o status do pai na mão. Se alguma
-   filha ainda não for `done`, pule — o pai será encerrado quando a última filha for integrada.
-10. **Reendurece os dependentes (JIT).** Agora que `$ARGUMENTS` é `done`, a fundação que os
-   dependentes dela só podiam citar vagamente **existe de verdade**. Rode
-   `node tools/scripts/hardening.mjs` e olhe **REENDURECER**. Para cada dependente de `$ARGUMENTS`
-   (task com `$ARGUMENTS` em `dependencies:`, ou em `blocks:` desta) **cujas deps agora estão TODAS
-   `done`**, rode `/endurecer-task <dep>` — troca placeholder pela assinatura real e re-carimba
-   `hardened_at`. Dependente com **outra** dep ainda aberta: **pule** (reendurecer seria prematuro;
-   o painel o pega quando fechar). Em seguida `/arquiteto-promover` promove os que ficaram `hardened`.
-11. **Persiste o controle — ENFILEIRE** (agentes não rodam git no Docs; ver Paralelismo no CLAUDE.md).
-   Enfileire UMA intenção com **só os arquivos que VOCÊ tocou** (a 1ª é o id, as demais são paths
-   extras) — `tasks/$ARGUMENTS.md` (default), `tasks/_pendencias.md` e **cada dependente que
-   reendureceu** (liste por nome): `node tools/scripts/fila.mjs add $ARGUMENTS "<msg>"
-   tasks/_pendencias.md tasks/T-305.md`. **NÃO** enfileire `INDEX.md` (gitignored). Um `/drenar-fila`
-   commita+pusha depois — você não toca git no Docs (no superapp, o push do merge já foi no passo 4).
-12. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
+   *(O `approve → done` automaticamente dispara `autoPromoteDependents` e `parentAutoClose` — T-1029.
+   Não é mais necessário reendurecer dependentes nem encerrar pais decompostos manualmente.)*
+9. **Persiste o controle — ENFILEIRE** (agentes não rodam git no Docs; ver Paralelismo no CLAUDE.md).
+   Enfileire UMA intenção com **só os arquivos que VOCÊ tocou**: `tasks/$ARGUMENTS.md` (default) e
+   `tasks/_pendencias.md`: `node tools/scripts/fila.mjs add $ARGUMENTS "<msg>" tasks/_pendencias.md`.
+   **NÃO** enfileire `INDEX.md` (gitignored). Um `/drenar-fila` commita+pusha depois — você não toca
+   git no Docs (no superapp, o push do merge já foi no passo 4).
+10. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
    `node tools/scripts/orquestrar.mjs --on-finish $ARGUMENTS` — para liberar seu slot e deixar o
    orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; é disparar e seguir.
 
@@ -99,7 +88,7 @@ ORQ-02 esperando ORQ-01 (aprovada na mão, sem a propagação JIT).
 
 1. **Pendências:** anexe os **não-bloqueantes** ao `tasks/_pendencias.md` (mesmo formato).
 2. **Devolve:** `node tools/scripts/manage-task.mjs request_changes $ARGUMENTS agile_reviewer:<SeuModelo>
-   "Rework: <lista dos Bn/Mn bloqueantes a corrigir>. Não-bloqueantes → ledger."` (review→rework).
+   "Rework: <lista dos Bn/Mn bloqueantes a corrigir>. Não-bloqueantes → ledger."` (in_review|review→rework).
 3. **NÃO** faça merge, **NÃO** remova a worktree (o worker volta a usá-la). **Enfileire** o controle:
    `node tools/scripts/fila.mjs add $ARGUMENTS "chore($ARGUMENTS): request_changes" tasks/_pendencias.md`.
 4. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —

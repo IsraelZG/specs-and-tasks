@@ -67,7 +67,7 @@ Cada achado do ledger pertence a exatamente uma categoria:
        > `- [id] → fixed (ref) | no-op (justificativa) | defer→T-YYY`
        > Handover sem disposição per-item é inválido e será rejeitado pelo reviewer.
      - **`capacity_target`:** quase sempre `haiku` (cleanups são mecânicos); `sonnet` só se algum
-       achado for de lógica não-trivial. Marque `spec_status: triaged` (endurece JIT antes de rodar).
+       achado for de lógica não-trivial. Marque `draft:triaged` (endurece JIT antes de rodar).
 
 6. **Remova do ledger** as linhas consumidas (as que entraram numa C-task) — reescreva o bloco
    PENDENCIAS mantendo só as linhas que você NÃO agrupou. Não apague os marcadores nem o cabeçalho.

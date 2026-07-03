@@ -17,20 +17,20 @@ contrato sem fonte é proibido — em lote o estrago se multiplica. Releia `/end
 Endurecer **tudo-fundo no início** é trabalho que você refaz — a task que executa por último foi
 escrita quando a fundação dela ainda não existia, então só podia citar contrato vago. Por isso:
 - **Pass 1 — triagem (este lote, cedo, raso):** para cada task, classifique no gate de 4 destinos
-  do `/endurecer-task` (`hardened` se já dá / `blocked-decision` / `decomposed` / `triaged`) e atribua
+  do `/endurecer-task` (`draft:hardened` se já dá / `draft:pending_decision` / `draft:decomposed` / `draft:triaged`) e atribua
   `capacity_target`. O valor é pegar **decisões abertas e spikes cedo** — não escrever assinaturas que
-  ainda não pode saber. Tasks sem deps reais ainda → ficam `triaged`.
+  ainda não pode saber. Tasks sem deps reais ainda → ficam `draft:triaged`.
 - **Pass 2 — profundo (JIT, depois, fora deste lote):** roda task-a-task pelo `/endurecer-task`
   quando as deps já estão `done` (ver candidatas em `node tools/scripts/hardening.mjs`).
 
 ## Ordem (CRÍTICO): dependências primeiro
 Endureça em **ordem topológica**. Uma task só pode *derivar* contratos de dependências **já
 endurecidas** — então:
-1. Monte a fila lendo `tasks/INDEX.md` (filtrando pelo prefixo `$ARGUMENTS` e status `draft`).
-2. Para cada candidata, processe ANTES as `dependencies:` dela que ainda estão `draft`.
+1. Monte a fila lendo `tasks/INDEX.md` (filtrando pelo prefixo `$ARGUMENTS` e tasks `draft:*`).
+2. Para cada candidata, processe ANTES as `dependencies:` dela que ainda estão `draft:*`.
 3. Comece pelas de menor profundidade no grafo (as fundacionais).
-4. **Uma task cujas dependências ainda estão `draft` NÃO pode chegar a `hardened`** — seus tipos
-   seriam chute. Marque `triaged` e deixe `status: draft` até as deps fecharem (pass 2).
+4. **Uma task cujas dependências ainda estão `draft:*` NÃO pode chegar a `draft:hardened`** — seus tipos
+   seriam chute. Marque `draft:triaged` e deixe até as deps fecharem (pass 2).
 
 ## Loop
 Para cada task da fila, em ordem de dependência:

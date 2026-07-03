@@ -46,16 +46,15 @@ mole, porque finge dureza. Na dúvida entre derivar e inventar: é ABERTO.
      colada na Seção 8).
    - **Frontmatter:** `complexity` coerente (5 exige quebra), `target_agent` válido (sem typos),
      `dependencies` conferidas contra o que a task realmente consome.
-3. **Gate de saída — classifique em UM de 4 destinos** (executabilidade) **e atribua capacidade**.
-   Edite o frontmatter `spec_status` + `capacity_target` (e o corpo `Capacidade-alvo`), **nunca o
-   `status` do lifecycle** (esse é do arquiteto/serviço):
+3. **Gate de saída — classifique em UM dos destinos do `draft:<sub>`** (executabilidade) **e atribua capacidade**.
+   Use os **verbos do serviço** (`manage-task.mjs`) — NUNCA edite `status` no frontmatter à mão:
 
-   | Destino (`spec_status`) | Quando | Ação |
+   | Destino (`draft:<sub>`) | Quando | Verbo |
    |---|---|---|
-   | **`hardened`** | zero decisões em aberto, tudo derivado+citado, executável | atribua `capacity_target` (ver abaixo) + carimbe `hardened_at: <hoje ou commit>` **e `hardened_by: <SeuModelo>`** — o **modelo real**, não harness/papel (alimenta a coluna "Endurecido por" do `ledger.mjs` — o endurecimento não passa pelo serviço, então é o único registro do ator). Recomende `ready` no relatório — o arquiteto faz o flip de `status`. |
-   | **`blocked-decision`** | resta decisão de arquiteto (não de arquitetura grande, só uma escolha) | preencha `decisions: ["..."]` espelhando a Seção 6. Fica fora da fila de execução até o arquiteto decidir. `status` segue `draft`. |
-   | **`decomposed`** | grande/multi-concern, **fatia limpo** em peças menores | crie filhos `T-XXXa/b/c` (`dependencies`/parent), cada um endurecido por sua vez. Esta vira casca. `status` segue `draft`. |
-   | **`triaged`** (pass-1 só) | você só triou (capacidade/spike/decompor) sem ter as deps reais p/ assinaturas | deixe `triaged`; o pass-2 profundo roda just-in-time, quando as deps estiverem `done`. |
+   | **`draft:hardened`** | zero decisões em aberto, tudo derivado+citado, executável | `manage-task.mjs harden <ID> <SeuModelo> "endureceu spec"` (atribua `capacity_target` no frontmatter) |
+   | **`draft:pending_decision`** | resta decisão de arquiteto (escolha, não arquitetura grande) | `manage-task.mjs block_decision <ID> <SeuModelo> "<motivo>"`; preencha `decisions: ["..."]` no frontmatter |
+   | **`draft:decomposed`** | grande/multi-concern, fatia limpo em peças menores | `manage-task.mjs decompose <ID> <SeuModelo> "decomposto"`; crie filhos `T-XXXa/b/c` |
+   | **`draft:triaged`** (pass-1 só) | você só triou (capacidade/spike) sem as deps p/ assinaturas reais | `manage-task.mjs triage <ID> <SeuModelo> "triado"`; pass-2 JIT depois |
 
    **Capacidade (`capacity_target`), ortogonal ao destino** — só vale p/ `hardened`/`triaged`:
    - **`haiku`** — mecânico: 1–poucos arquivos, segue padrão, tipos ditados, casos enumerados, zero
@@ -68,6 +67,10 @@ mole, porque finge dureza. Na dúvida entre derivar e inventar: é ABERTO.
    > "Preferir Haiku" é **viés, não proibição**: decomponha *em direção ao Haiku enquanto a divisão for
    > limpa*; pare quando fatiar mais for artificial (fragmentar algoritmo coeso custa mais que rodar em
    > Sonnet). A maioria das tasks de núcleo é Sonnet; Haiku é a cauda mecânica.
+
+   **NOTA:** `harden` com deps todas `done` promove automaticamente para `ready` (auto-promote, T-1029).
+   Não precisa chamar `promote` depois. Se as deps ainda não estão todas `done`, fica em `draft:hardened`
+   e o auto-promote acontece quando a última dep fechar.
 
 ## Saída obrigatória: Relatório de Endurecimento
 
@@ -89,9 +92,8 @@ estado do backlog, a fila de decisões, os promovíveis e as candidatas a reendu
 o arquiteto ver o efeito do seu endurecimento sem reler specs.
 
 **Persiste a spec — ENFILEIRE, não comite** (agentes não rodam git no Docs; ver Paralelismo no
-CLAUDE.md): `node tools/scripts/fila.mjs add $ARGUMENTS "chore($ARGUMENTS): endurece spec → <spec_status>"`.
-Um `/drenar-fila` commita+pusha depois. (Quando chamada por `/arquiteto-decisoes`/`/endurecer-fila`,
-o orquestrador pode enfileirar o lote de uma vez — não enfileire em duplicidade.)
+CLAUDE.md): `node tools/scripts/fila.mjs add $ARGUMENTS "chore($ARGUMENTS): endurece spec → hardened"`.
+Um `/drenar-fila` commita+pusha depois.
 
 **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
 `node tools/scripts/orquestrar.mjs --on-finish $ARGUMENTS` — para liberar seu slot e deixar o
@@ -101,21 +103,19 @@ orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; 
 - NÃO escreva código de implementação nem testes reais — só a **spec** da task.
 - NÃO toque em nenhum arquivo além de `tasks/$ARGUMENTS.md`.
 - NÃO invente assinatura/tipo/path/retorno sem fonte (releia a Diretriz primária).
-- NÃO recomende `ready` enquanto houver qualquer decisão em aberto (`blocked-decision`/`triaged`).
-- NÃO altere o **lifecycle `status`**/Log/INDEX — nem na mão, nem pelo serviço. Você edita só o
-  **corpo** da spec e o frontmatter de **autoria**: `complexity`, `target_agent`, `dependencies`,
-  `spec_status`, `capacity_target`, `hardened_at`, `hardened_by`, `decisions`, e a linha `Capacidade-alvo`. O flip
-  do lifecycle `draft→ready` é decisão do arquiteto (`spec_status` é só o **sinal** pra isso).
+- NÃO recomende `ready` enquanto houver qualquer decisão em aberto.
+- NÃO altere o **lifecycle `status`**/Log/INDEX — nem na mão, nem pelo serviço. Você usa os **verbos de endurecimento** (`triage`/`harden`/`block_decision`/`decompose` via `manage-task.mjs`) que só mudam o `draft:<sub>` — nunca `promote`/`start`/`finish`/`approve`. O flip para `ready` é automático (auto-promote, T-1029).
 
 ## Iteração e reendurecimento (JIT)
-A skill é **re-entrante e idempotente** — rodar de novo numa task já `hardened` é esperado, não erro.
+A skill é **re-entrante e idempotente** — rodar de novo numa task já `draft:hardened` é esperado, não erro.
 Dois gatilhos:
-- **Resolver abertas:** depois que o arquiteto fecha itens da Seção 6, re-rode; a lista "Aberto"
-  encolhe. Sucesso = vazia → `hardened`.
+- **Resolver abertas:** depois que o arquiteto fecha itens da Seção 6 via `decide`, re-rode; a lista "Aberto"
+  encolhe. Sucesso = vazia → `harden`.
 - **Reendurecer (stale por antecipação):** quando uma **dependência vira `done`**, a fundação que
   esta task só podia citar vagamente passa a existir. Re-rode pra trocar placeholder ("integra com o
-  core") pela **assinatura real** (`import { X } from 'packages/core/src/...'`) e **re-carimbe
-  `hardened_at`**. `node tools/scripts/hardening.mjs` lista as candidatas (seção "REENDURECER").
+  core") pela **assinatura real** (`import { X } from 'packages/core/src/...'`) e **re-rode `harden`**
+  (a data do reendurecimento aparece no Log, não no frontmatter). `node tools/scripts/hardening.mjs`
+  lista as candidatas (seção "REENDURECER").
 
 > **Política: endureça em dois passes, não tudo-fundo-no-início.** Pass 1 (triagem, cedo, raso):
 > classifica capacidade/spike/decompor e pega decisões abertas — vira `triaged`/`blocked-decision`.

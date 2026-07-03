@@ -13,6 +13,10 @@ model: sonnet
 > **para** — a task fica em `review`. A decisão (merge na master + `approve`, ou `request_changes`)
 > é da operação **`/integrar-task`**, que roda depois. Isso existe de propósito: `approve` sem o
 > merge foi o que criou o gap de integração. Para fazer os dois de uma vez, use **`--integrar`**.
+>
+> **Lock de revisão:** o primeiro passo é **`claim`** (`review → in_review`) — trava a task para que
+> o orquestrador não despache outro reviewer. Se `claim` falhar (task já está `in_review`), outro
+> reviewer já pegou → PARE (não rouba a revisão).
 
 ## 1. Identificar tarefas a revisar
 
@@ -29,6 +33,12 @@ Se `$ARGUMENTS` estiver vazio:
 - Se não houver nenhuma, informe e PARE.
 - Se houver mais de uma, liste ao usuário e pergunte qual revisar (ou se quer revisar
   todas em sequência). Aguarde confirmação antes de prosseguir.
+
+## 1a. Claim — trava a task para revisão (NOVO, INVIOLÁVEL)
+
+**Antes** de auditar, reclame a task: `node tools/scripts/manage-task.mjs claim <ID> agile_reviewer:<SeuModelo> "revisando"`.
+- Se `claim` falhar (status != `review`, ou papel ≠ reviewer) → **PARE** e explique por quê.
+- **Se a task já está `in_review`** → outro reviewer a pegou. PARE. Não audite nem escreva parecer.
 
 ## 2. Para cada task identificada
 

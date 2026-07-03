@@ -34,8 +34,8 @@ quando o backend não estiver no ar. NUNCA edite status, INDEX.md ou Log manualm
 **mesmo se o comando falhar ou o ambiente estiver quebrado** (build travado, EACCES, file lock).
 Falha de ambiente durante uma transição é ela mesma um BLOCKER — registre como tal (`pause` ou
 `request_changes`), nunca contorne escrevendo o arquivo na mão.
-Ações: start, pause, finish, approve, request_changes, block, unblock.
-Ciclo: draft → ready → in_progress → review → rework → done (+ blocked).
+Ações: triage, harden, decide, block_decision, decompose, promote, start, pause, finish, claim, approve, request_changes, block, unblock.
+Ciclo: draft:placeholder → draft:triaged → draft:hardened → ready → in_progress → review → in_review → rework → done (+ blocked).
 
 > **Identidade do agente (`<SeuNome>`/`<EU>`) — INVIOLÁVEL.** O Log §9 e o `ledger.mjs` só têm valor
 > se `<SeuNome>` for o **modelo real** que está rodando — não o harness, não o papel. Regras:
@@ -81,15 +81,16 @@ registrar o que encontrou; não tenta o próximo verbo só porque o serviço ace
 
 - **Architect:** cria tasks via `node tools/scripts/generate-task.mjs`.
 - **Worker:** executa tasks ≤ Sonnet seguindo SDD + Gate de Evidência. Nunca chama `approve`/`request_changes`.
-- **Reviewer:** audita tasks em `review` via `/qa-review <ID>`. Só escreve no Markdown a Seção 8
-  (Parecer) da própria task; o status/log/INDEX só mudam via `approve`/`request_changes` do
-  serviço — mesmo quando build/lint falha por problema de ambiente.
+- **Reviewer:** audita tasks em `review` via `/qa-review <ID>`. **Primeiro passo é `claim`** (`review → in_review`, trava a task contra revisão duplicada). Se a task já está `in_review` → PARE (outro reviewer a pegou). Só escreve no Markdown a Seção 8
+  (Parecer); o status/log/INDEX só mudam via `approve`/`request_changes` do serviço.
 
 ### Dimensionamento (INVIOLÁVEL)
 
 Tasks ≤ Sonnet (preferencialmente Haiku). A spec precisa ter: zero decisões abertas, assinaturas e tipos explícitos, APIs fixadas, verificação por comando. O que exige Opus → **spike** (entregável = ADR/PoC com critério claro) ou **épico** subdividido. Inclua `Capacidade-alvo: haiku | sonnet | opus-spike` no corpo da task.
 
-**Eixo de qualidade da spec (`spec_status`, ≠ lifecycle `status`).** O frontmatter carrega um eixo separado, editável pelo `/endurecer-task` (metadado de autoria, não transição de serviço): `draft → triaged → hardened` (+ `blocked-decision` / `decomposed`). "Preferir Haiku" é viés, não proibição — Sonnet é o workhorse de tasks complexas mas totalmente especificadas; Haiku é a cauda mecânica. **Endureça em dois passes:** triagem cedo (pega spikes/decisões), endurecimento profundo just-in-time (quando as deps já são `done`, troca placeholder por assinatura real e re-carimba `hardened_at` — *reendurecimento*). Painel: `node tools/scripts/hardening.mjs [prefixo]` (estado do backlog · fila de decisões do arquiteto · candidatas a reendurecer).
+**Eixo de qualidade da spec.** O antigo campo `spec_status` foi colapsado nos sub-status de `draft:<sub>` — `draft:placeholder | draft:triaged | draft:pending_decision | draft:hardened | draft:decomposed`. Cada sub-status é transicionado pelos **verbos de endurecimento** (`triage`/`harden`/`block_decision`/`decompose`/`decide` via `manage-task.mjs`), não mais editando frontmatter à mão. **Endureça em dois passes:** triagem cedo (pega spikes/decisões), endurecimento profundo just-in-time (quando as deps já são `done`, troca placeholder por assinatura real — *reendurecimento*).
+
+**Automatismos (T-1029):** `harden`/`decide` com deps todas `done` → auto-promove para `ready`; `approve → done` → auto-promove dependentes elegíveis e encerra pais decompostos quando a última filha fecha. Painel: `node tools/scripts/hardening.mjs [prefixo]` (estado dos draft:<sub> · fila de decisões · promovíveis safety-net · candidatas a reendurecer).
 
 **Ledger de ciclo de vida.** `node tools/scripts/ledger.mjs [prefixo]` regenera `tasks/LEDGER.md` (gitignored): tabela agrupada por status com **quem fez cada papel** — worker, reviewer, cada rework (`N× (ator → ator)`), endurecedor. **Não é fonte nova nem passo a mais pro agente:** é uma *projeção* dos Logs §9 que o `manage-task.mjs` já escreve a cada transição (o ator é o `<SeuNome>` passado). Reworks variáveis não viram colunas fixas — viram uma célula. `/drenar-fila` o refresca no heartbeat periódico.
 
@@ -99,7 +100,7 @@ Tasks ≤ Sonnet (preferencialmente Haiku). A spec precisa ter: zero decisões a
 
 **Skills:** `/verificar` · `/qa-review` · `/integrar-task` · `/agrupar-cleanup` · `/endurecer-task` · `/endurecer-fila` · `/arquiteto-decisoes` · `/arquiteto-promover` · `/drenar-fila` · `/vincular-rag` · `/executar-task` · `/rework-task` · `/absorver-rfc` · `/rodar-onda` · `/consolidar-arquivo` · `/consolidar-glossario` · `/handoff` · `/migrar-caderno` · `/novo-verbete` · `/revisar-rfc` · `/revisar-rfcs` · `/sync-provider`
 
-> **Pipeline de uma task:** `/endurecer-task` (→ `triaged`/`hardened`/`blocked-decision`) · `/arquiteto-decisoes` (resolve decisões) · `/arquiteto-promover` (`draft→ready` pelo serviço) · `/executar-task` (worker, na worktree, commits frequentes) · `/qa-review` (Parecer, review-only) · `/integrar-task` (merge+`approve`, ou `request_changes`→`rework`) · `/rework-task` (corrige os achados do Parecer, volta a `review`) · `/agrupar-cleanup` (drena o ledger de pendências). Painel transversal: `node tools/scripts/hardening.mjs`. **Persistência no controle:** cada skill **enfileira** o commit (`fila.mjs add`); `/drenar-fila` commita+pusha em lote (nenhum agente roda git no Docs).
+> **Pipeline de uma task:** `/endurecer-task` (→ `draft:triaged`/`draft:hardened`/`draft:pending_decision`) · `/arquiteto-decisoes` (resolve decisões, chama `decide`) · `/arquiteto-promover` (safety-net: promove `draft:hardened` não pego pelo auto-promote) · `/executar-task` (worker, na worktree, commits frequentes) · `/qa-review` (Parecer, review-only, começa com `claim`) · `/integrar-task` (merge+`approve`, ou `request_changes`→`rework`; auto-side-effects T-1029 disparam no approve) · `/rework-task` (corrige os achados do Parecer, volta a `review`) · `/agrupar-cleanup` (drena o ledger de pendências). Painel transversal: `node tools/scripts/hardening.mjs`. **Persistência no controle:** cada skill **enfileira** o commit (`fila.mjs add`); `/drenar-fila` commita+pusha em lote (nenhum agente roda git no Docs).
 
 **Agentes** (`.claude/agents/`): `agile-reviewer` · `auditor-consistencia-rfc` · `consolidador` · `criador-verbete` · `emendador-rfc` · `incorporador` · `rfc-roteador` · `triador-review`
 

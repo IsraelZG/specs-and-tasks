@@ -24,7 +24,7 @@ CLAUDE.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
 - Spec ambígua/contraditória/impossível → `pause`/`block` com o motivo. **Não invente.**
 
 ## Passo a passo
-1. **Prontidão:** `<CTRL>/tasks/$ARGUMENTS.md` deve estar `status: ready`. Se `draft` → **PARE**
+1. **Prontidão:** `<CTRL>/tasks/$ARGUMENTS.md` deve estar `status: ready`. Se `draft:*` → **PARE**
    (precisa endurecer — `/endurecer-task`). Se `review`/`done` → **PARE** (não reexecute).
 2. **Worktree (uma por task — disciplina INVIOLÁVEL):**
    - Se ainda **não** existe, crie do controle: `pnpm wt new $ARGUMENTS` (roda `worktree.mjs`, que
