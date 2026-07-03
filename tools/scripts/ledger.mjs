@@ -47,7 +47,21 @@ const prefix = (() => {
 })();
 
 // Ordem de lifecycle pro agrupamento (status desconhecido cai por último).
-const STATUS_ORDER = ['in_progress', 'review', 'rework', 'ready', 'blocked', 'draft', 'done'];
+const STATUS_ORDER = [
+  'in_progress',
+  'in_review',
+  'review',
+  'rework',
+  'ready',
+  'blocked',
+  'draft:hardened',
+  'draft:triaged',
+  'draft:placeholder',
+  'draft:pending_decision',
+  'draft:decomposed',
+  'draft',
+  'done',
+];
 
 function fm(txt, key) {
   const m = txt.match(/^---\n([\s\S]*?)\n---/);
