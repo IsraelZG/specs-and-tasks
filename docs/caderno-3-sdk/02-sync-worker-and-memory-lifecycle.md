@@ -47,9 +47,9 @@ Worker que processa mensagens e payloads decifrados de forma assíncrona.
 
 ### 1.4 Propriedade do Banco Multi-Aba: SharedWorker com Posse por Web Locks
 
-A pilha local ([[sync-worker]]/[[crypto-worker]]/[[index-worker]] + `StoragePort`) tem **um dono por origem**.
+A pilha local ([[sync-worker]]/[[crypto-worker]]/[[index-worker]] + `GraphStorePort`) tem **um dono por origem**.
 
-- **Caminho A (preferencial; desktop, Android Chrome):** workers e `StoragePort` num `SharedWorker` singleton, dono do lock OPFS. Abas conectam via `MessagePort`/Comlink e operam como terminais de UI ([[tinybase]] local por aba). O `GlobalThrottle` roda no SharedWorker.
+- **Caminho A (preferencial; desktop, Android Chrome):** workers e `GraphStorePort` num `SharedWorker` singleton, dono do lock OPFS. Abas conectam via `MessagePort`/Comlink e operam como terminais de UI ([[tinybase]] local por aba). O `GlobalThrottle` roda no SharedWorker.
 - **Caminho B (fallback; Safari/iOS sem SharedWorker):** posse representada pelo lock exclusivo `navigator.locks.request('plataforma-db-owner', ...)`. A primeira aba a obtê-lo é **Líder** e inicializa a pilha; as demais ficam enfileiradas no lock e operam como Seguidoras (encaminham via `BroadcastChannel`/`MessageChannel`). **A troca de posse não depende de `beforeunload`:** ao fechar/travar/morrer a Líder, o navegador libera o lock e a próxima aba o adquire, assumindo pelo caminho normal de **crash-recovery** (abrir banco, checkpoint do WAL, retomar do último checkpoint de range). Despedida graciosa é otimização quando ocorrer, nunca premissa.
 
 Toda menção a "o Sync Worker" lê-se "o Sync Worker do contexto dono"; abas nunca abrem conexão própria com o OPFS.

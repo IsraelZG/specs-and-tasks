@@ -24,9 +24,16 @@ O núcleo do sistema tem cinco camadas. O core lógico está em `@plataforma/pro
 
 **Nunca como storage do grafo.** Dados persistentes usam [[rbsr|RBSR]] (ver `docs/adr/adr-001-automerge-unico.md`).
 
-## 3. TinyBase e o Acesso ao SQLite
+## 3. TinyBase e o Acesso ao Armazenamento (Evolução ADR-005)
 
-[[tinybase|TinyBase]] é a camada de estado reativo da UI. **A regra correta é: a UI nunca acessa SQL direto — apenas via TinyBase.** O core ([[sync-worker|Sync Worker]], [[index-worker|Index Worker]], Committer, [[key-vault|Key Vault]], [[zen-engine|Zen Engine]], TestKit) acessa o SQLite diretamente via `StoragePort` — eles próprios são produtores e validadores dos dados que o TinyBase consome.
+[[tinybase|TinyBase]] é a camada de estado reativo da UI. **A regra correta é: a UI nunca acessa a persistência diretamente — apenas via TinyBase.**
+
+### Evolução e Agnosticismo de Engine
+Historicamente, o core ([[sync-worker|Sync Worker]], [[index-worker|Index Worker]], Committer, [[key-vault|Key Vault]], [[zen-engine|Zen Engine]], TestKit) acessava o SQLite diretamente via `StoragePort` executando SQL cru.
+
+Conforme estabelecido no [[adr-005-storage-engine-agnosticism|ADR-005]], a plataforma evoluiu para um modelo agnóstico de engine de armazenamento:
+1. **Grafo Engine-Agnóstico:** O core acessa o grafo de nodes/edges replicados exclusivamente através da `GraphStorePort`, que expõe assinaturas tipadas do domínio do grafo (`putNode`, `getNode`, `putEdge`, `getEdges`, `rangeScan`, `transaction`) sem vazar instruções SQL. O SQL fica estritamente confinado ao adapter SQLite.
+2. **Projeções e Estado Local:** As tabelas de projeção e estado local (joins, views, prefetches) migraram para a camada de índice (TinyBase-side) ou views locais no próprio adapter. Em deploys sem SQL (ex.: KV ou NoSQL), estas projeções são materializadas em memória ou índices secundários nativos, garantindo que nenhum deploy seja obrigado a carregar uma instância de SQLite paralela apenas para projeções.
 
 ## 4. As Três Categorias de Tabela do SQLite
 
