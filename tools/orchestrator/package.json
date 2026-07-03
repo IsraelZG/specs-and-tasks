@@ -1,0 +1,18 @@
+{
+  "name": "@plataforma/orchestrator",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "description": "AgentAdapter in-process (Vercel AI SDK) — spike ORQ-08. Pacote isolado do Docs dep-free; node_modules próprio.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "smoke": "node --env-file=../../.env smoke.mjs",
+    "selftest": "node --env-file=../../.env agent-adapter.poc.mjs --selftest",
+    "test": "node --test tests/"
+  },
+  "dependencies": {
+    "ai": "^7.0.14",
+    "@ai-sdk/openai-compatible": "^3.0.5",
+    "zod": "^4.4.3"
+  }
+}
