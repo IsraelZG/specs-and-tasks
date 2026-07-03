@@ -204,11 +204,11 @@ for (const t of plan) {
     appendLedger(t.fields.id, 'draft', t.newStatus);
     // Append Log line (in the body)
     const newBody = appendLogLine(body, t.fields.id, t.oldSpec, t.newStatus);
-    txt = `---\n${newFm}---${newBody}`;
+    txt = `---\n${newFm}\n---${newBody}`;
   } else {
     // Non-draft cleanup: just remove lines, status stays
     appendLedger(t.fields.id, t.fields.status || 'draft', t.newStatus);
-    txt = `---\n${newFm}---${body}`;
+    txt = `---\n${newFm}\n---${body}`;
   }
 
   fs.writeFileSync(t.path, txt, 'utf8');

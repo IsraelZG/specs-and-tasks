@@ -1,7 +1,7 @@
 ---
 id: T-ERP-05
 title: "projecoes analiticas incrementais + teste de custo (volume)"
-status: draft
+status: draft:triaged
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -26,7 +26,8 @@ Implementar projeções analíticas materializadas e incrementais no pacote `@pl
 ### Contratos exatos (assinaturas TS fixadas)
 
 ```ts
-// --- packages/erp/src/analytics.ts ---
+// --- packages/erp/src/analytics.ts 
+---
 import type { ULID } from '@plataforma/core';
 import type { StoragePort } from '@plataforma/protocol';
 
@@ -184,3 +185,6 @@ pnpm --filter @plataforma/erp test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

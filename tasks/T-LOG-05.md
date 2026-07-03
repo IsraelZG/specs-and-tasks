@@ -1,7 +1,7 @@
 ---
 id: T-LOG-05
 title: "logistica reversa + prova de entrega/disputa (escrow) + reentrada de estoque + vetores"
-status: draft
+status: draft:triaged
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -26,7 +26,8 @@ Implementar o módulo de logística reversa e disputas no pacote `@plataforma/lo
 ### Contratos exatos (assinaturas TS fixadas)
 
 ```ts
-// --- packages/logistica/src/reverse-logistics.ts ---
+// --- packages/logistica/src/reverse-logistics.ts 
+---
 import type { ULID } from '@plataforma/core';
 import type { StoragePort } from '@plataforma/protocol';
 
@@ -291,3 +292,6 @@ pnpm --filter @plataforma/logistica test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

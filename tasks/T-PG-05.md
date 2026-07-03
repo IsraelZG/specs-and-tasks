@@ -1,7 +1,7 @@
 ---
 id: T-PG-05
 title: "vetores: componente fora do catalogo, expressao estourando orcamento, intent acima do privilegio"
-status: draft
+status: draft:triaged
 complexity: 3
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -29,7 +29,8 @@ Testes de vetores adversariais para a linguagem de páginas: garantir que págin
 ### Contratos TS (casos de vetor, não novas interfaces)
 
 ```ts
-// --- packages/pages/tests/vectors.test.ts ---
+// --- packages/pages/tests/vectors.test.ts 
+---
 // Cada vetor é um caso de teste que monta um PageDocument malicioso
 // e verifica que o sistema o rejeita ou contém.
 
@@ -130,3 +131,6 @@ pnpm --filter @plataforma/pages test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

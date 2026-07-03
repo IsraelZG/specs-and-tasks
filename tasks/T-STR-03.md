@@ -1,7 +1,7 @@
 ---
 id: T-STR-03
 title: "live via LiveKit (SDK embutido + SFU plugin) + consolidacao para CONTENT:FILE"
-status: draft
+status: draft:triaged
 complexity: 4
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -30,7 +30,8 @@ Chat e reacoes ao vivo sao a lente de mensagens (RFC-018/T-MSG-01) sobre a sessa
 ### Contratos exatos (assinaturas TS fixadas)
 
 ```ts
-// --- apps/nexus-frontend/src/modules/streaming/live-types.ts ---
+// --- apps/nexus-frontend/src/modules/streaming/live-types.ts 
+---
 
 export type LiveState = 'offline' | 'connecting' | 'live' | 'consolidating' | 'vod';
 
@@ -165,3 +166,8 @@ pnpm --filter nexus-frontend test
 
 ## 9. Log de Execucao (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog

@@ -8,10 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["ORQ-01", "ORQ-03", "ORQ-04"] # ledger json + saldos + registry/dispatch
 blocks: ["ORQ-07"] # a UI na nuvem (B) reusa esta mesma API JSON
-spec_status: hardened
 capacity_target: sonnet
-hardened_at: "2026-06-30"
-hardened_by: claude-opus
 ---
 
 # ORQ-06 · Painel unificado :8780 + cloudflared

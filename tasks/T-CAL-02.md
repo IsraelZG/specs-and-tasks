@@ -1,7 +1,7 @@
 ---
 id: T-CAL-02
 title: "convites/RSVP + capacidade por reserva_capacidade + render Timeline"
-status: draft
+status: draft:triaged
 complexity: 3
 target_agent: frontend_agent # UI task — Playwright obrigatório
 reviewer_agent: agile_reviewer
@@ -122,3 +122,6 @@ pnpm --filter nexus-frontend playwright test -- calendar-rsvp  # E2E Playwright
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

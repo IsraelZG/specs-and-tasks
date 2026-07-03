@@ -8,10 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: [] # fundação — sem deps
 blocks: ["ORQ-02", "ORQ-06"] # dispatcher e dashboard consomem este JSON
-spec_status: hardened
 capacity_target: sonnet
-hardened_at: "2026-06-30"
-hardened_by: claude-opus
 ---
 
 # ORQ-01 · ledger.mjs --json — API de leitura do estado

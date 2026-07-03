@@ -8,10 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["ORQ-01"] # consome ledger.mjs --json
 blocks: ["ORQ-04"] # o spawn real reusa as funções de decisão daqui
-spec_status: hardened
 capacity_target: sonnet
-hardened_at: "2026-06-30"
-hardened_by: claude-opus
 ---
 
 # ORQ-02 · orquestrar.mjs --dry-run + config — núcleo de decisão
@@ -150,7 +147,8 @@ Slots disponíveis: 5 (max_concurrent - 0 em execução)
 
 Plano de despacho:
   ID   Ação    Modelo                       Motivo
-  ---  ------  ---------------------------  -----------------
+  ---  ------  ---------------------------  --------------
+---
   T-A  review  minimax/minimax-m3           sonnet / minimax
   T-B  work    deepinfra/deepseek-v4-flash  haiku / deepinfra
 

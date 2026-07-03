@@ -1,7 +1,7 @@
 ---
 id: ORQ-09
 title: "VercelAgentAdapter + harness de tools (implements AgentAdapter, multi-provider, loop in-process)"
-status: draft:placeholder
+status: done
 complexity: 7
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -9,7 +9,8 @@ execution_mode: sequential
 dependencies: ["ORQ-08"] # o ADR do spike fixa tool set, sandbox, provider registry, protocolo de evento
 subtasks: ["ORQ-09a", "ORQ-09b"]
 blocks: ["ORQ-09a", "ORQ-09b", "ORQ-10", "ORQ-11"]
-capacity_target: # a casca não executa — ver ORQ-09a/ORQ-09b---
+capacity_target: # a casca não executa — ver ORQ-09a/ORQ-09b
+---
 
 # ORQ-09 · VercelAgentAdapter + harness de tools
 
@@ -121,3 +122,4 @@ consumíveis e testados isoladamente.
 
 - **[2026-07-03 13:28:59]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:decomposed → status:draft:decomposed
+- **[2026-07-03T19:04]** - *system* - `[Reconciliado]`: status restaurado de draft:placeholder para done (drift corrigido)

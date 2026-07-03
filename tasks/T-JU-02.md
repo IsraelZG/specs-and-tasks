@@ -1,7 +1,7 @@
 ---
 id: T-JU-02
 title: "composicao base+variante por EXTENDS + validacao variante nao contradiz invariante + degradacao para base"
-status: draft
+status: draft:triaged
 complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -26,7 +26,8 @@ Implementar a composição SPEC base + variante jurisdicional por aresta `EXTEND
 ### Contratos exatos
 
 ```ts
-// --- packages/jurisdiction/src/spec-variant.ts ---
+// --- packages/jurisdiction/src/spec-variant.ts 
+---
 
 import type { JurisdictionId, JurisdictionResolution } from './resolver';
 
@@ -161,3 +162,6 @@ pnpm --filter @plataforma/jurisdiction test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

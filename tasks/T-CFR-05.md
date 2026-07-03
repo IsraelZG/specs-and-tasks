@@ -1,7 +1,7 @@
 ---
 id: T-CFR-05
 title: "vetores: recalculo retroativo da epoca, fechamento imutavel, jurisdicao ausente degrada, conector fiscal ausente"
-status: draft
+status: draft:triaged
 complexity: 3
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -30,7 +30,8 @@ Criar testes de vetor (edge cases e caminhos de degradação) que validam os 4 c
 ### Contratos exatos (assinaturas TS fixadas)
 
 ```ts
-// --- packages/contabil/tests/edge-cases.test.ts ---
+// --- packages/contabil/tests/edge-cases.test.ts 
+---
 // Nenhuma exportação nova. O arquivo importa e exercita os módulos existentes:
 // - chart-of-accounts.ts (T-CFR-01)
 // - tax.ts (T-CFR-02)
@@ -138,3 +139,6 @@ pnpm --filter @plataforma/contabil test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

@@ -1,7 +1,7 @@
 ---
 id: T-JU-01
 title: "resolucao de jurisdicao efetiva (cascata) + registro no fato + testes de precedencia"
-status: draft
+status: ready
 complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -26,7 +26,8 @@ Implementar o resolvedor de jurisdição efetiva em cascata: dada uma operação
 ### Contratos exatos
 
 ```ts
-// --- packages/jurisdiction/src/resolver.ts ---
+// --- packages/jurisdiction/src/resolver.ts 
+---
 
 /** Identificador hierárquico de jurisdição (ex.: "BR", "BR-SP", "US", "EU"). */
 export type JurisdictionId = string;
@@ -143,3 +144,8 @@ pnpm --filter @plataforma/jurisdiction test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-03T20:03]** - *system* - `[Endurecido]`: Endurecimento em lote (dependencies done/empty)
+- **[2026-07-03T20:03]** - *system* - `[Auto-promovida]`: deps todas done

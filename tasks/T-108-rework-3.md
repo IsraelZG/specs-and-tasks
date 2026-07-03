@@ -51,7 +51,8 @@ pós-aprovação 2026-06-24) + `docs/plano-de-implementacao.md` §2.1 Anel 1 + R
 ### Contratos exatos (assinaturas TS fixadas)
 
 ```ts
-// --- packages/core/src/signature.ts (adição) ---
+// --- packages/core/src/signature.ts (adição) 
+---
 import { sha256 } from '@plataforma/crypto';
 
 export interface UnsignedNode {

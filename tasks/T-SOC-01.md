@@ -1,7 +1,7 @@
 ---
 id: T-SOC-01
 title: "SPECs de perfil/post/story + arestas sociais + visibilidade publica/privada"
-status: draft
+status: ready
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -29,7 +29,8 @@ impossivel (limite honesto). Arestas sociais: `RELATES:SOCIAL:FOLLOWS`, `RELATES
 ### Contratos exatos (assinaturas TS fixadas)
 
 ```ts
-// --- apps/nexus-backend/src/modules/social/types.ts ---
+// --- apps/nexus-backend/src/modules/social/types.ts 
+---
 
 export type Visibility = 'public' | 'private' | 'mutual';
 
@@ -199,3 +200,10 @@ pnpm --filter nexus-backend test
 
 ## 9. Log de Execucao (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-03T20:03]** - *system* - `[Endurecido]`: Endurecimento em lote (dependencies done/empty)
+- **[2026-07-03T20:03]** - *system* - `[Auto-promovida]`: deps todas done

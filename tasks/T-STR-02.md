@@ -1,7 +1,7 @@
 ---
 id: T-STR-02
 title: "renditions como utilitario compute assincrono + irmaos CONTENT"
-status: draft
+status: draft:triaged
 complexity: 4
 target_agent: devops_agent
 reviewer_agent: agile_reviewer
@@ -30,7 +30,8 @@ recebem `CREDITS` proporcionais ao custo computacional medido (19-streaming S5.3
 ### Contratos exatos (assinaturas TS fixadas)
 
 ```ts
-// --- apps/nexus-backend/src/modules/streaming/rendition-types.ts ---
+// --- apps/nexus-backend/src/modules/streaming/rendition-types.ts 
+---
 
 export type TranscodeJobStatus = 'pending' | 'running' | 'completed' | 'failed';
 
@@ -162,3 +163,8 @@ pnpm --filter nexus-backend test
 
 ## 9. Log de Execucao (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog

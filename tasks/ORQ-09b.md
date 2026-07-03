@@ -8,7 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["ORQ-09a"]
 blocks: []
-parent_task: "ORQ-09"
+parent: "ORQ-09"
 capacity_target: sonnet
 ---
 
@@ -60,7 +60,8 @@ abaixo) — que é o que o `orquestrar.mjs` vivo precisa, não o `AgentRunOption
 
 ### Contratos exatos
 ```js
-// --- tools/orchestrator/src/agentAdapter.mjs ---
+// --- tools/orchestrator/src/agentAdapter.mjs 
+---
 import { generateText, stepCountIs } from 'ai';        // ai@7.0.14
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'; // @ai-sdk/openai-compatible@3.0.5
 import { makeTools } from './tools.mjs';                // ORQ-09a

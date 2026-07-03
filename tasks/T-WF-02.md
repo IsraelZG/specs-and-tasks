@@ -1,7 +1,7 @@
 ---
 id: T-WF-02
 title: "interpretador Nivel 1 (estado unico, transicao evento+guarda, entry/exit, timers HLC) event-sourced"
-status: draft
+status: draft:triaged
 complexity: 5
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -32,7 +32,8 @@ Implementar o interpretador do Nível 1: recebe configuração atual + evento e 
 ### Contratos TS (derivados do RAG §3, §4)
 
 ```ts
-// --- packages/workflow/src/interpreter.ts ---
+// --- packages/workflow/src/interpreter.ts 
+---
 import type { WorkflowDocument, WorkflowState, WorkflowAction, WorkflowTransition } from './schema';
 
 /** Contexto da instância em execução (event-sourced). */
@@ -198,3 +199,6 @@ pnpm --filter @plataforma/workflow test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog

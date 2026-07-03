@@ -1,7 +1,7 @@
 ---
 id: T-PL-06
 title: "vetores: bundle nao-listado, plugin com rede fora das portas, classe restrita para external"
-status: draft
+status: draft:triaged
 complexity: 3
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -29,7 +29,8 @@ Testes de vetores adversariais para plugins: garantir que o loader, sandboxes, C
 ### Contratos TS (casos de vetor)
 
 ```ts
-// --- packages/plugins/tests/vectors.test.ts ---
+// --- packages/plugins/tests/vectors.test.ts 
+---
 
 export interface PluginVectorCase {
   name: string;
@@ -139,3 +140,6 @@ pnpm --filter @plataforma/plugins test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

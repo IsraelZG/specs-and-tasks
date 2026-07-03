@@ -1,7 +1,7 @@
 ---
 id: T-PL-02
 title: "sandbox browser (Worker/WASM, sem autoridade ambiente) + bridge de componente"
-status: draft
+status: draft:triaged
 complexity: 5
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -30,7 +30,8 @@ Implementar o sandbox para plugins tipo `browser`: execução em Worker/WASM iso
 ### Contratos TS (derivados do RAG §6)
 
 ```ts
-// --- packages/plugins/src/sandbox-browser.ts ---
+// --- packages/plugins/src/sandbox-browser.ts 
+---
 import type { PluginManifest, PluginCapability } from './schema';
 
 export interface SandboxOptions {
@@ -172,3 +173,6 @@ pnpm --filter @plataforma/plugins test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

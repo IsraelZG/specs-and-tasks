@@ -1,7 +1,7 @@
 ---
 id: T-MK-04a
 title: "SPENDS: dedução atômica de saldo com referência causal"
-status: draft
+status: draft:triaged
 complexity: 3
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -26,7 +26,8 @@ Implementar o verbo SPENDS no pacote `@plataforma/marketplace`: cria aresta SPEN
 
 ### Contratos exatos
 ```ts
-// --- packages/marketplace/src/spends.ts ---
+// --- packages/marketplace/src/spends.ts 
+---
 import { StoragePort } from '@plataforma/protocol'; // T-004
 import { ULID } from '@plataforma/core'; // T-102
 
@@ -99,3 +100,8 @@ pnpm --filter @plataforma/marketplace test
 - [ ] Anti-oversell (causalRef) previne double-spend?
 - [ ] 6 casos de teste passando?
 - [ ] `pnpm --filter @plataforma/marketplace build` e `test` verdes?
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

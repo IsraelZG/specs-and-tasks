@@ -1,7 +1,7 @@
 ---
 id: T-PL-04
 title: "ComputePort + escalonador com anuncio de runtime via serves + casamento de site"
-status: draft
+status: draft:triaged
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -29,7 +29,8 @@ Implementar a `ComputePort` que resolve site e modo de execução sem o chamador
 ### Contratos TS (derivados do RAG §4, §5)
 
 ```ts
-// --- packages/plugins/src/compute-port.ts ---
+// --- packages/plugins/src/compute-port.ts 
+---
 import type { PluginManifest, PluginCapability, PluginRuntime } from './schema';
 
 export type ComputeSite = 'local' | 'peer' | 'external';
@@ -206,3 +207,6 @@ pnpm --filter @plataforma/plugins test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

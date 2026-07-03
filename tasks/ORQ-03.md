@@ -8,10 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: [] # independente — pode rodar em paralelo com ORQ-01
 blocks: ["ORQ-06"] # dashboard exibe saldos; ORQ-02 consome se presente (opcional)
-spec_status: hardened
 capacity_target: sonnet
-hardened_at: "2026-06-30"
-hardened_by: claude-opus
 ---
 
 # ORQ-03 · saldo.mjs — saldo dos provedores
@@ -114,7 +111,8 @@ sem-chave-nao-lanca: true
 === GATE 4 (tabela default) ===
 $ node tools/scripts/saldo.mjs
 provider        | saldo (USD) | ok
-----------------|-------------|----
+----------------|-------------|-
+---
 deepseek        |        3.67 | ✓
 openrouter      |        0.00 | ✓
 opencode        |         n/d | ✓

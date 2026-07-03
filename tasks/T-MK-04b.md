@@ -1,7 +1,7 @@
 ---
 id: T-MK-04b
 title: "CREDITS: split multi-destino + comissão/imposto por SPEC + multi-moeda"
-status: draft
+status: draft:triaged
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -26,7 +26,8 @@ Implementar o verbo CREDITS no pacote `@plataforma/marketplace`: distribui valor
 
 ### Contratos exatos
 ```ts
-// --- packages/marketplace/src/credits.ts ---
+// --- packages/marketplace/src/credits.ts 
+---
 import { StoragePort } from '@plataforma/protocol'; // T-004
 import { ULID } from '@plataforma/core'; // T-102
 
@@ -108,3 +109,8 @@ pnpm --filter @plataforma/marketplace test
 - [ ] Multi-moeda com conversão?
 - [ ] 6 casos de teste passando?
 - [ ] `pnpm --filter @plataforma/marketplace build` e `test` verdes?
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

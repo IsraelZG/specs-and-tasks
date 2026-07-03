@@ -1,7 +1,7 @@
 ---
 id: T-SOC-03
 title: "vetores: privacidade retroativa e bloqueio como limites, story expirado, contadores como projecao"
-status: draft
+status: draft:triaged
 complexity: 3
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -30,7 +30,8 @@ ou comportamento incorreto na UI.
 ### Contratos exatos (assinaturas TS fixadas)
 
 ```ts
-// --- apps/nexus-frontend/src/modules/social/guard-types.ts ---
+// --- apps/nexus-frontend/src/modules/social/guard-types.ts 
+---
 
 export interface PrivacyGuardResult {
   allowed: boolean;
@@ -162,3 +163,8 @@ pnpm --filter nexus-frontend test
 
 ## 9. Log de Execucao (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog

@@ -1,7 +1,7 @@
 ---
 id: T-PG-01
 title: "schema JSON do dialeto v1 + validador estatico (lib isomorfica)"
-status: draft
+status: ready
 complexity: 3
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -29,7 +29,8 @@ Definir o schema JSON do dialeto de páginas v1 e implementar o validador estát
 ### Contratos TS (derivados do RAG §2)
 
 ```ts
-// --- packages/pages/src/schema.ts ---
+// --- packages/pages/src/schema.ts 
+---
 
 export interface PageDocument {
   dialect_version: string;
@@ -217,3 +218,8 @@ pnpm --filter @plataforma/pages test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-03T20:03]** - *system* - `[Endurecido]`: Endurecimento em lote (dependencies done/empty)
+- **[2026-07-03T20:03]** - *system* - `[Auto-promovida]`: deps todas done

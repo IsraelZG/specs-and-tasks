@@ -1,7 +1,7 @@
 ---
 id: T-OFF-02
 title: "doc perfil documento (blocos, Automerge, backlinks) + markdown simples"
-status: draft
+status: draft:triaged
 complexity: 4
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -61,7 +61,8 @@ export interface RichDocEditor {
   resolveBacklinks(): Map<string, string[]>; // entity_id → [page titles]
 }
 
-// --- packages/office/src/markdown-simple.ts ---
+// --- packages/office/src/markdown-simple.ts 
+---
 
 export interface SimpleMarkdownEditor {
   /** Conteúdo atual em markdown. */
@@ -154,3 +155,6 @@ pnpm --filter @plataforma/office test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

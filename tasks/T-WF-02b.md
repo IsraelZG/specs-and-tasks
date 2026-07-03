@@ -1,7 +1,7 @@
 ---
 id: T-WF-02b
 title: "Interpretador Nível 1: timers HLC + entry/exit actions"
-status: draft
+status: draft:triaged
 complexity: 3
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -26,7 +26,8 @@ Estender o interpretador Nível 1 (T-WF-02a) com timers HLC para deadlines, aç�
 
 ### Contratos exatos
 ```ts
-// --- packages/workflow/src/interpreter.ts (extensão) ---
+// --- packages/workflow/src/interpreter.ts (extensão) 
+---
 import { WorkflowAction } from './schema.js'; // T-WF-01
 import { HLCTimestamp } from '@plataforma/core'; // T-103
 
@@ -109,3 +110,8 @@ pnpm --filter @plataforma/workflow test
 - [ ] Orçamento limita ações por passo?
 - [ ] 6 casos de teste passando?
 - [ ] `pnpm --filter @plataforma/workflow build` e `test` verdes?
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog

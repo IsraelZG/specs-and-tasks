@@ -1,7 +1,7 @@
 ---
 id: T-DS-05
 title: "Identidade visual: paleta + accent por módulo + escalas (raio/borda/elevação) + claro/escuro"
-status: draft
+status: ready
 complexity: 5
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -98,3 +98,8 @@ pnpm --filter @plataforma/design-system build   # Style Dictionary gera os token
 
 ## 9. Log de Execução
 > **Agentes de IA:** Registrem aqui cada sessão usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-03T20:03]** - *system* - `[Endurecido]`: Endurecimento em lote (dependencies done/empty)
+- **[2026-07-03T20:03]** - *system* - `[Auto-promovida]`: deps todas done

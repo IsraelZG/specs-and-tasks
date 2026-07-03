@@ -1,7 +1,7 @@
 ---
 id: T-MSG-02
 title: "chamadas/conferencia via LiveKit (SDK embutido + SFU plugin) + gravacao consolidada"
-status: draft
+status: draft:triaged
 complexity: 4
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -30,7 +30,8 @@ modality-gated). Gravacao opcional com consentimento consolida segmentos efemero
 ### Contratos exatos (assinaturas TS fixadas)
 
 ```ts
-// --- apps/nexus-frontend/src/modules/calls/types.ts ---
+// --- apps/nexus-frontend/src/modules/calls/types.ts 
+---
 
 export type CallState = 'idle' | 'ringing' | 'connecting' | 'active' | 'ended';
 
@@ -156,3 +157,8 @@ pnpm --filter nexus-frontend test
 
 ## 9. Log de Execucao (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

@@ -1,7 +1,7 @@
 ---
 id: ORQ-12
 title: "SPIKE: Otimização de contexto no AgentAdapter — Headroom CCR in-process + nano-preprocess (ADR + números reais)"
-status: draft:triaged
+status: in_progress
 complexity: 5
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -121,3 +121,5 @@ node --env-file=../../.env context-bench.poc.mjs
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-03T18:27]** - *claude-fable* - `[Promovida p/ ready]`: spike destravado (triaged, opus-spike) — flip draft->ready
+- **[2026-07-03T18:27]** - *claude-fable* - `[Iniciado]`: iniciando spike: medir CCR (headroom-ai) + nano-preprocess no adapter in-process. Achado inicial via MCP headroom: router protege codigo recente (0% economia) — CCR mira listagens/logs/prosa, nao codigo ativo.

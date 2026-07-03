@@ -1,7 +1,7 @@
 ---
 id: T-WF-05
 title: "vetores: guarda fora do registro, acao acima do privilegio, estado nunca mutavel-replicado, orcamento estourado aborta"
-status: draft
+status: draft:triaged
 complexity: 3
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -30,7 +30,8 @@ Testes de vetores adversariais para workflows: garantir que o envelope de segura
 ### Contratos TS (casos de vetor)
 
 ```ts
-// --- packages/workflow/tests/vectors.test.ts ---
+// --- packages/workflow/tests/vectors.test.ts 
+---
 
 export interface WorkflowVectorCase {
   name: string;
@@ -131,3 +132,6 @@ pnpm --filter @plataforma/workflow test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog

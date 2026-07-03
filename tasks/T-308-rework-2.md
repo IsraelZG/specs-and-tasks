@@ -49,7 +49,8 @@ Snapshot, **[P5]** validar `header.nodeCount`/`edgeCount` contra body real em
 ### Contratos exatos (assinaturas TS fixadas)
 
 ```ts
-// --- packages/core/src/snapshot.ts (mudanças) ---
+// --- packages/core/src/snapshot.ts (mudanças) 
+---
 import { gzipSync, gunzipSync } from 'node:zlib';
 import { encode as codecEncode, decode as codecDecode, CodecError } from '@plataforma/protocol';
 import { sha256 } from '@plataforma/crypto';

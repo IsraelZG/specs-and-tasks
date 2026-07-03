@@ -1,7 +1,7 @@
 ---
 id: T-PG-02
 title: "renderizador React sobre o catalogo (resolve sources, avalia ZEN sob orcamento, render progressivo)"
-status: draft
+status: draft:triaged
 complexity: 5
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -30,7 +30,8 @@ Implementar o renderizador React que consome um `PageDocument` validado (T-PG-01
 ### Contratos TS (derivados do RAG §3, §4, §7)
 
 ```ts
-// --- packages/pages/src/renderer.ts ---
+// --- packages/pages/src/renderer.ts 
+---
 import type { PageDocument, PageNode, PageSource, BindingOrExpression } from './schema';
 import type { ReactElement } from 'react';
 
@@ -231,3 +232,6 @@ pnpm --filter @plataforma/pages test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

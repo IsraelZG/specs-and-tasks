@@ -8,10 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["ORQ-02"] # reusa as funções de decisão
 blocks: ["ORQ-05", "ORQ-06"] # hook nas skills e dashboard dependem do spawn/registry
-spec_status: hardened
 capacity_target: sonnet
-hardened_at: "2026-06-30"
-hardened_by: claude-opus
 ---
 
 # ORQ-04 · orquestrar.mjs spawn real — registry, lock, prompt, --on-finish
@@ -86,7 +83,8 @@ não invente workaround.
 Você é um agente rodando o modelo "<model>". Em TODO comando manage-task.mjs/fila.mjs use
 "<model>" como sua identidade (<EU>/<SeuNome>) — para review use "agile_reviewer:<model>".
 Execute a tarefa abaixo seguindo estas instruções à risca:
---- (conteúdo do SKILL.md com $ARGUMENTS substituído) ---
+--- (conteúdo do SKILL.md com $ARGUMENTS substituído) 
+---
 ```
 
 **Pidfile `tasks/.orchestrator/<id>.json`:** `{ "pid":12345, "model":"deepinfra/deepseek-v4-flash",

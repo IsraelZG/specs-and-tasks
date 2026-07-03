@@ -1,7 +1,7 @@
 ---
 id: T-WF-04
 title: "geracao Mermaid + read view na suite office"
-status: draft
+status: draft:triaged
 complexity: 3
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -30,7 +30,8 @@ Gerar deterministicamente um diagrama Mermaid (`stateDiagram-v2`) a partir de um
 ### Contratos TS (derivados do RAG §8)
 
 ```ts
-// --- packages/workflow/src/mermaid.ts ---
+// --- packages/workflow/src/mermaid.ts 
+---
 import type { WorkflowDocument } from './schema';
 
 export interface MermaidOptions {
@@ -137,3 +138,6 @@ pnpm --filter @plataforma/workflow test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog

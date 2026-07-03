@@ -1,7 +1,7 @@
 ---
 id: T-UI-02
 title: "host de sandbox (iframe + Worker/OffscreenCanvas, bridge postMessage, orcamento, brokering)"
-status: draft
+status: draft:triaged
 complexity: 5
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -28,7 +28,8 @@ Implementar o host de sandbox que isola plugins `ui` em iframe sandbox (UI compl
 ### Contratos exatos
 
 ```ts
-// --- packages/ui-sandbox/src/sandbox-host.ts ---
+// --- packages/ui-sandbox/src/sandbox-host.ts 
+---
 
 import type { UIPluginManifest } from '@plataforma/plugin-sdk';
 
@@ -183,3 +184,6 @@ pnpm --filter @plataforma/ui-sandbox test:e2e
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog

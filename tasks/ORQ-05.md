@@ -8,10 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["ORQ-04"] # o hook precisa existir
 blocks: []
-spec_status: hardened
 capacity_target: haiku
-hardened_at: "2026-06-30"
-hardened_by: claude-opus
 ---
 
 # ORQ-05 · Propaga o hook --on-finish nas skills MGTIA

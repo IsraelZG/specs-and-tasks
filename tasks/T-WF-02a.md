@@ -1,7 +1,7 @@
 ---
 id: T-WF-02a
 title: "Interpretador Nível 1: estado único + transição evento+guarda"
-status: draft
+status: draft:triaged
 complexity: 3
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -26,7 +26,8 @@ Implementar o núcleo do interpretador Nível 1 no pacote `@plataforma/workflow`
 
 ### Contratos exatos
 ```ts
-// --- packages/workflow/src/interpreter.ts ---
+// --- packages/workflow/src/interpreter.ts 
+---
 import { WorkflowDocument, WorkflowTransition, WorkflowAction } from './schema.js'; // T-WF-01
 import { HLCTimestamp } from '@plataforma/core'; // T-103
 
@@ -113,3 +114,8 @@ pnpm --filter @plataforma/workflow test
 - [ ] Evento não mapeado → no-op?
 - [ ] 6 casos de teste passando?
 - [ ] `pnpm --filter @plataforma/workflow build` e `test` verdes?
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog

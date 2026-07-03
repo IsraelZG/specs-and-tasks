@@ -1,14 +1,14 @@
 ---
 id: ORQ-10
 title: "Observabilidade + controle: stream de eventos ao vivo no painel + cancelar/matar instancia + deteccao de travada"
-status: draft:placeholder
+status: ready
 complexity: 5
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["ORQ-09"] # consome o onEvent/cancel do adapter — ORQ-09 é casca decomposed em ORQ-09a/09b; fecha sozinha via parentAutoClose (T-1029) quando as duas filhas chegam a done
 blocks: ["ORQ-11"]
-capacity_target: # preenchido no endurecimento pós-ORQ-08
+capacity_target: sonnet
 ---
 
 # ORQ-10 · Observabilidade + controle (o "remote-control")
@@ -37,17 +37,28 @@ Entregar o que motivou trocar o Crush: **ver e controlar cada instância**. O ad
 - [ ] `tasks/.orchestrator/` — o registry de instâncias vivas que o painel já lê.
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-> **A endurecer JIT (pós-ORQ-08/09).** Esboço:
-- **[UPDATE]** painel :8780 (ORQ-06) — endpoint/stream (SSE ou WebSocket) que emite os eventos do adapter.
-- **[UPDATE]** o `run()`/registry — persistir último-evento-ts por instância; expor `cancel(id)`.
-- **[CREATE]** UI mínima no painel: lista de instâncias com passo atual + botão matar + flag "travada".
-- **[CREATE]** detecção de travada (sem evento há N s) + timeout global (Decisão E).
+- **[UPDATE]** [headroom-proxies.mjs](file:///C:/Dev2026/Docs/scripts/headroom-proxies.mjs)
+  - Estender o servidor HTTP para gerenciar o estado em memória dos eventos das instâncias ativas.
+  - Implementar rota `POST /api/instances/events` para ingestão de eventos enviados pelo `agentAdapter` (`{ taskId, type, ts, ...payload }`).
+  - Implementar rota `GET /api/instances/events` com suporte a SSE (Server-Sent Events) para alimentar o painel remoto.
+  - Implementar rota `POST /api/instances/cancel` que recebe `{ taskId }` e cria o arquivo de cancelamento `tasks/.orchestrator/<taskId>.cancel`.
+  - Estender a variável `DASHBOARD_HTML` adicionando a renderização do console de passos em tempo real, botão "Matar" que chama a API de cancelamento e o indicador de inatividade (travado).
+- **[UPDATE]** [agentAdapter.mjs](file:///C:/Dev2026/Docs/tools/orchestrator/src/agentAdapter.mjs)
+  - Injetar no fluxo `run()` a escuta periódica (ex: `setInterval` de 1s ou watcher) do arquivo `tasks/.orchestrator/<taskId>.cancel`. Se presente, executa `ac.abort()` e deleta o arquivo.
+  - Configurar um fallback padrão no callback `onEvent` de `run()` para enviar os eventos por POST à rota `/api/instances/events` do painel se nenhum handler customizado for fornecido.
+- **[CREATE]** [monitor.mjs](file:///C:/Dev2026/Docs/tools/orchestrator/src/monitor.mjs)
+  - Implementar a detecção em background de instâncias sem sinal de vida (travadas) há mais de 300 segundos, acionando a gravação do arquivo `.cancel`.
+- **[CREATE]** [monitor.test.mjs](file:///C:/Dev2026/Docs/tools/orchestrator/tests/monitor.test.mjs)
+  - Cobertura de testes unitários determinísticos sobre a detecção de inatividade de instâncias fakes e gravação de flags de cancelamento.
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] Com adapter fake emitindo eventos: painel recebe o stream e renderiza o passo atual.
-- [ ] `cancel(id)` aborta o run (o fake reage ao AbortSignal) e libera o slot no registry.
-- [ ] Detecção de travada: sem evento por > N s → instância marcada suspeita.
-- [ ] **Fora de escopo:** o adapter em si (ORQ-09); religar o dispatcher (ORQ-11).
+- [x] **Framework:** Node.js native test runner (`node --test`)
+- [x] **Cenários de Teste:**
+  1. Teste de SSE no Painel: Valida o disparo e buffering de eventos via `POST /api/instances/events` e recepção via SSE.
+  2. Teste de Interrupção via arquivo: Valida que a criação de `<id>.cancel` aborta o loop do `agentAdapter` e retorna o shape correto `{ exit: null, timedOut: true }`.
+  3. Teste do Monitor de Travadas: Simula o decurso do timeout em mock e garante a criação da flag de cancelamento.
+- [x] **Ambiente do Teste:** Node.js (sem browser)
+- [x] **Fora de Escopo:** O fluxo de agendamento de recursos do orquestrador (ORQ-11).
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ NÃO FAZER:** NÃO reimplemente o adapter (só consuma `onEvent`/`cancel`). NÃO abra porta de
@@ -66,7 +77,7 @@ Entregar o que motivou trocar o Crush: **ver e controlar cada instância**. O ad
 
 ### Verificação automática *(a fixar no endurecimento)*
 ```bash
-# ex.: teste do stream + cancel com adapter fake; smoke do painel mostrando 1 instância viva
+node --env-file=../../.env --test tools/orchestrator/tests/monitor.test.mjs
 ```
 > **GATE DE EVIDÊNCIA:** saída literal colada na §8.
 
@@ -85,4 +96,10 @@ Entregar o que motivou trocar o Crush: **ver e controlar cada instância**. O ad
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 
+- **[2026-07-03 19:46:24]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T19:33]** - *Gemini 3.1 Pro* - `[Triado]`: Triagem pré-endurecimento
+- **[2026-07-03T19:33]** - *Gemini 3.1 Pro* - `[Endurecido]`: Endurecido JIT com base no ADR-0008
+- **[2026-07-03T19:47]** - *Gemini 3.1 Pro* - `[Triado]`: Re-triagem pós-correção do frontmatter
+- **[2026-07-03T19:48]** - *Gemini 3.1 Pro* - `[Endurecido]`: Re-endurecido com base no ADR-0008
+- **[2026-07-03T20:07]** - *system* - `[Promovida p/ ready]`: Promovida pelo arquiteto (arquiteto-promover)

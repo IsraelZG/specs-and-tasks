@@ -1,7 +1,7 @@
 ---
 id: ORQ-11
 title: "Religar orquestrar.mjs no VercelAgentAdapter: remove kill-switch + spawn Crush, seleciona adapter in-process"
-status: draft:placeholder
+status: draft:triaged
 complexity: 3
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -95,3 +95,4 @@ node tools/scripts/orquestrar.mjs --once --ledger-file <fixture>   # despacha in
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T19:48]** - *Gemini 3.1 Pro* - `[Triado]`: Triagem da task dependente na fila ORQ

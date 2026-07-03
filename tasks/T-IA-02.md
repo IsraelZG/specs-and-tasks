@@ -1,7 +1,7 @@
 ---
 id: T-IA-02
 title: "capacidades compute de embedding e LLM como plugins (on-device + conector external)"
-status: draft
+status: draft:triaged
 complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -26,7 +26,8 @@ Definir as capacidades `compute` de embedding e LLM como plugins no modelo da RF
 ### Contratos exatos
 
 ```ts
-// --- packages/ai-plugins/src/compute-ai.ts ---
+// --- packages/ai-plugins/src/compute-ai.ts 
+---
 
 /** Classe de privacidade do modelo (RFC-010 A.6). */
 export type PrivacyClass = 'local_only' | 'peer_allowed' | 'external_allowed';
@@ -169,3 +170,6 @@ pnpm --filter @plataforma/ai-plugins test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

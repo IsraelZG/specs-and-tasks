@@ -49,7 +49,12 @@ function parse(file) {
     id: get('id') || file.replace(/^_?|\.md$/g, ''),
     status: get('status'),
     capacity: cap,
-    hardened_at: get('hardened_at'),
+    // Post-migration: hardened_at field was removed from frontmatter.
+    // Read from Log §9 (regex: [timestamp] ... [Endurecido]) as fallback.
+    hardened_at: (() => {
+      const logMatch = txt.match(/-\s+\*\*\[(2\d{3}-\d{2}-\d{2}[^\]]*)\]\*\*[\s\S]*?\[Endurecido\]/);
+      return logMatch ? logMatch[1] : get('hardened_at');
+    })(),
     deps: arr('dependencies'),
     decisions: arr('decisions'),
   };
@@ -67,7 +72,7 @@ function specStatus(t) {
   return null; // non-draft — not relevant for hardening panel
 }
 
-const NOT_STARTED = new Set(['draft', 'ready']);
+const NOT_STARTED = new Set(['draft', 'draft:hardened', 'draft:triaged', 'ready']);
 
 // (1) estado
 const states = {};
@@ -89,11 +94,11 @@ const reharden = tasks.filter(pick).filter((t) =>
 
 // (4) promovíveis — spec já hardened mas lifecycle ainda draft (o flip draft→ready que o
 // /arquiteto-promover faz pelo serviço). É a lista de "drafts que já podiam ser ready".
-const promotable = tasks.filter(pick).filter((t) => specStatus(t) === 'hardened' && t.status === 'draft');
+const promotable = tasks.filter(pick).filter((t) => t.status === 'draft:hardened');
 
 console.log(`hardening — backlog${prefix ? ` (prefixo ${prefix})` : ''}\n`);
 
-console.log('▸ Estado de endurecimento (spec_status):');
+console.log('▸ Estado de endurecimento (sub-status do lifecycle):');
 for (const k of ['draft', 'triaged', 'hardened', 'blocked-decision', 'decomposed']) {
   if (states[k]) console.log(`   ${k.padEnd(17)} ${states[k]}`);
 }

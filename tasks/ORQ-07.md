@@ -8,7 +8,6 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["ORQ-06"] # reusa a API JSON do painel local
 blocks: []
-spec_status: triaged # DEFERIDA (Fase B) — endurecer JIT quando ORQ-06 estiver done e o modelo A validado
 capacity_target: opus-spike
 ui: true
 ---

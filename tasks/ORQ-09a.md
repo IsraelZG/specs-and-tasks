@@ -8,7 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["ORQ-08"]
 blocks: ["ORQ-09b"]
-parent_task: "ORQ-09"
+parent: "ORQ-09"
 capacity_target: sonnet
 ---
 
@@ -43,7 +43,8 @@ travado, `windowsHide` (sem janela), e a guarda anti-git-no-Docs. `editFile`/`gl
 
 ### Contratos exatos (derivados de `tools.poc.mjs`, ver §6 para o único refinamento)
 ```js
-// --- tools/orchestrator/src/tools.mjs ---
+// --- tools/orchestrator/src/tools.mjs 
+---
 import { tool } from 'ai';       // ai@7.0.14
 import { z } from 'zod';         // zod@4.4.3
 

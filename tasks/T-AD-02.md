@@ -1,7 +1,7 @@
 ---
 id: T-AD-02
 title: "selecao por superficie (Zen) no contexto do espectador + medicao assinada de evento"
-status: draft
+status: draft:triaged
 complexity: 5
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -32,7 +32,8 @@ Ponderacao anti-fraude: eventos de `PROFILE` sem reputacao recebem peso zero (S4
 ### Contratos exatos (assinaturas TS fixadas)
 
 ```ts
-// --- apps/nexus-backend/src/modules/ads/selector-types.ts ---
+// --- apps/nexus-backend/src/modules/ads/selector-types.ts 
+---
 
 export interface AdSelectionContext {
   viewerId: string;
@@ -189,3 +190,8 @@ pnpm --filter nexus-backend test
 
 ## 9. Log de Execucao (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

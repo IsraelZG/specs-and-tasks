@@ -1,7 +1,7 @@
 ---
 id: T-PL-03
 title: "sandbox node (processo/isolate, capacidades por ASSET:ROLE)"
-status: draft
+status: draft:triaged
 complexity: 5
 target_agent: devops_agent
 reviewer_agent: agile_reviewer
@@ -29,7 +29,8 @@ Implementar o sandbox para plugins tipo `node`: execução em processo filho (ch
 ### Contratos TS (derivados do RAG §6)
 
 ```ts
-// --- packages/plugins/src/sandbox-node.ts ---
+// --- packages/plugins/src/sandbox-node.ts 
+---
 import type { PluginManifest, PluginCapability } from './schema';
 
 /** Capacidades concedidas ao sandbox node. */
@@ -180,3 +181,6 @@ pnpm --filter @plataforma/plugins test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog

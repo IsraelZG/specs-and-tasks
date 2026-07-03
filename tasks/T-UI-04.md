@@ -1,7 +1,7 @@
 ---
 id: T-UI-04
 title: "tier estrito de validacao + vetores (DOM externo/rede nao declarada, intent acima do privilegio)"
-status: draft
+status: draft:triaged
 complexity: 4
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -84,3 +84,6 @@ pnpm --filter @plataforma/marketplace test:e2e
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
+- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog
