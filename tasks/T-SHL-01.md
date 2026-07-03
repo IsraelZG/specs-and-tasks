@@ -1,7 +1,7 @@
 ---
 id: T-SHL-01
 title: "shell FlexLayout + SPEC:WORKSPACE (default + salvos nomeados) + painel binda (modulo+pagina+params)"
-status: draft
+status: draft:placeholder
 complexity: 5
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -124,8 +124,23 @@ Casos de teste (numerados):
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
 > **DECISÕES EM ABERTO — requer definição do arquiteto:**
-> - Nenhuma. Contratos derivados diretamente do caderno §1 e do verbete [[spec-workspace]].
+> - Nenhuma para os contratos TS. Derivados do caderno §1 e do verbete [[spec-workspace]].
 > **Status:** Seções 1–4 e 7 preenchidas pelo Task Architect.
+
+> **Refinamentos do default de layout (usuário, 2026-07-02) — a canonicalizar no caderno-28 §4.1 e
+> a fixar ao endurecer esta task e T-SHL-03.** O §4.1 diz só "menus nas extremidades + coluna
+> Principal + Secundária", sem pinar qual é qual. O default concreto do produto é:
+> - **Menu esquerdo = comunicação** (email, notificações, chat launcher).
+> - **Coluna de mensageria** (app de DM/chat) entre o menu esquerdo e o app central.
+> - **Coluna central = app ativo** (social, fintech, studio, mídia…).
+> - **Menu direito = apps/módulos** (launcher).
+> - Ação do usuário abre app/página em **nova coluna**; **split em rows é exceção** (editor/ação do
+>   app daquela coluna); **editores que pedem mais área** (email, texto, foto, calendário) abrem em
+>   coluna mais larga.
+> - **Header** no topo; **footer = principalmente STATUS do app** (sync/conexão) — distinto do
+>   footer-como-menu do regime mobile (§2.2 / T-SHL-03).
+> Este é também o modelo dos mockups Lovable (tela A1). Ver memória do agente
+> `project_shell_column_layout` para o registro completo.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
@@ -159,3 +174,5 @@ pnpm --filter @plataforma/shell test       # vitest + playwright — precisa fic
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+
+- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
