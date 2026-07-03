@@ -22,7 +22,8 @@ export type TaskAction =
   | 'triage' | 'harden' | 'decide' | 'block_decision' | 'decompose'  // endurecimento (draft ladder)
   | 'promote' | 'start' | 'pause' | 'finish'
   | 'claim' | 'approve' | 'request_changes'
-  | 'block' | 'unblock';
+  | 'block' | 'unblock'
+  | 'demote';
 
 export interface TransitionRule {
   /** Estados de origem permitidos, ou '*' para qualquer estado. */
@@ -50,6 +51,7 @@ export const TRANSITIONS: Record<TaskAction, TransitionRule> = {
   request_changes:{ from: ['review', 'in_review'],                               to: 'rework',                 logLabel: '[Requer Refatoração]' },
   block:          { from: '*',                                                   to: 'blocked',                logLabel: '[Bloqueado]' },
   unblock:        { from: ['blocked'],                                           to: 'ready',                  logLabel: '[Desbloqueado]' },
+  demote:         { from: ['ready'],                                              to: 'draft:placeholder',       logLabel: '[Demovido]' },
 };
 
 /** Rótulo usado por logProgress (registro sem mudança de status). */
