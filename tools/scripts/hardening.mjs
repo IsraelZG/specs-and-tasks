@@ -48,7 +48,6 @@ function parse(file) {
   return {
     id: get('id') || file.replace(/^_?|\.md$/g, ''),
     status: get('status'),
-    spec_status: get('spec_status') || 'draft',
     capacity: cap,
     hardened_at: get('hardened_at'),
     deps: arr('dependencies'),
@@ -60,25 +59,37 @@ const files = fs.readdirSync(tasksDir).filter((f) => /^_?[A-Z]+-[\w.]+\.md$/.tes
 const tasks = files.map(parse).filter(Boolean);
 const byId = new Map(tasks.map((t) => [t.id, t]));
 const pick = (t) => t.id.startsWith(prefix);
+// Derive sub-status from status field (post-migration: draft:placeholder, draft:triaged, etc.)
+function specStatus(t) {
+  const s = t.status || 'draft';
+  if (s === 'draft') return 'draft';
+  if (s.startsWith('draft:')) return s.slice(6) === 'placeholder' ? 'draft' : s.slice(6);
+  return null; // non-draft — not relevant for hardening panel
+}
+
 const NOT_STARTED = new Set(['draft', 'ready']);
 
 // (1) estado
 const states = {};
-for (const t of tasks.filter(pick)) states[t.spec_status] = (states[t.spec_status] || 0) + 1;
+for (const t of tasks.filter(pick)) {
+  const ss = specStatus(t);
+  const key = ss === 'pending_decision' ? 'blocked-decision' : (ss || 'draft');
+  states[key] = (states[key] || 0) + 1;
+}
 
 // (2) decisões abertas
-const blocked = tasks.filter(pick).filter((t) => t.spec_status === 'blocked-decision');
+const blocked = tasks.filter(pick).filter((t) => specStatus(t) === 'pending_decision');
 
 // (3) reendurecer
 const reharden = tasks.filter(pick).filter((t) =>
-  t.spec_status === 'hardened' &&
+  specStatus(t) === 'hardened' &&
   NOT_STARTED.has(t.status) &&
   t.deps.some((d) => byId.get(d)?.status === 'done'),
 );
 
 // (4) promovíveis — spec já hardened mas lifecycle ainda draft (o flip draft→ready que o
 // /arquiteto-promover faz pelo serviço). É a lista de "drafts que já podiam ser ready".
-const promotable = tasks.filter(pick).filter((t) => t.spec_status === 'hardened' && t.status === 'draft');
+const promotable = tasks.filter(pick).filter((t) => specStatus(t) === 'hardened' && t.status === 'draft');
 
 console.log(`hardening — backlog${prefix ? ` (prefixo ${prefix})` : ''}\n`);
 

@@ -157,14 +157,17 @@ function parseDeps(raw) {
 }
 
 function nextAction(task) {
-  const { status, specStatus, depsOk } = task;
-  if (status === 'in_progress') return 'busy';
-  if (status === 'review') return 'review';
-  if (status === 'rework') return 'rework';
-  if (status === 'ready') return 'work';
-  if (status === 'draft' && specStatus === 'hardened') return 'promote';
-  if (status === 'draft' && (specStatus === 'draft' || specStatus === 'triaged') && depsOk) return 'harden';
-  if (specStatus === 'blocked-decision') return 'decide';
+  const { status, depsOk } = task;
+  if (status === 'in_progress')            return 'busy';
+  if (status === 'in_review')              return 'busy';
+  if (status === 'review')                 return 'review';
+  if (status === 'rework')                 return 'rework';
+  if (status === 'ready')                  return 'work';
+  if (status === 'draft:pending_decision') return 'decide';
+  if (status === 'draft:decomposed')       return null;
+  if (status === 'draft:hardened')         return depsOk ? 'promote' : null;
+  if (status === 'draft:triaged')          return depsOk ? 'harden' : null;
+  if (status === 'draft:placeholder' || status === 'draft') return 'triage';
   return null;
 }
 
@@ -194,14 +197,13 @@ if (jsonMode) {
     const id = fm(txt, 'id');
     if (!id) continue;
     const status = fm(txt, 'status') || 'unknown';
-    const specStatus = fm(txt, 'spec_status') || 'draft';
     const cap = fm(txt, 'capacity_target') || null;
     const ui = fm(txt, 'ui') === 'true';
     const hb = fm(txt, 'hardened_by') || null;
     const depIds = parseDeps(fm(txt, 'dependencies'));
     const events = byId.get(id) || [];
     const roles = rolesFromTransitions(events);
-    all.push({ id, status, specStatus, cap, ui, hb, depIds, events, roles });
+    all.push({ id, status, cap, ui, hb, depIds, events, roles });
   }
 
   // build lookup from ALL tasks (before filters) — ensures deps_ok is correct even when dep is filtered out
@@ -216,11 +218,10 @@ if (jsonMode) {
 
   const result = tasks.map(t => {
     const dOk = depsOk(t, allById);
-    const na = nextAction({ status: t.status, specStatus: t.specStatus, depsOk: dOk });
+    const na = nextAction({ status: t.status, depsOk: dOk });
     return {
       id: t.id,
       status: t.status,
-      spec_status: t.specStatus,
       capacity_target: t.cap,
       ui: t.ui,
       dependencies: t.depIds,
