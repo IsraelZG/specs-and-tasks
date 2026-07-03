@@ -32,7 +32,8 @@ dependencias:
 
 ## Definição
 
-Uma **rendition** (ou variação de mídia) é uma variante de um asset de mídia (representando uma qualidade específica, idioma, bitrate, tamanho ou codec) modelada como um nó `CONTENT` próprio, content‑addressed e imutável, governado por `GOVERNED_BY → SPECIFICATION:MEDIA_RENDITION`, e ligado ao asset lógico por uma aresta estrutural `RELATES:MEDIA:RENDITION`. Renditions que representam o mesmo conteúdo são consideradas irmãs, não versões, de modo que o uso de arestas `MUTATES` entre elas é proibido.
+Uma **rendition** (ou variação de mídia) é uma variante de um asset de mídia (representando uma qualidade específica, idioma, bitrate, tamanho ou codec) modelada como um nó `CONTENT` próprio, content‑addressed e imutável, governado por `GOVERNED_BY → SPECIFICATION:MEDIA_RENDITION`, e ligado ao asset lógico por uma aresta estrutural `RELATES:MEDIA:RENDITION`. Renditions que representam o mesmo conteúdo são consideradas irmãs, não versões, de modo que o uso de arestas `MUTATES` entre elas é proibido. Conforme o [[adr-004-distribuicao-plugins-nativos|ADR-004]], o conceito foi generalizado para abranger binários nativos de plugins (`kind: "native_binary"`) discriminados por sistema operacional (`os`) e arquitetura (`arch`).
+
 
 ## Por quê → [[caderno-1-vision]]
 
@@ -76,6 +77,8 @@ O payload (manifesto) do nó de `CONTENT:rendition` é estruturado conforme o se
 ```
 
 > `pointers` é a lista de adapters disponíveis para esta rendition (espelha as arestas `SERVES` duráveis). O cliente escolhe por disponibilidade/custo/latência. `piece_length = chunk_size` (potência‑de‑2; as tags ficam fora do stream, em `tag_region`).
+> 
+> *Nota (ADR-004):* No caso de plugins nativos, o discriminador `rendition` possui a forma `{"kind": "native_binary", "os": "linux" | "windows" | "macos", "arch": "x64" | "arm64", "abi": null}`.
 
 Os clientes selecionam a rendition ideal com base em capacidades de rede/dispositivos e realizam o download das peças de forma paralela ou progressiva através da lista de `pointers` (que mapeiam os adapters WebTorrent, IPFS ou HTTP Cloud WebSeed).
 

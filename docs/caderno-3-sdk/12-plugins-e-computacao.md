@@ -20,6 +20,14 @@
 3. **Autoridade de nível único por implementação:** como redes white-label e P2P puras rodam **completamente segregadas** das públicas (cada implementação é um universo isolado com suas próprias regras), não há camada de assinatura global sobreposta — cada implementação é a autoridade soberana sobre o que aceita listar e carregar. A confiança não atravessa fronteiras de rede.
 4. O runtime verifica assinatura + listagem **antes** de instanciar qualquer plugin; falha → `fato-negativo-verificável` de carga recusada, jamais execução degradada silenciosa.
 
+### §2.1 — Plugins Nativos e Distribuição via Renditions (ADR-004)
+
+1. **Binário Nativo como Variante:** Quando um plugin não pode ser executado em runtime JS/WASM (ex.: SFU LiveKit em Go, ou llama.cpp em C++), ele é distribuído como um binário nativo. Arquiteturalmente, o binário nativo é tratado como uma [[rendition]] do asset lógico do plugin (kind: `native_binary`), discriminada por par de sistema operacional (`os`) e arquitetura (`arch`).
+2. **Distribuição Unificada:** O media plane (`caderno-3-sdk/05`) transporta e armazena os blocos cifrados do binário nativo de forma idêntica a qualquer outro asset de mídia ou bundle JS/WASM. O runtime do plugin resolve a rendition apropriada para a plataforma local em tempo de carregamento.
+3. **Modelos de Proveniência (provenance.kind):** A confiança de distribuição de um plugin nativo é declarada no manifesto através do campo `provenance.kind`:
+   - `audited_source`: O código-fonte foi auditado e compilado por um processo verificado de listagem da plataforma.
+   - `attested_upstream`: A assinatura Ed25519 do curador que listou o plugin atesta apenas que o hash corresponde a um release oficial e inalterado do autor original (equivalente ao modelo do apt/homebrew), cabendo à implementação gerir seu apetite de risco sobre a execução de código de terceiros.
+
 ---
 
 ## §3 — Quatro Categorias de Capacidade; Reconciliação com Transporte e Conectores
@@ -97,7 +105,13 @@ Consequências:
 
 ## §6 — Sandbox, Capacidades e Classe de Privacidade
 
-1. **Sem autoridade ambiente.** Browser plugin roda em Worker/WASM isolado: sem DOM (exceto via bridge de componente declarado — RFC-008 A.4), sem rede (exceto portas declaradas), sem storage direto. Node plugin roda em processo/isolate com capacidades escopadas por `ASSET:ROLE` da sua persona; acesso a grafo, rede e FS só pelas portas concedidas.
+1. **Sem autoridade ambiente (Espectro Sandbox para Nativos — ADR-004).**
+   - **JS/WASM:** Browser plugin roda em Worker/WASM isolado (sem DOM, sem rede direta, sem storage direto); Node plugin roda em isolate/processo com acesso a grafo/rede/FS mediado por portas concedidas via `ASSET:ROLE`.
+   - **Binários Nativos:** Seguem um espectro de defense-in-depth ("procedência + consentimento" como piso):
+     - *(a) Broker/Proxy:* O binário não acessa rede ou FS diretamente. O acesso a arquivos é feito via VFS/FUSE montado pelo runtime, expondo apenas os caminhos declarados no manifesto. O acesso à rede é feito por proxy local via `NetworkAdapterPort` da plataforma, que audita e filtra o tráfego contra as capabilities UCAN do plugin.
+     - *(b) Sandbox de SO:* Isolamento nativo usando bubblewrap (seccomp-bpf, namespaces, Landlock) no Linux; sandbox-exec/Seatbelt no macOS; AppContainer + Job Objects no Windows.
+     - *(c) Tier Paranoico:* Execução isolada por virtualização leve como gVisor ou microVMs (Firecracker).
+     - *Taxonomia por categoria:* Plugins que podem ser brokered (connector/compute) usam proxy obrigatório. Plugins com tráfego cru por design (infra) recebem egress-filtering limitado aos hosts declarados, cgroups e FS restrito. O tier mínimo é declarado no manifesto do plugin e exibido na interface de instalação.
 2. **Entrada e saída só pelo contrato:** o plugin recebe exatamente o schema de entrada declarado e devolve o de saída; não enxerga o grafo além do que a capacidade pede.
 3. **Classe de privacidade × site:** o contrato declara se a capacidade vê plaintext sensível; cruzar a fronteira E2E (site `external`, ou `peer` fora do círculo de confiança) com dado de classe restrita é **proibido por construção** e exige consentimento explícito quando permitido. Exemplo normativo: cálculo de folha (rfc-014) jamais elegível a site `external`; transcode de vídeo público elegível a qualquer site.
 4. **Invocação por agente intersecta escopos.** Quando o chamador é um [[agente-de-ia]], o `ASSET:ROLE` do plugin não é a autoridade final: o efetivo é a **interseção** com o `ASSET:ROLE` já delegado ao agente pelo seu principal (`caderno-3-sdk/14-ia-rag-e-agentes.md §5`) — um plugin nunca é o caminho para um agente exceder o que seu principal já autorizou.
