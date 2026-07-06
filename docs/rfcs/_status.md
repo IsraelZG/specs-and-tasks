@@ -1,9 +1,10 @@
 # Status das RFCs
 
-Nenhuma RFC ativa. Todo o conteúdo aceito vive nos cadernos e em `docs/conceitos/`.
+RFC ativa: **rfc-018-estaleiro.md** (draft — questionário de desenho em resposta). Conteúdo aceito anterior vive nos cadernos e em `docs/conceitos/`.
 
 | rfc | status | destino |
 | :--- | :--- | :--- |
+| rfc-018-estaleiro.md | **draft (2026-07-05)** | Independência da orquestração: mini-superapp Estaleiro (descartável) + plugins `@plataforma/*` (duráveis). 4 decisões tomadas (nome, fonte híbrida por tipo, OmniRoute só-extração, UI própria); blocos A–G em aberto. |
 | rfc-plugin_architecture_blueprint.md | **Absorvida e deletada (2026-07-02)** | docs/adr/adr-004-distribuicao-plugins-nativos.md, docs/caderno-3-sdk/12-plugins-e-computacao.md (§2.1, §6.1), docs/conceitos/rendition.md, docs/rfcs/_absorcao-plugin_architecture_blueprint.md |
 | rfc-005.md (`docs/rcf-005.md`) | **Absorvida e deletada (2026-06-12)** | cadernos 2/02 (§1.4, §1.4.1, §1.7, §3.1.1, §3.3, §3.3.1, §3.3.2, §3.4), 2/05 (novo), 3/02 (§1.4, §1.5), 3/06 §5, 3/07 (novo), 3/08 (novo), caderno-5 §1.5/§2.1/§2.2/§2.9/§2.11/§3.2.2/§3.2.5, adr-001, verbetes |
 | rfc-006-design-system.md | **Absorvida e deletada (2026-06-15)** | caderno-3/10 (novo — §1 Design System canônico), conceitos/design-token.md (novo), conceitos/catalogo-de-componentes.md (novo), caderno-3/04 §1 (nota CONTENT:THEME), caderno-3/03 §1 e §3 (hierarquia de composição + fronteira spec/tema/token), plano-de-implementacao.md §12.1 (T-DS-01..04). §§2,3,4 de caderno-3/10 pendentes de portão revisar-humano. |
