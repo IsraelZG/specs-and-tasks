@@ -78,5 +78,10 @@ tasks/.orchestrator/
 # Serena MCP (cache local de ferramenta)
 .serena/
 
+# Repos de referência vendorizados (código-fonte de terceiros p/ hardening/execução das tasks
+# EST-*, ver RFC-018 §Fronteiras — headroom/OmniRoute/orca/sift). Só leitura, ~300MB, NÃO versionar.
+# Refrescar: rodar de novo o clone --depth 1 quando precisar de código atualizado.
+docs/_vendor/
+
 *.txt
 generate_project_summary.js
