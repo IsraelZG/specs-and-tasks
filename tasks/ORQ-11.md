@@ -8,7 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["ORQ-09", "ORQ-10"] # só religa quando o adapter e a observabilidade existem (não voltar a voar cego) — ORQ-09 fecha sozinha via parentAutoClose (T-1029) quando ORQ-09a/09b terminam
 blocks: []
-capacity_target: # preenchido no endurecimento
+capacity_target: sonnet
 ---
 
 # ORQ-11 · Religar o dispatcher no adapter in-process
@@ -28,16 +28,20 @@ dispatcher despacha agentes in-process, observáveis (ORQ-10), sem janela e com 
 direto. Também reabilita `max_concurrent` em `orquestrador.config.json` (hoje `0`).
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [ ] [`tools/scripts/orquestrar.mjs`](../tools/scripts/orquestrar.mjs) — alvo. `spawnAgent`
+- [x] [`tools/scripts/orquestrar.mjs`](../tools/scripts/orquestrar.mjs) — alvo. `spawnAgent`
       (~281–316) e `EMERGENCY_DISABLE_SPAWN` (~279) saem; `dispatchOnce`/registry/lock/`--on-finish`
       ficam. O pidfile do registry passa a rastrear um handle de run in-process, não um `pid` de SO
       (ajustar `pruneRegistry` — não há mais `process.kill(pid,0)` de subprocesso).
-- [ ] **ORQ-09** — o `VercelAgentAdapter` a instanciar no lugar do `spawn`.
-- [ ] **ORQ-10** — o stream/kill; o `run()` in-process precisa registrar a instância pra ela aparecer
-      lá e ser cancelável.
-- [ ] [ORQ-04](./ORQ-04.md) — o `spawnAgent` original (o que está sendo substituído) e o `assemblePrompt`
-      (que continua sendo usado pra montar o prompt).
-- [ ] `docs/adr/0008-*.md` (ORQ-08) — critério de término/timeout (Decisão E) que o loop respeita.
+- [x] **ORQ-09** (done) — `src/agentAdapter.mjs`: `run({taskId, model, cwd, prompt?, timeoutMs?,
+      onEvent?, signal?, maxSteps?, cancelWatcher?})` → `{exit, timedOut, tail}`. `makeTools({cwd,
+      signal, log, onEvent})` em `tools.poc.mjs`.
+- [ ] **ORQ-10** (in_progress) — o stream/kill de instâncias in-process. O `run()` do adapter já
+      registra evento no painel e watcher de cancel; o monitor (`src/monitor.mjs`) detecta travadas.
+      ORQ-11 precisa do formato final do painel ORQ-10 e `startMonitor()` para religar o dispatcher
+      com visibilidade plena.
+- [x] [ORQ-04](./ORQ-04.md) — o `spawnAgent` original (o que está sendo substituído) e o
+      `assemblePrompt` (que continua sendo usado pra montar o prompt).
+- [x] `docs/adr/0008-*.md` (ORQ-08) — critério de término/timeout (Decisão E) que o loop respeita.
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
 > **A endurecer JIT (pós-ORQ-09/10).** Esboço:
