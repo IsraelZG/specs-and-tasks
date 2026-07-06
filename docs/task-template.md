@@ -55,6 +55,7 @@ blocks: [] # Ex: ["T-004"]
 O agente \`agile_reviewer\` usará esta checklist para aprovar ou rejeitar:
 - [ ] Respeita estritamente os arquivos definidos na Seção 3?
 - [ ] Os testes passam no ambiente especificado na Seção 4?
+- [ ] \`pnpm --filter <pacote> lint\` sem erros NOVOS (regressão de lint bloqueia no review — faz parte do Gate de Evidência junto com build+test)?
 - [ ] Nenhuma das regras "NÃO FAZER" da Seção 5 foi violada?
 
 ## 8. Log de Handover e Revisão Agile (Code Review)

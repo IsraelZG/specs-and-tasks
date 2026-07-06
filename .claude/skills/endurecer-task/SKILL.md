@@ -42,8 +42,10 @@ mole, porque finge dureza. Na dúvida entre derivar e inventar: é ABERTO.
    - **Testes (Seção 4):** **enumere os casos** (lista numerada de cenários verificáveis), não
      descrições genéricas. Diga o framework e o ambiente.
    - **Gate por comando (Seção 7):** inclua o bloco "Verificação automática" com os comandos
-     `pnpm --filter <pkg> build`/`test` exatos + a nota do **Gate de Evidência** (saída literal
-     colada na Seção 8).
+     `pnpm --filter <pkg> build`/`test`/`lint` exatos + a nota do **Gate de Evidência** (saída
+     literal colada na Seção 8). **Lint é parte do gate** (Regra 3 do CLAUDE.md, desde 2026-07-06
+     — 3 reworks consecutivos por regressão de lint cobrada só no review); task endurecida sem
+     `lint` no bloco gera rework garantido.
    - **Frontmatter:** `complexity` coerente (5 exige quebra), `target_agent` válido (sem typos),
      `dependencies` conferidas contra o que a task realmente consome.
 3. **Gate de saída — classifique em UM dos destinos do `draft:<sub>`** (executabilidade) **e atribua capacidade**.

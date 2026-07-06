@@ -92,6 +92,7 @@ O agente \`agile_reviewer\` usará esta checklist para aprovar ou rejeitar o PR:
 \`\`\`bash
 pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
 pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
+pnpm --filter <pacote> lint       # ZERO erros novos (rode o baseline ANTES de tocar; regressão de lint bloqueia no review)
 \`\`\`
 > **GATE DE EVIDÊNCIA:** nem o \`finish\` (worker) nem o veredito (reviewer) são válidos sem a
 > saída literal desses comandos colada na seção 8. Marcar \`[x]\` sem evidência é violação.
@@ -103,9 +104,9 @@ pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- **Evidência de Execução (obrigatória — colar saída de build/tsc + test + lint):**
 \`\`\`
-(cole aqui a saída real de pnpm build e pnpm test)
+(cole aqui a saída real de pnpm build, pnpm test e pnpm lint)
 \`\`\`
 - **Comentários de Revisão:**
 
