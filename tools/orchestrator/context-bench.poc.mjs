@@ -29,31 +29,23 @@ const DOCS = path.resolve(HERE, '../..');
 const tokEst = (s) => Math.ceil(s.length / 4); // ponytail: chars/4; upgrade p/ tiktoken se o absoluto importar
 
 // ── payloads reais do repo (os 3 tipos que enchem a janela de um agente de código) ────────
-function walk(dir, acc, cap) {
-  if (acc.length >= cap) return acc;
-  let ents = [];
-  try { ents = fs.readdirSync(dir, { withFileTypes: true }); } catch { return acc; }
-  for (const e of ents) {
-    if (acc.length >= cap) break;
-    const full = path.join(dir, e.name);
-    acc.push(full);
-    if (e.isDirectory()) walk(full, acc, cap);
-  }
-  return acc;
-}
+const FIXTURES = path.join(HERE);
 function loadPayloads() {
   const p = [];
   // (a) código — output de readFile de um .mjs real
   const code = path.join(DOCS, 'tools/scripts/orquestrar.mjs');
   if (fs.existsSync(code)) p.push({ name: 'código (.mjs)', kind: 'code', text: fs.readFileSync(code, 'utf8') });
-  // (b) prosa densa — output de readFile de um caderno
-  const prose = path.join(DOCS, 'docs/caderno-3-sdk/28-shell-e-composicao.md');
-  const proseAlt = path.join(DOCS, 'docs/caderno-3-sdk/14-ia-rag-e-agentes.md');
+  // (b) prosa densa — output de readFile de um caderno ~30KB (real, não sintético)
+  const prose = path.join(DOCS, 'docs/caderno-2-protocol/02-cryptographic-lineage-and-auth.md');
+  const proseAlt = path.join(DOCS, 'docs/caderno-3-sdk/30-otimizacao-de-contexto-e-tooling-de-agentes.md');
   const proseFile = fs.existsSync(prose) ? prose : proseAlt;
   if (fs.existsSync(proseFile)) p.push({ name: 'prosa (.md)', kind: 'text', text: fs.readFileSync(proseFile, 'utf8') });
-  // (c) listagem — output de ls -R / glob, altamente repetitivo
-  const listing = walk(path.join(DOCS, 'node_modules/.pnpm'), [], 4000).join('\n');
-  if (listing.length > 100) p.push({ name: 'listagem (ls -R)', kind: 'search', text: listing });
+  // (c) listagem — fixture versionada (determinística, não walk(node_modules))
+  const listFix = path.join(FIXTURES, 'fixtures', 'listing-fixture.txt');
+  if (fs.existsSync(listFix)) {
+    const listing = fs.readFileSync(listFix, 'utf8');
+    if (listing.length > 100) p.push({ name: 'listagem (ls -R)', kind: 'search', text: listing });
+  }
   return p;
 }
 
@@ -310,12 +302,12 @@ async function main() {
     : `✗ erro na compressão (${rows[0].hr.error})`;
   console.log('headroom-ai:', hrStatus);
 
-  // nano custo (deepseek-v4-flash: ~US$0.028/M in, US$0.042/M out — ordem de grandeza, ver .env/saldo)
+  // nano custo (deepseek-chat: US$0.27/M in, US$0.28/M out — ordem de grandeza, verificar pricing atual)
   const nanoRows = rows.filter((r) => r.nanoRes?.usage);
   if (nanoRows.length) {
     const inTok = nanoRows.reduce((s, r) => s + (r.nanoRes.usage.inputTokens || r.nanoRes.usage.promptTokens || 0), 0);
     const outTok = nanoRows.reduce((s, r) => s + (r.nanoRes.usage.outputTokens || r.nanoRes.usage.completionTokens || 0), 0);
-    console.log(`nano custo: in=${inTok} out=${outTok} tok · ~US$${((inTok * 0.028 + outTok * 0.042) / 1e6).toFixed(6)} (ordem de grandeza)`);
+    console.log(`nano custo: in=${inTok} out=${outTok} tok · ~US$${((inTok * 0.27 + outTok * 0.28) / 1e6).toFixed(6)} (ordem de grandeza)`);
     // mostra o quanto o nano viu do total por payload
     for (const r of nanoRows) {
       const seen = r.nanoRes.sentTok;

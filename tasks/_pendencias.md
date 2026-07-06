@@ -30,6 +30,25 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i2][C-19][plugin-tasks] **LOG_LINE_RE silenciosamente ignora linhas mal-formatadas.** Linhas sem o espaço após `- **` viram `if (!match) continue` sem warning. Dificulta debug. Track: push warning quando match falha (parser.ts:73-80)
 - [ ] [i3][C-19][estaleiro/processo] **Handover §8 diz "2 defer" mas worker não adicionou ao `_pendencias.md` (BEGIN/END PENDENCIAS).** Taxonomia §2a exige `defer→T-YYY` nomeado — o destino não pode ficar só no Handover. Track: drain manual + protocolo (tasks/C-19.md:72-73 vs tasks/_pendencias.md)
 <!-- END C-19 -->
+<!-- EST-05 -->
+- [ ] [m][EST-05][plugin-fs-tools] Branch redundante `msg.includes("git write") || msg.includes("proibido")` em src/index.ts:82 — o port lança UMA string contendo ambos substrings, o `||` é defensivo contra futura mudança cosmética. Não-bloqueante; simplificar para `msg.includes("git write")` (alinhado à spec §1) (src/index.ts:82)
+<!-- END EST-05 -->
+<!-- C-16 -->
+- [ ] [M1][C-16][estaleiro] **EST-01 m1 PARCIAL — `apps/estaleiro/ui/package.json:9` ainda tem `"test": "vitest run"` sem `*.test.ts` em `apps/estaleiro/ui/`.** Spec §3 linha 36 lista este arquivo como [UPDATE] obrigatório (opção b: remover script) ou opção a (placeholder). Handover §7 rotulou m1 EST-01 como `fixed` com base em testes do `core` (6 arquivos, 17 testes), mas o `ui` continua exit 1, e `pnpm -r test` na raiz falha com `[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @plataforma/estaleiro-ui`. Ação: ou remover script `test` de `apps/estaleiro/ui/package.json`, ou adicionar `apps/estaleiro/ui/tests/smoke.test.ts` placeholder (apps/estaleiro/ui/package.json:9)
+- [ ] [m1][C-16][estaleiro] **Handover §7 rotulou EST-03a i1 como `fixed` quando a semântica é `no-op`.** Finding original era *adicionar* `lint` ao Gate, mas já está em `CLAUDE.md:67` e `wargame-task/SKILL.md:30`. Destino correto é `no-op` (já consistente), etiqueta está trocada — cosmética, não-bloqueante. Track: 1 palavra no handover (tasks/C-16.md:75)
+- [ ] [i1][C-16][estaleiro] **Handover §7 não traz evidência literal do ciclo `core↔protocol↔testkit` em `pnpm build` (raiz).** Eu rodei e confirmei: turbo 2.9.18 reporta "Circular package dependency detected: @plataforma/core, @plataforma/protocol, @plataforma/testkit". No-op está correto, mas a evidência literal deveria ter sido colada no §7 (boa prática para auditores futuros). Track: 6 linhas (turbo output) (tasks/C-16.md:73)
+- [ ] [i2][C-16][estaleiro/processo] **C-16 worker não criou commit algum na branch `task/C-16` (`git log` da worktree == master até C-18 merge).** Cleanup "nada a fazer" legítimo, mas vale registrar: `wt merge C-16` será no-op de `git merge` (master já contém tudo que a branch tem). Track: nota no índice ou política de C-tasks com 0-diff (commits `0000..0`)
+<!-- END C-16 -->
+<!-- C-14 -->
+- [ ] [m][C-14][orchestrator] Handover rotula i4 ORQ-08 isDocsRepo como `no-op (já existia)` mas o diff adiciona o branch MGTIA_ROOT (código NOVO). Disposição imprecisa — re-rotular como `fixed` no rework/cleanup (tasks/C-14.md:86 vs tools/orchestrator/tools.poc.mjs:23-32)
+- [ ] [m][C-14][orchestrator] Test `agentAdapter.test.mjs:34-39` tem guard `if (callIdx >= 0 && resultIdx >= 0)` que pula a assertion se um dos eventos não foi emitido. Caso real (arquivo existe) funciona; caso edge (arquivo inexistente) passa sem verificar nada. Substituir por 3 asserts explícitos (tools/orchestrator/tests/agentAdapter.test.mjs:34-39)
+- [ ] [m][C-14][orchestrator] Handover cobre 13 itens mas §4 só lista 12 (inclui "m1 ORQ-15 ADR-0010" extra). Mapeamento §3↔§4 inconsistente — reescrever §4 para alinhar (tasks/C-14.md:86 vs tasks/C-14.md:46-59)
+<!-- END C-14 -->
+<!-- M-016 -->
+- [ ] [m][M-016][plugin-tasks/espec] **Spec §7 promete `Tests 8 passed (8)` mas suite real tem 191** — desatualizado pelo crescimento organico da suite desde a escrita da spec. Cobranca do fix (4c/4d/4e) validada individualmente via `vitest run -t 4c/4d/4e` (1/1 cada). Track: regra de contagem dinamica em C/M-tasks (snapshot da suite na data de merge) (tasks/M-016.md:184)
+- [ ] [i1][M-016][estaleiro/operacional] **EST-13 e T-505 ainda aparecem como pendentes no backfill do M-016** — filhas nao-done: EST-13a/b/c, T-505a/b. Script trata corretamente (nao fecha), mas o arquiteto deveria agendar cleanup para essas familias. NAO e M-016, observacao operacional (close-decomposed-parents.mjs output)
+- [ ] [i2][M-016][estaleiro/operacional] **EST-10 (decomposed parent) sem `subtasks:` nem `children:`** — skipado pelo backfill. Risco de ficar eternamente em `draft:decomposed`. Track: investigar em outra task (close-decomposed-parents.mjs output + tasks/EST-10.md)
+<!-- END M-016 -->
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
@@ -101,4 +120,9 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- T-1037 (ADR-005) — movido das PENDENCIAS -->
 - [ ] [spec→ADR-005] [i1][T-1037][adr] Exemplo em ADR-005:24 representativo, não contratual. Regenerar de `lineage.ts`
 - [ ] [spec→ADR-005] [i2][T-1037][adr] Engine KV do segundo adapter não-fixada (LMDB/RocksDB/mock) — decisão em T-1044
+
+<!-- C-14 — orchestrator/spec -->
+- [ ] [spec→C-14b] [m3][C-14][orchestrator/spec] Finding 11 §4 (VIA 4/5 header) está stale — bench tem `VIA 2` (context-bench.poc.mjs:52), ADR-0010 linha 10 tem `VIA 4`. Disposição `no-op` é correta (não há o que unificar), mas a spec precisa reendurecer para remover a referência obsoleta. Track: 1 linha no reendurecimento de C-14 (tasks/C-14.md:58 vs tools/orchestrator/context-bench.poc.mjs:52 vs docs/adr/0010-compressor-ml-onnx-in-process.md:10)
+- [ ] [spec→C-14b] [m4][C-14][orchestrator/spec] §3 linha 40 menciona R2-M2 (.d.ts shim para `src/agentAdapter.mjs`) que NÃO está em §4 e NÃO foi tratado. Stale: pacote `tools/orchestrator/` é JS-only (`.mjs`), sem consumers TS. Track: remover R2-M2 de §3 no reendurecimento (tasks/C-14.md:40)
+- [ ] [spec→C-14b] [i2][C-14][orchestrator/spec] ADR-0010 filename na spec §3 linha 43 está errado: referencia `docs/adr/0010-kompress-v2-base-para-compressao.md` (não existe). Arquivo real: `docs/adr/0010-compressor-ml-onnx-in-process.md`. Track: corrigir filename no reendurecimento (tasks/C-14.md:43)
 <!-- END SPEC-PENDENCIAS -->

@@ -12,11 +12,21 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 // Decisão B — allowlist de comandos (primeiro token). Config confiável, não input do usuário.
-const BASH_ALLOWLIST = ['pnpm', 'npm', 'node', 'git', 'ls', 'cat', 'echo', 'type', 'dir', 'mkdir', 'rm', 'bash', 'sh'];
+const BASH_ALLOWLIST = (() => {
+  const win = process.platform === 'win32';
+  return ['pnpm', 'npm', 'node', 'git', 'echo', 'mkdir', 'rm', 'bash', 'sh',
+    ...(win ? ['dir', 'type'] : ['ls', 'cat'])];
+})();
 const BASH_TIMEOUT_MS = 120_000;
 
 /** cwd está dentro do repo de controle (Docs)? Se sim, git write é PROIBIDO (regra inviolável). */
 function isDocsRepo(cwd) {
+  const root = process.env.MGTIA_ROOT;
+  if (root) {
+    const normCwd = path.resolve(cwd).replace(/\\/g, '/').toLowerCase();
+    const normRoot = path.resolve(root).replace(/\\/g, '/').toLowerCase();
+    return normCwd === normRoot || normCwd.startsWith(normRoot + '/');
+  }
   const norm = path.resolve(cwd).replace(/\\/g, '/').toLowerCase();
   return norm.includes('/dev2026/docs');
 }

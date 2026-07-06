@@ -23,7 +23,7 @@ if (!apiKey) {
 // Provider DIRETO — OpenAI-compatible, sem proxy/Headroom.
 const deepseek = createOpenAICompatible({
   name: 'deepseek',
-  baseURL: 'https://api.deepseek.com',
+  baseURL: 'https://api.deepseek.com/v1',
   apiKey,
 });
 
