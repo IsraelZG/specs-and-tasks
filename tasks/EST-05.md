@@ -1,7 +1,7 @@
 ---
 id: EST-05
 title: "plugin-fs-tools: migrar o harness de tools do ORQ-09a (readFile/writeFile/bash gated) pro monorepo superapp, mediado pelo host (EST-02b)"
-status: in_progress
+status: done
 complexity: 2
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -89,6 +89,7 @@ export function makeTools(opts: MakeToolsOptions): PluginTools;
 - **[READ]** `apps/estaleiro/core/src/ports/bash.ts` (EST-02b) — `BashPort` interface + `makeBashPort`.
 - **[READ]** `apps/estaleiro/core/src/manifest.ts` (EST-02a) — `PluginManifest` Zod schema.
 - **[READ]** `apps/estaleiro/core/tests/{fs,bash}.test.ts` (EST-02b) — patterns de teste (tmpdir, afterEach).
+- **[EDIT]** `apps/estaleiro/core/src/index.ts` — re-export `FsPort` + `makeFsPort` / `BashPort` + `makeBashPort` (pré-condição para o import `@plataforma/estaleiro-core` da §1).
 - **[READ]** `packages/plugin-tasks/package.json` (EST-04a) — template de `package.json` para `@plataforma/plugin-*`.
 - **[CREATE]** `packages/plugin-fs-tools/package.json` — nome `@plataforma/plugin-fs-tools`, version `0.0.1`, private, type module, scripts `build`/`test`/`lint` iguais ao `packages/plugin-tasks/package.json`. Exports `.` → `./src/index.ts`. Deps: `ai@^7.0.14`, `zod@^4.4.3`, `@plataforma/estaleiro-core@workspace:*`. DevDeps: `typescript@^5.8.0`, `vitest@^3.0.0`, `eslint@^9.0.0`, `typescript-eslint@^8.0.0`.
 - **[CREATE]** `packages/plugin-fs-tools/tsconfig.json` — estende `tsconfig.base.json` (raiz do superapp), `outDir: "dist"`, `rootDir: "src"`, `include: ["src"]` (espelha `packages/plugin-tasks/tsconfig.json`).
@@ -174,15 +175,233 @@ Todos devem retornar Exit Code 0. Lint sem erros NOVOS (regra de 2026-07-06 — 
 - [ ] Nenhuma das regras "NÃO FAZER" da §5 violada? (especialmente: NÃO reimplementar allowlist/anti-git — o port já faz)
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
-### Handover do Executor:
--
+### Handover do Executor (rework 1 — 2026-07-06):
+- **[M1]** `PluginTools` restaurado para interface estrita verbatim da spec §1 (removido `any` + `eslint-disable`).
+- **[M2]** `apps/estaleiro/core/src/index.ts` registrado como [EDIT] em §3 (pré-condição do import da §1 — a spec original omitiu este arquivo; re-exports de FsPort/BashPort já existiam e são corretos).
+- **[m1]** Teste 10 refatorado com `vi.fn()` spies: verifica que `fsPort.readFile`/`writeFile` e `bashPort.exec` **não foram chamados** após `signal.aborted`.
+- **[m2]** Teste 11 estendido: cobre as 3 tools (readFile → writeFile → bash) com 6 eventos na ordem (call+result × 3) + verificação de `ts` tipo number.
+
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória):**
 ```
+> pnpm --filter @plataforma/plugin-fs-tools build
+$ tsc (OK)
+
+> pnpm --filter @plataforma/plugin-fs-tools test
+$ vitest run — 12 passed (0 fail)
+
+> pnpm --filter @plataforma/plugin-fs-tools lint
+$ eslint src/ (0 erros)
 ```
 - **Comentários de Revisão:**
+
+### Parecer do Agente Revisor (Reviewer):
+- [ ] **Aprovado**
+- [x] **Requer Refatoração**
+- **Evidência de Execução (obrigatória):**
+```
+$ pnpm --filter @plataforma/plugin-fs-tools build
+$ tsc
+(sem erros — exit 0)
+
+$ pnpm --filter @plataforma/plugin-fs-tools test
+$ vitest run
+ RUN v3.2.6 C:/Dev2026/.superapp-worktrees/EST-05/packages/plugin-fs-tools
+ ✓ tests/index.test.ts (12 tests) 1326ms
+   ✓ makeTools > 9. bash com timeout → {exit:null, timedOut:true}  530ms
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+
+$ pnpm --filter @plataforma/plugin-fs-tools lint
+$ eslint src/
+(sem erros — exit 0)
+```
+- **Sondas adversariais (4 probes, todas verdes — INFO, não bloqueante):**
+  - PROBE-1: `makeTools({manifest: {capabilities:["bash"]}})` → throws. ✓
+  - PROBE-2: `makeTools({manifest: {capabilities:["fs"]}})` → throws. ✓
+  - PROBE-3: `signal.aborted=true` + ports espionados → ports `not.toHaveBeenCalled()`. ✓ (impl cumpre spec §4 caso 10; o teste da suite NÃO cobre esse aspecto — ver [m1])
+  - PROBE-4: onEvent emite 6 eventos na ordem (call+result × 3 tools). ✓ (impl cumpre spec §4 caso 11; o teste só cobre 1 tool — ver [m2])
+  - Probes removidos após execução (não poluem o deliverable).
+
+═══════════════════════════════════════════════════════════════════════
+QA REPORT — EST-05 — plugin-fs-tools (move ORQ-09a mediado pelo host)
+═══════════════════════════════════════════════════════════════════════
+Data: 2026-07-06  |  Revisor: agile_reviewer (minimax-m3)
+Spec consultada: seções 1–7  |  Arquivos auditados: 4 (impl) + 2 (ports) + 1 (manifest) + 1 (core index.ts)
+Testes: 12 declarados · 12 passaram · 0 falharam
+tsc: OK  |  lint: OK  |  build: OK
+
+MAJOR (2)
+────────────────────────────────────────────────────────
+
+[M1] `src/index.ts:20-21` — `export type PluginTools = any` (com `eslint-disable`)
+      Viola o contrato EXATO da spec §1 (trecho normativo):
+        export interface PluginTools {
+          readFile:  ReturnType<typeof tool<{path:string},{content:string}>>;
+          writeFile: ReturnType<typeof tool<{path:string;content:string},{ok:true}>>;
+          bash:      ReturnType<typeof tool<{command:string},
+            | {ok:false;error:string} | {exit:number|null;timedOut:boolean;output:string}
+          >>;
+        }
+      E viola DoD §7 ("sem any").
+      Verificação: a interface ESTRITA de §1 COMPILA com `ai@^7.0.14` instalado
+      (probe estrita adicionada temporariamente em `src/probe-strict.ts`, `tsc` exit 0,
+      depois removida). Não havia motivo técnico para o downgrade — é decisão de
+      estilo, não restrição da biblioteca.
+      Consequência: callers (EST-06, EST-14, agentAdapter) perdem type safety do toolbag;
+      o `as any` ×19 em `tests/index.test.ts` é sintoma direto.
+      Ação corretiva: restaurar a interface verbatim da §1 e remover o `eslint-disable`.
+
+[M2] `apps/estaleiro/core/src/index.ts` — edição FORA do escopo declarado na §3
+      Diff: `+export { type FsPort, makeFsPort } from "./ports/fs.js";`
+            `+export { type BashPort, makeBashPort } from "./ports/bash.js";`
+      Spec §3 lista como in-scope APENAS arquivos de `packages/plugin-fs-tools/`.
+      `apps/estaleiro/core/src/ports/{fs,bash}.ts` aparecem só como [READ] no §2 RAG.
+      `apps/estaleiro/core/src/index.ts` NÃO é mencionado em lugar algum da spec.
+      O worker confirma o fato no handover ("FsPort/BashPort exportados do
+      @plataforma/estaleiro-core (index.ts atualizado)").
+      É MAJOR mínimo por regra do agent spec §6 ("Arquivos fora do escopo declarado →
+      MAJOR no mínimo"). É mudança aditiva, sem efeito colateral sobre outros
+      consumidores, mas a spec precisa registrar a edição (regras MGTIA — §3 é o
+      contrato de escopo).
+      Justificativa técnica (inviabilidade do caminho estrito): a spec §1 importa
+      `type { FsPort, BashPort } from "@plataforma/estaleiro-core"`, então os
+      re-exports são pré-condição necessária da impl. A spec autor errou ao não
+      listar este arquivo em §3 [EDIT]. A correção NÃO é reverter a edição; é
+      emendar a spec para registrar o arquivo no escopo, ou pedir ao worker que
+      adicione o arquivo a §3 retroativamente no rework.
+      Ação corretiva: (a) worker adiciona `apps/estaleiro/core/src/index.ts` a §3
+      como [EDIT] e justifica a adição no Handover; (b) se a governança do MGTIA
+      vetar amend retroativo de spec, abrir uma spec-pendência em `tasks/_pendencias.md`
+      registrando a lacuna da spec original (revisor: spec→EST-05b ou marker genérico).
+
+MINOR (3)
+────────────────────────────────────────────────────────
+
+[m1] `tests/index.test.ts:150-165` (caso 10) — cobertura INCOMPLETA do spec §4.
+      Spec exige "verificar com mock de fsPort/bashPort que **não foram chamados**"
+      (usar `vi.fn()`). O teste atual usa ports reais e só checa `rejects.toThrow("cancelado")`.
+      O comportamento da impl ESTÁ correto (PROBE-3 confirmou), mas o teste não
+      documenta o invariante de segurança crítico: signal aborted ⇒ zero side effects.
+      Ação: refatorar o teste para usar `vi.fn()` como spies e adicionar
+      `expect(fsSpy.readFile).not.toHaveBeenCalled()` + idem para write/exec.
+
+[m2] `tests/index.test.ts:167-183` (caso 11) — cobertura PARCIAL.
+      Spec exige cobertura "para cada uma das 3 tools, na ordem". O teste só exercita
+      `readFile` (1 de 3) e checa `calls.length===1 && results.length===1` + tipo de `ts`.
+      O comportamento da impl ESTÁ correto (PROBE-4 confirmou 6 eventos na ordem),
+      mas o teste não captura a cobertura de `writeFile` e `bash` na ordem.
+      Ação: estender o teste para chamar as 3 tools em sequência e assertar a
+      ordem completa de 6 eventos (call+result × 3).
+
+[m3] `src/index.ts:82` — branch redundante `msg.includes("git write") || msg.includes("proibido")`.
+      O port (`apps/estaleiro/core/src/ports/bash.ts:42`) lança uma única string
+      "git write no repo Docs é proibido — enfileire via fila.mjs" que contém ambos
+      substrings. Asserção `||` é defensiva contra futura mudança do texto do
+      port, mas hoje é puramente cosmético. Não bloqueia; só simplifica para
+      `msg.includes("git write")` (alinhado à redação da spec §1).
+
+INFO (2)
+────────────────────────────────────────────────────────
+
+[i1] Cobertura por caso de spec §4 (12/12):
+      1 ✓  2 ✓  3 ✓  4 ✓  5 ✓  6 ✓  7 ✓  8 ✓  9 ✓  10 ✓ (parcial — ver [m1])
+      11 ✓ (parcial — ver [m2])  12 ✓  → 12 testes verdes, 2 com assertion gap.
+
+[i2] Wiring gate (agent spec §5.1) — PASS.
+      `grep -n "node:fs|node:child_process|child_process" src/index.ts` = 0 hits.
+      O plugin roteia 100% por `opts.fs.readFile` / `opts.fs.writeFile` / `opts.bash.exec`.
+      Import cross-package `plugin-fs-tools → estaleiro-core` está na direção LEGAL
+      (core não depende de plugin-fs-tools; sem ciclo).
+
+═══════════════════════════════════════════════════════════════════════
+VEREDICTO: REFATORAÇÃO NECESSÁRIA
+Resumo: 12/12 testes verdes e Gate build+test+lint limpo, mas dois
+achados MAJOR: (M1) `PluginTools = any` viola verbatim o contrato
+estrito de spec §1 (verificado por probe — a interface da spec COMPILA);
+(M2) edição de `apps/estaleiro/core/src/index.ts` está fora do escopo
+declarado em §3 (precisa ser registrada na spec). Nenhum bug funcional.
+────────────────────────────────────────────────────────
+
+### Parecer do Reviewer 2 (minimax-m3, independente — re-review pós-rework):
+- [x] **Aprovado**
+- [ ] **Requer Refatoração**
+- **Evidência de Execução (obrigatória — gate pós-rework):**
+```
+$ pnpm --filter @plataforma/plugin-fs-tools build
+$ tsc
+(sem erros — exit 0)
+
+$ pnpm --filter @plataforma/plugin-fs-tools test
+$ vitest run
+ RUN v3.2.6 C:/Dev2026/.superapp-worktrees/EST-05/packages/plugin-fs-tools
+ ✓ tests/index.test.ts (12 tests) 1041ms
+   ✓ makeTools > 9. bash com timeout → {exit:null, timedOut:true}  527ms
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+
+$ pnpm --filter @plataforma/plugin-fs-tools lint
+$ eslint src/
+(sem erros — exit 0)
+```
+- **Verificação rápida pré-auditoria (skill §1 — 3/3):** Handover §8 rework 1 (2026-07-06) mais novo que Parecer R1 (17:40); Log §9 tem `[Finalizado] 17:57` (rework pronto) APÓS 17:40; `git log task/EST-05` mostra 2 novos commits após `b5df84f` (`8be621c` [M1] + `9b770aa` [m1/m2]).
+- **Sondas adversariais R2 (5/5 verdes):** PROBE-R2-1 PluginTools strict; R2-2 `vi.fn` spies + not.toHaveBeenCalled(); R2-3 6 eventos na ordem; R2-4 capability validation; R2-5 import cross-package direção LEGAL. Probes removidos.
+
+═══════════════════════════════════════════════════════════════════════
+QA REPORT — EST-05 R2 — re-review pós-rework (minimax-m3, independente)
+═══════════════════════════════════════════════════════════════════════
+Data: 2026-07-06  |  Revisor: agile_reviewer (minimax-m3, R2)
+Testes: 12 declarados · 12 passaram · 0 falharam
+tsc: OK  |  lint: OK  |  build: OK
+
+Verificação dos 4 bloqueantes do Parecer R1:
+[M1] `src/index.ts:21-29` PluginTools restaurado para interface estrita.
+      Diff: removido `any`+`eslint-disable`; novo:
+        export interface PluginTools {
+          readFile:  Tool<{path:string},{content:string}>;
+          writeFile: Tool<{path:string;content:string},{ok:true}>;
+          bash:      Tool<{command:string},
+            | {ok:false;error:string} | {exit:number|null;timedOut:boolean;output:string}
+          >;
+        }
+      Spec §1 usa `ReturnType<typeof tool<...>>`; worker usou `Tool<INPUT, OUTPUT>`
+      (importado de `ai@^7`). Equivalentes — `tool(config)` retorna `Tool<INPUT, OUTPUT>`.
+      Contrato preservado verbatim na fronteira pública. ✓ **fixed**
+      Sub-observação: `src/index.ts:104` tem `as unknown as PluginTools` no return —
+      workaround para `exactOptionalPropertyTypes: true` no tsconfig base. Cast interno
+      (não afeta API pública `PluginTools`). TypeScript practice aceitável. → INFO.
+
+[M2] `tasks/EST-05.md:92` — `apps/estaleiro/core/src/index.ts` registrado como [EDIT] em §3.
+      Diff: `+[EDIT] apps/estaleiro/core/src/index.ts — re-export FsPort + makeFsPort /
+      BashPort + makeBashPort (pré-condição para o import @plataforma/estaleiro-core da §1).`
+      Spec emendada para registrar a edição. Re-export em si permanece correta (commit
+      original `b5df84f`, aditiva). ✓ **fixed**
+
+[m1] `tests/index.test.ts:150-178` — caso 10 refatorado com `vi.fn()` spies.
+      Verifica `expect(mockFs.readFile).not.toHaveBeenCalled()` + idem writeFile/exec
+      após cada `rejects.toThrow("cancelado")`. Invariante `signal aborted ⇒ zero side
+      effects` AGORA documentado no teste. ✓ **fixed**
+
+[m2] `tests/index.test.ts:180-209` — caso 11 estendido.
+      Cobre `readFile → writeFile → bash`. Asserta 6 eventos na ordem:
+      `types = ["tool-call","tool-result",...×3]` + `tools_seq = ["readFile","readFile",
+      "writeFile","writeFile","bash","bash"]` + `ts` é number. ✓ **fixed**
+
+Não-bloqueante R1 [m3] `src/index.ts:90` branch `||` — já no `tasks/_pendencias.md` (BEGIN/EST-05/END PENDENCIAS). Não bloqueia.
+
+INFO (1) [i1] Cast `as unknown as PluginTools` é workaround TypeScript para
+`exactOptionalPropertyTypes: true`. Adaptação legítima ao strict optional, não
+violação do contrato §1 (que define shape público).
+
+═══════════════════════════════════════════════════════════════════════
+VEREDICTO: APROVADO
+Resumo: rework endereça os 4 bloqueantes (M1, M2, m1, m2). 12/12 verde,
+build+lint limpos, 5/5 R2 probes verdes. Sem divergência do Parecer R1 —
+os 2 MAJOR foram corretamente endereçados; os 2 MINOR m1/m2 também;
+m3 já no ledger. Pronto para integrar (Caminho A: merge + approve).
+────────────────────────────────────────────────────────
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
@@ -192,3 +411,10 @@ Todos devem retornar Exit Code 0. Lint sem erros NOVOS (regra de 2026-07-06 — 
 - **[2026-07-06T16:47]** - *minimax-m3* - `[Endurecido]`: endureceu spec — reendurecimento JIT pós EST-02a/b/c done: makeTools({manifest, fs, bash, ...}) roteia por FsPort/BashPort; 12 testes (8 ORQ-09a + 4 novos); capacidade=haiku mantida
 - **[2026-07-06T17:07]** - *deepseek* - `[Promovida p/ ready]`: draft:hardened com deps done — safety-net flip
 - **[2026-07-06T17:10]** - *deepseek* - `[Iniciado]`: iniciando plugin-fs-tools — move ORQ-09a
+- **[2026-07-06T17:20]** - *deepseek* - `[Finalizado]`: plugin-fs-tools, 12/12 testes, build+lint verdes, mediação via FsPort/BashPort
+- **[2026-07-06T17:26]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: revisando
+- **[2026-07-06T17:40]** - *agile_reviewer:minimax-m3* - `[Requer Refatoração]`: Rework (Caminho B) — Gate de Evidência 12/12 verde (build/test/lint OK), mas 2 achados MAJOR bloqueantes: [M1] src/index.ts:20-21 viola verbatim o contrato de PluginTools de spec §1 (a interface estrita COMPILA com ai@^7.0.14 — verificado por probe) — restaurar a interface de §1 e remover o eslint-disable; [M2] apps/estaleiro/core/src/index.ts editado fora do escopo declarado em §3 (2 re-exports adicionados: FsPort, BashPort) — o worker deve (a) adicionar apps/estaleiro/core/src/index.ts a §3 como [EDIT] com justificativa 'precondição para import de §1' e (b) atualizar o Handover §8 para apontar a edição. Adicionalmente, 2 MINOR de cobertura: [m1] caso 10 incompleto (spec exige vi.fn spies verificando 'ports NÃO chamados' — test atual só checa rejects.toThrow); [m2] caso 11 parcial (spec exige 3 tools × call+result = 6 eventos, test só exercita readFile). Impl JÁ cumpre [m1]/[m2] (verificado por probe), mas o test não documenta o invariante — refatorar tests com vi.fn spies para [m1] e estender para as 3 tools para [m2]. Não-bloqueante [m3] (branch redundante substring ||) → ledger de pendências.
+- **[2026-07-06T17:51]** - *deepseek* - `[Iniciado]`: rework: corrigindo M1+M2+m1+m2
+- **[2026-07-06T17:57]** - *deepseek* - `[Finalizado]`: rework pronto: M1+M2+m1+m2 corrigidos — build+test+lint verdes (12/12)
+- **[2026-07-06T18:23]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: R2 — re-review após rework
+- **[2026-07-06T18:28]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: Integrado (Caminho A — pós-rework): merge task/EST-05 (commits 8be621c + 9b770aa + b5df84f + pnpm-lock reconcile) na master (hash 0c49ce6), worktree removida, push origin master, Gate pós-merge verde (build tsc OK, test 12/12 passed, lint eslint 0 erros). Pendência [m3] branch redundante já em ledger. R1 verdict: REFATORAÇÃO; R2 (independente) verdict: APROVADO — sem divergência.
