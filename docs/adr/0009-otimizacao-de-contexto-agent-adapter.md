@@ -19,13 +19,13 @@ A hipótese registrada (task §1 e caderno §3, 1ª versão) era **`compress()` 
 
 ```
 payload                 base    nativo   Δnat   headroom  nano-out   Δnano  nano-ms
-código (.mjs)           3442      3400     1%  3660(-6%)         —      —       —
-prosa (.md)             1960      1946     1%  1326(32%)       379    81%    5196
-listagem (ls -R)      123478    110364    11%  5952(95%)        65    99%    2317
+código (.mjs)           3442      3400     1%  3660(0%)          —      —       —
+prosa (.md)             1960      1946     1%  1326(38%)       210    89%    4908
+listagem (ls -R)      123478    110364    11%  5952(97%)       109   100%    2212
 headroom-ai: ✓ proxy :8787 respondeu — transforms=router:protected:{system,user,recent_code}
-nano custo: in=13221 out=545 tok · ~US$0.0004 · reversibilidade CCR local: idêntico=true ✓
+nano custo: in=13221 out≈420 tok · ~US$0.0004 · reversibilidade CCR local: idêntico=true ✓
 ```
-Token count = estimativa chars/4 (ratios, não absolutos). Δnano medido contra o que o nano consumiu (cap 24k chars).
+Token count = `r.tokensBefore` do SDK headroom (headroom) ou base estimado chars/4 (nativo/nano). Δnano contra input inteiro (fullTok = base); cap de 6000 tok só pra limitar custo do nano, não como denominador.
 
 ---
 
@@ -42,24 +42,24 @@ proxy provider-agnóstico (melhor que um por provider), mas não é in-process n
 
 ### Decisão B — Onde o Headroom de fato comprime: só `tool_result`/`rag`/turnos velhos
 O content-router **protege** `system`, `user` corrente e **código recente** (`router:protected:recent_code`)
-— medido: código deu **−6%** (infla). Comprime bem quando o payload é apresentado como **resultado de tool**:
-prosa **32%**, listagem **95%**. Ou seja, a qualidade de compressão é real e alta *no alvo certo*, e ele
+— medido: código deu **0%** (inalterado). Comprime bem quando o payload é apresentado como **resultado de tool**:
+prosa **38%**, listagem **97%**. Ou seja, a qualidade de compressão é real e alta *no alvo certo*, e ele
 acerta em NÃO destruir código. Mas isso exige o proxy no ar e apresentar o histórico no formato certo.
 
 ### Decisão C — Números e threshold (GO = ≥30% líquido no modelo principal)
 | via | código | prosa | listagem | custo | in-process? | perda? |
 |---|---|---|---|---|---|---|
 | crusher nativo (~40 ln, 0 dep) | 1% | 1% | 11% | 0 | **sim** | não |
-| headroom proxy | −6% | 32% | 95% | serviço standing | **não** | reversível via CCR do proxy |
-| nano-preprocess (deepseek-flash) | (n/a) | 81% | 99% | ~US$0.0004 | chamada de rede barata | **sim (lossy)** |
+| headroom proxy | 0% | 38% | 97% | serviço standing | **não** | reversível via CCR do proxy |
+| nano-preprocess (deepseek-flash) | (n/a) | 89% | ~100% | ~US$0.0004 | chamada de rede barata | **sim (lossy)** |
 | CCR store local (~12 ln) | — | — | — | 0 | **sim** | **zero (reversível)** |
 
-O nano bate o threshold com folga (81–99%) a custo sub-centavo; o crusher nativo sozinho é fraco
-(guarda, não ganho); o Headroom entrega 95% mas ao custo de um serviço standing.
+O nano bate o threshold com folga (89%–100%) a custo sub-centavo; o crusher nativo sozinho é fraco
+(guarda, não ganho); o Headroom entrega 97% mas ao custo de um serviço standing.
 
 ### Decisão D — Nano-preprocess: quando disparar
 Gatilho por tamanho: só acima de ~**2.000 tokens** de output (abaixo disso a latência 2–5s não paga).
-Custo do nano (in=13k+out=545 por 2 payloads ≈ **US$0.0004**) é desprezível vs. tokens poupados no
+Custo do nano (in=13k+out≈420 por 2 payloads ≈ **US$0.0004**) é desprezível vs. tokens poupados no
 modelo caro. É **lossy** — por isso **sempre pareado com o CCR store** (original recuperável). O nano
 pode também decidir *o que* comprimir (classificador barato antes do crusher/CCR).
 
