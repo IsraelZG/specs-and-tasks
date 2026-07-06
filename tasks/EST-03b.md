@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-03a"]
 blocks: []
+parent: "EST-03" # habilita parentAutoClose (T-1029) para EST-03 quando o service for corrigido
 capacity_target: sonnet
 ---
 

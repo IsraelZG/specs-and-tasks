@@ -1,7 +1,7 @@
 ---
 id: EST-03
 title: "plugin-tasks: schema completo (replica MGTIA 1:1) + serviço DB-first + guardas de código com escape hatch"
-status: draft:decomposed
+status: done
 complexity: 7
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -10,6 +10,7 @@ dependencies: ["EST-02"]
 blocks: []
 capacity_target: sonnet # complexidade 7 — decomposta em EST-03a/b/c/d
 children: ["EST-03a", "EST-03b", "EST-03c", "EST-03d"]
+subtasks: ["EST-03a", "EST-03b", "EST-03c", "EST-03d"] # mirror de children: — habilita parentAutoClose (T-1029) quando o fix do service ler este campo (atualmente lê só subtasks:, auto-close é no-op para EST-03)
 ---
 
 # EST-03 · plugin-tasks: schema completo + serviço + guardas de código
@@ -84,3 +85,4 @@ pnpm --filter @plataforma/plugin-tasks test
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-tasks, capacity=sonnet, complexidade 7 exige decomposicao, decisoes B1/B3 fechadas
 - **[2026-07-06T12:54]** - *deepseek* - `[Decomposto]`: decomposta em EST-03a (schema) + EST-03b (stateMachine) + EST-03c (guards) + EST-03d (service)
+- **[2026-07-06T19:54]** - *system* - `[Auto-encerrado retroativo]`: M-016: todas as 4 filhas done — backfill one-shot

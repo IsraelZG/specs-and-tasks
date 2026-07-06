@@ -1,7 +1,7 @@
 ---
 id: EST-04
 title: "Migração das ~200 tasks .md do Docs para o plugin-tasks (parser frontmatter→DB, stress-test)"
-status: draft:decomposed
+status: done
 complexity: 5
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -10,6 +10,7 @@ dependencies: ["EST-03"]
 blocks: []
 capacity_target: haiku # parser + migrator + validador — decomposta em EST-04a/b/c
 children: ["EST-04a", "EST-04b", "EST-04c"]
+subtasks: ["EST-04a", "EST-04b", "EST-04c"] # mirror de children: — habilita parentAutoClose (T-1029) quando o fix do service ler este campo (atualmente lê só subtasks:, auto-close é no-op para EST-04)
 ---
 
 # EST-04 · Migração de dados: ~200 tasks .md → plugin-tasks
@@ -76,3 +77,4 @@ pnpm --filter @plataforma/plugin-tasks migrate
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — migracao ~200 tasks, capacity=haiku, complexidade 5 requer decomposicao
 - **[2026-07-06T13:01]** - *deepseek* - `[Decomposto]`: decomposta em EST-04a (parser) + EST-04b (corpus) + EST-04c (validacao)
+- **[2026-07-06T19:54]** - *system* - `[Auto-encerrado retroativo]`: M-016: todas as 3 filhas done — backfill one-shot

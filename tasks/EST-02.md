@@ -1,7 +1,7 @@
 ---
 id: EST-02
 title: "Host de plugins do Estaleiro: manifest mínimo + mediação total de portas (fs/rede/store/eventos)"
-status: draft:decomposed
+status: done
 complexity: 5
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -10,6 +10,7 @@ dependencies: ["EST-01"]
 blocks: []
 capacity_target: sonnet # host mediado com 4 portas — decomposta em EST-02a/b/c
 children: ["EST-02a", "EST-02b", "EST-02c"]
+subtasks: ["EST-02a", "EST-02b", "EST-02c"] # mirror de children: — habilita parentAutoClose (T-1029) quando o fix do service ler este campo (atualmente lê só subtasks:, auto-close é no-op para EST-02)
 ---
 
 # EST-02 · Host de plugins (manifest + mediação total)
@@ -79,3 +80,4 @@ pnpm --filter @plataforma/estaleiro-core test
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — host plugins, capacity_target=sonnet, complexidade 5 requer decomposicao, decisoes A1/A2/A3 fechadas no RFC
 - **[2026-07-06T12:25]** - *deepseek* - `[Decomposto]`: decomposta em EST-02a (manifest) + EST-02b (fs/bash) + EST-02c (network/store/eventos)
+- **[2026-07-06T19:54]** - *system* - `[Auto-encerrado retroativo]`: M-016: todas as 3 filhas done — backfill one-shot
