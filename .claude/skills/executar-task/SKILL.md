@@ -53,6 +53,15 @@ CLAUDE.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
    > e config nova só vale após apagar `node_modules`+`pnpm-lock.yaml` (o lock velho pula a resolução).
 6. **Finalize** (ledger): `node "<CTRL>/tools/scripts/manage-task.mjs" finish $ARGUMENTS <EU> "<resumo + placar de testes>"`.
    - Move pra `review`. Daqui em diante o reviewer assume — você **NÃO** aprova.
+6a. **VERIFIQUE a transição — NÃO assuma que deu certo (INVIOLÁVEL).** A saída do `finish` deve
+   mostrar explicitamente `Status: review`. Qualquer coisa diferente (erro, status inalterado,
+   exceção) → **NÃO prossiga** para push/enqueue como se a task estivesse fechada. Confirme lendo
+   o frontmatter real (`grep "^status:" "<CTRL>/tasks/$ARGUMENTS.md"`). Se ainda não for `review`:
+   (a) tente `finish` de novo uma vez (pode ser falha transiente); (b) falhou de novo → **é falha
+   de ambiente = BLOCKER** (CLAUDE.md Regra 3 — "falha de ambiente durante uma transição é ela
+   mesma um blocker"). Chame `pause` explicando literalmente o que a saída do `finish` mostrou.
+   NUNCA passe pro passo 7 com a task ainda em `in_progress` — é isso que faz o Reviewer perder
+   tempo descobrindo sozinho que o trabalho estava pronto mas preso no status errado.
 7. **Commit final + push do CÓDIGO** (na sua pasta = superapp) — fecha o que sobrou desde o último
    commit incremental (passo 4) e garante que **tudo** está no remoto:
    ```
