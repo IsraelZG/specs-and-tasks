@@ -1,0 +1,73 @@
+---
+id: EST-02
+title: "Host de plugins do Estaleiro: manifest mínimo + mediação total de portas (fs/rede/store/eventos)"
+status: draft:placeholder
+complexity: 5
+target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+reviewer_agent: agile_reviewer
+execution_mode: sequential
+dependencies: ["EST-01"]
+blocks: []
+capacity_target: # a fixar no endurecimento
+---
+
+# EST-02 · Host de plugins (manifest + mediação total)
+
+## 0. Ambiente de Execução Obrigatório
+- **Runtime:** Node.js 22+. `apps/estaleiro/core/`. **Candidata a decompor** (complexidade 5 —
+  regra de Dimensionamento do CLAUDE.md): provável quebra em (a) contrato de manifest, (b)
+  mediação de fs/bash, (c) mediação de rede/store/eventos.
+
+## 1. Objetivo
+Implementar o `core` do Estaleiro: o host que **medeia TODAS as portas** para os plugins
+(fs, rede, store TinyBase, eventos) — nenhum plugin acessa recurso direto, nenhum plugin importa
+outro plugin diretamente (RFC-018 §2 decisões A2/A3). Contrato de plugin = **manifest mínimo com
+os MESMOS nomes de campo do caderno 12** (A1) — não o contrato completo de plugin do superapp,
+um subconjunto que estende sem reescrever.
+
+## 2. Contexto RAG
+- [ ] `docs/rfcs/rfc-018-estaleiro.md` §2 (A1, A2, A3) e §3 (diagrama, "core" do Estaleiro) — FONTE das 3 decisões.
+- [ ] `docs/caderno-3-sdk/12-plugins-e-computacao.md` — nomes de campo do contrato de plugin do superapp (A1 deriva daqui, não inventa paralelo).
+- [ ] `tools/orchestrator/tools.poc.mjs` (ORQ-09a) — o padrão de gating de bash/fs já provado, a ser mediado pelo host em vez de embutido na tool.
+
+## 3. Escopo de Arquivos
+- **[CREATE]** `apps/estaleiro/core/src/host.*` — registro de plugin, roteamento de chamadas mediadas.
+- **[CREATE]** `apps/estaleiro/core/src/manifest.*` — schema Zod do manifest mínimo (A1).
+- **[CREATE]** `apps/estaleiro/core/src/ports/{fs,network,store,events}.*` — as 4 portas mediadas.
+
+## 4. Estratégia de Testes
+- [ ] Plugin de teste registra via manifest; host medeia 1 chamada de cada porta; plugin SEM
+  passar pelo host não consegue acessar fs/rede/store/eventos diretamente (teste de isolamento).
+
+## 5. Instruções de Execução
+1. Endurecer JIT contra os arquivos reais de EST-01.
+2. Manifest schema → host → 1 porta por vez (fs primeiro, reusando o gating do ORQ-09a).
+3. Gate → §8.
+
+## 6. Feedback de Especificação
+- Fonte de decisão = RFC-018 A1/A2/A3, não reabrir. Se algo ficou ambíguo, PARE e volte ao RFC.
+- Decompor via `/endurecer-task` antes de `ready` (complexidade 5).
+
+## 7. Definition of Done (DoD)
+- [ ] Manifest mínimo com nomes do caderno 12 implementado?
+- [ ] Host medeia as 4 portas (fs/rede/store/eventos)?
+- [ ] Plugin não acessa recurso sem passar pelo host (teste de isolamento verde)?
+
+### Verificação automática *(a fixar no endurecimento)*
+```bash
+pnpm --filter @plataforma/estaleiro-core test
+```
+
+## 8. Log de Handover e Revisão Agile (Code Review)
+### Handover do Executor:
+-
+### Parecer do Agente Revisor (Reviewer):
+- [ ] **Aprovado**
+- [ ] **Requer Refatoração**
+- **Evidência de Execução (obrigatória):**
+```
+```
+- **Comentários de Revisão:**
+
+## 9. Log de Execução (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
