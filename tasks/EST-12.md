@@ -1,14 +1,14 @@
 ---
 id: EST-12
 title: "plugin-skills: gerenciamento de skills/agentes/CLAUDE.md do Estaleiro, edições refletidas no repo via git"
-status: draft:placeholder
+status: draft:triaged
 complexity: 4
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-02"]
 blocks: []
-capacity_target: sonnet
+capacity_target: sonnet # gerencia skills/agentes/CLAUDE.md, edicoes refletidas via git
 ---
 
 # EST-12 · plugin-skills
@@ -76,3 +76,4 @@ pnpm --filter @plataforma/plugin-skills test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-skills, capacity=sonnet, depende de EST-02 (draft)

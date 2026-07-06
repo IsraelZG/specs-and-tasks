@@ -1,14 +1,14 @@
 ---
 id: EST-06
 title: "plugin-agent-harness: migrar VercelAgentAdapter + observabilidade/kill do ORQ-09b/10 pro monorepo superapp"
-status: draft:placeholder
+status: draft:triaged
 complexity: 3
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-02", "EST-05"]
 blocks: []
-capacity_target: sonnet
+capacity_target: sonnet # move VercelAgentAdapter ORQ-09b/10, adapta ao host mediado
 ---
 
 # EST-06 · plugin-agent-harness (move do ORQ-09b/10)
@@ -69,3 +69,4 @@ pnpm --filter @plataforma/plugin-agent-harness test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-agent-harness move ORQ-09b/10, capacity=sonnet, depende de EST-02/05 (draft)

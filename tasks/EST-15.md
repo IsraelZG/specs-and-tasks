@@ -1,14 +1,14 @@
 ---
 id: EST-15
 title: "SPIKE: empacotamento standalone do Estaleiro (Electron?) — instância rodando separada da working tree, cadência de atualização"
-status: draft:placeholder
+status: draft:triaged
 complexity: 4
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-14"]
 blocks: []
-capacity_target: opus-spike
+capacity_target: opus-spike # empacotamento standalone Electron? D4, requer ADR
 ---
 
 # EST-15 · SPIKE: empacotamento standalone (D4)
@@ -70,3 +70,4 @@ atualização (rebuild manual? watch+rebuild? CI local?).
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — spike standalone Electron? D4, capacity=opus-spike, requer ADR, depende de EST-14 (draft)

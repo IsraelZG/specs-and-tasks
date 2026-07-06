@@ -1,14 +1,14 @@
 ---
 id: EST-13
 title: "plugin-knowledge: docs/RAG markdown-first (OKF), FTS local, writer serial de commits"
-status: draft:placeholder
+status: draft:triaged
 complexity: 5
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-02"]
 blocks: []
-capacity_target: # a fixar no endurecimento — candidata a decompor (complexidade 5)
+capacity_target: sonnet # OKF + FTS + writer serial — complexidade 5, requer decomposicao
 ---
 
 # EST-13 · plugin-knowledge
@@ -75,3 +75,4 @@ pnpm --filter @plataforma/plugin-knowledge test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-knowledge OKF+FTS, capacity=sonnet, complexidade 5 requer decomposicao, depende de EST-02 (draft)

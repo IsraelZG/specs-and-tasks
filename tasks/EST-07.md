@@ -1,14 +1,14 @@
 ---
 id: EST-07
 title: "plugin-dispatcher: sucessor do orquestrar.mjs (escolhe modelo, decide o que despachar, lock de task)"
-status: draft:placeholder
+status: draft:triaged
 complexity: 4
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-02", "EST-03", "EST-06"]
 blocks: []
-capacity_target: sonnet
+capacity_target: sonnet # dispatcher c/ lock, escolha de modelo, sucessor orquestrar.mjs
 ---
 
 # EST-07 · plugin-dispatcher (sucessor do orquestrar.mjs)
@@ -72,3 +72,4 @@ pnpm --filter @plataforma/plugin-dispatcher test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-dispatcher sucessor orquestrar.mjs, capacity=sonnet, depende de EST-02/03/06 (draft)

@@ -1,22 +1,26 @@
 ---
 id: EST-04
 title: "Migração das ~200 tasks .md do Docs para o plugin-tasks (parser frontmatter→DB, stress-test)"
-status: draft:placeholder
+status: draft:decomposed
 complexity: 5
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-03"]
 blocks: []
-capacity_target: # a fixar no endurecimento — candidata a decompor (complexidade 5)
+capacity_target: haiku # parser + migrator + validador — decomposta em EST-04a/b/c
+children: ["EST-04a", "EST-04b", "EST-04c"]
 ---
 
 # EST-04 · Migração de dados: ~200 tasks .md → plugin-tasks
 
 ## 0. Ambiente de Execução Obrigatório
-- **Runtime:** Node.js 22+. Consome `packages/plugin-tasks/` (EST-03). **Candidata a decompor**
-  (complexidade 5): fatiar em (a) parser genérico, (b) casos-limite de tasks antigas/inconsistentes,
-  (c) validação pós-migração (contagem/integridade).
+- **Task-casca decomposta.** Esta task não executa diretamente — seu escopo foi fatiado em:
+  - **EST-04a** — Parser frontmatter+seções (.md → schema)
+  - **EST-04b** — Corpus completo + stress-test (~200 tasks)
+  - **EST-04c** — Validação pós-migração (checksum, integridade)
+
+  Cada filha segue o fluxo MGTIA independente. Esta casca fecha quando as 3 filhas estiverem `done`.
 
 ## 1. Objetivo
 Migrar **todas** as ~200 tasks `.md` existentes (`tasks/*.md` no Docs) para o schema completo do
@@ -70,3 +74,5 @@ pnpm --filter @plataforma/plugin-tasks migrate
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — migracao ~200 tasks, capacity=haiku, complexidade 5 requer decomposicao
+- **[2026-07-06T13:01]** - *deepseek* - `[Decomposto]`: decomposta em EST-04a (parser) + EST-04b (corpus) + EST-04c (validacao)

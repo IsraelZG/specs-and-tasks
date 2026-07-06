@@ -1,14 +1,14 @@
 ---
 id: EST-08
 title: "plugin-local-inference: substrato ORT in-process (modelo-como-dado), consumido por plugin-context e futuramente T-IA-01/T-IA-05"
-status: draft:placeholder
+status: draft:triaged
 complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-02"]
 blocks: []
-capacity_target: sonnet
+capacity_target: sonnet # substrato ORT in-process, modelo-como-dado, ADR-0011
 ---
 
 # EST-08 · plugin-local-inference (substrato ORT in-process)
@@ -72,3 +72,4 @@ pnpm --filter @plataforma/plugin-local-inference test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-local-inference ORT in-process, capacity=sonnet, depende de EST-02 (draft)

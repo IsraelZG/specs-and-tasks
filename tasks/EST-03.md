@@ -1,23 +1,27 @@
 ---
 id: EST-03
 title: "plugin-tasks: schema completo (replica MGTIA 1:1) + serviço DB-first + guardas de código com escape hatch"
-status: draft:placeholder
+status: draft:decomposed
 complexity: 7
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-02"]
 blocks: []
-capacity_target: # a fixar no endurecimento — complexidade 7 EXIGE quebra (regra Dimensionamento)
+capacity_target: sonnet # complexidade 7 — decomposta em EST-03a/b/c/d
+children: ["EST-03a", "EST-03b", "EST-03c", "EST-03d"]
 ---
 
 # EST-03 · plugin-tasks: schema completo + serviço + guardas de código
 
 ## 0. Ambiente de Execução Obrigatório
-- **Runtime:** Node.js 22+. `packages/plugin-tasks/`. **DEVE ser decomposta** antes de executar
-  (complexidade 7 > limiar 5 do CLAUDE.md, regra de Dimensionamento — INVIOLÁVEL). Esta é a
-  task-casca; rodar `/endurecer-task` para fatiar em filhas (sugestão de seams: schema de dados ·
-  máquina de estados/verbos · guardas de código B3 · API do serviço).
+- **Task-casca decomposta.** Esta task não executa diretamente — seu escopo foi fatiado em:
+  - **EST-03a** — Schema de dados (tipos + constantes)
+  - **EST-03b** — Máquina de estados (transições)
+  - **EST-03c** — Guardas de código (papel/gate/identidade)
+  - **EST-03d** — API do serviço (fachada)
+
+  Cada filha segue o fluxo MGTIA independente. Esta casca fecha quando as 4 filhas estiverem `done`.
 
 ## 1. Objetivo
 Implementar o sucessor DB-first do MGTIA: schema **completo** (RFC-018 B1 — não um subconjunto),
@@ -29,11 +33,11 @@ para `finish`, identidade de modelo — **cada uma com escape hatch opcional por
 explícita, nunca silenciosa) para exceções legítimas futuras.
 
 ## 2. Contexto RAG
-- [ ] `docs/rfcs/rfc-018-estaleiro.md` §2 (B1, B3) — FONTE das duas decisões centrais desta task.
-- [ ] `docs/task-template.md` e `tasks/T-001.md` — a forma completa de uma task (todas as 9 seções) que o schema precisa representar sem perda.
-- [ ] `CLAUDE.md` §MGTIA — as 6 Regras e a tabela de Ações/Ciclo — fonte das guardas de código (B3).
-- [ ] `tools/scripts/manage-task.mjs` (CLI legado) — o comportamento atual de cada verbo, a replicar/superar.
-- [ ] Incidentes que motivaram reforço de regra: T-1025 (separação de papéis), M-013/T-1014 (bypass de status) — não reabrir, já resolvidos em prosa; aqui viram guarda de serviço.
+- [x] `docs/rfcs/rfc-018-estaleiro.md` §2 (B1, B3) — FONTE das duas decisões centrais desta task.
+- [x] `docs/task-template.md` e `tasks/T-001.md` — a forma completa de uma task (todas as 9 seções) que o schema precisa representar sem perda.
+- [x] `CLAUDE.md` §MGTIA — as 6 Regras e a tabela de Ações/Ciclo — fonte das guardas de código (B3).
+- [x] `tools/scripts/manage-task.mjs` (CLI legado) — o comportamento atual de cada verbo, a replicar/superar.
+- [x] Incidentes que motivaram reforço de regra: T-1025 (separação de papéis), M-013/T-1014 (bypass de status) — não reabrir, já resolvidos em prosa; aqui viram guarda de serviço.
 
 ## 3. Escopo de Arquivos
 - **[CREATE]** `packages/plugin-tasks/src/schema.*` — tabelas/tipos completos.
@@ -42,7 +46,7 @@ explícita, nunca silenciosa) para exceções legítimas futuras.
 - **[CREATE]** `packages/plugin-tasks/src/service.*` — API consumida pelo host (EST-02) e pela UI (EST-14).
 
 ## 4. Estratégia de Testes
-- [ ] Cada verbo testado (transições válidas/inválidas). Worker tentando approve/request_changes é rejeitado, EXCETO com a flag de exceção explícita presente. `finish` sem evidência é rejeitado. Idempotência dos verbos (como o MGTIA atual já garante).
+- [x] Cada verbo testado (transições válidas/inválidas). Worker tentando approve/request_changes é rejeitado, EXCETO com a flag de exceção explícita presente. `finish` sem evidência é rejeitado. Idempotência dos verbos (como o MGTIA atual já garante).
 
 ## 5. Instruções de Execução
 1. **Rodar `/endurecer-task` primeiro** — esta task-casca não executa como está (complexidade 7).
@@ -78,3 +82,5 @@ pnpm --filter @plataforma/plugin-tasks test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-tasks, capacity=sonnet, complexidade 7 exige decomposicao, decisoes B1/B3 fechadas
+- **[2026-07-06T12:54]** - *deepseek* - `[Decomposto]`: decomposta em EST-03a (schema) + EST-03b (stateMachine) + EST-03c (guards) + EST-03d (service)

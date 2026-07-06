@@ -1,14 +1,14 @@
 ---
 id: EST-10
 title: "plugin-providers: registry direto + fallback/circuit-breaker + scoring 9-fatores + telemetria interna (absorve EST-11)"
-status: draft:placeholder
+status: draft:triaged
 complexity: 5
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-02"]
 blocks: []
-capacity_target: # a fixar no endurecimento — candidata a decompor (complexidade 5)
+capacity_target: sonnet # registry + fallback/scoring + telemetria — complexidade 5, requer decomposicao
 ---
 
 # EST-10 · plugin-providers (registry + fallback/scoring, extração OmniRoute)
@@ -87,3 +87,4 @@ pnpm --filter @plataforma/plugin-providers test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-providers + telemetria, capacity=sonnet, complexidade 5 requer decomposicao, depende de EST-02 (draft)

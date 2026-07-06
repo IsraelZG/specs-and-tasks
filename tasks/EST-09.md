@@ -1,14 +1,14 @@
 ---
 id: EST-09
 title: "plugin-context: migrar o otimizador do ORQ-13 (crusher+CCR+nano) e acrescentar tier LLMLingua-2 via plugin-local-inference"
-status: draft:placeholder
+status: draft:triaged
 complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-02", "EST-08"]
 blocks: []
-capacity_target: sonnet
+capacity_target: sonnet # migra ORQ-13 + tier LLMLingua-2 via ORT
 ---
 
 # EST-09 · plugin-context (move do ORQ-13 + tier LLMLingua-2)
@@ -78,3 +78,4 @@ pnpm --filter @plataforma/plugin-context test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-context move ORQ-13 + L2, capacity=sonnet, depende de EST-02/08 (draft)

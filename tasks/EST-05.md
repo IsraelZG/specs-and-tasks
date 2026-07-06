@@ -1,7 +1,7 @@
 ---
 id: EST-05
 title: "plugin-fs-tools: migrar o harness de tools do ORQ-09a (readFile/writeFile/bash gated) pro monorepo superapp"
-status: draft:placeholder
+status: draft:triaged
 complexity: 2
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -25,10 +25,10 @@ superapp, adaptando as chamadas de fs/bash para passar pela mediação do host (
 em vez de acesso direto. Lógica de gating **não muda** — só o ponto de entrada.
 
 ## 2. Contexto RAG
-- [ ] `docs/rfcs/rfc-018-estaleiro.md` §2 (G2 — migração como task MGTIA normal) e §3 (plugin-fs-tools no diagrama).
-- [ ] `tools/orchestrator/tools.poc.mjs` (ORQ-09a, done) — o código-fonte a mover, com a suite de testes existente.
-- [ ] `docs/adr/0008-agent-adapter-in-process.md` Decisão B — o desenho de gating a preservar.
-- [ ] `packages/estaleiro/core/src/ports/fs.*` (EST-02) — a porta mediada que o plugin agora usa.
+- [x] `docs/rfcs/rfc-018-estaleiro.md` §2 (G2 — migração como task MGTIA normal) e §3 (plugin-fs-tools no diagrama).
+- [x] `tools/orchestrator/tools.poc.mjs` (ORQ-09a, done) — o código-fonte a mover, com a suite de testes existente.
+- [x] `docs/adr/0008-agent-adapter-in-process.md` Decisão B — o desenho de gating a preservar.
+- [x] `packages/estaleiro/core/src/ports/fs.*` (EST-02) — a porta mediada que o plugin agora usa.
 
 ## 3. Escopo de Arquivos
 - **[CREATE]** `packages/plugin-fs-tools/src/*` — código movido/adaptado.
@@ -36,7 +36,7 @@ em vez de acesso direto. Lógica de gating **não muda** — só o ponto de entr
 - **[UPDATE]** manifest do plugin (EST-02 A1) para `plugin-fs-tools`.
 
 ## 4. Estratégia de Testes
-- [ ] Reusar a suite de testes já existente do ORQ-09a (roundtrip readFile/writeFile, gating de bash: allowlist/timeout/cwd), adaptada ao novo ponto de entrada mediado pelo host.
+- [x] Reusar a suite de testes já existente do ORQ-09a (roundtrip readFile/writeFile, gating de bash: allowlist/timeout/cwd), adaptada ao novo ponto de entrada mediado pelo host.
 
 ## 5. Instruções de Execução
 1. Copiar código + testes; adaptar chamadas de fs/bash para a porta mediada.
@@ -70,3 +70,4 @@ pnpm --filter @plataforma/plugin-fs-tools test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-fs-tools move ORQ-09a, capacity=haiku, depende de EST-02 (draft)

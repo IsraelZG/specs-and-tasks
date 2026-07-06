@@ -1,14 +1,14 @@
 ---
 id: EST-14
 title: "Frontend do Estaleiro: semente Lovable A1 (FlexLayout+TinyBase), 5 views, 1 canal WS único"
-status: draft:placeholder
+status: draft:triaged
 complexity: 6
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-03", "EST-06", "EST-10", "EST-13"]
 blocks: []
-capacity_target: # a fixar no endurecimento — complexidade 6 EXIGE quebra (regra Dimensionamento)
+capacity_target: sonnet # frontend FlexLayout+TinyBase, 5 views — complexidade 6, requer decomposicao
 ---
 
 # EST-14 · Frontend do Estaleiro
@@ -77,3 +77,4 @@ pnpm --filter @plataforma/estaleiro-ui build
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — frontend Lovable A1 5 views, capacity=sonnet, complexidade 6 exige decomposicao, depende de EST-03/06/10/13 (draft)

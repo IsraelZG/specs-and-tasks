@@ -1,14 +1,14 @@
 ---
 id: EST-16
 title: "plugin-workflows: desenho e gestão de fluxos de agente (JDM/Zen — nano-broker, pipelines de prompt, políticas de dispatch)"
-status: draft:placeholder
+status: draft:triaged
 complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-02", "EST-07"]
 blocks: []
-capacity_target: # a fixar no endurecimento (provável sonnet; a validação de licença/fit do jdm-editor pode virar mini-spike)
+capacity_target: sonnet # JDM/Zen nano-broker + editor visual @gorules/jdm-editor a validar
 ---
 
 # EST-16 · plugin-workflows (desenho + gestão de fluxos de agente)
@@ -88,3 +88,4 @@ pnpm --filter @plataforma/plugin-workflows test
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-workflows JDM/Zen, capacity=sonnet, depende de EST-02/07 (draft)
