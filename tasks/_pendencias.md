@@ -12,43 +12,28 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 ---
 
 <!-- BEGIN PENDENCIAS -->
-> **Última drenagem (2026-07-06):** Itens de core (C-10), transport+protocol (C-11), system-peer (C-12), bancada (C-13), orchestrator (C-14), control (C-15) e estaleiro (C-16) movidos para suas C-tasks. Abaixo, itens não capturados: T-802 (media), T-1028 (scheduler), T-1037 (adr).
+> **Última drenagem (2026-07-06):** Itens EST-03b/c/d (C-18), EST-04a/b/c (C-19) movidos para cleanup plugin-tasks. T-1037 (ADR) movido ao SPEC-PENDENCIAS. Restam 2 itens não capturados: T-802 (media), T-1028 (scheduler).
 
 - [ ] [m1][T-802][media] `!` non-null assertion no arquivo de teste — spec §5 proíbe `!` no geral (src está limpo); refatorar `reordered[0]!`/`tampered[0]!`/etc para guards (verifyReassemble.test.ts:53-55, 98, 147-151, 22)
 - [ ] [i1][T-1028][scheduler] `RUNNABLE_STATUSES` usa `'draft'` (alias legado) — tipo `TaskStatus` ainda inclui, compila sem erro. Migração T-1030 substituirá por `'draft:placeholder'`; scheduler deve ser atualizado junto (scheduler.ts)
-- [ ] [i1][T-1037][adr] Exemplo citado em ADR-005:24 (`await storage.exec('SELECT * FROM nodes WHERE id = ?', [id])` de `lineage.ts:51`) é representativo, não contratual. Em passada futura, regenerar a partir de `lineage.ts` corrente para endurecer evidência (adr-005-storage-engine-agnosticism.md:24)
-- [ ] [i2][T-1037][adr] Engine KV do segundo adapter não-fixada intencionalmente no ADR (categoria "KV/documento" sem fixar LMDB/RocksDB/mock). Decisão deliberada: escolha em T-1044 (status `ready`, deps=[T-1043]). Não-bloqueante (adr-005-storage-engine-agnosticism.md:62)
-<!-- EST-03b -->
-- [ ] [m1][EST-03b][estaleiro] `TRANSITIONS["draft:decomposed"] = {}` e `TRANSITIONS["done"] = {}` usam `{}` literal — `Partial<Record<TransitionVerb, TaskStatus>>` aceita, mas eslint-plugin-consistent-type-assertions (se ligado) reclamaria em strict. Cosmético (packages/plugin-tasks/src/stateMachine.ts:17,23)
-- [ ] [m2][EST-03b][estaleiro] Test 7 (ciclo completo) usa `current as never` (cast forçado) — `current: string` (linha 42) é tipo mais amplo que `TaskStatus`. Type-safe se declarado `let current: TaskStatus = steps[0][0] as TaskStatus;` desde o início. Não-bloqueante (packages/plugin-tasks/tests/stateMachine.test.ts:42-44)
-- [ ] [i1][EST-03b][estaleiro/spec] Spec §1 só lista os 12 sub-status do lifecycle (sem legacy `'draft'` alias). Forward-looking, alinhado com T-1030. Compat: legacy ainda é aceito em `task.types.ts:7` (até T-1030 migration), mas esta state machine não reconhece — diverge da canônica (capturado em M2)
-- [ ] [i2][EST-03b][estaleiro/spec] Spec §1 e §4 **internamente inconsistentes** — §1 TRANSITIONS: `review: { claim: "in_review" }` (approve NÃO válido de `review`); §4 test 3: `transition("review", "approve") → "done"` (approve de `review` DEVE funcionar). Worker corrigiu o teste para `in_review + approve`. Decisão legítima mas spec §1 não foi atualizada (capturado em M2)
-- [ ] [i3][EST-03b][estaleiro] `TransitionError` é classe (`extends Error`, com `name` setado). Test usa `.toThrow(TransitionError)` que checa por **instância** (não string). Bom design — permite catching específico pelo tipo (packages/plugin-tasks/src/stateMachine.ts:5-10)
-- [ ] [i4][EST-03b][estaleiro/process] **4ª task consecutiva com regressão de lint** (EST-02b 0→7, EST-02c 0→5, EST-03a 0→1, EST-03b 0→1). Recomendo ao arquiteto revisar wargame template (incluir `pnpm --filter <pkg> lint` no DoD §7 das próximas EST-*) OU adicionar pre-finish lint check no `validate-task.mjs`. Não-bloqueante para EST-03b; é follow-up de processo
-- [ ] [i5][EST-03b][estaleiro/spec] `pause: "in_progress"` em `in_progress` é self-transition (a chave aponta para o próprio status). Funcionalmente OK mas conceitualmente confuso — `pause` parece "ir para algum lugar" mas só se mantém. Sugestão: comentário inline ou aceitar forma canônica. Não-bloqueante (packages/plugin-tasks/src/stateMachine.ts:19)
-- [ ] [i6][EST-03b][estaleiro/spec] **Spec drift estrutural capturado em M2 do parecer** — spec §1 não é espelho fiel do MGTIA canônico. Após decisão do arquiteto (Caminho α re-endurecer ou β declarar subset), M2 fecha e EST-03c pode herdar a state machine sem regressão. Track: tarefa dedicada de spec-reendurecimento ou EST-03c estende (packages/plugin-tasks/src/stateMachine.ts:12-25 vs apps/nexus-backend/src/services/task.types.ts:37-55)
-<!-- EST-03b R2 -->
-- [ ] [i7][EST-03b][estaleiro/spec] **Gap arquitetural descoberto no rework (R2)**: `demote` está em `TaskAction` canônico (`task.types.ts:26`) mas **NÃO está em `TransitionVerb`** do EST-03a (`packages/plugin-tasks/src/schema.ts:39-43`). Worker dropou `demote` da TRANSITIONS para evitar verb fora do union. Caminhos: (a) re-endurecer EST-03a para incluir `demote` no union + re-adicionar à TRANSITIONS do EST-03b; (b) declarar `demote` fora do escopo de plugin-tasks (decisão arquitetural). Não-bloqueante para EST-03b (fechou os 14 verbos que conhece). Track: follow-up arquitetual via re-endurecimento de EST-03a antes de EST-03c (packages/plugin-tasks/src/schema.ts:39-43 vs apps/nexus-backend/src/services/task.types.ts:26)
-<!-- END EST-03b R2 -->
-
-<!-- EST-03c -->
-- [ ] [i1][EST-03c][estaleiro] `assertValidModelIdentity("agile_reviewer:gemini")` é **bloqueado** pela guarda atual (trata `agile_reviewer` como papel-prefix). Exceção do CLAUDE.md §Identidade implica formato `agile_reviewer:<modelo>` é válido. Caminhos: (a) `identityGuard` extrai modelo após `:` quando prefixo é `agile_reviewer`; (b) orchestrator chama `identityGuard` apenas para log entry (extraindo `gemini`), não para autorização. Não-bloqueante — EST-loader decide; impl segue letra do spec (packages/plugin-tasks/src/guards/identityGuard.ts:27-32)
-- [ ] [i2][EST-03c][estaleiro] As 3 guardas são **independentes** (cada uma tem bypass) mas spec não diz **quando chamar qual**. Para `approve`/`request_changes`: `roleGuard` + `identityGuard`? `agile_reviewer:gemini` passa em `roleGuard` mas bloqueia em `identityGuard` (ver i1). Para outras ações: só `identityGuard`? Spec implícito. Não-bloqueante — EST-loader desenha composição (packages/plugin-tasks/src/guards/{role,evidence,identity}Guard.ts)
-- [ ] [i3][EST-03c][estaleiro] `assertEvidencePresent` valida apenas **presença** (`!section8 || trim === ''`), não **conteúdo** (build/test/lint literal). Spec §1 diz "section8 deve conter saída literal de build+test" mas o contrato do impl é "section8 não-vazia". Decisão consciente (test 5 do spec só verifica "não-vazio"); orchestrator ou auditor humano valida conteúdo. Segurança em profundidade (packages/plugin-tasks/src/guards/evidenceGuard.ts:12-16)
-- [ ] [i4][EST-03c][estaleiro] Bypass implementado como **opção de função** (`options.bypass: true`), não como **flag de frontmatter** da task. Spec §0 diz "flag explícita no schema da task, nunca silenciosa" — o impl satisfaz a literal (flag explícita) mas via argumento, não via frontmatter. Não-bloqueante — orchestrator (EST-loader) lê frontmatter e passa opção. Mais testável/composável que ler frontmatter dentro da guarda (packages/plugin-tasks/src/guards/{role,evidence,identity}Guard.ts)
-- [ ] [i5][EST-03c][estaleiro] `BLOCKED_ACTORS = new Set(["Crush", "Antigravity", "opencode"])` e `BLOCKED_ROLE_PREFIXES = [5 items]` são **hardcoded** no source. Spec lista os mesmos valores em §1. Casa com spec. Adicionar harness/role novo = editar source. Não-bloqueante — eventual refactor para config injetada é follow-up (packages/plugin-tasks/src/guards/identityGuard.ts:7-15)
-
-<!-- EST-03c R2 -->
-- [ ] [m1][EST-03c-r2][plugin-tasks] **M1 confirmado por sonda em `identityGuard.ts:27-33`**: `BLOCKED_ROLE_PREFIXES` usa `actor.startsWith(prefix)` que **rejeita o formato canônico `agile_reviewer:<modelo>`** (ex.: `agile_reviewer:gemini`, `agile_reviewer:deepseek`). CLAUDE.md §Identidade autoriza explicitamente esse formato ("o serviço autoriza pelo prefixo antes de `:`"). R2 diverge de R1 (que tratou como i1/info open question): R2 probe provou que é bug real, não decisão arquitetural. **Fix:** distinguir papel puro de papel:modelo — checar `actor === prefix || (actor.startsWith(prefix) && !actor.includes(":"))`. Cobertura: adicionar em `tests/guards.test.ts` caso "ator `agile_reviewer:gemini` → permitido" (packages/plugin-tasks/src/guards/identityGuard.ts:27-33)
-- [ ] [i1][EST-03c-r2][plugin-tasks/arquitetura] **Gate de wiring §5.1** — as 3 guardas são primitivas de autorização mas **nenhum caller em `src/**` (fora de `tests/**`) as consome**. `grep` confirma 0 imports de `./guards/*.js` em código de produção. Integração com `stateMachine.ts` (EST-03b) é a próxima task lógica mas não foi criada/linkada como dep/blocker de EST-03c. **Track** — gap de wiring a fechar em EST-loader ou follow-up dedicado (packages/plugin-tasks/src/guards/index.ts)
-- [ ] [i2][EST-03c-r2][plugin-tasks/estilo] `assertValidModelIdentity("agile_reviewerxyz")` (sem `:`) **passa**? Não — `startsWith("agile_reviewer")` retorna `true`, então seria bloqueado. Edge case: `agile_reviewer_xyz` também bate. Hoje, qualquer string começando com `agile_reviewer` é bloqueada — incluindo variantes legítimas como `agile_reviewer-interno` (não documentadas). Não-bloqueante; nota para design (packages/plugin-tasks/src/guards/identityGuard.ts:27-33)
-<!-- END EST-03c R2 -->
-<!-- END EST-03c -->
-<!-- END EST-03b -->
+<!-- C-18 -->
+- [ ] [i1][C-18][plugin-tasks] **Cobertura de testes incompleta para os 3 fixed novos.** (a) `evidenceGuard.ts:18-21` novo check de conteudo (/build/i || /test/i) sem teste negativo; (b) `identityGuard.ts` refactor para `options.blockedActors`/`blockedRolePrefixes` sem teste de injecao; (c) `service.ts:64-69` novo check `VALID_STATUSES.has(task.status)` sem teste. Track: 3 testes a adicionar (~10-15 linhas). Nao-bloqueante (packages/plugin-tasks/src/{guards/evidenceGuard,guards/identityGuard,service}.ts)
+- [ ] [i2][C-18][plugin-tasks] **EST-03d i5 e fix parcial, nao total.** Spec sugeria refactor para metadado declarativo; worker entregou constants extraidas (REVIEW_VERBS, FINISH_VERB) que mantem acoplamento guarda<->verbo no `service.ts:55-61`. Mudanca cosmetica+readability, nao arquitetural. Track: refactor para metadado e mudanca de design (~complexity 2) (packages/plugin-tasks/src/service.ts:55-61)
+- [ ] [i3][C-18][plugin-tasks] **Duplicacao VALID_STATUSES (service.ts:11-17) vs TRANSITIONS (stateMachine.ts:12-25).** Os 12 keys de TRANSITIONS sao redeclarados como Set em service.ts. Refactor: derivar de Object.keys(TRANSITIONS) - 1 linha. Track: pode ser absorvido no re-endurecimento batch de EST-loader (packages/plugin-tasks/src/service.ts:11-17 vs packages/plugin-tasks/src/stateMachine.ts:12-25)
+- [ ] [i4][C-18][estaleiro/processo] **Handover S8 linha 73 diz "5/13 fixed, 5/13 no-op/defer, 3/13 ja resolvidos no merge"** mas a tabela abaixo lista 13/13 destinos. Categoria "3/13 ja resolvidos" nao e reconciliada - provavel erro de digitacao. Cosmetico. Nao-bloqueante (tasks/C-18.md:73 vs tasks/C-18.md:77-89)
+<!-- END C-18 -->
+<!-- C-19 -->
+- [ ] [M1][C-19][plugin-tasks/spec] **Spec drift EST-04b m1.** Spec §4 linha 48 afirma `fixed (tsconfig.json:7, parser.ts:183,199)` mas Handover §8 linha 72 diz `defer`. Spec stale — alinhar com Handover (reendurecer C-19 ou reescrever spec §4 com taxonomia `defer→T-YYY` nomeada). Track: 1 linha na spec ou novo reendurecimento (tasks/C-19.md:48 vs tasks/C-19.md:72)
+- [ ] [M2][C-19][plugin-tasks/spec] **Spec drift EST-04b i1.** Spec §4 linha 49 afirma `fixed (package.json:12)` mas Handover §8 linha 73 diz `defer`. Mesma raiz de M1 (tasks/C-19.md:49 vs tasks/C-19.md:73)
+- [ ] [m1][C-19][plugin-tasks/processo] **Worker reverteu 2 dos 9 fixes (commits `af989b8` + `1788fae`) sem reendurecer a spec.** Padrão "spec promete fixed, código tem defer, ledger não tem entrada" replica o gap do EST-04b i1. Track: protocolo de C-tasks deve proibir `git revert` sem atualização síncrona de spec §4 (commits `af989b8`, `1788fae`)
+- [ ] [i1][C-19][plugin-tasks] **Regex de heading cobre só 3 travessões (en-dash/em-dash/hífen ASCII).** Faltam U+2010 hyphen e U+2015 horizontal bar. Cadernos com digitação exótica (e.g. copy-paste de Word) podem falhar. Track: adicionar 2 chars à classe (parser.ts:30)
+- [ ] [i2][C-19][plugin-tasks] **LOG_LINE_RE silenciosamente ignora linhas mal-formatadas.** Linhas sem o espaço após `- **` viram `if (!match) continue` sem warning. Dificulta debug. Track: push warning quando match falha (parser.ts:73-80)
+- [ ] [i3][C-19][estaleiro/processo] **Handover §8 diz "2 defer" mas worker não adicionou ao `_pendencias.md` (BEGIN/END PENDENCIAS).** Taxonomia §2a exige `defer→T-YYY` nomeado — o destino não pode ficar só no Handover. Track: drain manual + protocolo (tasks/C-19.md:72-73 vs tasks/_pendencias.md)
+<!-- END C-19 -->
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
-<!-- Achados de spec/decisão recuperados de C-01..C-09 (2026-07-02). Destino explícito por achado.
+<!-- Achados de spec/decisão recuperados de C-01..C-09 (2026-07-02) + C-18/19 (2026-07-06).
      O `/endurecer-task` ou `/arquiteto-decisoes` consome e resolve cada linha. -->
 
 <!-- C-01 — protocol -->
@@ -92,10 +77,28 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- C-08 — testkit -->
 - [ ] [spec→T-1009] [m1][T-1009][testkit] Desvio do contrato TS: parâmetro `pattern` em vez de `jsonEscapedPattern`; impl alinhada com §4, spec §1 que precisa atualizar (psRegex.ts:13-21, 30-34)
 - [ ] [spec→T-1009] [m2][T-1009][testkit] Spec §3 inconsistente sobre localização do test (`src/` vs `tests/`); impl resolveu com `tests/psRegex.test.ts` (convenção Vitest) — atualizar spec §3
-<!-- END SPEC-PENDENCIAS -->
 
-<!-- EST-04a -->
-- [ ] [m1][EST-04a][estaleiro] `parseTaskMd` não envolve `matter(raw)` em try/catch — spec §4 caso 4 atendido por propagação do `gray-matter` (erro com line/column), mas wargame M1 previa "erro vira {file, error} no relatório e o processamento CONTINUA" — não implementado. Não-bloqueante (scripts/migrate/parser.ts:148)
-- [ ] [m2][EST-04a][estaleiro] Regex `^##\s+(\d+[a-z]?)` não cobre headings com faixa (`## 4–7. Entregue` em ORQ-07) — vira seção "4". Wargame M3 já registrou a limitação. Não-bloqueante (scripts/migrate/parser.ts:30)
-- [ ] [i1][EST-04a][estaleiro] `scripts/migrate/index.ts:1-3` é re-export puro de parser.js — spec §3 pediu [CREATE] index.ts, tecnicamente atende, mas conteúdo é plumbing. Wargame M1 mencionava "glob+filter" que não está aqui. OK pela spec, só observo
-- [ ] [i2][EST-04a][estaleiro] Smoke do corpus passou em 399/403 com 0 erros e 123 warnings — mapeamentos legados (`parent_task`→`parent`, `subtasks`→`children`, `draft` sem sub-status, `ui`/`worktree`/`check`/`itens`/`decisions` em `extra`). B2 (zero perda) OK: nada descartado silenciosamente
+<!-- Itens de spec/decisão de EST-03b/c/d e EST-04a/b/c (2026-07-06) — roteados das PENDENCIAS -->
+<!-- EST-03b (stateMachine) -->
+- [ ] [spec→EST-03b] [i1][EST-03b][estaleiro/spec] Spec §1 lista só 12 sub-status (sem legacy `'draft'`) — state machine não reconhece alias, diverge da canônica
+- [ ] [spec→EST-03b] [i2][EST-03b][estaleiro/spec] Spec §1 e §4 inconsistentes — §1 diz approve NÃO válido de `review`, §4 test 3 usa approve de `review`
+- [ ] [spec→EST-03b] [i6][EST-03b][estaleiro/spec] Spec drift estrutural — §1 não espelha MGTIA canônico. Arquiteto decide: re-endurecer ou declarar subset
+- [ ] [decision→EST-03a] [i7][EST-03b][estaleiro/spec] `demote` em `TaskAction` canônico mas NÃO em `TransitionVerb` do EST-03a. Arquiteto decide caminho
+- [ ] [defer→wargame] [i4][EST-03b][process] 4ª task consecutiva com regressão de lint — revisar wargame template (lint no DoD §7)
+
+<!-- EST-03d (service) -->
+- [ ] [decision→arquiteto] [i2][EST-03d][plugin-tasks] Transições falhas não logadas — `TransitionError` antes de salvar log. Append log antes da state machine?
+- [ ] [decision→arquiteto] [i4][EST-03d][plugin-tasks] `new Error("Task not found")` genérico — contrato não cobre. Criar `TaskNotFoundError`?
+
+<!-- EST-04b (migration) -->
+- [ ] [spec→EST-04b] [m2][EST-04b][plugin-tasks/spec] Scope drift: §3 lista só `runner.ts`/`report.ts`, impl criou `parser.ts`+`index.ts`
+
+<!-- EST-04c (validate) -->
+- [ ] [spec→EST-04c] [M1][EST-04c][estaleiro/spec] Spec drift assinatura `validateIntegrity`: spec diz 1 arg, impl tem 2
+- [ ] [spec→EST-04c] [M2][EST-04c][estaleiro/spec] `verified = 0` sempre — `reconstructMarkdown` lossy. Arquiteto decide semântica
+- [ ] [spec→EST-04c] [i2][EST-04c][estaleiro/estilo] Testes 1+2 do spec §4 impossíveis — re-escrever após decidir M2
+
+<!-- T-1037 (ADR-005) — movido das PENDENCIAS -->
+- [ ] [spec→ADR-005] [i1][T-1037][adr] Exemplo em ADR-005:24 representativo, não contratual. Regenerar de `lineage.ts`
+- [ ] [spec→ADR-005] [i2][T-1037][adr] Engine KV do segundo adapter não-fixada (LMDB/RocksDB/mock) — decisão em T-1044
+<!-- END SPEC-PENDENCIAS -->
