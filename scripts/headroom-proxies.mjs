@@ -19,7 +19,7 @@
  *   Logs: %TEMP%/headroom-<name>-<port>.log
  */
 import { spawn, execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync, openSync, readdirSync, unlinkSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, openSync, readdirSync, unlinkSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -298,6 +298,20 @@ function cmdDashboard(portOverride) {
     res.writeHead(code, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(body));
   };
+  // ── ORQ-10: Event state (SSE + cancel) ──────────────────────────────────
+  const eventBuffer = [];             // ring buffer de eventos (max 500)
+  const MAX_EVENTS = 500;
+  const sseClients = new Set();       // { res, taskFilter? }
+
+  function broadcastEvent(evt) {
+    eventBuffer.push(evt);
+    if (eventBuffer.length > MAX_EVENTS) eventBuffer.splice(0, eventBuffer.length - MAX_EVENTS);
+    for (const c of sseClients) {
+      if (!c.taskFilter || c.taskFilter === evt.taskId) {
+        c.res.write(`data: ${JSON.stringify(evt)}\n\n`);
+      }
+    }
+  }
   const server = createHttpServer(async (req, res) => {
     if (req.url === '/api/status') {
       json(res, 200, await Promise.all(Object.keys(PROXIES).map(fetchProxyStatus)));
@@ -366,6 +380,78 @@ function cmdDashboard(portOverride) {
       } catch (e) { json(res, 500, { ok: false, error: e.message, output: e.stdout?.toString() || '' }); }
       return;
     }
+    // ── ORQ-10: Event stream + cancel ─────────────────────────────────────
+    // POST /api/instances/events — ingestão de eventos do agentAdapter
+    if (req.method === 'POST' && req.url === '/api/instances/events') {
+      let body = '';
+      req.on('data', (c) => { body += c; });
+      req.on('end', () => {
+        try {
+          const evt = JSON.parse(body);
+          if (!evt.taskId) { json(res, 400, { error: 'taskId required' }); return; }
+          evt.ts = evt.ts || Date.now();
+          broadcastEvent(evt);
+          json(res, 200, { ok: true });
+        } catch (e) { json(res, 400, { error: e.message }); }
+      });
+      return;
+    }
+    // GET /api/instances/events — SSE stream ao vivo (opcional ?taskId=)
+    if (req.method === 'GET' && req.url.startsWith('/api/instances/events')) {
+      const url = new URL(req.url, 'http://x');
+      const taskFilter = url.searchParams.get('taskId') || null;
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      });
+      // replay do buffer
+      for (const e of eventBuffer) {
+        if (!taskFilter || taskFilter === e.taskId) {
+          res.write(`data: ${JSON.stringify(e)}\n\n`);
+        }
+      }
+      const client = { res, taskFilter };
+      sseClients.add(client);
+      req.on('close', () => sseClients.delete(client));
+      return;
+    }
+    // POST /api/instances/cancel — mata instância via .cancel flag
+    if (req.method === 'POST' && req.url === '/api/instances/cancel') {
+      let body = '';
+      req.on('data', (c) => { body += c; });
+      req.on('end', () => {
+        try {
+          const { taskId } = JSON.parse(body);
+          if (!taskId) { json(res, 400, { error: 'taskId required' }); return; }
+          const orchDir = join(rootDir(), 'tasks', '.orchestrator');
+          mkdirSync(orchDir, { recursive: true });
+          const fp = join(orchDir, `${String(taskId).replace(/[^a-zA-Z0-9._-]/g, '_')}.cancel`);
+          writeFileSync(fp, JSON.stringify({ ts: Date.now(), reason: 'manual' }, null, 2));
+          json(res, 200, { ok: true });
+        } catch (e) { json(res, 500, { error: e.message }); }
+      });
+      return;
+    }
+    // GET /api/stuck — instâncias travadas (delega ao monitor.mjs)
+    if (req.url === '/api/stuck') {
+      try {
+        const { findStuck } = await import('../tools/orchestrator/src/monitor.mjs');
+        const orchDir = join(rootDir(), 'tasks', '.orchestrator');
+        const registry = {};
+        if (existsSync(orchDir)) {
+          for (const f of readdirSync(orchDir)) {
+            if (!f.endsWith('.json')) continue;
+            try {
+              const data = JSON.parse(readFileSync(join(orchDir, f), 'utf8'));
+              if (data.id) registry[data.id] = data;
+            } catch { /* skip corrupt */ }
+          }
+        }
+        json(res, 200, findStuck(registry));
+      } catch (e) { json(res, 500, { error: e.message }); }
+      return;
+    }
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(DASHBOARD_HTML);
   });
@@ -431,6 +517,7 @@ section h2{font-size:15px;font-weight:650;margin:0 0 10px;padding-bottom:6px;bor
 </div>
 <main id="grid"></main>
 <section><h2>Instâncias (Orquestrador)</h2><div id="instances"><div class="empty">carregando…</div></div></section>
+<section><h2>Eventos ao Vivo</h2><div id="event-stream"><div class="empty">conectando…</div></div></section>
 <section><h2>Ledger</h2><div id="ledger"><div class="empty">carregando…</div></div></section>
 <section><h2>Saldos</h2><div id="saldo"><div class="empty">carregando…</div></div></section>
 <script>
@@ -476,12 +563,29 @@ async function tick(){
   }catch(e){document.getElementById('meta').textContent='erro ao buscar status';}
 }
 // Instances
+let stuckIds=[];
 async function tickInstances(){
   try{
     const r=await fetch('/api/instances');const d=await r.json();
     if(!d.length){document.getElementById('instances').innerHTML='<div class="empty">nenhuma instância rodando</div>';return;}
-    document.getElementById('instances').innerHTML='<div class="inst-grid">'+d.map(i=>\`<div class="inst-card"><div><div class="inst-id">\${i.id||'?'}</div><div class="inst-meta">\${i.model||'?'} · \${i.role||'?'}</div></div><div class="inst-meta">desde \${i.started?new Date(i.started).toLocaleTimeString():'?'}</div></div>\`).join('')+'</div>';
+    document.getElementById('instances').innerHTML='<div class="inst-grid">'+d.map(i=>{
+      const stk=stuckIds.includes(i.id);
+      return \`<div class="inst-card"><div><div class="inst-id">\${i.id||'?'}\${stk?' ⚠️':''}</div><div class="inst-meta">\${i.model||'?'} · \${i.role||'?'}</div></div><div style="text-align:right"><div class="inst-meta">desde \${i.started?new Date(i.started).toLocaleTimeString():'?'}</div><button class="stop" onclick="matar('\${i.id}')" style="margin-top:6px;padding:4px 12px;font-size:11px">✕ Matar</button></div></div>\`;
+    }).join('')+'</div>';
   }catch(e){document.getElementById('instances').innerHTML='<div class="empty">erro ao carregar</div>';}
+}
+async function matar(taskId){
+  if(!confirm('Matar '+taskId+'?'))return;
+  try{
+    const r=await fetch('/api/instances/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({taskId})});
+    const j=await r.json();
+    if(!j.ok) alert('falhou: '+(j.error||'?'));
+  }catch(e){alert('erro: '+e.message);}
+}
+async function tickStuck(){
+  try{
+    const r=await fetch('/api/stuck');stuckIds=await r.json();
+  }catch{stuckIds=[];}
 }
 // Ledger
 async function tickLedger(){
@@ -513,8 +617,28 @@ async function dispatch(){
   }catch(e){msg.textContent='❌ erro: '+e.message;}
   finally{btn.textContent='▶ Despachar';btn.disabled=false;setTimeout(()=>{msg.textContent='';},5000);}
 }
-tick();tickInstances();tickLedger();tickSaldo();
-setInterval(tick,4000);setInterval(tickInstances,5000);setInterval(tickLedger,8000);setInterval(tickSaldo,15000);
+// Event Stream (SSE)
+let eventLog=[];
+const MAX_LOG=200;
+function connectEventStream(){
+  const es=new EventSource('/api/instances/events');
+  es.onmessage=e=>{
+    try{
+      const evt=JSON.parse(e.data);
+      eventLog.unshift(evt);
+      if(eventLog.length>MAX_LOG)eventLog.length=MAX_LOG;
+      const el=document.getElementById('event-stream');
+      if(!el)return;
+      const html=eventLog.slice(0,50).map(ev=>\`<div style="font-size:11px;padding:2px 0;border-bottom:1px solid #232730;display:flex;gap:8px"><span style="color:#8b93a1;flex:none">\${new Date(ev.ts).toLocaleTimeString()}</span><span style="color:#58a6ff;flex:none;font-weight:600">\${ev.taskId}</span><span style="color:#e6e8ec">\${ev.type}</span><span style="color:#8b93a1">\${ev.tools||ev.reason||ev.message||''}</span></div>\`).join('');
+      el.innerHTML='<div style="max-height:400px;overflow-y:auto;background:#0a0c10;border-radius:8px;padding:8px;font-family:monospace">'+html+'</div>';
+    }catch{}
+  };
+  es.onerror=()=>{
+    document.getElementById('event-stream').innerHTML='<div class="empty">desconectado, reconectando…</div>';
+  };
+}
+tick();tickInstances();tickLedger();tickSaldo();tickStuck();connectEventStream();
+setInterval(tick,4000);setInterval(tickInstances,5000);setInterval(tickLedger,8000);setInterval(tickSaldo,15000);setInterval(tickStuck,10000);
 </script></body></html>`;
 
 // ── Main ────────────────────────────────────────────────────────────────

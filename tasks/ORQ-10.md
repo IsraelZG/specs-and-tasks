@@ -1,7 +1,7 @@
 ---
 id: ORQ-10
 title: "Observabilidade + controle: stream de eventos ao vivo no painel + cancelar/matar instancia + deteccao de travada"
-status: ready
+status: done
 complexity: 5
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -83,15 +83,133 @@ node --env-file=../../.env --test tools/orchestrator/tests/monitor.test.mjs
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
--
+- `agentAdapter.mjs`: injetado onEvent default (POST p/ painel) + cancel-file watcher (setInterval 1s)
+- `monitor.mjs`: findStuck (300s timeout) + writeCancelFlags + startMonitor loop
+- `monitor.test.mjs`: 3 testes unitários — SSE buffer/broadcast, cancel watcher, findStuck
+- `headroom-proxies.mjs`: adicionadas rotas POST/GET /api/instances/events (SSE), POST /api/instances/cancel, GET /api/stuck + dashboard atualizado com Matar botão, indicador ⚠️ de travada, stream ao vivo de eventos
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória):**
 ```
-(cole aqui a saída real)
+$ node --test tools/orchestrator/tests/monitor.test.mjs
+TAP version 13
+# Subtest: SSE: event buffer + broadcast entrega eventos na ordem
+ok 1 - SSE: event buffer + broadcast entrega eventos na ordem
+  ---
+  duration_ms: 4.0284
+  ...
+# Subtest: Cancel-flag watcher: presence do arquivo dispara ac.abort() (e apaga o flag)
+ok 2 - Cancel-flag watcher: presence do arquivo dispara ac.abort() (e apaga o flag)
+  ---
+  duration_ms: 424.6566
+  ...
+# Subtest: Monitor: findStuck + writeCancelFlags escrevem <id>.cancel após STUCK_TIMEOUT_MS
+ok 3 - Monitor: findStuck + writeCancelFlags escrevem <id>.cancel após STUCK_TIMEOUT_MS
+  ---
+  duration_ms: 18.7764
+  ...
+1..3
+# tests 3
+# pass 3
+# fail 0
+# duration_ms 2844.5476
 ```
 - **Comentários de Revisão:**
+
+### Parecer (Reviewer 1 — `agile_reviewer:minimax-m3`, 2026-07-05)
+> **Tarefa de TOOLING do CONTROLE (Docs)** — Caminho A-tooling (sem worktree, sem merge no superapp).
+> Files auditados diretamente no working tree (enfileirados na `fila.mjs`, ainda não commitados:
+> `tasks/ORQ-10.md`, `tools/orchestrator/src/agentAdapter.mjs`, `tools/orchestrator/src/monitor.mjs`,
+> `tools/orchestrator/tests/monitor.test.mjs`, `scripts/headroom-proxies.mjs`).
+
+#### Escopo verificado
+- **`tools/orchestrator/src/monitor.mjs`** (89 linhas, CREATE) — `findStuck` (puro, recebe `now` injetável),
+  `writeCancelFlags` (idempotente, escreve JSON `{ts, reason: 'stuck-monitor'}`), `startMonitor` (loop
+  com `setInterval` + tick inicial). Constantes `STUCK_TIMEOUT_MS = 300_000` e `CHECK_INTERVAL_MS = 10_000`
+  exportadas — batem com spec §1 (5 min, 10s poll).
+- **`tools/orchestrator/tests/monitor.test.mjs`** (128 linhas, CREATE) — 3 testes, cobrem os 3 cenários da
+  spec §4: SSE buffer+broadcast (em-isolado, ver INFO i1), cancel-flag watcher (cria `.cancel` em
+  temp dir, asserta `ac.abort()` + flag apagado + shape `{exit:null, timedOut:true}`), Monitor
+  (registry com 4 instâncias fake A/B/C/D — só A, C, D stuck — asserta arquivos + idempotência).
+- **`tools/orchestrator/src/agentAdapter.mjs`** (UPDATE) — `startCancelWatcher` exportado (50 linhas,
+  setInterval, `safeName` sanitiza taskId), `run()` injeta (a) `postEventToPanel` como default
+  `onEvent` se nenhum handler custom; (b) `startCancelWatcher` se `cancelWatcher=true` (default) e
+  `taskId` definido; (c) AbortController encadeado (`extSignal` → `ac`); (d) shape final
+  `{exit, timedOut, tail}` preservado (compat com ORQ-08 PoC).
+- **`scripts/headroom-proxies.mjs`** (UPDATE) — 4 rotas adicionadas no handler `/dashboard`:
+  - `POST /api/instances/events` (l.385) — ingere `{taskId, type, ts, ...payload}`, default `ts=Date.now()`,
+    broadcast pra todos os SSE clients.
+  - `GET /api/instances/events` (l.400) — SSE com `text/event-stream`, replay do buffer, filtro opcional
+    `?taskId=`, `req.on('close')` remove client do Set.
+  - `POST /api/instances/cancel` (l.420) — escreve `<taskId>.cancel` (sanitizado) em `tasks/.orchestrator/`.
+  - `GET /api/stuck` (l.437) — `import()` dinâmico de `monitor.mjs`, monta registry a partir dos
+    `.json` da orch dir, retorna `findStuck(registry)`.
+  DASHBOARD_HTML estendido (l.464-642): seção "Eventos ao Vivo" (l.520), botão "✕ Matar" (l.573) que
+  chama `matar(taskId)` (l.577) → POST `/api/instances/cancel`, indicador ⚠️ quando `stuckIds` inclui
+  o id (l.572), `connectEventStream()` com `new EventSource` + reconnect no `onerror` (l.623-639),
+  `setInterval(tickStuck, 10000)` (l.641).
+
+#### Gate executado
+- `node --test tools/orchestrator/tests/monitor.test.mjs` → **3/3 pass** (TAP version 13, dur 2.84s)
+  - Observação: spec §7 sugere `node --env-file=../../.env --test ...` mas a `.env` real está em
+    `Docs/.env` (`../../../.env` a partir de `tests/`), e o test runner não precisa de env vars
+    (`loadDotenv` em `agentAdapter.mjs:33-34` é no-op se arquivo ausente). **Cosmético**, não-bloqueante.
+- `tsc` N/A (tooling .mjs, sem TypeScript).
+- `lint` N/A (não há ESLint configurado para `tools/orchestrator/`).
+- `gate pós-merge` N/A (Caminho A-tooling — sem merge no superapp).
+
+#### Conformidade DoD §7
+- [x] **Stream ao vivo** dos passos no painel `:8780` — `DASHBOARD_HTML` l.520 + l.623-639.
+- [x] **Botão Matar** aborta o run e libera o slot — l.573 + l.577-584.
+- [x] **Detecção de travada** (sem evento há N s) sinaliza a instância — `monitor.mjs:35` + indicador ⚠️ l.572.
+- [x] **Sem janela de terminal, sem porta nova** — reusa `:8780` do ORQ-06.
+
+#### Gates arquiteturais transversais
+- **Gate de wiring:** `onEvent` (POST) e `cancel` (`<id>.cancel`) são consumidos pelo `headroom-proxies.mjs`
+  (4 novas rotas). **Primativa ligada ao consumidor real**, não dead code.
+- **Gate de acoplamento/aciclicidade:** `monitor.mjs` é folha pura (sem imports de `@plataforma/*`).
+  `agentAdapter.mjs` importa `tools.poc.mjs` + `tools/scripts/orquestrar.mjs` (ambos já existentes).
+  Nenhum ciclo criado.
+- **Dependência ORQ-09 (decomposta em 09a/09b):** `ORQ-09.md`, `ORQ-09a.md`, `ORQ-09b.md` todos
+  `status: done` (verificado via `Select-String`). Decisão D (formato `onEvent`) e E (`AbortController`)
+  do ADR 0008 são consumidas corretamente.
+
+#### Achados
+
+**Não-bloqueantes (INFO)**
+
+- **[i1]** Test 1 (SSE) testa `broadcast` em-isolado (in-memory Set + array), não via HTTP real. Rationale
+  documentado no comentário do test (l.20-23: "O servidor HTTP é uma camada fina — a lógica que importa
+  é: POST armazena no buffer + notifica ouvintes"). Aceitável: o round-trip HTTP seria flaky (port-bind,
+  timing) e a lógica de buffer+broadcast fica coberta deterministicamente. **A camada HTTP** (l.384-417
+  de `headroom-proxies.mjs`) é fina o suficiente para ser confiável sem teste próprio.
+- **[i2]** Spec §7 path do `--env-file` está errado (`../../.env` sugere 2 níveis, mas a `.env` está 3
+  níveis acima de `tests/`). Cosmético — Gate roda sem `--env-file`. **Ação editorial:** corrigir
+  spec §7 na próxima re-endurecimenta (`ORQ-10.md:80`).
+- **[i3]** `tickStuck` é `setInterval(...,10000)` no client — drift de até 10s no frontend. Para um
+  indicador de "travada" que precisa de 5 min de janela, 10s é ruído desprezível. Não-bloqueante.
+- **[i4]** `POST /api/instances/events` e `/cancel` não têm auth. Em dev-tool interno (porta `127.0.0.1`),
+  aceitável; **flag** se o painel for exposto remotamente (vinculado a ORQ-07).
+- **[i5]** `cancel` no `agentAdapter.mjs:142` reporta `reason='cancel'` tanto para `extSignal.aborted`
+  (caller-provided) quanto para `cancel-flag`. Distinção entre "cancel externo" e "cancel via painel"
+  fica perdida no log. Não-bloqueante — caller pode inspecionar `ac.signal.reason === 'cancel-flag'`
+  antes do `run()` retornar se precisar discriminar.
+
+#### Veredito
+**APROVADO** — 0 BLOCKER, 0 MAJOR, 0 MINOR, 5 INFO. Gate verde, escopo respeitado, DoD §7 satisfeito,
+dependências OK, sem ciclos arquiteturais. Pendências → ledger.
+
+### Comentários de Revisão:
+- Decisão D/E do ADR 0008 estão corretamente **consumidas** (não reinventadas) — `onEvent` no formato
+  `{taskId, type, ts, ...payload}` flui via POST→SSE→dashboard; `AbortController` encadeado observa
+  `<id>.cancel` e o caller-provided `extSignal`. Bom exemplo de spike que vira produção sem
+  retrabalhar o adapter do ORQ-08.
+- O `findStuck` é uma função pura (recebe `registry + now`) — isso permite teste determinístico
+  sem mock de `Date.now()`. Padrão recomendável (compare com `T-1045` onde `ProjectionManager` ficou
+  injetado mas não consumido; aqui o consumo é o painel).
+- A escolha de ring buffer (MAX_EVENTS=500) + `MAX_LOG=200` no client é defensiva: previne OOM em
+  painéis que ficam abertos muito tempo. Bom.
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
@@ -103,3 +221,7 @@ node --env-file=../../.env --test tools/orchestrator/tests/monitor.test.mjs
 - **[2026-07-03T19:47]** - *Gemini 3.1 Pro* - `[Triado]`: Re-triagem pós-correção do frontmatter
 - **[2026-07-03T19:48]** - *Gemini 3.1 Pro* - `[Endurecido]`: Re-endurecido com base no ADR-0008
 - **[2026-07-03T20:07]** - *system* - `[Promovida p/ ready]`: Promovida pelo arquiteto (arquiteto-promover)
+- **[2026-07-03T21:15]** - *minimax-m3* - `[Iniciado]`: iniciando implementação do monitor + cancel + onEvent POST + dashboard stream
+- **[2026-07-05T18:22]** - *claude-sonnet* - `[Finalizado]`: 3/3 tests pass — SSE buffer+broadcast, cancel watcher, stuck monitor. headroom-proxies.mjs: rotas SSE/cancel/stuck + dashboard live stream, Matar botao, indicador travada.
+- **[2026-07-05T18:51]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: Revisando ORQ-10 (review-only, primeiro claim)
+- **[2026-07-05T19:01]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: Integrado (Caminho A-tooling): 4 files auditados no working tree (monitor.mjs novo 89L, monitor.test.mjs novo 128L com 3/3 pass, agentAdapter.mjs UPDATE com startCancelWatcher + postEventToPanel default, headroom-proxies.mjs UPDATE com 4 rotas + dashboard SSE/Matar/⚠️). Gate verde: node --test tools/orchestrator/tests/monitor.test.mjs → 3 pass / 0 fail / 2.84s. Dependência ORQ-09 (09a/09b done) OK. ADR 0008 Decisões D/E consumidas. 5 INFO → ledger: i1 SSE test in-isolado, i2 spec .env path, i3 tickStuck 10s drift, i4 rotas sem auth (flag p/ ORQ-07), i5 cancel reason ambíguo. Sem BLOCKER, sem MAJOR. Decisão D/E do ADR 0008 estão corretamente consumidas.
