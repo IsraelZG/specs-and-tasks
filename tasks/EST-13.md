@@ -1,78 +1,78 @@
 ---
 id: EST-13
 title: "plugin-knowledge: docs/RAG markdown-first (OKF), FTS local, writer serial de commits"
-status: draft:triaged
+status: draft:decomposed
 complexity: 5
-target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+target_agent: logic_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["EST-02"]
 blocks: []
-capacity_target: sonnet # OKF + FTS + writer serial — complexidade 5, requer decomposicao
+capacity_target: sonnet
+children: ["EST-13a", "EST-13b", "EST-13c"]
+subtasks: ["EST-13a", "EST-13b", "EST-13c"]
 ---
 
-# EST-13 · plugin-knowledge
+# EST-13 · plugin-knowledge (casca decomposta)
 
-## 0. Ambiente de Execução Obrigatório
-- **Runtime:** Node.js 22+. `packages/plugin-knowledge/`. **Candidata a decompor** (complexidade 5):
-  fatiar em (a) leitura/navegação OKF (wikilinks), (b) FTS local, (c) writer serial de commits.
+## 0. Ambiente de Execucao Obrigatorio
+- **Task-casca decomposta.** Esta task nao executa diretamente — seu escopo foi fatiado em:
+  - **EST-13a** — OKF graph: wikilinks + frontmatter (haiku)
+  - **EST-13b** — FTS local: inverted index + search (sonnet, depende de 13a)
+  - **EST-13c** — Writer serial de commits (sonnet, compartilhado com EST-12)
+
+  Cada filha segue o fluxo MGTIA independente. Esta casca fecha quando as 3 filhas estiverem `done`.
 
 ## 1. Objetivo
-Implementar o plugin que serve o conhecimento markdown-first (OKF: .md + frontmatter YAML +
-wikilinks `[[slug]]`) para RAG dos agentes — navegação por link + **índice FTS local** (E2, não
-espera o cofre de código do caderno 31) — e um **writer serial** (B4) que serializa commits dos
-artefatos markdown gerados/editados por múltiplos agentes concorrentes (mesmo padrão de proteção
-que a `fila.mjs` do Docs, adaptado a este repo).
+Implementar o plugin que serve o conhecimento markdown-first (OKF) para RAG dos agentes —
+navegacao por wikilink, indice FTS local, e writer serial de commits. Fatiado em 3 subtasks
+independentes.
 
 ## 2. Contexto RAG
-- [ ] `docs/rfcs/rfc-018-estaleiro.md` §2 (B4, E2) — as duas decisões centrais.
-- [ ] **RFC-018 §6.4 (fronteira com plugin-skills):** o writer serial daqui é o MESMO utilitário
-      compartilhado com EST-12 (uma implementação só); escrita de arquivo SEMPRE via
-      `plugin-fs-tools` mediado, nunca fs direto.
-- [ ] **`docs/_vendor/sift/`** (clone raso local) — referência do índice trigram, SE o endurecimento
-      decidir que o FTS local se inspira nele (E2 pede FTS simples; sift é upgrade opcional futuro).
-- [ ] `tools/scripts/fila.mjs` (Docs) — o padrão de writer serial a replicar (não copiar 1:1, adaptar ao contexto do repo de código).
-- [ ] `docs/conceitos/` e `docs/caderno-*` (Docs) — o corpus OKF real, referência de estrutura (frontmatter, `modo: canonical`, wikilinks).
-- [ ] `docs/caderno-3-sdk/30-otimizacao-de-contexto-e-tooling-de-agentes.md` §5/§7 — OKF como padrão nativo de navegação por agente; provider de contexto de código (fora de escopo aqui, é o caderno 31 futuro).
+- [x] `docs/rfcs/rfc-018-estaleiro.md` §2 (B4, E2) — writer serial + FTS local.
+- [x] RFC-018 S6.4 — writer serial COMPARTILHADO com EST-12.
+- [x] `docs/conceitos/` e `docs/caderno-*` — corpus OKF real de referencia.
+- [x] `tools/scripts/fila.mjs` — padrao de writer serial.
 
 ## 3. Escopo de Arquivos
-- **[CREATE]** `packages/plugin-knowledge/src/{graph,fts,writer}.*`.
-- **[CREATE]** testes de navegação por wikilink, busca FTS, e serialização de commits concorrentes.
+- Ver as subtasks individuais:
+  - EST-13a: `packages/plugin-knowledge/src/graph.ts` + `tests/graph.test.ts`
+  - EST-13b: `packages/plugin-knowledge/src/fts.ts` + `tests/fts.test.ts`
+  - EST-13c: `packages/plugin-knowledge/src/writer.ts` + `tests/writer.test.ts`
 
-## 4. Estratégia de Testes
-- [ ] Navegação: dado um nó, resolve `[[links]]` de saída. FTS: busca por termo retorna arquivos corretos. Writer: 2 agentes editando simultaneamente não corrompem/perdem commit (mesma classe de teste que motivou a fila.mjs original).
+## 4. Estrategia de Testes
+- Cada subtask tem sua propria suite de testes (vitest). O package `@plataforma/plugin-knowledge`
+  acumula os testes incrementalmente.
 
-## 5. Instruções de Execução
-1. Navegação por link primeiro (mais simples, valor imediato pro RAG de agentes).
-2. FTS local depois.
-3. Writer serial por último (mais crítico de acertar, testar concorrência de verdade).
-4. Gate → §8.
+## 5. Instrucoes de Execucao
+1. EST-13a primeiro (graph, base para as demais).
+2. EST-13c em paralelo com EST-13b (writer serial nao depende do graph).
+3. EST-13b depois (opera sobre o graph).
 
-## 6. Feedback de Especificação
-- Fonte de decisão = RFC-018 B4/E2. O cofre de código (caderno 31) e o provider trigram (sift-like)
-  são explicitamente FORA de escopo aqui (E2 decidiu não esperar por eles).
+## 6. Feedback de Especificacao
+- **Decisao em aberto (arquiteto):** local do utilitario de commit serial compartilhado com EST-12
+  (RFC-018 S6.4). Afeta EST-13c. Ver `tasks/EST-12.md` S6 para as opcoes.
 
 ## 7. Definition of Done (DoD)
-- [ ] Navegação por wikilink funcional?
-- [ ] FTS local retorna resultados corretos?
-- [ ] Writer serial testado sob concorrência real (não só sequencial)?
+- [ ] EST-13a (graph) done?
+- [ ] EST-13b (FTS) done?
+- [ ] EST-13c (writer) done?
 
-### Verificação automática *(a fixar no endurecimento)*
-```bash
-pnpm --filter @plataforma/plugin-knowledge test
-```
-
-## 8. Log de Handover e Revisão Agile (Code Review)
+## 8. Log de Handover e Revisao Agile (Code Review)
 ### Handover do Executor:
 -
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
-- [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória):**
+- [ ] **Requer Refatoracao**
+- **Evidencia de Execucao (obrigatoria):**
 ```
 ```
-- **Comentários de Revisão:**
+- **Comentarios de Revisao:**
+
+## 9. Log de Execucao (Agent Execution Log)
+> **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-knowledge OKF+FTS, capacity=sonnet, complexidade 5 requer decomposicao, depende de EST-02 (draft)
 
 ## 9. Log de Execução (Agent Execution Log)
-> **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
-- **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-knowledge OKF+FTS, capacity=sonnet, complexidade 5 requer decomposicao, depende de EST-02 (draft)
+- **[2026-07-06T18:21]** - *big-pickle* - `[Reconciliado]`: status restaurado de draft:decomposed para draft:triaged (drift corrigido)
+- **[2026-07-06T18:21]** - *big-pickle* - `[Decomposto]`: decomposto em 13a (graph haiku), 13b (fts sonnet), 13c (writer sonnet)
