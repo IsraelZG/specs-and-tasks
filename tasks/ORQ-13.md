@@ -89,6 +89,87 @@ aberta (SmartCrusher/CCR), não a ferramenta. Três camadas, na ordem de custo:
 2. **[TDD]** camadas na ordem: ccrStore → crusher → optimize → wiring nas tools.
 3. Gate → §8 → enfileira.
 
+## 5b. Plano de Batalha (wargame)
+> Wargamed por **claude-fable** em 2026-07-06. Executável cego por **sonnet**. Recon executado
+> read-only sobre o estado REAL de `tools/orchestrator/` nesta data (não sobre o que a spec imagina).
+
+### Recon (estado de partida verificado)
+- `src/` tem `agentAdapter.mjs` + `monitor.mjs`; `tests/` tem só `monitor.test.mjs` (**3 pass** quando
+  rodado por arquivo). O harness VIVO é `tools.poc.mjs` (`agentAdapter.mjs:15` importa
+  `makeTools` de lá) — **não** procure `src/tools.mjs`, não existe.
+- `makeTools({ cwd, onEvent, signal, log })` exporta as tools **readFile/writeFile/bash** — ⚠️ NÃO
+  existe tool `grep` (ver Fork F3).
+- Código-fonte a portar está TODO em `context-bench.poc.mjs`: `localStore()` (stash/retrieve/dispose,
+  ~linha 143), `nativeCrush()` (~linha 64), `nanoPreprocess()` (~linha 91, `NANO_CAP=24000`,
+  marker+hash), `tokEst = chars/4` (linha 29).
+
+### Movimentos
+**M1 — `src/context/ccrStore.mjs`** (porta `localStore()` + schema Zod da tool `retrieve {hash}`).
+- Observação esperada: `node --test tests/context/ccrStore.test.mjs` → `# pass 2, # fail 0`
+  (casos 1–2 da §4).
+- Falha provável: cleanup do tmpdir com `EBUSY/EPERM` no Windows ao rodar testes em paralelo →
+  causa: handle aberto no dispose → contra-movimento: cada teste cria seu próprio `mkdtemp` e o
+  `dispose()` já engole erro (`try/catch` — copie como está do PoC, não "melhore").
+
+**M2 — `src/context/crusher.mjs`** (porta `nativeCrush` + `crushStructural(text, kind)` com roteio).
+- Observação esperada: casos 3–5 verdes; caso 4 (código `.ts`/`.mjs`) mantém ≥85% dos tokens.
+- Falha provável: o shape-collapse (`\d+→#`) colapsar linhas legítimas de código → causa: chamada
+  sem `kind` → contra-movimento: `kind === 'code'` **bypassa** o crush (retorna intacto); default
+  de `kind` ausente = `'text'` (crusha). Está na §4 caso 4 — não é opcional.
+
+**M3 — `src/context/optimize.mjs`** (`optimizeToolOutput(out, ctx)`, gating >2000 tok, ordem
+crusher→nano→CCR).
+- Observação esperada: casos 6–9 verdes; caso 6 prova que output <2k tok passa **cru e sem chamada
+  de nano** (espião no fake conta 0 chamadas).
+- Falha provável: teste tentar nano real e falhar sem `DEEPSEEK_API_KEY` → causa: env não carregado
+  em `node --test` → contra-movimento: nano é **injetado** (`ctx.nano`), unitários usam fake
+  determinístico; o smoke real é SÓ opt-in (`OPT_IN_NANO_REAL=1` + `--env-file=../../.env`).
+- RECON NEEDED (antes do smoke opt-in): a chave existe? Check:
+  `node --env-file=../../.env -e "console.log(!!process.env.DEEPSEEK_API_KEY)"` → `true`. Se
+  `false`, pule o opt-in e registre no §8 (o gate NÃO depende dele).
+
+**M4 — wiring em `tools.poc.mjs`**: envolver o retorno de `execute()` de **readFile e bash** com
+`optimizeToolOutput` + registrar a tool `retrieve` no objeto de `makeTools()`.
+- Observação esperada: `node -e "import('./tools.poc.mjs').then(m=>console.log(Object.keys(m.makeTools({cwd:'.'}))))"`
+  lista `retrieve` junto das demais; suite `monitor.test.mjs` continua 3 pass (regressão zero).
+- Falha provável: quebrar o protocolo de eventos (ADR-0008 §D) ao envolver o execute → causa:
+  wrapper engolindo o `onEvent`/`signal` → contra-movimento: envolva SÓ o valor de retorno, nunca
+  a assinatura nem os emits existentes.
+
+**M5 — Gate**: rodar a suite completa, colar saída literal na §8, `finish` via
+`node C:/Dev2026/Docs/tools/scripts/manage-task.mjs finish ORQ-13 <modelo-real> "<msg com evidência>"`.
+
+### Bifurcações (gatilhos observados no recon — não são hipóteses)
+- **F1 (CONFIRMADO nesta máquina):** `node --test tests/` com DIRETÓRIO falha
+  (`testCodeFailure, location: 'tests:1:1'`) neste Node 22.23/Windows, mesmo com testes verdes.
+  SE observar `not ok 1 - tests` sem stack de teste → NÃO é teu código: rode por arquivo explícito:
+  `node --test tests/context/ccrStore.test.mjs tests/context/crusher.test.mjs tests/context/optimize.test.mjs`.
+  Cole ESSA forma no gate.
+- **F2:** SE `src/context/` já existir com arquivos (outra rodada começou) → leia antes, adapte —
+  NÃO sobrescreva às cegas.
+- **F3 (divergência spec×realidade):** a §3 manda envolver "readFile/bash/**grep**", mas o harness
+  não tem `grep`. → Envolva SÓ o que existe (readFile/bash); **NÃO implemente uma tool grep nova**
+  (seria scope-creep de ORQ-09); registre a divergência em 1 linha no Handover §8.
+
+### Condições de aborto (pare e chame `pause`, não improvise)
+- Se o wiring exigir editar `src/agentAdapter.mjs` ou `orquestrar.mjs` → ABORT (§4 proíbe).
+- Se `finish` falhar porque a task já está em `review` → PARE (Regra 6 — nunca tente o próximo verbo).
+- Se qualquer teste do gate exigir rede/chave sem ser o opt-in → o desenho está errado; volte a M3.
+
+### Verificações (amarradas ao Gate §7)
+1. Suite context por arquivo (forma F1): esperado `# pass ≥10, # fail 0` somando os 3 arquivos.
+2. Regressão: `node --test tests/monitor.test.mjs` → `# pass 3` (nada quebrou no monitor).
+3. Opt-in (só se RECON da chave = true): `OPT_IN_NANO_REAL=1 node --env-file=../../.env --test
+   tests/context/optimize.test.mjs` → o caso real loga tokens salvos.
+
+### Red-team (SUCCESS #7)
+- **Ataque que o plano resiste:** "executor cola um gate fabricado" → o gate exige a saída literal
+  com os paths `tests/context/*.test.mjs` e contagens que o reviewer confere contra os 10 casos
+  enumerados da §4 — fabricar é mais caro que rodar.
+- **Ataque que furou e gerou patch:** "executor obediente vê 'grep' na §3 e implementa a tool que
+  falta para 'cumprir a spec'" — furou a v1 deste plano; patch = **F3** explícito (envolver só o que
+  existe + registrar divergência), agora parte do plano.
+
 ## 6. Feedback de Especificação
 - **Aberto (deferir p/ arquiteto se surgir):** o tier ML de prosa. ADR-0009 decidiu nano em vez de
   hospedar o Kompress-v2-base (ONNX). O port ONNX in-process está **especificado em ORQ-14** (spike)
