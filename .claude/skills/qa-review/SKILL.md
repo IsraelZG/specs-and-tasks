@@ -25,7 +25,20 @@ ligado"; o que sobra (um ID ou vazio) é o alvo. Ex.: `--integrar T-204` → alv
 
 Se o alvo for um ID de task (ex.: `T-1011`):
 - Localize `tasks/$ARGUMENTS.md` ou `meta-tasks/$ARGUMENTS.md`.
-- Confirme status `review`. Se não estiver em `review`, informe e PARE.
+- Confirme status `review`. Se estiver em `review`, siga normalmente.
+- **Se estiver em `rework`/`in_progress` (NÃO `review`) — rode a VERIFICAÇÃO RÁPIDA antes de
+  desistir** (não a auditoria completa — é um atalho de 3 checagens baratas, propositalmente antes
+  do trabalho caro da §2, para não gastar minutos analisando código só pra concluir "ah, estava
+  pronto"):
+  1. Handover (§8) tem entrada **mais nova que o último Parecer**?
+  2. Log (§9) tem `[Finalizado]`/entrada de fim-de-rework **após** o timestamp desse Parecer?
+  3. `git log` da branch/worktree mostra commit **após** esse mesmo timestamp?
+  - **Os 3 batem** → o rework foi concluído mas o `finish` não transicionou (falha conhecida, ver
+    `/rework-task` §7a). Feche a lacuna você mesmo: `node tools/scripts/manage-task.mjs finish
+    $ARGUMENTS agile_reviewer:<SeuModelo> "finish em nome do worker — rework concluido, transicao
+    anterior falhou"`, registre essa correção em 1 linha no Parecer, e **prossiga normalmente**
+    (claim → auditoria completa da §2). Não pule a revisão — só destrave o status.
+  - **Qualquer um não bate** → é cedo mesmo: informe e **PARE** (comportamento original).
 
 Se `$ARGUMENTS` estiver vazio:
 - Leia `tasks/INDEX.md` e `meta-tasks/INDEX.md`.

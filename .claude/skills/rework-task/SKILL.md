@@ -42,6 +42,15 @@ agente" no CLAUDE.md.
    `pause`/`block` (mesmo aviso de terminal standalone do `/executar-task`).
 7. **Finalize:** `node "<CTRL>/tools/scripts/manage-task.mjs" finish $ARGUMENTS <EU> "rework pronto:
    B1..Bn corrigidos + placar de testes"` (move pra `review`). O reviewer/integrar-task reassume.
+7a. **VERIFIQUE a transição — NÃO assuma que deu certo (INVIOLÁVEL).** A saída do `finish` deve
+   mostrar explicitamente `Status: review`. Qualquer coisa diferente (erro, status inalterado,
+   exceção) → **NÃO prossiga** para push/enqueue como se a task estivesse fechada. Confirme lendo
+   o frontmatter real (`grep "^status:" "<CTRL>/tasks/$ARGUMENTS.md"`). Se ainda não for `review`:
+   (a) tente `finish` de novo uma vez (pode ser falha transiente); (b) falhou de novo → **é falha
+   de ambiente = BLOCKER** (CLAUDE.md Regra 3 — "falha de ambiente durante uma transição é ela
+   mesma um blocker"). Chame `pause` explicando literalmente o que a saída do `finish` mostrou.
+   NUNCA passe pro passo 8 com a task ainda em `rework`/`in_progress` — é isso que faz o Reviewer
+   perder tempo descobrindo sozinho que o trabalho estava pronto mas preso no status errado.
 8. **Push do CÓDIGO** (worktree): `git push origin task/$ARGUMENTS`.
 9. **Persiste o CONTROLE — ENFILEIRE, não comite** (Docs é compartilhado; agentes não rodam git lá —
    ver regra de Paralelismo no CLAUDE.md): `node "<CTRL>/tools/scripts/fila.mjs" add $ARGUMENTS
