@@ -1,7 +1,7 @@
 ---
 id: ORQ-13
 title: "Otimizador de contexto in-process no VercelAgentAdapter (crusher estrutural + CCR store + nano tier)"
-status: draft:triaged
+status: ready
 complexity: 5
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -33,37 +33,53 @@ aberta (SmartCrusher/CCR), não a ferramenta. Três camadas, na ordem de custo:
    sempre com o original no CCR store). Medido no ORQ-12: 81–99% a ~US$0.0004.
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [ ] **`docs/adr/0009-otimizacao-de-contexto-agent-adapter.md`** — FONTE CANÔNICA: veredito, ordem
+- [x] **`docs/adr/0009-otimizacao-de-contexto-agent-adapter.md`** — FONTE CANÔNICA: veredito, ordem
       das camadas, threshold (>2k tok), forma da integração (envolver `execute()` das tools).
-- [ ] `tools/orchestrator/context-bench.poc.mjs` (ORQ-12) — o CCR store (`makeCCRStore`), o
-      `nativeCrush` e o `nanoPreprocess` JÁ PROVADOS: porte/endureça a partir daqui, não reinvente.
-- [ ] `tools/orchestrator/src/*` (ORQ-09b) — o `VercelAgentAdapter` e o harness onde os `execute()`
-      das tools readFile/bash/grep serão envolvidos. Assinaturas reais saem daqui (reendurecer JIT).
+- [x] `tools/orchestrator/context-bench.poc.mjs` (ORQ-12) — o CCR store (`localStore()`), o
+      `nativeCrush()` e o `nanoPreprocess()` JÁ PROVADOS: porte/endureça a partir daqui, não reinvente.
+- [x] `tools/orchestrator/src/agentAdapter.mjs` (ORQ-09b) — `run(opts)` assinatura real:
+      `{taskId, model, cwd, prompt?, timeoutMs?, onEvent?, signal?, maxSteps?, cancelWatcher?}`.
+      O harness de tools `makeTools({cwd, signal, log, onEvent})` em `tools.poc.mjs`.
+- [x] `tools/orchestrator/src/monitor.mjs` (ORQ-10) — `startMonitor()`, `findStuck()`, `writeCancelFlags()`.
 - [ ] `docs/caderno-3-sdk/30-otimizacao-de-contexto-e-tooling-de-agentes.md` §3 (CCR) e §4 (nano).
 - [ ] Fonte aberta p/ inspiração (NÃO portar fiel): `github.com/chopratejas/headroom` —
       `headroom/transforms/smart_crusher.py` (crusher estrutural) e `headroom/cache/compression_store.py`
       (CCR store). Determinísticos; extrair o mecanismo escopado aos nossos outputs.
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-> **A endurecer JIT (pós-ORQ-09)** — paths de `src/` exatos vêm do que a ORQ-09b entregar. Esboço:
-- **[CREATE]** `tools/orchestrator/src/context/ccrStore.*` — `makeCCRStore()` (stash/retrieve/dispose),
-      portado do PoC. + a tool `retrieve` (schema Zod) registrável no harness.
-- **[CREATE]** `tools/orchestrator/src/context/crusher.*` — `crushStructural(text, {kind})` determinístico.
-- **[CREATE]** `tools/orchestrator/src/context/optimize.*` — `optimizeToolOutput(out, {tool, nano, store})`:
-      orquestra as 3 camadas (gating por tamanho, roteia por tool, chama nano só acima do threshold).
-- **[UPDATE]** `tools/orchestrator/src/tools.*` (ORQ-09a/b) — envolver o retorno de readFile/bash/grep
-      com `optimizeToolOutput` + registrar a tool `retrieve`.
-- **[CREATE]** testes de cada camada + do `optimizeToolOutput`.
+> Paths JIT contra ORQ-09b (done) e ORQ-10 (in_progress). Código-fonte existente:
+> `src/agentAdapter.mjs`, `tools.poc.mjs` (harness), `context-bench.poc.mjs` (PoC).
+- **[CREATE]** `tools/orchestrator/src/context/ccrStore.mjs` — `localStore()` portado do PoC
+      (`context-bench.poc.mjs:143`): `{ stash(content): string, retrieve(hash): string, dispose(): void }`.
+      \+ a tool `retrieve` (schema Zod `{hash: z.string()}`) registrável no harness.
+- **[CREATE]** `tools/orchestrator/src/context/crusher.mjs` — `nativeCrush(text): string` portado
+      do PoC (`context-bench.poc.mjs:63`): `(text) => text` colapsando linhas de mesma forma.
+      \+ `crushStructural(text, kind?)` com roteio por kind (`'code'|'search'|'text'`).
+- **[CREATE]** `tools/orchestrator/src/context/optimize.mjs` —
+      `optimizeToolOutput(out: string, ctx: {kind?: string, nano?: object, store?: object}): string`:
+      orquestra as 3 camadas (gating por tamanho >2k tok, roteia por tool kind, chama nano só
+      acima do threshold). O store injetado para CCR reversível.
+- **[UPDATE]** `tools/orchestrator/tools.poc.mjs` — envolver o retorno de `readFile`/`bash`/`grep`
+      com `optimizeToolOutput` + registrar a tool `retrieve` no objeto retornado por `makeTools()`.
+- **[CREATE]** `tools/orchestrator/tests/context/` — testes de cada camada + `optimizeToolOutput`.
 
 ## 4. Estratégia de Testes Estrita (TDD)
-- [ ] `ccrStore`: stash→retrieve devolve original byte-a-byte; retrieve de hash inexistente erra claro.
-- [ ] `crushStructural`: em array JSON repetitivo encolhe >40% preservando ≥1 exemplo real; em código
-      (`.ts`) mantém ~intacto (não destrói — roteia por kind).
-- [ ] `optimizeToolOutput`: output <2k tok passa cru (sem nano, sem custo); output grande vira
-      resumo + hash e o `retrieve(hash)` recupera o original; nano é chamado só acima do threshold.
-- [ ] provider fake para o tier nano (sem gastar $) nos testes unitários; 1 teste opt-in com nano real.
-- [ ] **Fora de escopo:** portar content_router/code_compressor de 184/84KB; hospedar o modelo ONNX
-      Kompress (nano cobre); tocar `orquestrar.mjs`.
+- **Framework:** `node:test` + `node:assert/strict` (consistente com ORQ-09b).
+- **Ambiente:** Node.js 22+, `tools/orchestrator/tests/context/`.
+- **Casos enumerados:**
+  1. `ccrStore` — stash(original) → retrieve(hash) devolve byte-a-byte idêntico.
+  2. `ccrStore` — retrieve(hash inexistente) → throw / erro claro.
+  3. `crushStructural` — array JSON repetitivo (`[{a},{a},{a}]`) encolhe ≥40% preservando ≥1 exemplo.
+  4. `crushStructural` — código `.ts`/`.mjs` mantém ~intacto (não cruša formas únicas).
+  5. `crushStructural` — listagem de diretório colapsa linhas de mesma forma (`×N`).
+  6. `optimizeToolOutput` — output <2k tok passa cru (sem nano, sem custo).
+  7. `optimizeToolOutput` — output >2k tok vira `resumo + hash`, retrieve(hash) recupera original.
+  8. `optimizeToolOutput` — nano chamado só acima do threshold (nunca abaixo).
+  9. `optimizeToolOutput` — store optional (se não passado, não faz CCR, só nano se aplicável).
+  10. **Provider fake** para tier nano (loop determinístico, sem $) nos unitários;
+      1 teste opt-in com nano real (`process.env.OPT_IN_NANO_REAL`) para smoke.
+- **Fora de escopo:** portar content_router/code_compressor de 184/84KB; hospedar modelo ONNX;
+      tocar `orquestrar.mjs` ou `agentAdapter.mjs`.
 
 ## 5. Instruções de Execução
 > **⚠️ NÃO FAZER:** NÃO subir/rotear pelo proxy Headroom (:8787 — NO-GO no ADR-0009). NÃO portar o
@@ -75,8 +91,13 @@ aberta (SmartCrusher/CCR), não a ferramenta. Três camadas, na ordem de custo:
 
 ## 6. Feedback de Especificação
 - **Aberto (deferir p/ arquiteto se surgir):** o tier ML de prosa. ADR-0009 decidiu nano em vez de
-  hospedar o Kompress-v2-base (ONNX). Se um dia o custo/latência do nano incomodar, reavaliar portar o
-  modelo via `onnxruntime-web` in-process — é uma alternativa conhecida, fora deste escopo (YAGNI hoje).
+  hospedar o Kompress-v2-base (ONNX). O port ONNX in-process está **especificado em ORQ-14** (spike)
+  — se o custo/latência do nano incomodar, ORQ-14 destrava a alternativa; fora do escopo desta task.
+- **Opção arquitetural registrada (caderno 30 §9-A, NÃO escopo desta task):** o `optimizeToolOutput`
+  é o ponto onde um futuro **tool-broker** (nano gerencia retry/fallback da tool antes do modelo
+  grande ver o resultado) se encaixaria. Ao implementar, não impeça essa evolução: mantenha a
+  interface `optimizeToolOutput(out, ctx)` pura (recebe/devolve, sem estado global) para que o broker
+  possa envolvê-la depois. Nada além disso aqui.
 - Decisões estruturais estão no ADR-0009. Se algo lá ficou ambíguo ao endurecer, PARE e volte ao ADR.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
@@ -86,11 +107,15 @@ aberta (SmartCrusher/CCR), não a ferramenta. Três camadas, na ordem de custo:
 - [ ] Crusher NÃO destrói código (roteia por tool/kind)?
 - [ ] Nenhum serviço standing (sem proxy :8787); deps npm novas isoladas no pacote do orchestrator?
 
-### Verificação automática *(a fixar no endurecimento — comando real do pacote)*
+### Verificação automática
 ```bash
-cd tools/orchestrator && node --test tests/
+cd tools/orchestrator && node --test tests/context/
 ```
-> **GATE:** saída literal de test colada na §8.
+> **GATE DE EVIDÊNCIA:** saída literal dos testes colada na §8, mostrando:
+>   - `ccrStore` stash→retrieve ✓
+>   - `crushStructural` listagem/código ✓
+>   - `optimizeToolOutput` gating/threshold ✓
+> Total >=10 tests passados.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -106,3 +131,5 @@ cd tools/orchestrator && node --test tests/
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-04T01:29]** - *claude-sonnet* - `[Endurecido]`: endurece spec JIT contra ORQ-09b/ORQ-12 done: caminhos exatos, assinaturas dos PoCs, casos de teste enumerados (10), gate node:test. Sonnet — complexidade 5, coordena 3 camadas + wiring nas tools.
+- **[2026-07-04T01:31]** - *claude-sonnet* - `[Promovida p/ ready]`: auto-promote: deps ORQ-09/ORQ-12 done
