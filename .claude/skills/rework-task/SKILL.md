@@ -21,6 +21,10 @@ agente" no CLAUDE.md.
   refatore o que o reviewer não apontou; não "melhore" de brinde (vira novo achado).
 - **NUNCA** `approve`/`request_changes` (Regra 6) — só `start`/`finish`/`pause`/`block`.
 - Achado impossível/contraditório com a spec → `pause`/`block` com o motivo. Não invente.
+- Se a spec ou o **Plano de Batalha (§5b)** diz PAUSE/ABORT numa condição e você a observa →
+  **pare de verdade** (`pause`/`block`). Não improvise (não dropar o item, não alargar tipo/schema
+  de OUTRO arquivo pra caber, não aceitar teste que você sabe que vai falhar). Um contrato que não
+  bate com uma dependência `done` é decisão de arquitetura — não conserto de worker.
 
 ## Passo a passo
 1. **Prontidão:** `<CTRL>/tasks/$ARGUMENTS.md` deve estar `status: rework`. Se `review`/`done` →
@@ -61,6 +65,8 @@ agente" no CLAUDE.md.
 
 ## NÃO faça
 - NÃO corrija além dos achados bloqueantes do Parecer (escopo fechado).
+- NÃO edite arquivo de OUTRA task (mesmo "só uma linha") pra fazer a sua caber — isso é sintoma de
+  contrato desalinhado entre specs. `pause`/`block` e registre; não conserte silenciosamente.
 - NÃO mexa nos não-bloqueantes do `_pendencias.md` — são do `/agrupar-cleanup`.
 - NÃO chame `approve`/`request_changes` — nem pra "destravar".
 - NÃO finalize sem a saída literal do Gate na Seção 8.

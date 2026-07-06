@@ -48,6 +48,21 @@ mole, porque finge dureza. Na dúvida entre derivar e inventar: é ABERTO.
      `lint` no bloco gera rework garantido.
    - **Frontmatter:** `complexity` coerente (5 exige quebra), `target_agent` válido (sem typos),
      `dependencies` conferidas contra o que a task realmente consome.
+   - **Contratos cross-task / fontes "canônicas" (confrontação obrigatória):** se o spec referencia
+     tipo/verbo/comportamento definido por OUTRA task (dependência) ou por um componente que se
+     apresenta como "canônico" (ex.: máquina de estados, schema compartilhado), NÃO assuma — confronte:
+     1. **A fonte existe de fato?** Verifique que o arquivo citado resolve no estado ATUAL do
+        repo/worktree — não um path lembrado ou de um sistema congelado/movido (ex.: um serviço
+        legado desativado). Fonte que não resolve é **ABERTO**, não DERIVADO, mesmo que pareça
+        óbvio o que ela diria.
+     2. **Marque cada cláusula:** *alinhada* (bate com a fonte — cite ambos) / *divergente* (não
+        bate — descreva os dois lados na Seção 6; vira decisão de arquiteto, **não** corrija um
+        lado silenciosamente) / *sem-fonte* (nenhuma fonte achada — ABERTO).
+     3. **Nunca escreva no spec "amplie o tipo X se não bater"** como instrução ao worker — isso
+        empurra decisão de arquitetura pro executor, que vai resolver sozinho (e mal) em runtime.
+        Se o tipo pode não bater com uma dependência já `done`, é decisão do arquiteto AGORA
+        (Seção 6), não workaround do worker DEPOIS. (Origem: EST-04a R1 — worker alargou
+        `schema.ts` de OUTRA task pra caber, spec não previa o gap.)
 3. **Gate de saída — classifique em UM dos destinos do `draft:<sub>`** (executabilidade) **e atribua capacidade**.
    Use os **verbos do serviço** (`manage-task.mjs`) — NUNCA edite `status` no frontmatter à mão:
 
@@ -105,6 +120,9 @@ orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; 
 - NÃO escreva código de implementação nem testes reais — só a **spec** da task.
 - NÃO toque em nenhum arquivo além de `tasks/$ARGUMENTS.md`.
 - NÃO invente assinatura/tipo/path/retorno sem fonte (releia a Diretriz primária).
+- NÃO cite arquivo de outra task/sistema como fonte sem confirmar que ele **existe no estado
+  atual** (sistemas congelados, paths movidos) — "a fonte que citei ainda existe?" também é
+  CITE-OU-ESCALE.
 - NÃO recomende `ready` enquanto houver qualquer decisão em aberto.
 - NÃO altere o **lifecycle `status`**/Log/INDEX — nem na mão, nem pelo serviço. Você usa os **verbos de endurecimento** (`triage`/`harden`/`block_decision`/`decompose` via `manage-task.mjs`) que só mudam o `draft:<sub>` — nunca `promote`/`start`/`finish`/`approve`. O flip para `ready` é automático (auto-promote, T-1029).
 

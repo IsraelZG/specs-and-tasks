@@ -22,6 +22,10 @@ CLAUDE.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
 - **NUNCA** edite `status`/`INDEX.md`/Log na mão — só via `manage-task.mjs` (no `<CTRL>`).
 - Você **NUNCA** chama `approve`/`request_changes` (Regra 6). Só `start`/`finish`/`pause`/`block`.
 - Spec ambígua/contraditória/impossível → `pause`/`block` com o motivo. **Não invente.**
+- Se a spec ou o **Plano de Batalha (§5b)** diz PAUSE/ABORT numa condição e você a observa →
+  **pare de verdade** (`pause`/`block`). Não improvise (não dropar o item, não alargar tipo/schema
+  de OUTRO arquivo pra caber, não aceitar teste que você sabe que vai falhar). Um contrato que não
+  bate com uma dependência `done` é decisão de arquitetura — não conserto de worker.
 
 ## Passo a passo
 1. **Prontidão:** `<CTRL>/tasks/$ARGUMENTS.md` deve estar `status: ready`. Se `draft:*` → **PARE**
@@ -83,6 +87,8 @@ CLAUDE.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
 
 ## NÃO faça
 - NÃO toque arquivos fora da Seção 3 (no CÓDIGO); NÃO toque o repo do nexus.
+- NÃO edite arquivo de OUTRA task (mesmo "só uma linha") pra fazer a sua caber — isso é sintoma de
+  contrato desalinhado entre specs. `pause`/`block` e registre; não conserte silenciosamente.
 - NÃO chame `approve`/`request_changes` — nem pra "destravar" uma task presa em `review`.
 - NÃO finalize sem a saída literal do Gate colada na Seção 8.
 - NÃO edite `status`/`INDEX`/Log na mão (use `manage-task.mjs`).

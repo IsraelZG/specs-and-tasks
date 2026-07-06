@@ -25,6 +25,16 @@
 ## MGTIA — Gestão de Tarefas
 
 > **NEXUS CONGELADO (2026-06-17):** `apps/nexus-backend` e `apps/nexus-frontend` são a *ferramenta* MGTIA, não o produto, e estão congelados — fora do `build`/`dev`/`lint` da raiz (ver `package.json`). Workers e reviewers NÃO rodam build/test/lint do nexus; rodam só o `pnpm --filter <pacote da task>` da própria task. Continua buildável sob demanda (`pnpm --filter nexus-backend build`); o `manage-task.mjs` usa o `dist/` já compilado, então o MGTIA segue funcionando.
+>
+> **⛔ NÃO citar arquivos do nexus como "fonte canônica" para specs de outras tasks (2026-07-06).**
+> `apps/nexus-backend` pode nem existir na worktree corrente (congelado ≠ garantido presente) e é o
+> sistema que o Estaleiro/`plugin-tasks` (RFC-018 B1) está **substituindo**, não espelhando ao pé da
+> letra. Comportamento de MGTIA (sub-status, verbos, transições) tem como fonte viva **este
+> CLAUDE.md + o comportamento real do `manage-task.mjs`** — não um arquivo `.ts` do nexus que pode
+> estar ausente/desatualizado na sua worktree. Se uma spec depende de "bater com o comportamento
+> canônico do MGTIA" e a fonte não resolve no estado atual, é decisão de arquiteto (Seção 6 da
+> task), não suposição do endurecedor. (Achado real: EST-03b R1 citou `task.types.ts` do nexus como
+> canônico — arquivo inexistente na worktree do superapp.)
 
 Tasks em `/tasks/` (implementação) e `/meta-tasks/` (gestão). Dashboard: `tasks/INDEX.md` — use-o, não inspecione arquivos individuais.
 
