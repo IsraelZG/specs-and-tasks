@@ -163,3 +163,36 @@ entregue o todo quando um link para o resto basta.**
   componente sob demanda"; insuficiente para refactors globais (esses continuam no dev externo).
 - CCR adiciona um hop (retrieve) por trecho re-hidratado — latência trocada por tokens. O
   threshold de quando comprimir é decisão de medição, não de fé.
+
+## §9 — Padrão: modelo pequeno como intermediário de execução (além da compressão)
+
+O nano do §4 é *filtro de saída*. A generalização: um modelo barato **entre o modelo grande e as
+tools**, absorvendo o trabalho mecânico de execução para que o modelo caro nunca entre em loop de
+gerenciamento de ferramenta. Três formas, em ordem de ambição (não são excludentes — são degraus):
+
+**A — Tool-broker (nano gerencia a chamada).** O modelo grande emite a *intenção* da tool
+("leia o config X"); o nano é dono do loop de execução: retenta com args corrigidos, pagina, tenta
+tool alternativa (glob quando o path chutado falhou), e devolve ao grande **ou o resultado limpo ou
+uma falha estruturada com o que foi tentado** — nunca o lixo intermediário. Encaixe natural: é uma
+camada acima do `optimizeToolOutput` (ADR-0009) no mesmo ponto do adapter. Risco a mitigar: o broker
+mascarar erro real — mitigação é o protocolo de eventos do ADR-0008 §D (toda tentativa auditável no
+stream; o broker resume, o painel vê tudo).
+
+**B — Codegen determinístico (CodeAct).** Para tarefas multi-passo mecânicas, o nano **escreve um
+script determinístico** (JS no sandbox do harness, mesmo gating de bash do ADR-0008 §B) que faz a
+tarefa inteira — N round-trips de tool viram 1 execução. O artefato é re-rodável e testável, o que
+casa com a cultura do Gate de Evidência: o script *é* a evidência. É o degrau mais promissor para as
+mecânicas repetitivas do próprio MGTIA (transições, coleta de gate, endurecimento sintático) e, no
+superapp, para o dev interno (gerar o transform que cria/edita a SPEC, em vez de tool-call a tool-call).
+
+**C — Triagem de rota (first responder).** O nano decide, por passo, a rota: responde direto /
+chama tool / escala ao modelo grande. É o "classificação barata primeiro" do caderno 14 §7.5
+generalizado do palette para o loop de agente. Único cuidado: latência — triagem só paga quando a
+taxa de escalada é baixa; medir antes de adotar.
+
+**No superapp:** os três degraus rodam no utilitário de inferência (caderno 14 §1) como capacidades
+`compute` baratas; o teto de abuso não muda — o nano-broker atua **dentro** do mesmo `ASSET:ROLE`
+delegado ao agente (caderno 14 §5.5, a interseção governa; o intermediário não escala privilégio).
+**No laboratório:** A entra como evolução do adapter (registrada em ORQ-13 §6); B merece spike
+próprio quando o adapter estiver religado (ORQ-11) — o candidato de teste é a mecânica de
+rework/endurecimento do MGTIA.

@@ -104,6 +104,38 @@ O dispositivo monitora o armazenamento ocupado pelo OPFS. Ao atingir o limiar de
    * **Pins e Proteções**: O G4 **nunca** poda registros protegidos por nós de prioridade (`ASSET:PIN` do usuário) ou sob conformidade de retenção regulatória obrigatória (dados fiscais/financeiros).
    * **Restrição de Bateria (Tier-aware Pause)**: A execução do G4 e a poda de payloads são **pausadas automaticamente** se a degradação de tier por bateria baixa estiver ativa. Como o mobile em economia de energia limita conexões a no máximo 2 peers WebRTC, ele não consegue rodar o protocolo de gossip com quórum suficiente para garantir o Replication Factor ($N=3$) exigido antes de podar, evitando perda permanente de dados na rede.
 
+### 4.1 Compressão reversível — o estado intermediário entre Integral e Podado
+
+O G4 acima conhece dois estados: manter (`integral`) ou podar (`pruned`, payload removido). Falta o
+meio-termo que o padrão CCR (*Compress-Cache-Retrieve* — `caderno-3-sdk/30-otimizacao-de-contexto-e-tooling-de-agentes.md §3`)
+fornece: **`compressed`** — o payload frio não é removido, é comprimido localmente com um stub de
+recuperação; o conteúdo re-hidrata sob demanda (toque do usuário, retrieval de agente), sem depender
+da rede como o `pruned` depende. Conceitualmente isto **é uma [[rendition]]** — a mesma ontologia do
+plano de mídia (original caro + representação derivada barata, servida conforme o contexto), aplicada
+a payload de nó em vez de mídia: a plataforma não ganha um mecanismo novo, ganha a generalização de um
+que já tem. Três alvos, em ordem de valor:
+
+1. **Nós/projeções frios** — degrau novo do G4 antes da poda: `integral → compressed → pruned`.
+   Mesmas proteções (`ASSET:PIN`, retenção regulatória, pausa por bateria); a diferença é que
+   `compressed → integral` é local e imediato, enquanto `pruned → integral` exige a rede.
+2. **Linhagem superada (o "pack de linhagem")** — versões superadas são o alvo perfeito: quase nunca
+   lidas, proibidas de sumir. Como payloads são cifrados por padrão e **ciphertext não comprime**
+   (indistinguível de aleatório), a compactação de uma linhagem longa roda **dentro do Crypto
+   Worker** — o único lugar onde plaintext já é permitido (mesmo pipeline pós-decifra do FTS/embeddings,
+   caderno-3/01): decifra as N versões, **delta-encoda contra a versão base + comprime o conjunto**
+   (versões da mesma linhagem são quase idênticas em claro — o desenho é o do packfile do git), e
+   **re-cifra o pack como um único blob AEAD** da epoch corrente. Regras: (i) os bytes **originais e
+   assinados** de cada versão vão íntegros dentro do pack — ao desempacotar, as assinaturas continuam
+   verificáveis (nunca re-serializar); (ii) os *heads* vigentes ficam fora do pack (quentes, integrais);
+   (iii) o pack é indexado por hash e recuperado inteiro (unidade de retrieval fria — aceitável, é
+   arquivo); (iv) perde-se dedup convergente *cross-usuário* do pack (blob único) — aceitável para
+   arquivo privado de linhagem; (v) nota de higiene: comprimir-antes-de-cifrar vaza similaridade pelo
+   **tamanho** do ciphertext (classe CRIME) — irrelevante para pack-at-rest privado, mas o pack não
+   deve ser usado como canal interativo.
+3. **Réplica parcial comprimida (mobile/dispositivo restrito)** — na degradação de tier (§3.1/§7.3),
+   o dispositivo fraco guarda o stub/resumo (`compressed`) e re-hidrata do peer quando o usuário abre
+   o item — coerente com "ausência degrada, não força".
+
 ---
 
 ## 5. `SwarmRegistry` — Heartbeat e Health Check
