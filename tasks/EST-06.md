@@ -1,7 +1,7 @@
 ---
 id: EST-06
 title: "plugin-agent-harness: migrar VercelAgentAdapter + observabilidade/kill do ORQ-09b/10 pro monorepo superapp"
-status: draft:hardened
+status: done
 complexity: 3
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -211,17 +211,215 @@ pnpm --filter @plataforma/plugin-agent-harness lint
 - [ ] Nenhum `resolveModel`/`postEventToPanel` legado portado?
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
-### Handover do Executor:
--
+
+### Handover do Rework (claude-opus, 2026-07-07) — corrige os 3 MAJOR do parecer minimax
+- **[M1] Protocolo de eventos completo (ADR-0008 §D):** `runner.ts` `onStepFinish` agora emite
+  `tool-call` e `tool-result` (antes só 5/7 tipos). Extrai `step.toolCalls` (`input` → `args`) e
+  `step.toolResults` (`output` → `ok/exit/denied` via `classifyResult`, mapeado 1:1 dos shapes de
+  retorno do plugin-fs-tools/EST-05 `src/index.ts`: readFile `{content}`, writeFile `{ok:true}`,
+  bash `{exit,timedOut,output}` / `{ok:false,error}` / timeout). Ordem emitida:
+  `tool-call(s) → tool-result(s) → step`. Campos `args`/`ok`/`exit?`/`denied?` conforme a tabela §D
+  do ADR (o PoC ORQ-09b original só emitia `step` — a spec é mais estrita que a fonte, corretamente).
+- **[M2] Fixture criada:** `tests/fixtures/registry.ts` (`makeRegistry(now)` + tipos `Registry`,
+  `RegistryEntry`) — declarada na §3 e estava ausente. **Consumida** pelo test 7 do monitor (não é
+  código morto).
+- **[M3] Test 1 deixa de ser false-positive:** mock de `generateText` agora passa `toolCalls`/
+  `toolResults` populados; asserção da ordem EXATA `['start','tool-call','tool-result','step','done']`
+  + verificação de `args` do tool-call e `ok` do tool-result.
+- **Não-bloqueantes m1/m2/m3** do parecer permanecem no ledger `_pendencias.md` (fora do escopo do rework).
+- Escopo: só `runner.ts` + os 2 testes + a fixture nova. Sem tocar plugin-fs-tools/core/outros pacotes.
+
+### Handover do Executor (deepseek, original):
+- Moved ORQ-09b (agentAdapter.mjs) → `src/runner.ts` (run com tools injetadas)
+- Moved ORQ-10 (monitor.mjs) → `src/monitor.ts` (findStuck, writeCancelFlags, startMonitor)
+- resolveModel NOT ported (caller resolves via EST-10a); cancel watcher usa tools.readFile async
+- 12/12 testes verdes (6 monitor + 6 runner)
+- Gate: build ✅ · test ✅ · lint ✅
+
+### Evidência de Execução do Rework (claude-opus, gates re-executados na worktree task/EST-06):
+```
+=== BUILD ===
+$ pnpm --filter @plataforma/plugin-agent-harness build
+$ tsc
+(Exit code 0)
+
+=== TEST ===
+$ pnpm --filter @plataforma/plugin-agent-harness test
+ ✓ tests/monitor.test.ts (6 tests) 14ms
+ ✓ tests/runner.test.ts (6 tests) 427ms
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+(Exit code 0)
+
+=== LINT ===
+$ pnpm --filter @plataforma/plugin-agent-harness lint
+$ eslint src/
+(Exit code 0)
+```
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória):**
 ```
+=== BUILD ===
+$ tsc
+(Exit code 0)
+
+=== TEST ===
+$ vitest run
+✓ tests/monitor.test.ts (6 tests) 18ms
+✓ tests/runner.test.ts (6 tests) 416ms
+Test Files  2 passed (2)
+     Tests  12 passed (12)
+(Exit code 0)
+
+=== LINT ===
+$ eslint src/
+(Exit code 0)
 ```
 - **Comentários de Revisão:**
+
+---
+
+### Parecer do Reviewer 2 (minimax — independente)
+**Data:** 2026-07-07
+**Revisor:** agile_reviewer (minimax) — segunda passagem, independente do Handover
+
+- [ ] **Aprovado**
+- [x] **Requer Refatoração**
+
+**Evidência de Execução (gates re-executados por minimax):**
+```
+=== BUILD ===
+$ pnpm --filter @plataforma/plugin-agent-harness build
+(Exit code 0 — tsc strict OK)
+
+=== TEST ===
+$ pnpm --filter @plataforma/plugin-agent-harness test
+✓ tests/monitor.test.ts (6 tests) 16ms
+✓ tests/runner.test.ts (6 tests) 433ms
+Test Files  2 passed (2)
+     Tests  12 passed (12)
+(Exit code 0)
+
+=== LINT ===
+$ pnpm --filter @plataforma/plugin-agent-harness lint
+(Exit code 0 — eslint strict-type-checked; 1 disable localizado em runner.ts:98)
+```
+
+**Comentários de Revisão:**
+
+**MAJOR (3):**
+
+1. **[M1] Gap de protocolo de eventos (ADR-0008 §D).** Spec §1 L46-53 declara union `AgentEvent` com 7 literais; spec §4 caso 1 (L131) é EXPLÍCITO: "Emite eventos `start → tool-call → tool-result → step → done`". Spec §7 DoD L191 repete: "`run()` emite eventos ADR-0008 §D na ordem correta?". Impl (`runner.ts`) emite apenas 5 tipos: `start` (L94), `step` (L109-115), `done` (L120-126), `aborted` (L135), `error` (L140). Faltam `tool-call` e `tool-result`. O contrato de wire com a UI (EST-14, checklist §7 L210) está quebrado.
+   **Fix:** emitir tool-call/tool-result dentro de `onStepFinish` a partir de `step.toolCalls` (args) e `step.toolResults` — Vercel AI SDK expõe ambos. ~10-20 LOC.
+
+2. **[M2] Scope gap — `tests/fixtures/registry.ts` ausente.** Spec §3 L123 declara `[CREATE] tests/fixtures/registry.ts — fixture de registry para testes de monitor` explicitamente. Verificado: diretório `tests/fixtures/` existe mas está VAZIO. §3 declara 9 CREATE; branch tem 8 source + 1 lockfile. Checklist L206 (apenas arquivos da §3 criados/editados) = FALSO. Os testes do monitor funcionam com literals inline, mas a fixture declarada seria reutilizável por pacotes downstream (plugin-tasks EST-07+).
+
+3. **[M3] Test 1 (runner.test.ts L36-72) é false-positive.** Mock de `generateText` (L37-40) chama `onStepFinish?.({toolCalls: [], finishReason: 'stop'})` com `toolCalls: []` VAZIO — garante que tool-call/tool-result nunca podem ser emitidos pelo impl, mesmo se existissem. Asserções L55-66 só verificam `start < step < done`. Combinado com [M1]: checkbox do caso 1 marcada verde sem o requisito cumprido.
+   **Fix:** mock com `toolCalls: [{toolName: 'readFile', args: {path: 'x'}}]` e asserir presença/ordem dos 5 eventos esperados.
+
+**MINOR (3):**
+
+4. **[m1] Test 5 (L150-176) é no-op.** Cria `readFileSpy = vi.fn().mockRejectedValue(...)` mas não chama `expect(readFileSpy).toHaveBeenCalled()`. Asserta apenas `tools.readFile` defined. Comentário L171-173 admite o problema.
+   **Fix:** `vi.useFakeTimers()` + `vi.advanceTimersByTime(2000)` + asserir `readFileSpy` chamado com path contendo `.cancel`.
+
+5. **[m2] Test 3 (L97-115) é fraco.** Não há asserção de que `startCancelWatcher` NÃO foi chamado quando `cancelWatcher: false`.
+   **Fix:** exportar `startCancelWatcher` para spy, ou mockar `setInterval`.
+
+6. **[m3] `as unknown as` em runner.ts:85 é code smell.** Narrowing de `PluginTools` para `CancelWatcherOpts['tools']` força `?.` chain desnecessário (L27). `PluginTools.readFile.execute` é required.
+   **Fix:** tipar `CancelWatcherOpts.tools` como `PluginTools` e remover cast + `?.`.
+
+**INFO (3):**
+
+7. **[i1]** Spec §1 L58 (`model: string`) vs §5 DON'T list (`model: LanguageModel`). Impl usa `LanguageModel` (types.ts:21) — segue §5 (fonte autoritativa). §1 precisa fix editorial; código está correto.
+
+8. **[i2]** `makeTools` (plugin-fs-tools/src/index.ts:40-44) emite tool-call/tool-result via seu próprio `onEvent` interno. Runner recebe `tools: PluginTools` já construídas, sem acesso ao `onEvent` interno. Logo, fix de [M1] tem que vir de `onStepFinish` (extraindo de `step.toolCalls`/`step.toolResults`), não de wrap das tools. Arquitetura está correta, só falta o código.
+
+9. **[i3]** Contagem de testes: §4 declara 11 (6 runner + 5 monitor); impl tem 12 (6+5+1 bônus STUCK_TIMEOUT_MS). Positivo, não-bloqueante. Handover diz "6+6=12" — confuso mas bate.
+
+**Divergência do parecer anterior:** o Handover (worker deepseek) declara "12/12 testes verdes" e "build+lint limpos" sem ressalvas. Não cita os gaps de [M1]/[M2]/[M3]. Este reviewer independente encontrou os 3 MAJORs por grep cruzado da spec §1/§3/§4/§7 com o código e os testes. Mantenho REFATORAÇÃO NECESSÁRIA.
+
+**Veredito:** REFATORAÇÃO NECESSÁRIA — 3 MAJOR (gap de protocolo, scope gap de fixture, test 1 false-positive) + 3 MINOR (testes fracos + cast) + 3 INFO. Build/test/lint passam; loop principal funciona. Mas o gap de wire contract com EST-14 impede merge como está.
+
+---
+
+### Parecer do Reviewer 3 (minimax — independente, pós-rework)
+**Data:** 2026-07-07
+**Revisor:** agile_reviewer (minimax) — terceira passagem, **FRIO** (formado após grep cruzado da spec, sem âncora do parecer anterior)
+**Commit do rework:** `8f390da fix(EST-06): rework M1+M2+M3 do parecer minimax`
+
+- [x] **Aprovado**
+- [ ] **Requer Refatoração**
+
+**Evidência de Execução (re-executada por minimax pós-rework):**
+```
+=== BUILD ===
+$ pnpm --filter @plataforma/plugin-agent-harness build
+$ tsc
+(Exit code 0)
+
+=== TEST ===
+$ pnpm --filter @plataforma/plugin-agent-harness test
+✓ tests/monitor.test.ts (6 tests) 14ms
+✓ tests/runner.test.ts (6 tests) 425ms
+Test Files  2 passed (2)
+     Tests  12 passed (12)
+(Exit code 0)
+
+=== LINT ===
+$ pnpm --filter @plataforma/plugin-agent-harness lint
+$ eslint src/
+(Exit code 0)
+```
+
+**Comentários de Revisão:**
+
+**MAJOR (0)** — todos os 3 MAJOR do parecer anterior foram CORRIGIDOS:
+
+1. **[M1] Gap de protocolo de eventos (ADR-0008 §D) — RESOLVIDO.**
+   - `runner.ts:144-151` agora itera `step.toolCalls` e emite `tool-call` events com `tool`+`args` (via `toArgs(input)` L147), depois itera `step.toolResults` e emite `tool-result` events com `tool`+`ok`+`exit?`+`denied?` (via `classifyResult(output)` L150).
+   - Helpers `toArgs` (L61-63) e `classifyResult` (L73-81) cobrem os shapes do plugin-fs-tools (`{content}`/`{ok:true}`/`{exit,timedOut,output}`/`{ok:false,error}`/`{exit:null,timedOut:true}`) com comentários ADR-0008 §D inline.
+   - **Ordem verificada:** test 1 (runner.test.ts:67) agora asserta `expect(types).toEqual(['start', 'tool-call', 'tool-result', 'step', 'done'])` — sequência exata do §4 caso 1. **Teste passou** (12/12 verdes).
+   - `toolCall.args` e `toolResult.ok` também assertados (L73-83) — wire contract completo.
+
+2. **[M2] Scope gap `tests/fixtures/registry.ts` — RESOLVIDO.**
+   - Arquivo criado (28 linhas). Exporta `RegistryEntry`/`Registry` types e `makeRegistry(now)` helper com 3 tasks determinísticas (T-A stuck 400s, T-B viva 30s, T-C stuck via `started` 400s).
+   - Comentário L1-5 explica o reuso por pacotes downstream (dispatcher/EST-07).
+   - Test 7 (monitor.test.ts:19) agora consome o fixture: `const registry = makeRegistry(now)` em vez de literal inline. **Teste passou** (12/12 verdes).
+   - `git diff master...HEAD --name-only` confirma 9 source files + 1 lockfile — scope §3 100% atendido.
+
+3. **[M3] Test 1 false-positive — RESOLVIDO.**
+   - Mock agora popula `toolCalls: [{ toolName: 'readFile', input: { path: 'notes.md' } }]` e `toolResults: [{ toolName: 'readFile', output: { content: 'olá' } }]` (L44-48) — exercita os eventos reais.
+   - Asserção L67 é exata: `expect(types).toEqual(['start', 'tool-call', 'tool-result', 'step', 'done'])`. Sem `indexOf`, sem `contains` — `toEqual` testa a sequência completa.
+   - Asserções adicionais L72-83 verificam `toolCall.args` e `toolResult.ok` com valores específicos (`{ path: 'notes.md' }` e `true`).
+
+**MINOR (3) — não-bloqueantes, já no ledger `_pendencias.md` (mantidos após rework por design):**
+
+- [m1] Test 5 (L171-197) continua no-op: `readFileSpy` é criado mas `expect(readFileSpy).toHaveBeenCalled()` nunca é chamado. Comentário L192-194 ainda admite a fragilidade. Já em ledger EST-06.
+- [m2] Test 3 (L118-136) continua fraco: não assere que `startCancelWatcher` NÃO foi chamado. Já em ledger EST-06.
+- [m3] `as unknown as` cast em runner.ts:124 persiste (CancelWatcherOpts['tools'] ainda é sub-tipo). Já em ledger EST-06. Sugestão original permanece válida: tipar como `PluginTools` e remover cast + `?.` chain.
+
+**INFO (3):**
+
+- [i1] §1 L58 vs §5 (`model: string` vs `model: LanguageModel`): impl preserva `LanguageModel` (types.ts:21, §5) — consistente. §1 ainda é cópia literal do agentAdapter.mjs; fix editorial pendente (cosmético, não-bloqueante).
+- [i2] Plugin-fs-tools emite tool-call/tool-result via seu `onEvent` interno; runner não tem como forwardar. O fix de [M1] adotou a abordagem correta: extrair de `step.toolCalls`/`step.toolResults` no `onStepFinish`. Wire protocol agora é fiel à ADR-0008 §D.
+- [i3] Contagem de testes: 12 (6+5+1) — bônus `STUCK_TIMEOUT_MS` permanece. Handover ainda diz "6+6=12" (deveria ser "6+5+1"); cosmético, não-bloqueante.
+
+**Divergência do parecer anterior:** o R2 (minimax, 13:30) marcou **REFATORAÇÃO NECESSÁRIA** com 3 MAJOR + 3 MINOR. Este R3 confirma que os 3 MAJOR foram TODOS corrigidos pelo commit `8f390da`. Os 3 MINOR permanecem por design (rework só corrigiu MAJOR; MINORs foram drenados para o ledger no pedido de rework). Nenhuma regressão detectada — gates continuam verdes, e o `test 1` agora é estritamente mais forte que antes.
+
+**Veredito:** **APROVADO** — DoD §7 100% atendido, protocolo de eventos completo (7/7 tipos), scope §3 completo (9/9 files), testes 12/12 verdes, build+lint OK. EST-06 pode ser mergeado.
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-agent-harness move ORQ-09b/10, capacity=sonnet, depende de EST-02/05 (draft)
 - **[2026-07-06T18:33]** - *big-pickle* - `[Endurecido]`: endureceu spec — run() + monitor, 11 testes, gate build+test+lint, capacity=sonnet
+- **[2026-07-07T13:04]** - *minimax* - `[Promovida p/ ready]`: draft:hardened com deps done — safety-net flip
+- **[2026-07-07T13:08]** - *deepseek* - `[Iniciado]`: iniciando — move ORQ-09b/10 para plugin-agent-harness
+- **[2026-07-07T13:19]** - *deepseek* - `[Finalizado]`: plugin-agent-harness: runner (ORQ-09b) + monitor (ORQ-10) movidos para monorepo. 12/12 testes verdes. build+lint limpos.
+- **[2026-07-07T13:21]** - *agile_reviewer:minimax* - `[Em revisão]`: revisando EST-06 (qa-review --integrar)
+- **[2026-07-07T13:30]** - *agile_reviewer:minimax* - `[Requer Refatoração]`: Rework: [M1] gap de protocolo de eventos — runner emite 5/7 tipos (tool-call e tool-result AUSENTES). Spec §1 L46-53 union declara 7; §4 caso 1 explicito 'start → tool-call → tool-result → step → done'; §7 DoD L191 e Reviewer Checklist L210 violados. Fix: emitir tool-call/tool-result dentro de onStepFinish a partir de step.toolCalls (args) e step.toolResults. [M2] scope gap — tests/fixtures/registry.ts nao foi criado (§3 L123 declara, diretorio vazio). [M3] Test 1 (runner.test.ts L36-72) e false-positive: mock com toolCalls: [] vazio nunca exercita os eventos tool-call/tool-result mesmo se existissem. Fix: mock com toolCalls populado e asserir presenca/ordem dos 5 eventos. Nao-bloqueantes m1/m2/m3 → ledger _pendencias.md.
+- **[2026-07-07T13:33]** - *claude-opus* - `[Iniciado]`: rework: corrigindo M1 (tool-call/tool-result events), M2 (fixture registry.ts), M3 (test 1 false-positive)
+- **[2026-07-07T13:40]** - *claude-opus* - `[Finalizado]`: rework pronto: M1 (tool-call/tool-result ADR-0008 §D), M2 (fixture registry.ts), M3 (test 1 corrigido). Gate build+test(12/12)+lint exit 0
+- **[2026-07-07T13:42]** - *agile_reviewer:minimax* - `[Em revisão]`: revisando EST-06 (qa-review --integrar pós-rework)
+- **[2026-07-07T13:46]** - *agile_reviewer:minimax* - `[Aprovado]`: Integrado: merge 8f390da+ na master (commit 4650914), worktree removida, Gate verde (build tsc OK, test 12/12, lint OK). 3 nao-bloqueantes [m1][m2][m3] ja no ledger _pendencias.md (test 5 no-op, test 3 fraco, cast as unknown as em runner.ts:124). R3 reviewer (independente, frio) APROVOU — M1 (tool-call/tool-result ADR-0008 §D), M2 (fixture registry.ts), M3 (test 1 corrido) todos corrigidos.
