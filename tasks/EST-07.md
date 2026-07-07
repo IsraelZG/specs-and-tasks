@@ -1,7 +1,7 @@
 ---
 id: EST-07
 title: "plugin-dispatcher: sucessor do orquestrar.mjs (escolhe modelo, decide o que despachar, lock de task)"
-status: in_progress
+status: in_review
 complexity: 4
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -286,12 +286,36 @@ Todos devem retornar Exit Code 0. **Lint faz parte do gate** (Regra 3 do CLAUDE.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
--
+- `src/types.ts` — DispatcherConfig, DispatchItem, DispatchPlan, TaskServicePort, TaskView, DispatchContext, DispatcherRunOptions
+- `src/selectModel.ts` — portado de orquestrar.mjs L61-100 (nível, capability, anti-pool, brokeProviders)
+- `src/dispatcher.ts` — planDispatch (slots, prioridade, circuit breaker, selectModel) + executeDispatch (lock via transition('start'), runAgent)
+- `tests/selectModel.test.ts` — 7 casos (nível, vision, anti-pool, brokeProviders, nível inexistente, default)
+- `tests/dispatcher.test.ts` — 5 casos (slots, prioridade, circuit breaker, execução com sucesso, lock rejeitado)
+- Lock via `taskService.transition('start')` — captura erro gracefully, não usa node:fs/node:child_process
+- Sem kill-switch EMERGENCY_DISABLE_SPAWN
+- Adicionado `@types/node` como devDep para resolver build de dependências transitivas
+
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória):**
 ```
+$ pnpm --filter @plataforma/plugin-dispatcher build
+$ tsc
+(Exit Code 0)
+
+$ pnpm --filter @plataforma/plugin-dispatcher test
+$ vitest run
+ ✓ tests/selectModel.test.ts (7 tests) 3ms
+ ✓ tests/dispatcher.test.ts (5 tests) 18ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+(Exit Code 0)
+
+$ pnpm --filter @plataforma/plugin-dispatcher lint
+$ eslint src/
+(Exit Code 0)
 ```
 - **Comentários de Revisão:**
 
@@ -301,3 +325,5 @@ Todos devem retornar Exit Code 0. **Lint faz parte do gate** (Regra 3 do CLAUDE.
 - **[2026-07-07T13:18]** - *big-pickle* - `[Endurecido]`: endureceu spec: contratos derivados de orquestrar.mjs, orquestrador.config.json, EST-03d, EST-06
 - **[2026-07-07T13:46]** - *system* - `[Auto-promovida]`: dep EST-06 concluída
 - **[2026-07-07T14:04]** - *deepseek* - `[Iniciado]`: iniciando implementacao do plugin-dispatcher
+- **[2026-07-07T14:13]** - *deepseek* - `[Finalizado]`: plugin-dispatcher: selectModel (7 tests) + planDispatch/executeDispatch (5 tests); 12/12 pass, build+lint verdes
+- **[2026-07-07T14:15]** - *agile_reviewer:minimax* - `[Em revisão]`: revisando
