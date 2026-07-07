@@ -1,7 +1,7 @@
 ---
 id: EST-15
 title: "SPIKE: empacotamento standalone do Estaleiro (Electron?) — instância rodando separada da working tree, cadência de atualização"
-status: draft:hardened
+status: review
 complexity: 4
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -155,7 +155,56 @@ O Worker deve colar na Seção 8:
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
--
+- **Entregáveis:**
+  - ADR: [`docs/adr/0012-empacotamento-standalone-estaleiro.md`](../docs/adr/0012-empacotamento-standalone-estaleiro.md)
+    — formaliza D4: **Opção C (Node standalone + navegador)**, cadência **manual**. Cobre problema
+    (recursão), 3 opções × 6 critérios (tabela), recomendação justificada e cadência.
+  - PoC descartável em `C:/tmp/estaleiro-poc` → `C:/tmp/estaleiro-standalone-v{1,2}` (**fora do
+    monorepo, nada commitado**, §5 obedecido).
+- **Decisão (recomendação do ADR):** empacotar como **diretório buildado fora da working tree**,
+  servido por processo Node mínimo (`node:http`) em localhost + navegador instalado. Isolamento vem
+  do diretório separado, não de framework desktop. Electron descartado (~200 MB + 2º runtime, YAGNI);
+  Tauri descartado (introduz Rust numa stack JS/TS). Cadência: rebuild manual (`build → copiar →
+  restart`); watch/CI fora do escopo do spike (§5).
+- **Nota de execução (dois-repos):** spike doc-only. O entregável é o ADR (artefato do repo **Docs**,
+  onde vivem ADR 0001–0011 e o rfc-018) + PoC descartável. **Não há código de superapp** → nenhuma
+  worktree/branch `task/EST-15` criada (nada a isolar). ADR enfileirado via `fila.mjs`.
+
+- **Evidência do Gate (§7 — PoC de separação, casos §4.7–10; saída literal do terminal):**
+```
+== [7] BUILD v1 into separate dir ==
+built C:/tmp/estaleiro-poc/source -> C:/tmp/estaleiro-standalone-v1
+
+== [8] START standalone v1 (:4599) and serve ==
+serving C:\tmp\estaleiro-standalone-v1 on :4599
+GET :4599 ->
+<!doctype html><meta charset=utf-8><title>Estaleiro</title>
+<h1>Estaleiro standalone — build v1</h1>
+
+== [9] MUTATE monorepo source, running instance must NOT change ==
+source now:
+<h1>SOURCE MUTATED after v1 was built</h1>
+GET :4599 again ->
+<!doctype html><meta charset=utf-8><title>Estaleiro</title>
+<h1>Estaleiro standalone — build v1</h1>
+(still v1 content -> separation proved)
+
+== [10] REBUILD v2 (parallel dir) — v1 stays up ==
+built C:/tmp/estaleiro-poc/source -> C:/tmp/estaleiro-standalone-v2
+serving C:\tmp\estaleiro-standalone-v2 on :4600
+GET :4600 (v2, has mutation) ->
+<!doctype html><meta charset=utf-8><title>Estaleiro</title>
+<h1>Estaleiro standalone — build v1</h1>
+<h1>SOURCE MUTATED after v1 was built</h1>
+GET :4599 (v1, still original, still alive) ->
+<!doctype html><meta charset=utf-8><title>Estaleiro</title>
+<h1>Estaleiro standalone — build v1</h1>
+
+== servers stopped ==
+```
+> Caso 7 (build separado) ✔ · 8 (standalone serve) ✔ · 9 (mutação da fonte não vaza p/ instância
+> rodando) ✔ · 10 (rebuild paralelo v2 não derruba v1) ✔. Nenhum binário/bundle commitado (§5).
+
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
@@ -169,3 +218,6 @@ O Worker deve colar na Seção 8:
 - **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — spike standalone Electron? D4, capacity=opus-spike, requer ADR, depende de EST-14 (draft)
 - **[2026-07-07T13:23]** - *big-pickle* - `[Decisão pendente]`: endureceu spec spike com criterios de avaliacao — decisao D4: tecnologia de empacotamento standalone (Electron? Tauri? Node standalone?) + cadencia de atualizacao
 - **[2026-07-07T13:52]** - *Antigravity* - `[Decidido]`: Decisão: Opção C (Node Standalone + Browser) com cadência Manual (Opção B)
+- **[2026-07-07T18:12]** - *minimax-m3* - `[Promovida p/ ready]`: draft:hardened com deps done (EST-14) — safety-net flip
+- **[2026-07-07T18:14]** - *claude-opus* - `[Iniciado]`: iniciando spike D4 — ADR + PoC de separacao
+- **[2026-07-07T18:16]** - *claude-opus* - `[Finalizado]`: spike D4 concluido: ADR 0012 (Opcao C Node standalone+browser, cadencia manual) + PoC provando separacao (casos 7-10 verdes). Spike sem testes unitarios; Gate = evidencia PoC colada na S8.
