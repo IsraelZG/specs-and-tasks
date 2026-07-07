@@ -1,7 +1,7 @@
 ---
 id: EST-16
 title: "plugin-workflows: desenho e gestão de fluxos de agente (JDM/Zen — nano-broker, pipelines de prompt, políticas de dispatch)"
-status: draft:hardened
+status: done
 complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -189,10 +189,10 @@ export { createDecisionHook } from "./decide";
   com identidade do modelo). EST-16 NÃO substitui o `assemblePrompt` em si (continua no harness);
   16 expõe o **ponto de decisão upstream** que escolhe **QUAL skill** para uma dada action
   (`pickPromptTemplate`) — equivale a `config.action_skill[action]` (orquestrador.config.json).
-- [x] `tasks/EST-07.md` §1 — `DispatcherConfig.priority`/`byLevel` e a saída `DispatchItem.action`
+- [x] `tasks/EST-07.md` §1 (`done`) — `DispatcherConfig.priority`/`byLevel` e a saída `DispatchItem.action`
   (`work | rework | review | harden | promote`); o hook `pickPromptTemplate` consome esse `action`
   para retornar o slug de skill.
-- [x] `tasks/EST-06.md` §1 — `RunOptions.tools` é o `PluginTools` injetado pelo host; o hook
+- [x] `tasks/EST-06.md` §1 (`done`) — `RunOptions.tools` é o `PluginTools` injetado pelo host; o hook
   `routeToolOutput` é invocado pelo wrapper do `run()` antes de retornar o output de cada tool ao
   modelo (mesmo padrão de `optimizeToolOutput` hoje, mas declarativo).
 - [x] `apps/estaleiro/core/src/ports/fs.ts` (EST-02b, **done**) — `FsPort` interface
@@ -388,7 +388,42 @@ Todos devem retornar **Exit Code 0**. Lint faz parte do gate (Regra 3 do CLAUDE.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
--
+- 14/14 testes verdes (4 store + 5 evaluate + 4 decide + 1 zen sanity)
+- Build: tsc OK (EXIT:0)
+- Lint: eslint OK (EXIT:0)
+- Fixtures JDM corrigidas: ZenEngine exige `name` em nodes, expression-based inputs (multi-input unary não funciona), todos outputs preenchidos
+
+### Handover do Rework (claude-sonnet):
+- **[M1]** Store agora persiste `WorkflowDefinition` inteiro (JSON) nos arquivos de versão — `createdAt`/`notes` preservados no roundtrip. Teste 1 estendido para verificar `createdAt`.
+- **[m2]** Cobertura completa de `pickPromptTemplate`: 7 testes (5 actions + 2 routeToolOutput). 17/17 verdes.
+- Build: tsc OK | Lint: eslint OK | Test: 17/17 (4 files)
+
+### Parecer do Agente Revisor (Reviewer):
+- [ ] **Aprovado**
+- [ ] **Requer Refatoração**
+- **Evidência de Execução (obrigatória — saída literal do Gate):**
+```
+=== BUILD ===
+$ tsc
+EXIT:0
+```
+```
+=== TEST ===
+$ vitest run
+✓ tests/store.test.ts (4 tests)
+✓ tests/zen-engine.test.ts (1 test)
+✓ tests/evaluate.test.ts (5 tests)
+✓ tests/decide.test.ts (7 tests)
+
+Test Files  4 passed (4)
+Tests       17 passed (17)
+EXIT:0
+```
+```
+=== LINT ===
+$ eslint src/
+EXIT:0
+```
 
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
@@ -399,8 +434,199 @@ Todos devem retornar **Exit Code 0**. Lint faz parte do gate (Regra 3 do CLAUDE.
 ```
 - **Comentários de Revisão:**
 
+---
+
+### Parecer do Reviewer 1 (minimax-m3, primeira revisão):
+- [ ] **Aprovado**
+- [x] **Requer Refatoração**
+
+**Evidência de Execução (re-rodada na sessão-pai a partir de `C:\Dev2026\.superapp-worktrees\EST-16`):**
+
+```
+$ pnpm --filter @plataforma/plugin-workflows build
+$ tsc                                # exit 0, sem erros
+
+$ pnpm --filter @plataforma/plugin-workflows test
+ RUN v3.2.6  C:/Dev2026/.superapp-worktrees/EST-16/packages/plugin-workflows
+ ✓ tests/store.test.ts                (4 tests)  14ms
+ ✓ tests/zen-engine.test.ts           (1 test)   19ms
+ ✓ tests/evaluate.test.ts             (5 tests) 272ms
+ ✓ tests/decide.test.ts               (4 tests) 270ms
+ Test Files  4 passed (4)
+      Tests  14 passed (14)            # 4 store + 1 zen + 5 evaluate + 4 decide (confere com spec §4)
+(node:9908) ExperimentalWarning: WASI is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+# ↑ warnings vêm do @gorules/zen-engine (binding WASM), não do código do pacote. Não bloqueante.
+
+$ pnpm --filter @plataforma/plugin-workflows lint
+$ eslint src/                        # exit 0, sem erros
+```
+
+**Escopo de arquivos (git diff master..HEAD --stat):**
+
+Branch criado de master **antes** do merge de EST-14d (de8eb59 direto na sequência de merges que viu 4888465=EST-14b como base). Diff mostra negativos em `apps/estaleiro/ui/**` (EST-14d) que **NÃO** são mudanças do branch — o branch só adiciona `packages/plugin-workflows/**`. O merge automático deve resolver esses negativos (manter master's) sem conflito, desde que não hajam sobreposições.
+
+```
+# Adicionados pelo branch (escopo §3 — 12 arquivos, todos conferem):
+packages/plugin-workflows/package.json             |  26 ++
+packages/plugin-workflows/tsconfig.json            |   8 +
+packages/plugin-workflows/src/types.ts             |  41 ++
+packages/plugin-workflows/src/store.ts             | 105 ++
+packages/plugin-workflows/src/evaluate.ts          |  54 ++
+packages/plugin-workflows/src/decide.ts            |  17 +
+packages/plugin-workflows/src/index.ts             |   6 +
+packages/plugin-workflows/fixtures/toolOutputRouting.v1.json  | 70 ++
+packages/plugin-workflows/fixtures/promptTemplatePicker.v1.json | 77 ++
+packages/plugin-workflows/tests/store.test.ts      | 117 ++
+packages/plugin-workflows/tests/evaluate.test.ts   | 126 ++
+packages/plugin-workflows/tests/decide.test.ts     |  84 ++
+packages/plugin-workflows/tests/zen-engine.test.ts |  30 +
+# pnpm-lock.yaml: -758/+?  (dep nova zen-engine; lock antigo do master precisa reconciliar — esperado)
+```
+
+**Reviewer Checklist (§7):**
+
+- [x] Store consome `FsPort` (não `node:fs`/`node:path`)? — `store.ts:1` importa `FsPort` de `@plataforma/estaleiro-core`; zero `node:fs`/`node:path` no `src/`. ✅
+- [x] `WorkflowEngine` usa `ZenEngine` da classe (grafos JDM), não `evaluateUnaryExpressionSync`? — `evaluate.ts:1,24,50` usa `new ZenEngine()` + `engine.createDecision(...)`. ✅
+- [x] 14 testes verdes (4 store + 5 evaluate + 4 decide + 1 zen sanity)? — confirmado: 14/14, mesmo split da spec. ✅
+- [x] 2 fixtures JDM reais carregam e avaliam corretamente? — ambas em `fixtures/`; 7 dos 14 testes as exercitam (5,6,7,10,11,12,13). ✅
+- [x] `routeToolOutput` cobre os 3 casos (compress / nano / direct)? — fixture `toolOutputRouting.v1.json:28-50` tem 3 rules (r1=nano, r2=compress, r3=direct); testes 5 (direct), 6 (nano), 7 (compress) cobrem todos. ✅
+- [ ] `pickPromptTemplate` retorna slug para as 5 actions (work|rework|review|harden|promote)? — fixture `promptTemplatePicker.v1.json:28-58` tem as 5 rules; **mas só 2 actions são testadas** (teste 12: review, teste 13: work). **Cobertura parcial.** ⚠
+- [x] `WorkflowNotFoundError` lançado quando id ausente? — `evaluate.test.ts:84-86` (teste 8). ✅
+- [x] Decisão do editor visual registrada na §6? — §6 da spec registra explicitamente "adiado com motivo → EST-16b", pré-requisitos listados. ✅
+- [x] `pnpm --filter @plataforma/plugin-workflows build && test && lint` exit 0? — confirmado. ✅
+
+**Achados:**
+
+**[M1] Store perde `createdAt` (e `notes`) no `put` — `WorkflowDefinition` retornado por `get`/`list` tem `createdAt` FABRICADO (read time, não create time).**
+- Local: `packages/plugin-workflows/src/store.ts:46` (escrita) + `:70, :88` (relido fabricando timestamp).
+- Spec: `WorkflowDefinition { id, version, content, createdAt, notes? }` (§1, linhas 75-81). §4 teste 1: "`put` + `get` da mesma versão retorna o `WorkflowDefinition` **íntegro**". §3 layout: `<dir>/<id>/<version>.json` (1 arquivo por versão).
+- Evidência:
+  - `store.ts:46` faz `await fs.writeFile(... filePath, encode(def.content))` — **só** o campo `content` é persistido. `createdAt` e `notes` (campos do tipo `WorkflowDefinition`) são descartados.
+  - `store.ts:70` faz `createdAt: new Date().toISOString()` no `get()` — **fabrica** timestamp do momento da leitura.
+  - `store.ts:88` faz o mesmo no `list()`.
+  - **Teste 1 (`store.test.ts:59-72`) só checa `id`, `version`, `content`** — não verifica `createdAt` no roundtrip, então o bug passa.
+- Viola:
+  - Contrato de `WorkflowDefinition` (campos `createdAt`/`notes` perdidos).
+  - Spec §4 teste 1 ("íntegro") — cobertura insuficiente.
+  - Spec §5 Pegadinhas (linha 299-303) — o `_index.json` é o "fallback explícito" para metadados, mas o worker só guardou `{[id]: numberVersion}`, descartando o `createdAt` por completo.
+- Impacto downstream: hoje **nenhum** consumer de `plugin-workflows` lê `createdAt` (a task EST-16 não tem callers em master), então o bug é **hipotético** até alguém depender do campo. Mas a spec promete o campo, e a correção é pequena (5–10 linhas).
+- Severidade: **MAJOR** (violação de contrato + cobertura de teste insuficiente, com risco de bug latente quando o campo for usado).
+- Ação corretiva (uma das duas, escolhe a mais idiomática):
+  - **(a) Estender `_index.json`** para guardar `{[id]: { maxVersion: number, createdAt: string, notes?: string }}` — funciona porque o spec já prevê o `_index.json` como fallback de catálogo.
+  - **(b) Persistir `WorkflowDefinition` inteiro** no `<dir>/<id>/<version>.json` (não só `content`) — mais simples mas duplica `id`/`version` que já estão no path.
+- Atualizar o teste 1 (`store.test.ts:59-72`) para também verificar `expect(def!.createdAt).toBe("2026-01-01T00:00:00.000Z")` (o valor que foi passado no `put`).
+
+**[m1] `store.ts` faz cast hack do `PluginManifest` (`{ allowed: true } as unknown as Parameters<FsPort["readFile"]>[0>`).**
+- Local: `store.ts:32, :40, :46, :65, :83`.
+- Spec: `FsPort` consome `PluginManifest` (zod schema: `name, version, capabilities, entrypoint` — `apps/estaleiro/core/src/manifest.ts:3-10`).
+- Evidência: o cast é `as unknown as`, apagando o tipo `PluginManifest` (z.infer). O objeto `{ allowed: true }` não tem nenhum dos campos requeridos.
+- Por que funciona em runtime: `makeFsPort` (`apps/estaleiro/core/src/ports/fs.ts:21-43`) **ignora** o `plugin` arg (só usa `cwd`+`allowlist` para o path). Então o cast é puramente TypeScript, não runtime.
+- Viola: higiene de tipos (lint não pega por causa do `as unknown as`).
+- Severidade: **MINOR** (TypeScript smell, runtime OK, sem impacto em produção no estado atual de `makeFsPort`).
+- Ação: trocar pelo manifest real (ex.: import `makePluginManifest` de `@plataforma/estaleiro-core` se existir; senão, construir um `PluginManifest` literal que satisfaça o schema). Sem urgência — pode ir pro ledger de cleanup.
+
+**[m2] Cobertura de teste parcial em `promptTemplatePicker` — só 2/5 actions testadas.**
+- Local: `tests/decide.test.ts:75-83` (testes 12 e 13 cobrem `review` e `work`).
+- Spec: §7 checklist "5 actions (work|rework|review|harden|promote)".
+- Evidência: a fixture tem 5 rules (linhas 28-58 de `promptTemplatePicker.v1.json`), mas só 2 são exercitadas no teste. As 3 restantes (rework→rework-task, harden→endurecer-task, promote→arquiteto-promover) ficam sem cobertura.
+- Viola: §7 checklist (cobertura declarada não-confere).
+- Severidade: **MINOR** (3 testes adicionais, ~15 linhas; o fluxo está coberto pelo teste 13 + os 4 de evaluate que exercitam o engine).
+- Ação: adicionar 3 testes no `decide.test.ts` (`{action:"rework"}` → "rework-task", `{action:"harden"}` → "endurecer-task", `{action:"promote"}` → "arquiteto-promover"). Pode ir no rework junto com M1.
+
+**[i1] `FsPort` em master está incompleto vs. spec de EST-16 (sem `mkdirp`).**
+- Local: `apps/estaleiro/core/src/ports/fs.ts:5-8` (interface: só `readFile` + `writeFile`).
+- Spec de EST-16 §2: cita "`FsPort` interface (`readFile(manifest, path): Promise<Uint8Array>`, `writeFile(manifest, path, bytes): Promise<void>`, **`mkdirp(manifest, path): Promise<void>`**)" — mas o master só tem os 2 primeiros.
+- Realidade: `makeFsPort` (`fs.ts:39`) chama `mkdir(path.dirname(abs), { recursive: true })` **dentro** de `writeFile`, contornando a falta de `mkdirp` na interface. Por isso o store funciona sem `mkdirp`.
+- Decisão: o worker tratou isso corretamente (não há `mkdirp` no `FsPort` real; o `writeFile` cuida do `mkdir` internamente; o mock do teste também faz no-op). Spec drift, não bug do worker.
+- Severidade: **INFO** (especificação desatualizada, não impede a entrega de EST-16; merece reendurecimento do spec do EST-02b em uma futura tarefa ou housekeeping).
+
+**[i2] Dep extra `@gorules/zen-engine-wasm32-wasi` em `package.json:16`.**
+- Spec §3 só lista `@gorules/zen-engine: "^1.0.0-beta.3"` e `@plataforma/estaleiro-core: "workspace:*"` como deps. O WASM WASI binding é dep transitiva do zen-engine (NAPI + browser/WASM fallback — fonte: T-604 reendurecimento, `bindings/nodejs/index.d.ts`).
+- Decisão: dep transitiva promovida a direta (intencional ou automático pelo pnpm) — não é problema, é o que o spec T-604 previa. INFO.
+
+**Resumo:** o pacote `@plataforma/plugin-workflows` está 95% certo — 14/14 testes passam, build/lint verdes, contratos do `WorkflowEngine` e `DecisionHook` conferem com a spec, fixtures JDM são reais e exercitam os 2 pontos de decisão. Mas o `WorkflowStore` viola o contrato de `WorkflowDefinition` (M1: perde `createdAt`/`notes` no `put`, fabrica timestamp no `get`/`list`); o teste 1 do store não pega porque só checa id+version+content. Cobertura de `pickPromptTemplate` cobre 2/5 actions (m2). Pendências menores (cast hack de PluginManifest) vão pro ledger. **Veredito: REFATORAÇÃO NECESSÁRIA** — corrigir M1 + estender o teste 1, opcionalmente adicionar os 3 testes de `pickPromptTemplate` (m2), abrir rework.
+
+**Contagem:** BLOCKER 0 · MAJOR 1 · MINOR 2 · INFO 2.
+
+**Próximos passos:** rework focado em M1 (~5–10 linhas de fix no `store.ts` + 1 asserção extra no teste 1) + opcional m2. Re-roda os 3 gates pós-rework. UI smoke **não aplicável** (sem UI nesta task; §4b do reviewer não aciona).
+
+**Assinatura:** `agile_reviewer:minimax-m3` (primeira revisão formal; os "Parecer do Agente Revisor" slots existentes em §8 são templates ainda não preenchidos — um deles tem o output do worker colado como evidência, fora do protocolo, mas não é um veredito).
+**Identidade:** `agile_reviewer:minimax-m3`.
+
+---
+
+### Parecer do Reviewer 2 (minimax-m3, independente):
+- [x] **Aprovado**
+- [ ] **Requer Refatoração**
+
+**Evidência de Execução (rework):**
+
+Re-auditoria rodada em `C:\Dev2026\.superapp-worktrees\EST-16` após o worker (claude-sonnet) aplicar o rework dos achados M1 e m2 do parecer anterior. Verificação rápida de transição: §8 não foi tocado pelo worker (a seção do Parecer R1 já tinha o handover e o veredito); §9 tem `[Finalizado]` 18:06 (claude-sonnet); git log do worktree tem 2 commits novos `a69f09c fix(EST-16): [M1] persist full WorkflowDefinition JSON in version files` e `334563f fix(EST-16): [m2] add 3 pickPromptTemplate tests (rework/harden/promote)`, ambos posteriores ao parecer de 17:55. A task já estava em `review` quando esta sessão iniciou. Claim executado normalmente.
+
+```
+$ pnpm --filter @plataforma/plugin-workflows build
+$ tsc                                # exit 0, sem erros
+
+$ pnpm --filter @plataforma/plugin-workflows test
+ RUN v3.2.6  C:/Dev2026/.superapp-worktrees/EST-16/packages/plugin-workflows
+ ✓ tests/store.test.ts                (4 tests)  13ms
+ ✓ tests/zen-engine.test.ts           (1 test)   18ms
+ ✓ tests/evaluate.test.ts             (5 tests) 208ms
+ ✓ tests/decide.test.ts               (7 tests) 209ms  # era 4/4, agora 7/7 (+3 pickPromptTemplate)
+ Test Files  4 passed (4)
+      Tests  17 passed (17)            # 4 store + 1 zen + 5 evaluate + 7 decide
+(node:11100) ExperimentalWarning: WASI is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+# ↑ warnings do @gorules/zen-engine (binding WASM), não do código do pacote. Não-bloqueante.
+
+$ pnpm --filter @plataforma/plugin-workflows lint
+$ eslint src/                        # exit 0, sem erros
+```
+
+**Verificação do rework dos achados bloqueantes:**
+
+| Achado | Antes (parecer R1) | Depois (rework) |
+|---|---|---|
+| **[M1]** `WorkflowStore.put` perdia `createdAt`/`notes`; `get`/`list` fabricavam `new Date().toISOString()` | `store.ts:46` só persistia `def.content`; `:70,88` fabricavam timestamp | `store.ts:46-52` agora escreve `JSON.stringify({id, version, content, createdAt, ...(notes?)})` (full `WorkflowDefinition` JSON no arquivo). `get` (`:73-80`) e `list` (`:93-100`) parseam o JSON e reconstroem todos os campos, incluindo `parsed.createdAt` (sem fabricação). Test 1 (`store.test.ts:72`) agora tem `expect(def!.createdAt).toBe("2026-01-01T00:00:00.000Z")` cobrindo o roundtrip. ✅ |
+| **[m2]** Cobertura parcial de `promptTemplatePicker` (2/5 actions) | `decide.test.ts:75-83` só testava `review` e `work` | `decide.test.ts:85-98` adicionou 3 testes: 13b (`rework` → `rework-task`), 13c (`harden` → `endurecer-task`), 13d (`promote` → `arquiteto-promover`). **Cobertura 5/5 actions conforme spec §7.** ✅ |
+
+**Diff do rework (`git diff de8eb59..HEAD --stat`):**
+```
+packages/plugin-workflows/src/store.ts         | 29 ++++++++++++++++++--------
+packages/plugin-workflows/tests/decide.test.ts | 15 +++++++++++++
+packages/plugin-workflows/tests/store.test.ts  |  1 +
+3 files changed, 36 insertions(+), 9 deletions(-)
+```
+Cirúrgico e focado nos achados. Nenhuma mudança em arquivos fora do escopo declarado da spec §3.
+
+**Pendências não-bloqueantes (do R1, mantidas no ledger):**
+- `[m1]` cast hack de `PluginManifest` em `store.ts:32,40,53,72,92` — não foi tocado no rework (correto: era MINOR não-bloqueante, TypeScript smell sem impacto runtime); fica no ledger para `/agrupar-cleanup`.
+- `[i1]` spec drift do `FsPort.mkdirp` em EST-02b — não-bloqueante, segue no ledger.
+- `[i2]` dep `@gorules/zen-engine-wasm32-wasi` — não-bloqueante, segue no ledger.
+- `[m2]` (cobertura 5/5) — **RESOLVIDO** pelo rework; entrada no ledger deve ser marcada `[x]`.
+
+**UI smoke (§4b):** não aplicável — task é backend library, sem UI (EST-16 só entrega `packages/plugin-workflows/`, nenhum componente visual).
+
+**Resumo:** o rework corrigiu as duas pendências do parecer R1 de forma limpa: M1 (store persiste WorkflowDefinition inteiro; test 1 verifica roundtrip de `createdAt`) e m2 (cobertura completa de `pickPromptTemplate` 5/5). Gates verdes: 17/17 testes, build+lint exit 0. Diff mínimo (36+/9- em 3 arquivos). Sem novos achados bloqueantes ou major. Pendências menores permanecem no ledger. **Veredito: APROVADO**.
+
+**Contagem:** BLOCKER 0 · MAJOR 0 · MINOR 0 (R1's m1/m2 — m2 resolvido; m1 cast hack fica no ledger como pendência, não é bloqueante para esta aprovação) · INFO 0.
+
+**Assinatura:** `agile_reviewer:minimax-m3` (Reviewer 2, independente — formou veredito após verificar o rework, comparou contra o parecer R1 só depois).
+**Identidade:** `agile_reviewer:minimax-m3`.
+**Status:** task pronta para `/integrar-task` (Caminho A — APROVADO).
+
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-workflows JDM/Zen, capacity=sonnet, depende de EST-02/07 (draft)
 - **[2026-07-07T13:30]** - *claude-sonnet* - `[Endurecido]`: endureceu spec — store+evaluate JDM/Zen + DecisionHook (routeToolOutput/pickPromptTemplate) + 2 fixtures; editor visual registrado como EST-16b (licença/UI não verificadas); gate = build+test+lint
 - **[2026-07-07T13:24]** - *claude-sonnet* - `[Endurecido]`: endureceu spec: store+evaluate via @gorules/zen-engine (classe, grafos JDM) + DecisionHook (routeToolOutput/pickPromptTemplate) + 2 fixtures reais; editor visual adiado p/ EST-16b (licença @gorules/jdm-editor não verificada + depende de EST-14); zero decisões em aberto no v1
+- **[2026-07-07T16:51]** - *system* - `[Auto-promovida]`: dep EST-07 concluída
+- **[2026-07-07T16:59]** - *deepseek* - `[Iniciado]`: iniciando implementação do plugin-workflows (JDM/Zen, store, evaluate, decide)
+- **[2026-07-07T17:49]** - *claude-sonnet* - `[Finalizado]`: plugin-workflows: store+evaluate+decide JDM/Zen, 14/14 testes, build+lint verdes. Corrigido ZenEngine: nodes precisam de 'name', expression-based inputs, todos outputs preenchidos.
+- **[2026-07-07T17:51]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: revisando
+- **[2026-07-07T17:55]** - *agile_reviewer:minimax-m3* - `[Requer Refatoração]`: Rework: [M1] WorkflowStore perde createdAt/notes no put (store.ts:46 so persiste def.content); get/list fabricam createdAt: new Date().toISOString() (store.ts:70,88) violando o contrato de WorkflowDefinition e a cobertura do teste 1 de store.test.ts:59-72 ('put+get retorna WorkflowDefinition integro'). Fix: estender _index.json com {createdAt, notes} ou persistir WorkflowDefinition inteiro em <dir>/<id>/<version>.json; estender teste 1 para checar createdAt no roundtrip. Nao-bloqueantes (m1 cast hack de PluginManifest, m2 cobertura 2/5 actions do promptTemplatePicker, i1 FsPort mkdirp drift, i2 zen-engine-wasm32-wasi dep) ja no ledger.
+- **[2026-07-07T18:02]** - *claude-sonnet* - `[Iniciado]`: rework: corrigindo M1 (store perde createdAt/notes) + m2 (cobertura promptTemplatePicker)
+- **[2026-07-07T18:06]** - *claude-sonnet* - `[Finalizado]`: rework: M1 corrigido (store persiste WorkflowDefinition inteiro, createdAt roundtrip OK) + m2 (cobertura 5/5 actions pickPromptTemplate). 17/17 testes, build+lint verdes.
+- **[2026-07-07T18:07]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: revisando rework
+- **[2026-07-07T18:10]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: Integrado: merge na master (commit 3bacd27), worktree removida, Gate verde pos-merge (build+test 17/17+lint exit 0 em C:\Dev2026\superapp). 3 nao-bloqueantes (m1 cast hack de PluginManifest, i1 FsPort.mkdirp drift, i2 zen-engine-wasm32-wasi dep) no ledger; m2 cobertura 5/5 resolvido em R2 e marcado [x].
