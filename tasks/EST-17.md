@@ -1,7 +1,7 @@
 ---
 id: EST-17
 title: "OmniRoute sidecar de DEV: entrada `omniroute` no plugin-providers + doc de operação (free tiers/combos para a frota)"
-status: in_progress
+status: in_review
 complexity: 2
 target_agent: devops_agent
 reviewer_agent: agile_reviewer
@@ -162,26 +162,38 @@ pnpm --filter @plataforma/plugin-providers lint
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
--
+- **[big-pickle]** `omniroute` adicionado ao PROVIDERS (`http://127.0.0.1:20128/v1`, `OMNIROUTE_API_KEY`). Test case 4 atualizado (`deepseek, openrouter, omniroute`). Playbook `docs/playbook/07-omniroute-sidecar.md` criado com instruções de instalação/configuração/smoke.
+- **Gate de Evidência — todos Exit Code 0:**
+```
+=== BUILD (pnpm --filter @plataforma/plugin-providers build) ===
+$ tsc
+
+EXIT:0
+```
+```
+=== TEST (pnpm --filter @plataforma/plugin-providers test) ===
+$ vitest run
+
+ ✓ tests/telemetry.test.ts (3 tests) 6ms
+ ✓ tests/registry.test.ts (5 tests) 7ms
+ ✓ tests/scoring.test.ts (3 tests) 4ms
+ ✓ tests/fallback.test.ts (9 tests) 456ms
+
+ Test Files  4 passed (4)
+      Tests  20 passed (20)
+   Duration  1.82s
+
+EXIT:0
+```
+```
+=== LINT (pnpm --filter @plataforma/plugin-providers lint) ===
+$ eslint src/
+
+EXIT:0
+```
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória):**
-```
-=== BUILD ===
-
-EXIT:0
-```
-```
-=== TEST ===
-
-EXIT:0
-```
-```
-=== LINT ===
-
-EXIT:0
-```
 - **Comentários de Revisão:**
 
 ## 9. Log de Execução (Agent Execution Log)
@@ -191,3 +203,5 @@ EXIT:0
 - **[2026-07-07T13:59]** - *big-pickle* - `[Endurecido]`: endureceu spec — contratos TS derivados de EST-10a+RFC-018 D3+OmniRoute vendor, gate build+test+lint
 - **[2026-07-07T13:59]** - *system* - `[Auto-promovida]`: deps todas done
 - **[2026-07-07T14:10]** - *big-pickle* - `[Iniciado]`: iniciando — entrada omniroute no registry + playbook
+- **[2026-07-07T14:14]** - *big-pickle* - `[Finalizado]`: omniroute added to PROVIDERS (3 providers), test case 4 updated, playbook created — gate build+test+lint pass (20/20 tests)
+- **[2026-07-07T14:15]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: revisando EST-17 (qa-review --integrar)
