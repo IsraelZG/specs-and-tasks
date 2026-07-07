@@ -1,16 +1,18 @@
 ---
 id: EST-13c
 title: "plugin-knowledge: Writer serial de commits (compartilhado com EST-12)"
-status: ready
+status: in_review
 complexity: 2
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
-dependencies: ["EST-02", "EST-02d"]
+dependencies: ["EST-02", "EST-02d", "EST-13a"]
 blocks: []
 parent: "EST-13"
 capacity_target: sonnet
-decisions: ["local-do-commit-utility"]
+# decisions: [] — campo removido em 2026-07-07; decisão "local-do-commit-utility" foi fechada
+# em 2026-07-06T19:47 (claude-opus, Log §9): CommitPort porta do host (estaleiro-core, EST-02d),
+# singleton injetado. Ver §0 "DECISAO FECHADA".
 ---
 
 # EST-13c · plugin-knowledge: Writer serial de commits
@@ -126,14 +128,76 @@ Todos Exit Code 0. Lint sem erros NOVOS.
 
 ## 8. Log de Handover e Revisao Agile (Code Review)
 ### Handover do Executor:
--
+- `writer.ts`: `write()` delega a `opts.commit.enqueue()`, `read()` via `opts.fs` + `TextDecoder`
+- `index.ts`: re-export `makeGraph` + `makeWriter` + tipos
+- `package.json`: `exports` atualizado para `./src/index.ts`
+- 12/12 testes verdes (7 graph EST-13a + 5 writer)
+- Gate: build ✅ · test ✅ · lint ✅
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+- [x] **Aprovado**
 - [ ] **Requer Refatoracao**
-- **Evidencia de Execucao (obrigatoria):**
+
+**Evidência de Execução (obrigatória):**
 ```
+=== BUILD ===
+$ pnpm --filter @plataforma/plugin-knowledge build
+$ tsc
+(sem erros, exit code 0)
+
+=== TEST ===
+$ pnpm --filter @plataforma/plugin-knowledge test
+✓ tests/writer.test.ts  (5 tests)   27ms
+✓ tests/graph.test.ts  (7 tests)  216ms
+Test Files  2 passed (2)
+     Tests  12 passed (12)
+(Exit code 0)
+
+=== LINT ===
+$ pnpm --filter @plataforma/plugin-knowledge lint
+$ eslint src/
+(0 erros, exit code 0)
 ```
-- **Comentarios de Revisao:**
+
+> Os 7 testes de `graph.test.ts` (EST-13a) continuam verdes — o writer não regrediu o grafo.
+
+**Sondas adversariais (8 probes, 8/8 passaram):**
+
+Sondas ad-hoc em `tests/probe.test.ts` (criado durante revisão, removido depois — arquivo de prova, não entregável):
+
+| # | Categoria | Sonda | Resultado |
+|---|---|---|---|
+| 1 | writer delegation purity | writer NÃO importa `node:child_process` nem roda git (verifica: 1 chamada a `enqueue`, sem I/O escondido) | ✓ |
+| 2 | writer delegation purity | path com espaços + unicode (`docs/olá mundo/测试.md`) + content `🚀` → preservado verbatim | ✓ |
+| 3 | writer delegation purity | write com content EMPTY → delega normalmente (não pula o commit) | ✓ |
+| 4 | writer delegation purity | 10 writes em paralelo → 10 chamadas a `enqueue` (serialização é do CommitPort, não do writer — confirma arquitetura) | ✓ |
+| 5 | writer delegation purity | signal.aborted no MEIO de write → write já passou o gate, completa; enqueue chamado 1x (one-shot, conforme design) | ✓ |
+| 6 | read robustness | read de path VAZIO → retorna '' (não throw) | ✓ |
+| 7 | read robustness | read de path unicode (`日本語のテスト 🎉 caracteres acentuação`) → preservado byte-a-byte | ✓ |
+| 8 | read robustness | read de path INEXISTENTE → rejeita (não silencioso) | ✓ |
+
+**Inspeção de código (além do gate):**
+
+- **Writer é casca fina de delegação (§0 Decisão FECHADA):** ✓ `write()` faz exatamente 3 operações: checa `signal?.aborted`, monta message, chama `commit.enqueue(manifest, {path, content, message})`. Zero `node:child_process`, zero `node:fs`, zero `import` de git/fila. Atende §5 "REGRAS DO QUE NÃO FAZER".
+- **`read()` via FsPort + TextDecoder:** ✓ `fs.readFile(manifest, path)` + `decoder.decode(bytes)` — não acessa `node:fs` direto. Resolve path contra `repoRoot` indiretamente (FsPort gerencia seu próprio cwd).
+- **package.json exports CORRIGIDO:** ✓ linha 6-7 aponta para `./src/index.ts` (barrel). **Resolve o `i1[EST-13a]` e `i1[EST-13b]`** do ledger — a filha c corrige o bug que EST-13a/b introduziram (export apontava para `./src/graph.ts` direto). `index.ts:4-5` re-exporta `makeWriter` + tipos.
+- **`signal.aborted` check:** ✓ implementado no início de `write()` (linha 24-26). Não checa mid-flight — coerente com design (caller pode abortar entre writes). Spec §0 não exige check contínuo.
+- **Testes 5/5 da §4 verdes:** ✓ 1. delegação, 2. read roundtrip, 3. read >10KB, 4. signal abortado, 5. erro propaga. Mais os 7 de EST-13a (graph) — 12/12 totais.
+- **Decisão arquitetural integrada:** ✓ O worker (deepseek) entendeu a §6 Decisão FECHADA e implementou como "casca fina" (40 linhas em writer.ts) — não tentou reimplementar lock/fila no plugin (que quebraria a serialização cross-plugin).
+- **Sem scope creep:** ✓ diff é exatamente 4 arquivos da §3 (package.json 1-linha, index.ts 5-linhas, writer.ts 40-linhas, writer.test.ts 127-linhas). Não tocou em `graph.ts`, `fts.ts` (do EST-13b), ou `pnpm-workspace.yaml`.
+
+**Achados:**
+
+| Sev | ID | Achado | Disposição |
+|---|---|---|---|
+| m1 | EST-13c/m1 | `writer.ts:7` `repoRoot` é aceito em `WriterOptions` mas **nunca usado** no impl (comentário linha 18-19 marca como "reserved for future use"). Spec §0 contrato define `repoRoot: string` como obrigatório. Refator: remover do contrato OU usar para validar `path` (rejeitar path traversal). | defer→cleanup; cosmético, mas dead-field viola LSP mínima |
+| m2 | EST-13c/m2 | `writer.ts:24` checagem de `signal.aborted` é feita **antes** de `commit.enqueue`, mas o abort pode chegar **durante** o await — não há check pós-await. Spec §0 não exige (não há "cancelamento mid-flight" descrito), mas o probe 5 confirmou: 1 write com abort concorrente completa normalmente. Decisão de design OK, mas não documentada. | defer→cleanup; documentar em spec ou remover a checagem parcial |
+| m3 | EST-13c/m3 | `index.ts:1-5` mistura re-exports de `graph` (EST-13a) e `writer` (EST-13c) sem agrupar — o `export type { KnowledgeWriter, WriterOptions }` (linha 5) está em ordem alfabética bagunçada (deveria ser: types primeiro, depois values, ou alfabético). Cosmético. | defer→cleanup |
+
+> **0 bloqueantes, 0 major, 3 minor (não-bloqueantes).** m1/m2/m3 vão para o ledger.
+
+**Achado de integração (informativo):** O `i1[EST-13a]` e `i1[EST-13b]` do ledger (`package.json` exports apontava para `./src/graph.ts` em vez do barrel) está **RESOLVIDO** pela EST-13c. O exports agora aponta para `./src/index.ts` que re-exporta `makeGraph` + `makeWriter` + tipos. Pode-se marcar como `fixed` no ledger quando este parecer for integrado.
+
+**Veredito final:** **APROVADO (Caminho A).** Writer é exatamente a "casca fina de delegação" que a Decisão FECHADA (claude-opus, 2026-07-06T19:47) prescreveu. Gate triplo verde, 12/12 testes da §4+EST-13a verdes, 8/8 sondas adversariais aprovadas, package.json exports corrigido (encerra o `i1` do EST-13a/b), sem scope creep. `approve` encadeado via `--integrar`. `parentAutoClose` (T-1029) deve disparar automaticamente para `EST-13` (pai decomposto, última filha fechando).
 
 ## 9. Log de Execucao (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.
@@ -141,3 +205,8 @@ Todos Exit Code 0. Lint sem erros NOVOS.
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-06T19:47]** - *claude-opus* - `[Decidido]`: Decidido: CommitPort porta do host (estaleiro-core, EST-02d), singleton injetado. Writer vira casca fina de delegacao (opts.commit.enqueue), sem git/fila propria — evita 2 locks. Complexidade 3->2
 - **[2026-07-06T22:10]** - *system* - `[Auto-promovida]`: dep EST-02d concluída
+- **[2026-07-06T22:55]** - *claude-fable* - `[Bloqueado]`: auditoria: packages/plugin-knowledge NAO existe ate EST-13a mergear (13a esta draft:hardened, nem ready) — dep EST-13a adicionada ao frontmatter; unblock quando EST-13a for done
+- **[2026-07-07T13:38]** - *minimax* - `[Desbloqueado]`: decisao 'local-do-commit-utility' resolvida por claude-opus em 2026-07-06T19:47 (Log S9); dep EST-13a done
+- **[2026-07-07T14:02]** - *deepseek* - `[Iniciado]`: iniciando — writer serial (delega ao CommitPort EST-02d)
+- **[2026-07-07T14:05]** - *deepseek* - `[Finalizado]`: writer serial: delegacao pura ao CommitPort. 12/12 testes verdes. build+lint limpos.
+- **[2026-07-07T14:08]** - *agile_reviewer:claude-sonnet* - `[Em revisão]`: revisando EST-13c
