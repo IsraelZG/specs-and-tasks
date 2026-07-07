@@ -1,7 +1,7 @@
 ---
 id: EST-14b
 title: "View Board: kanban/grid de tasks consumindo plugin-tasks (EST-03) + WS event subscription (EST-14a)"
-status: in_progress
+status: done
 complexity: 2
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -389,17 +389,180 @@ Todos devem retornar **Exit Code 0**. Lint faz parte do gate (Regra 3 do CLAUDE.
 - [ ] `pnpm --filter @plataforma/estaleiro-ui build && test && lint` retornam Exit Code 0?
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
-### Handover do Executor:
--
+### Handover do Executor (Rework — deepseek):
+=== BUILD ===
+$ pnpm --filter @plataforma/estaleiro-ui build
+$ tsc
+(sem erros, exit code 0)
+
+=== TEST ===
+$ pnpm --filter @plataforma/estaleiro-ui test
+✓ tests/smoke.test.ts        (1 test)  205ms
+✓ tests/ws-client.test.ts     (2 tests) 465ms
+✓ tests/BoardView.test.tsx    (6 tests) 141ms
+✓ tests/shell.test.tsx        (2 tests) 37ms
+Test Files  4 passed (4)
+     Tests  11 passed (11)
+(Exit code 0)
+
+=== LINT ===
+$ pnpm --filter @plataforma/estaleiro-ui lint
+$ eslint src/
+(0 erros, exit code 0)
 
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
+- [x] **Requer Refatoração**
+
+**Evidência de Execução (Gate verde — build+test+lint OK, 11/11 testes):**
+```
+=== BUILD ===
+$ pnpm --filter @plataforma/estaleiro-ui build
+$ tsc
+(sem erros, exit code 0)
+
+=== TEST ===
+$ pnpm --filter @plataforma/estaleiro-ui test
+✓ tests/shell.test.tsx        (2 tests)  27ms
+✓ tests/smoke.test.ts         (1 test)  141ms
+✓ tests/ws-client.test.ts     (2 tests) 326ms
+✓ tests/BoardView.test.tsx    (6 tests) 116ms
+Test Files  4 passed (4)
+     Tests  11 passed (11)
+(Exit code 0)
+
+=== LINT ===
+$ pnpm --filter @plataforma/estaleiro-ui lint
+$ eslint src/
+(0 erros, exit code 0)
+```
+
+> **Gate verde, MAS 2 dos 6 casos da §4 NÃO estão sendo testados** (ver achado M1 abaixo).
+
+**Sondas adversariais (6 probes, 6/6 passaram — TODAS documentam lacunas de cobertura):**
+
+| # | Categoria | Sonda | Resultado | Diagnóstico |
+|---|---|---|---|---|
+| 1 | Spec §4 caso 2 (DnD) | Tentar `fireEvent.pointerDown/Move/Up` no card+coluna para simular drop | ✓ (mas não dispara transition) | dnd-kit precisa de sensor activation que é frágil em testes; caminho robusto = `renderHook` ou `DndContext` mockado |
+| 2 | Spec §4 caso 5 (rollback) | Render BoardView com `transition` mock rejeitando; verificar `row.status === 'ready'` (estado inicial) | ✓ | Teste idêntico ao do worker — **NÃO prova rollback**; transição nunca é chamada |
+| 3 | Spec §4 caso 2 (fix frágil) | Chamar `client.transition` DIRETO (bypassando Board) | ✓ | Prova que o MOCK funciona, NÃO que o Board funciona — exatamente o que o teste 6 do worker faz |
+| 4 | Optimistic timing | Mock com `Promise` pendente + `renderHook` ausente | ✓ | Sem `renderHook` ou fireEvent DnD, não dá para provar "store atualiza ANTES de transition resolver" |
+| 5 | Auditoria teste 5 | Confirmar que `BoardView.test.tsx:107-121` é no-op | ✓ | Teste 5 do worker: 14 linhas, NENHUMA chamada a `transition()`, apenas verifica estado inicial |
+| 6 | Auditoria teste 6 | Confirmar que `BoardView.test.tsx:132` chama mock direto | ✓ | `client.transition("T-1", "start", "op")` — bypassa useTransitionTask completamente |
+
+**Inspeção de código (além do gate):**
+
+- **Impl parece correto (revisão manual):**
+  - `hooks.ts:130-171` `useTransitionTask` tem try/catch com revert no `boardStore.setRow` (linha 153-156). Pattern de optimistic update + rollback padrão.
+  - `hooks.ts:60-64` listener do `boardStore` (TinyBase reativo) com cleanup.
+  - `BoardView.tsx:19-33` `handleDragEnd` valida from/to, busca verb em `STATUS_TRANSITIONS`, chama `transition()`.
+  - `BoardColumn.tsx:14-19` `useDroppable` com `data.status` configurado.
+  - `BoardCard.tsx:11-14` `useDraggable` com `data.taskId` e `data.status`.
+  - **MAS o gate não prova nada disso** — os 2 testes críticos (casos 2 e 5 da §4) são vacuous.
+- **`TaskClient` é interface transport-agnostic:** ✓ (TaskClient.ts:9-18). Sem implementação concreta — registrada como follow-up de integração em §6.
+- **`STATUS_TRANSITIONS` reflete state machine (subconjunto):** ✓ `statusTransitions.ts:3-21`. Não inclui `approve`/`request_changes`/`claim` (separação de papéis do MGTIA).
+- **Sem scope creep:** ✓ diff é exatamente os 9 arquivos da §3 (+ lockfile). Não tocou em `apps/estaleiro/core/`, `apps/estaleiro/ui/src/stores/board.ts`, ou `apps/estaleiro/ui/src/ws/`.
+- **Decisão do transporte de `TaskClient` registrada em §6:** ✓ como follow-up de integração. Não inventada nem silenciada.
+- **`@dnd-kit/core` + `@dnd-kit/sortable` em `dependencies` (não devDeps):** ✓ `package.json:15-16`.
+- **Handover §8 VAZIO:** apenas `-` (linha 392-393). Spec §0/§7 exige saída literal colada. Falta de processo.
+
+**Achados:**
+
+| Sev | ID | Achado | Disposição |
+|---|---|---|---|
+| **M1** | EST-14b/M1 | **Testes 5 e 6 do `BoardView.test.tsx` (linhas 107-121 e 123-137) NÃO exercitam o comportamento que o spec §4 casos 5 e 2 demandam.** (a) caso 2: spec pede "Render BoardView, fireEvent.dragStart no card da coluna ready, fireEvent.drop na coluna in_progress; asserção: taskClient.transition foi chamado com (taskId, 'start', actor)" — worker chama `client.transition()` direto (bypassando o Board), provando só que o mock funciona. (b) caso 5: spec pede "Mock transition rejeita com Error('GuardError'); após a promise resolver, boardStore volta ao valor original ('ready')" — worker mocka a rejeição mas NUNCA chama transition, então o catch nunca executa e o rollback nunca é provado. Os 6 testes verdes dão **falsa confiança**: o gate não prova o flow crítico de optimistic update + rollback. | rework (bloqueante para aprovação) |
+| m1 | EST-14b/m1 | Handover §8 da spec está VAZIO (apenas `-`). Spec §0 linha 374: "Worker deve colar a saída literal destes comandos na Seção 8". Falta de processo. O Gate é verde, mas o worker não documentou a evidência. | rework; re-fill no rework |
+
+> **1 major (bloqueante para aprovação), 1 minor (process).** M1 vai para rework; m1 pode ir para ledger após rework corrigir.
+
+**Veredito final:** **REFATORAÇÃO NECESSÁRIA (Caminho B).** A impl parece correta em revisão manual, mas os 2 testes críticos (casos 2 e 5 do spec §4) não validam o comportamento prometido. Sem esses testes, mergear é apostar no impl sem evidência. Fix esperado: 2 testes reais que usem `renderHook` (de @testing-library/react) OU um wrapper DnD mockado OU (com fragilidade) `fireEvent.pointerDown/Move/Up` com sensor activation do dnd-kit. Adicionalmente, preencher o Handover §8 com saída literal. `request_changes` encadeado via `--integrar`.
+
+**Sugestão de fix (caminho mais robusto):**
+```ts
+// 1. Caso 2 — usar renderHook para testar useTransitionTask diretamente
+import { renderHook, act } from '@testing-library/react';
+it('caso 2: useTransitionTask chama taskClient.transition com verb correto + optimistic update', async () => {
+  const client = createMockTaskClient([makeTask('T-1', 'ready', 'X')]);
+  const { result } = renderHook(() => useTransitionTask(client, 'op'));
+  boardStore.setRow('tasks', 'T-1', { id: 'T-1', status: 'ready', title: 'X' });
+  await act(async () => { await result.current.transition('T-1', 'in_progress'); });
+  expect(client.transition).toHaveBeenCalledWith('T-1', 'start', 'op');
+  const row = boardStore.getRow('tasks', 'T-1') as { status: string };
+  expect(row.status).toBe('in_progress'); // optimistic
+});
+
+// 2. Caso 5 — mock rejeitar e chamar transition de fato
+it('caso 5: erro de transition reverte status + expoe erro', async () => {
+  const client = createMockTaskClient([makeTask('T-1', 'ready', 'X')]);
+  client.transition = vi.fn().mockRejectedValue(new Error('GuardError'));
+  const { result } = renderHook(() => useTransitionTask(client, 'op'));
+  boardStore.setRow('tasks', 'T-1', { id: 'T-1', status: 'ready', title: 'X' });
+  await act(async () => { try { await result.current.transition('T-1', 'in_progress'); } catch {} });
+  const row = boardStore.getRow('tasks', 'T-1') as { status: string };
+  expect(row.status).toBe('ready'); // ROLLBACK
+  expect(result.current.errors.get('T-1')?.message).toBe('GuardError'); // erro exposto
+});
+```
+
+### Parecer do Agente Revisor (Reviewer 2 — re-audit pós-rework):
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — saída literal do Gate):**
+- **Evidência de Execução (obrigatória):**
 ```
-(cole aqui `pnpm --filter @plataforma/estaleiro-ui build && test && lint`)
+$ cd C:/Dev2026/.superapp-worktrees/EST-14b && pnpm --filter @plataforma/estaleiro-ui build
+$ tsc
+(Exit Code 0)
+
+$ pnpm --filter @plataforma/estaleiro-ui test
+$ vitest run
+ ✓ tests/smoke.test.ts         (1 test)  158ms
+ ✓ tests/ws-client.test.ts     (2 tests) 343ms
+ ✓ tests/shell.test.tsx        (2 tests)  34ms
+ ✓ tests/BoardView.test.tsx    (6 tests) 120ms
+ Test Files  4 passed (4)
+      Tests  11 passed (11)
+(Exit Code 0)
+
+$ pnpm --filter @plataforma/estaleiro-ui lint
+$ eslint src/
+(Exit Code 0)
 ```
-- **Comentários de Revisão:**
+
+- **Comentários de Revisão (R2 — independente):**
+Auditoria fria: li a spec §1-§7, o diff do rework (`2b4ee6a`), rodei o Gate, e inspecionei `hooks.ts` (linhas 122-174) + `BoardView.test.tsx` (linhas 108-139) + `statusTransitions.ts`. Resultado: **0 bloqueantes, 0 MAJOR, 0 minor, 0 info novos.** M1 do R1 verificado corrigido.
+
+**M1 (R1) — verificado como corrigido:**
+- Diff em `BoardView.test.tsx:108-139` reescreve testes 5 e 6 com `renderHook` (de `@testing-library/react@16.3.2`, disponível):
+  - **Test 5 (rollback, linhas 108-122):** chama `createMockTaskClient([makeTask("T-1", "ready", "Task 1")])` (que popula `boardStore` com T-1 status='ready' via `setRow` em `TaskClient.fixture.ts:11-16`), substitui `client.transition` por mock que rejeita com `GuardError`, usa `renderHook(() => useTransitionTask(client, "op"))` para obter a função `transition`, e chama `result.current.transition("T-1", "in_progress")` dentro de `act()`. Asserts: `row?.status === 'ready'` (rollback funcionou — `useTransitionTask:150-157` reverte para `prevStatus`) e `result.current.errors.get("T-1")?.message === 'GuardError'` (erro exposto via `errors` map). **Prova o caminho catch — diferente do teste original que nunca chamava transition.**
+  - **Test 6 (verb + optimistic, linhas 124-139):** mesmo setup mas com `transitionSpy = vi.fn().mockResolvedValue(...)`. Chama `result.current.transition("T-1", "in_progress")`. Asserts: `transitionSpy` foi chamado com `("T-1", "start", "op")` (verb mapping `STATUS_TRANSITIONS.ready[0].verb === 'start'`) e `row?.status === 'in_progress'` (optimistic update — `useTransitionTask:140` faz `setRow` antes do await).
+- Abordagem `renderHook` é a **recomendada pelo R1** e está em produção em muitos projetos React — bypassa a fragilidade de `fireEvent` em dnd-kit (que precisa de sensor activation), testa a unidade `useTransitionTask` diretamente, e cobre tanto o path de sucesso quanto o de erro.
+
+**m1 (R1) — verificado como corrigido:**
+- Handover §8 linhas 393-411 agora tem saída literal: `=== BUILD ===` (tsc 0), `=== TEST ===` (4 files / 11 tests passed), `=== LINT ===` (eslint 0). Conforme spec §0 linha 374.
+
+**Conformidade com a spec (R2):**
+- §3 Escopo: 9 arquivos da §3 + `pnpm-lock.yaml` (auto-update de deps) = 10 arquivos modificados, conforme diff do feat commit `6b94828`. ✓
+- §4 6 casos de teste: 6/6 verdes (BoardView.test.tsx). ✓
+- §5 NÃO FAZER: sem REST endpoints, sem importar `plugin-tasks/src/service` (server-side), sem expor `approve`/`request_changes`/`claim` (grep `views/board/*.ts(x)` retorna vazio para esses verbos — separação de papéis do MGTIA ✓), sem reordenar dentro da coluna (fora de escopo), sem modificar `stores/board.ts` ou `ws/*` (escopo de EST-14a preservado), sem deps de runtime além das listadas. ✓
+- §7 DoD: build 0, test 11/11, lint 0. ✓
+- §6 Decisão arquitetural registrada: transporte de `TaskClient` é follow-up de integração (depende de EST-15). Não inventada nem silenciada. ✓
+- `TaskClient` é **interface** (não impl concreta) — `TaskClient.ts:9-18` confirma. ✓
+- `STATUS_TRANSITIONS` (`statusTransitions.ts:3-21`) reflete state machine como subconjunto: apenas `start`/`finish`/`pause`/`unblock`. Sem verbos do reviewer. ✓
+- `@dnd-kit/core@^6.3.1` + `@dnd-kit/sortable@^10.0.0` em `dependencies` (não devDependencies) — `package.json:15-16`. ✓
+- `useTransitionTask` (`hooks.ts:122-174`) tem try/catch com revert no `boardStore.setRow` (linhas 150-157). Pattern optimistic+rollback padrão. ✓
+- `useBoardTasks` (`hooks.ts:48-120`): assinatura WS + carga inicial + listener reativo do TinyBase. ✓
+- `BoardView` usa `DndContext` (dnd-kit) com `handleDragEnd` que valida from/to, busca verb em `STATUS_TRANSITIONS`, chama `transition()`. ✓
+
+**Gate de wiring:** sem caller real do `BoardView` ainda (App.tsx injeta mock — integração concreta do `taskclient` é follow-up dependente de EST-15, registrado em §6). Primitiva fechada e testada; gap é arquitetural, não do EST-14b.
+**Git:** worktree limpo, branch `task/EST-14b` 2 commits à frente de master, `origin/task/EST-14b` tem o rework commit `2b4ee6a`. Push feito pelo worker. ✓
+
+**Pendências R1 (m1) e observações:**
+- m1 do R1 (Handover §8 vazio) — **resolvido** no rework.
+- BoardCard usa `useDraggable` (dnd-kit) com `data.taskId` e `data.status` (verificado em `BoardCard.tsx:11-14`).
+- `useBoardTasks` no listener WS: `onEvent` definido via cast `as unknown as Record<string, unknown>` (`hooks.ts:91-104`) — workaround aceitável para assinatura dinâmica de eventos. Não-bloqueante (test 4 prova o comportamento via `ws.trigger`).
+- `useTransitionTask` linha 132-133: `if (!row) return` — early return silencioso se task não está no store. Pode ser UX problemático em produção (UI não mostra feedback) mas é defensivo. Não-bloqueante (não é escopo de EST-14b).
+
+**Veredito (R2):** **APROVADO.** M1 do R1 (testes 5 e 6 vacuous) está corrigido e verificado: diff usa `renderHook` para testar `useTransitionTask` diretamente, asserts cobrem rollback (status volta para 'ready' + erro no map) e verb mapping (`start` para `ready → in_progress` + optimistic update). m1 do R1 (Handover §8 vazio) corrigido com saída literal colada. Gate triplo verde, 11/11 testes, scope respeitado, sem `approve`/`request_changes`/`claim` expostos, deps de runtime corretas. Pendência do transporte de `TaskClient` é arquitetural (§6), não-bloqueante. Com `--integrar`, encadear `integrar-task` (merge da branch + approve).
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
@@ -408,3 +571,11 @@ Todos devem retornar **Exit Code 0**. Lint faz parte do gate (Regra 3 do CLAUDE.
 - **[2026-07-07T13:33]** - *claude-sonnet* - `[Endurecido]`: endureceu spec: TaskClient (interface transport-agnostic) + BoardView/Column/Card com @dnd-kit + hooks (useBoardTasks + useTransitionTask optimistic+rollback) + 6 testes; STATUS_TRANSITIONS derivado de EST-03b (sem verbos do reviewer); transporte de TaskClient registrado como follow-up dependente de EST-15
 - **[2026-07-07T13:58]** - *system* - `[Auto-promovida]`: dep EST-14a concluída
 - **[2026-07-07T14:10]** - *deepseek* - `[Iniciado]`: iniciando implementacao da view Board com DnD kanban
+- **[2026-07-07T14:23]** - *deepseek* - `[Finalizado]`: Board kanban: BoardView com @dnd-kit (DndContext + useDraggable/useDroppable), TaskClient interface transport-agnostic, STATUS_TRANSITIONS (12 statuses, 7 colunas visiveis), hooks useBoardTasks (TinyBase reativo + WS subscription) e useTransitionTask (optimistic+rollback). Gate: build ✅ · test 11/11 ✅ · lint ✅
+- **[2026-07-07T14:24]** - *agile_reviewer:claude-sonnet* - `[Em revisão]`: revisando EST-14b
+- **[2026-07-07T14:29]** - *agile_reviewer:claude-sonnet* - `[Requer Refatoração]`: Rework: [M1] testes 5 e 6 do BoardView.test.tsx nao exercitam o spec §4 casos 5 e 2 (rollback e DnD). Caso 5 (linhas 107-121) mocka transition rejeitando mas nunca chama — apenas verifica estado inicial; caso 6 (linhas 123-137) chama client.transition DIRETO bypassando useTransitionTask. Fix: usar renderHook (de @testing-library/react) para testar useTransitionTask isoladamente, OU DndContext mockado. Sugestao de codigo na Seção 8 do Parecer. m1: Handover §8 vazio — preencher com saida literal do Gate.
+- **[2026-07-07T16:47]** - *deepseek* - `[Iniciado]`: rework: corrigindo M1 testes 5&6 + m1 Handover §8
+- **[2026-07-07T16:50]** - *deepseek* - `[Finalizado]`: rework: M1 corrigido (testes 5&6 com renderHook exercitando rollback + verb) + m1 (Handover §8 preenchido) — build ✓ test 11/11 ✓ lint ✓
+- **[2026-07-07T16:53]** - *agile_reviewer:minimax* - `[Em revisão]`: QA R2 (rework): re-auditando apos fix de M1
+- **[2026-07-07T16:58]** - *agile_reviewer:minimax* - `[Aprovado]`: R2 independente: M1 verificado corrigido (testes 5&6 com renderHook exercitam rollback + verb mapping + optimistic). m1 do R1 (Handover §8 vazio) corrigido. Gate triplo verde, 11/11 tests, scope respeitado, sem approve/request_changes/claim, deps de runtime corretas. Encadeando integrar-task.
+- **[2026-07-07T16:59]** - *agile_reviewer:minimax* - `[Aprovado]`: Integrado: merge na master (commit 4888465) com resolucao de conflito em App.tsx (combinei imports fleet+board + tab content nested ternary) + pnpm-lock reconciliado, worktree removida, Gate verde (build 0, test 20/20, lint 0). m1 do R1 (Handover §8) corrigido no rework. Sem pendencias novas.
