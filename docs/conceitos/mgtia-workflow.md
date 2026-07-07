@@ -43,7 +43,7 @@ Diferente da v3, **não há mais eixo separado `spec_status`**. A qualidade da s
 
 - **Auto-promote on harden:** se `harden`/`decide` resultou em `draft:hardened` e as deps estão todas `done`, promove automaticamente para `ready`.
 - **autoPromoteDependents:** ao `approve → done`, promove todo dependente em `draft:hardened` cujas deps agora estão todas `done`.
-- **parentAutoClose:** ao `approve → done` da última filha de um pai decomposto, encerra o pai automaticamente (`→ done`).
+- **parentAutoClose:** ao `approve → done` da última filha de um pai decomposto, encerra o pai automaticamente (`→ done`). O Log §9 registra como `[Auto-encerrado]`.
 
 ---
 

@@ -33,9 +33,10 @@ Algumas tasks (ex.: `ORQ-*`) são **tooling do Docs** — editam scripts/skills 
 branch/worktree no superapp (§0 da spec diz "Tarefa de TOOLING do CONTROLE"). Confirme:
 `node tools/scripts/worktree.mjs ls | grep task/$ARGUMENTS` — **vazio** = tooling. Para essas, use
 **Caminho A-tooling** (pula merge — não existe o que mergear) em vez do Caminho A normal.
-**NUNCA** rode `manage-task.mjs approve` direto fora desta skill — é exatamente esse atalho que pula
-os passos 7-11 (pendências, encerra pais, **reendurece dependentes**, promove) e foi o que travou
-ORQ-02 esperando ORQ-01 (aprovada na mão, sem a propagação JIT).
+**NUNCA** rode `manage-task.mjs approve` direto fora desta skill — é exatamente esse atalho que pula:
+- **Passos MANUAIS** desta skill: anexar pendências ao ledger, encerrar pais não decompostos.
+- **Side-effects AUTOMÁTICOS** (T-1029): `parentAutoClose` (encerra pai decomposto, log `[Auto-encerrado]`), `autoPromoteDependents` (promove dependentes elegíveis).
+Foi o approve manual que travou ORQ-02 esperando ORQ-01 (aprovada na mão, sem a propagação automática).
 
 ## Caminho A-tooling — Parecer = APROVADO, SEM worktree (task de tooling do controle)
 
