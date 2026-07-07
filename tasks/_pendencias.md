@@ -18,7 +18,7 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i3][EST-14a][estaleiro/ui] `freePort()` no `ws-client.test.ts` cria 2 `WebSocketServer` separados no caso 1 — wasteful mas nao-bloqueante. Track: reaproveitar a instancia (apps/estaleiro/ui/tests/ws-client.test.ts:6-14,22)
 <!-- END EST-14a -->
 <!-- EST-13a -->
-- [ ] [i1][EST-13a][plugin-knowledge] `package.json` `exports` aponta para `./src/graph.ts` (TS source) em vez de `./dist/graph.js`. Consistente com packages/plugin-tasks/ provavelmente, mas exige que o consumidor seja TS-aware. Track: confirmar politica do monorepo para plugins v1; se alinhar com dist/, ajustar exports + consumers (packages/plugin-knowledge/package.json:7-8)
+- [x] [i1][EST-13a][plugin-knowledge] `package.json` `exports` aponta para `./src/graph.ts` (TS source) em vez de `./dist/graph.js`. ✅ RESOLVIDO em EST-13c (commit `c643d73`): `exports: { ".": "./src/index.ts" }` agora aponta para o barrel que re-exporta `makeGraph` + `makeWriter` + tipos. (packages/plugin-knowledge/package.json:7-8)
 - [ ] [i2][EST-13a][plugin-knowledge] `findMdFiles` faz recursao O(n) sequencial sobre o corpus. Para o wiki atual (centenas de paginas) e OKF incremental e aceitavel; se chegar a 10k+ arquivos, paralelizar. Track: re-medir quando corpus > 5k (packages/plugin-knowledge/src/graph.ts:88-101)
 - [ ] [i3][EST-13a][estaleiro/processo] Handover §8 nao foi preenchido pelo worker (deepseek) — apenas Log §9 tem resumo "7/7 testes verdes, lint limpo, build ok". Spec/worker-script deveria lembrar o worker a preencher §8 antes do `finish` (tasks/EST-13a.md:148-150)
 <!-- END EST-13a -->
