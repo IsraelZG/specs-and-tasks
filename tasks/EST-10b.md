@@ -1,7 +1,7 @@
 ---
 id: EST-10b
 title: "plugin-providers: fallback tiers + circuit-breaker/cooldown"
-status: draft:hardened
+status: done
 complexity: 3
 target_agent: devops_agent
 reviewer_agent: agile_reviewer
@@ -220,16 +220,205 @@ pnpm --filter @plataforma/plugin-providers lint
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
--
+- CircuitBreaker + selectProvider implementados (adaptados do OmniRoute, in-memory)
+- 8 testes de fallback + 5 testes de registry (EST-10a) = 13 passando
+- Adaptive backoff: dobra resetTimeout apenas em re-abertura (HALF_OPEN → OPEN)
+- Gate: build ✅ · test ✅ (13/13) · lint ✅
 
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória):**
 ```
+=== BUILD ===
+$ tsc
+(Exit code 0)
+
+=== TEST ===
+$ vitest run
+✓ tests/registry.test.ts (5 tests) 5ms
+✓ tests/fallback.test.ts (8 tests) 360ms
+Test Files  2 passed (2)
+     Tests  13 passed (13)
+(Exit code 0)
+
+=== LINT ===
+$ eslint src/
+(Exit code 0)
 ```
+
+- **Comentários de Revisão:**
+
+---
+
+### Parecer do Reviewer 2 (minimax, independente):
+
+- [ ] **Aprovado**
+- [x] **Requer Refatoração**
+
+- **Evidência de Execução (obrigatória):**
+```
+$ pnpm --filter @plataforma/plugin-providers build  → (tsc, sem erros — re-executado por minimax na worktree task/EST-10b)
+$ pnpm --filter @plataforma/plugin-providers test   → Test Files 2 passed · Tests 13 passed (13)
+$ pnpm --filter @plataforma/plugin-providers lint   → (sem warnings/errors)
+```
+
+- **Comentários de Revisão:**
+
+  **MAJOR [M1] — `halfOpenRequests` declarado mas nunca usado.**
+  `src/fallback.ts:18` declara `private halfOpenRequests: number;` e a
+  L28 o armazena no construtor. Nenhuma outra leitura ocorre no arquivo.
+  `canRequest()` (L35-38) ignora o limite de HALF_OPEN — apenas checa
+  `state !== 'OPEN'`. O campo `halfOpenCount` (L12) é zerado em 4
+  lugares (L46, L88, L115, L122) e nunca incrementado. Isso viola:
+    - Spec §1 L62-63: o parâmetro é documentado como **real**, com
+      default 1, citando OmniRoute L139.
+    - Spec §1 L91: a ref. `canExecute (OmniRoute L277-283)` —
+      OmniRoute L281 retorna `this.halfOpenAllowed > 0` em HALF_OPEN.
+    - DoD §7 L199: "`canRequest()` respeita cooldown + **HALF_OPEN
+      probe limit**?" — explicitamente enumerado, não implementado.
+  Com `halfOpenRequests: 1` (default) a impl. parece correta por
+  acidente; com `halfOpenRequests: 2+` o limite é silenciosamente
+  violado. EST-10c (scoring/telemetria) pode precisar de probe
+  >1 e vai descobrir o bug.
+  **Ação:** (1) em `_transition` (branch HALF_OPEN) inicializar
+  `this.halfOpenCount = this.halfOpenRequests`; (2) em `canRequest()`
+  tratar `HALF_OPEN` retornando `this.halfOpenCount > 0`; (3) somar
+  teste no `fallback.test.ts` que prova o limite (sonda (b) abaixo).
+
+  **MINOR [m1] — `src/index.ts` modificado fora do escopo declarado em §3.**
+  Funcionalmente necessário (consumidores precisam dos exports), mas
+  não listado. Sugestão: adicionar `[EDIT] src/index.ts` em §3 no rework
+  ou aceitar como acoplamento implícito.
+
+  **MINOR [m2] — DEGRADED→CLOSED recovery em recordSuccess() ausente.**
+  Divergência do OmniRoute L339-341, não exigida pela spec §5.
+  Sugestão: implementar para fidelidade, ou documentar como desvio
+  intencional.
+
+  **INFO [i1]** — 3 sondas adversariais concebidas. Sonda (a) passa
+  (`return null` no fim do loop), sonda (c) passa (DEGRADED→OPEN via
+  failureCount≥failureThreshold), sonda (d) passa (recordSuccess
+  tolerante em CLOSED). Sonda (b) **falha pré-fix** e prova o [M1] —
+  é o teste de aceitação natural do rework:
+  ```ts
+  it('(b) halfOpenRequests: 2 — segundo probe em HALF_OPEN é bloqueado', async () => {
+    const cb = new CircuitBreaker('p', {
+      failureThreshold: 1, resetTimeout: 50, halfOpenRequests: 2,
+    });
+    cb.recordFailure();
+    await new Promise((r) => setTimeout(r, 60));   // → HALF_OPEN
+    expect(cb.getState()).toBe('HALF_OPEN');
+    expect(cb.canRequest()).toBe(true);            // 1º probe OK
+    // PRÉ-FIX: ainda retorna true (BUG). PÓS-FIX: deve retornar false.
+    expect(cb.canRequest()).toBe(false);
+  });
+  ```
+
+  **INFO [i2]** — Gates de execução (pnpm build/test/lint) re-executados
+  pelo orquestrador minimax: build OK · test 13/13 · lint OK.
+
+  **INFO [i3]** — Adaptação do OmniRoute em geral é FIEL: 4 estados,
+  `_refreshOpenState` por timestamp, kindThresholds independente de
+  failureCount, adaptive backoff dobrando apenas HALF_OPEN→OPEN, sem
+  DB persistence (escopo in-memory respeitado), sem `execute(fn)`
+  (escopo respeitado), sem deps externas (package.json tem só
+  devDeps), `selectProvider` com `ReadonlySet` + sem mutar `breakerMap`.
+  Tudo bate com §3, §5, §7 do checklist do reviewer.
+
+- **Divergência do parecer anterior:** o Handover (worker deepseek) lista
+  "build ✅ test ✅ 13/13 lint ✅" como gates verdes e marca a entrega
+  como pronta. O Handover não cita `halfOpenRequests` como problema nem
+  como nota — a omissão é o sintoma. Este reviewer independente encontrou
+  [M1] por grep cruzado com a spec §1 + OmniRoute L139/L281. Mantenho
+  REFATORAÇÃO NECESSÁRIA.
+
+### Parecer do Reviewer 3 (minimax-m3, independente — pós-rework):
+
+- [x] **Aprovado**
+- [ ] **Requer Refatoração**
+
+- **Evidência de Execução (obrigatória):**
+```
+$ pnpm --filter @plataforma/plugin-providers build
+$ tsc
+(Exit code 0)
+
+$ pnpm --filter @plataforma/plugin-providers test
+$ vitest run
+ ✓ tests/registry.test.ts (5 tests) 5ms
+ ✓ tests/fallback.test.ts (9 tests) 423ms
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+(Exit code 0)
+
+$ pnpm --filter @plataforma/plugin-providers lint
+$ eslint src/
+(Exit code 0)
+```
+
+- **Comentários de Revisão:**
+
+  **Reverificação do [M1] (Reviewer 2) — RESOLVIDO.** O commit
+  `9f89ec6 fix(EST-10b): [M1] halfOpenRequests probe limit` corrige
+  o defeito identificado:
+    - `src/fallback.ts:35-41` — `canRequest()` agora trata `HALF_OPEN`
+      com `return this.halfOpenCount-- > 0;`, decrementando o contador
+      a cada probe.
+    - `src/fallback.ts:124-126` — `_transition('HALF_OPEN')` inicializa
+      `this.halfOpenCount = this.halfOpenRequests` (era `0`).
+  Test 9 (`fallback.test.ts:97-108`) prova o limite com
+  `halfOpenRequests: 2`: 1º e 2º probes OK, 3º bloqueado. Gate do
+  re-run: build OK · test 14/14 (era 13) · lint OK.
+
+  **Sondas adversariais (3/3 passaram; arquivos removidos):**
+    - (A) `onStateChange` callback dispara em todas as transições
+      (CLOSED→OPEN, OPEN→HALF_OPEN, HALF_OPEN→OPEN, HALF_OPEN→CLOSED)
+      — PASS.
+    - (B) `halfOpenCount` é resetado em cada novo ciclo HALF_OPEN
+      (não fica preso em 0/-1 do ciclo anterior) — PASS.
+    - (C) `selectProvider` é puro: `failedSet` e `breakerMap` inalterados
+      após a chamada (tamanho + estados dos breakers idênticos antes/
+      depois) — PASS.
+
+  **MINORs pré-existentes do Reviewer 2 — não-bloqueantes, vão para o
+  ledger de pendências no `integrar-task`:**
+    - [m1] `src/index.ts` continua fora do escopo declarado em §3. O
+      arquivo é funcionalmente necessário (re-exporta tipos e funções
+      para o `@plataforma/plugin-providers` consumido via
+      `package.json#exports`); worker não adicionou `[EDIT] src/index.ts`
+      à §3 nem documentou o acoplamento implícito. Não bloqueia
+      integração.
+    - [m2] DEGRADED→CLOSED recovery em `recordSuccess()` segue ausente.
+      Spec §5 não exige (OmniRoute L339-341 só — desvio intencional
+      ou melhoria de fidelidade). Não bloqueia integração.
+
+  **Checklist DoD §7 — todos verdes:**
+    - [x] CircuitBreaker com 4 estados (CLOSED/DEGRADED/OPEN/HALF_OPEN) ✓
+    - [x] `canRequest()` respeita cooldown + HALF_OPEN probe limit ✓
+    - [x] `recordFailure` com `FailureKind` opcional e kind thresholds ✓
+    - [x] `selectProvider` pula providers em cooldown e retorna o
+      primeiro disponível ✓
+    - [x] Testes 1–8 verdes + bônus 9 (probe limit) ✓
+
+- **Divergência do parecer anterior:** Reviewer 2 marcou REFATORAÇÃO
+  NECESSÁRIA com [M1] halfOpenRequests probe limit não implementado.
+  Worker (deepseek) entregou rework `9f89ec6` que (a) conserta `canRequest`
+  com `halfOpenCount-- > 0` em HALF_OPEN, (b) inicializa `halfOpenCount =
+  halfOpenRequests` em `_transition('HALF_OPEN')`, e (c) adiciona teste
+  9 provando o limite. Re-executei build/test/lint e sondas (A/B/C) — o
+  defeito está resolvido na raiz. Veredito rebaixado para **APROVADO**.
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-06T17:53]** - *deepseek* - `[Triado]`: triado — fallback tiers + circuit-breaker, capacity=sonnet, depende de EST-10a, decisoes fechadas no OmniRoute + RFC-018
 - **[2026-07-06T17:53]** - *deepseek* - `[Endurecido]`: endureceu spec — CircuitBreaker derivado de OmniRoute + selectProvider, 8 casos de teste, gate build+test+lint, capacity=sonnet
+- **[2026-07-07T00:11]** - *system* - `[Auto-promovida]`: dep EST-10a concluída
+- **[2026-07-07T00:32]** - *deepseek* - `[Iniciado]`: iniciando
+- **[2026-07-07T12:52]** - *deepseek* - `[Finalizado]`: CircuitBreaker + selectProvider — adaptados do OmniRoute, in-memory. 13/13 testes verdes. build+lint limpos.
+- **[2026-07-07T13:07]** - *agile_reviewer:minimax* - `[Em revisão]`: revisando EST-10b (qa-review --integrar)
+- **[2026-07-07T13:15]** - *agile_reviewer:minimax* - `[Requer Refatoração]`: Rework: [M1] halfOpenRequests declarado mas nunca usado — canRequest() (fallback.ts:35-38) ignora o probe limit em HALF_OPEN. _transition não inicializa halfOpenCount = halfOpenRequests (L121-123). Spec §1 L62-63 + §1 L91 (OmniRoute L281 canExecute) + DoD §7 L199 violados. Ação: (1) em _transition branch HALF_OPEN setar this.halfOpenCount = this.halfOpenRequests; (2) em canRequest() tratar HALF_OPEN retornando this.halfOpenCount > 0; (3) adicionar teste no fallback.test.ts que prova o limite (sonda (b) do parecer). Não-bloqueantes [m1][m2] → ledger _pendencias.md.
+- **[2026-07-07T13:17]** - *deepseek* - `[Iniciado]`: rework: corrigindo [M1] halfOpenRequests probe limit
+- **[2026-07-07T13:21]** - *deepseek* - `[Finalizado]`: rework pronto: [M1] halfOpenRequests probe limit corrigido — canRequest() agora inicializa halfOpenCount=halfOpenRequests na transicao HALF_OPEN e decrementa a cada probe; sonda (b) adicionada (9o teste). Gate: build ✅ · test 14/14 ✅ · lint ✅
+- **[2026-07-07T13:23]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: qa-review --integrar: revisando EST-10b
+- **[2026-07-07T13:31]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: Integrado: merge na master (commit f1ce0a2), worktree removida, Gate verde (build OK, test 14/14, lint OK). 2 nao-bloqueantes (m1 m2) ja no ledger de pendencias (Reviewer 2 pre-existente; Reviewer 3 concorda). Push master OK (5dcb7a5..f1ce0a2).
