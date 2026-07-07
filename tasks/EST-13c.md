@@ -1,7 +1,7 @@
 ---
 id: EST-13c
 title: "plugin-knowledge: Writer serial de commits (compartilhado com EST-12)"
-status: in_review
+status: done
 complexity: 2
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -210,3 +210,4 @@ Sondas ad-hoc em `tests/probe.test.ts` (criado durante revisão, removido depois
 - **[2026-07-07T14:02]** - *deepseek* - `[Iniciado]`: iniciando — writer serial (delega ao CommitPort EST-02d)
 - **[2026-07-07T14:05]** - *deepseek* - `[Finalizado]`: writer serial: delegacao pura ao CommitPort. 12/12 testes verdes. build+lint limpos.
 - **[2026-07-07T14:08]** - *agile_reviewer:claude-sonnet* - `[Em revisão]`: revisando EST-13c
+- **[2026-07-07T14:16]** - *agile_reviewer:claude-sonnet* - `[Aprovado]`: Integrado: merge na master (commit 488102b), worktree removida, Gate verde (19/19 testes = 5 writer + 7 graph + 7 fts, build+lint OK). 3 nao-bloqueantes (m1/m2/m3) + 5 infos -> ledger. i1[EST-13a] e i1[EST-13b] tambem fechados.
