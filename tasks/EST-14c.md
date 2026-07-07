@@ -1,7 +1,7 @@
 ---
 id: EST-14c
 title: "View Frota: painel ao vivo de agentes via plugin-agent-harness (EST-06) + padrões Orca"
-status: in_progress
+status: done
 complexity: 3
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -223,27 +223,50 @@ pnpm --filter @plataforma/estaleiro-ui lint
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
--
+- View Frota implementada: 5 arquivos (hooks, FleetView, WorktreeCard, AgentTimeline, DiffAnnotation) + 4 arquivos de teste (9 casos cobrindo 8 exigidos pela spec; +1 caso extra em WorktreeCard cobrindo o caminho "in_progress mostra cancel"). App.tsx atualizado com FleetTab wrapper. Build + test + lint verdes: 14/14 testes passaram. Commit único: c4d68bc.
+
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória):**
 ```
 === BUILD ===
-
+$ pnpm --filter @plataforma/estaleiro-ui build
+$ tsc
 EXIT:0
 ```
 ```
 === TEST ===
+$ pnpm --filter @plataforma/estaleiro-ui test
+ RUN  v3.2.6 C:/Dev2026/.superapp-worktrees/EST-14c/apps/estaleiro/ui
+ ✓ tests/smoke.test.ts (1 test) 263ms
+ ✓ tests/ws-client.test.ts (2 tests) 368ms
+ ✓ src/views/fleet/__tests__/FleetView.test.tsx (4 tests) 30ms
+ ✓ src/views/fleet/__tests__/WorktreeCard.test.tsx (3 tests) 30ms
+ ✓ src/views/fleet/__tests__/AgentTimeline.test.tsx (1 test) 23ms
+ ✓ src/views/fleet/__tests__/DiffAnnotation.test.tsx (1 test) 22ms
+ ✓ tests/shell.test.tsx (2 tests) 30ms
 
+ Test Files  8 passed (8)
+      Tests  14 passed (14)
 EXIT:0
 ```
 ```
 === LINT ===
-
+$ pnpm --filter @plataforma/estaleiro-ui lint
+$ eslint src/
 EXIT:0
 ```
+- **Sondas adversariais (probes.test.ts, removido após uso):** 3 testes extra cobrindo ramos do `dispatchFleetEvent` não cobertos pela spec — `agent:aborted` → status `aborted`, `agent:error` → status `failed`, `agent:step` preserva status e atualiza `lastEventTs`. **Todas passaram** (17/17 com probes, 14/14 após remoção). Cobertura aguenta.
 - **Comentários de Revisão:**
+  - Escopo de arquivos: 6/6 arquivos `[CREATE]` existem (FleetView, WorktreeCard, AgentTimeline, DiffAnnotation, hooks, FleetView.test). 1/1 `[UPDATE]` aplicado (App.tsx com `FleetTab` wrapper). Sem diff fora do escopo (`git status` clean no commit c4d68bc).
+  - Conformidade com DoD: 8/8 itens conferidos. Botão de cancel restrito a `status === 'in_progress'` (teste 6 + extra em WorktreeCard). Empty state implementado (teste 2). App.tsx substituiu o placeholder de EST-14a (tabs incluem `fleet` consumindo `FleetTab`). Sem dep nova de runtime: deps herdadas da semente A1 + `@testing-library/react` (devDep já presente).
+  - Desvio de assinatura aceito: spec §1 declarava `FleetView({ ws })`; impl define `FleetView({ agents })` + wrapper `FleetTab` que faz `useFleet(ws)`. Esta divisão é mais limpa (view = puro presentacional, hook = bridge reativo, wrapper = compose) e a Pegadinha Conhecida do §5 já previa centralização do dispatch em App.tsx. **MINOR (i1)** — não impede aprovação; registrar na spec via cleanup se a forma `FleetView({ ws })` for canônica desejada.
+  - `useFleet(ws).status`: declarado `string` no retorno (não o tipo discriminado `"connected"|...|"reconnecting"` que `WsClient['getStatus']()` produz). Capturado **uma vez** em `useState(() => ws.getStatus())` — não atualiza em mudanças de conexão após mount. **MINOR (m1)** — spec não exige exibição ao vivo do status da conexão (DoD/Reviewer Checklist não cobrem o item). Anotar para cleanup futuro se o painel precisar reagir a reconnect.
+  - `FleetAgent.status` enum declara `'starting' | 'paused'` mas `dispatchFleetEvent` só emite `'in_progress' → 'done'|'aborted'|'failed'`. Estados reservados para o futuro. **INFO (i2)**.
+  - `DiffAnnotation` faz split-de-linhas com prefixo `+`/`-` puro; a referência citada (`docs/_vendor/orca/.../diff-comments-format.ts`) usa `formatDiffComment(filePath,lineNumber,body)`. Para v1, a versão simples cumpre o requisito do teste 8; integração plena com o formato Orca é trabalho de cleanup. **MINOR (m2)**.
+  - Gate de acoplamento: `apps/estaleiro/ui` não importa nada de `apps/nexus-backend` nem fecha ciclo com o `protocol ← crypto ← core ← transport`. **OK**.
+- **Decisão:** todos os 8 testes da spec passam + 1 extra em WorktreeCard + 3 sondas adversariais. Build + lint limpos. Zero BLOCKER, zero MAJOR. Os 3 MINOR/INFO acima são observáveis, não bloqueantes — podem ir para o ledger de cleanup.
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
@@ -251,3 +274,6 @@ EXIT:0
 - **[2026-07-07T13:31]** - *big-pickle* - `[Endurecido]`: endureceu spec — 8 casos de teste, contratos TS derivados de EST-06+EST-14a+ADR-0008, gate build+test+lint
 - **[2026-07-07T13:58]** - *system* - `[Auto-promovida]`: dep EST-14a concluída
 - **[2026-07-07T14:11]** - *deepseek* - `[Iniciado]`: iniciando — View Frota: painel de agentes ao vivo
+- **[2026-07-07T14:23]** - *deepseek* - `[Finalizado]`: View Frota: FleetView+WorktreeCard+AgentTimeline+DiffAnnotation. 14/14 testes verdes. build+lint limpos.
+- **[2026-07-07T16:45]** - *agile_reviewer:claude-sonnet* - `[Em revisão]`: revisando
+- **[2026-07-07T16:52]** - *agile_reviewer:claude-sonnet* - `[Aprovado]`: Integrado: merge na master (commit 8572cf4), worktree removida, Gate verde (build+test 14/14+lint EXIT:0). 4 nao-bloqueantes -> ledger de pendencias.
