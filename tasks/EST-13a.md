@@ -1,7 +1,7 @@
 ---
 id: EST-13a
 title: "plugin-knowledge: OKF graph — wikilinks + frontmatter"
-status: draft:hardened
+status: done
 complexity: 2
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -149,15 +149,59 @@ Todos Exit Code 0. Lint sem erros NOVOS.
 ### Handover do Executor:
 -
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+- [x] **Aprovado**
 - [ ] **Requer Refatoracao**
 - **Evidencia de Execucao (obrigatoria):**
 ```
+$ pnpm --filter @plataforma/plugin-knowledge build
+> tsc
+(exit 0)
+
+$ pnpm --filter @plataforma/plugin-knowledge test
+> vitest run
+ RUN  v3.2.6  C:/Dev2026/.superapp-worktrees/EST-13a/packages/plugin-knowledge
+ ✓ tests/graph.test.ts (7 tests) 50ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+(exit 0)
+
+$ pnpm --filter @plataforma/plugin-knowledge lint
+> eslint src/
+(exit 0 — sem erros)
+
+Sondas adversariais (4/4 passaram — probe removida do deliverable):
+- P1. corpus vazio -> buildGraph retorna 0, listSlugs []
+- P2. wikilink para slug inexistente -> mantido em `links`, `outbound` ignora sem crash
+- P3. subdiretorio descoberto recursivamente
+- P4. self-link [[a]] em a.md -> a em proprio `links` e `backlinks`
 ```
 - **Comentarios de Revisao:**
+Auditoria independente (anti-ancoragem): li a spec, rodei Gate + sondas, cheguei ao veredito ANTES de olhar a Handover/Log. Resultado: zero achados bloqueantes/maores.
+
+**Conformidade com a spec:**
+- §3 Escopo: 4 arquivos criados (package.json, tsconfig.json, src/graph.ts, tests/graph.test.ts). Sem fts.ts/writer.ts (escopo das irmaes EST-13b/13c). Sem mexer em pnpm-workspace.yaml. ✓
+- §4 7 casos de teste verdes (1-7 enumerados). Caso 1 esperava 3 arquivos, fixture tem 4 (a, b, c, vazio) — mais estrito, aceitavel.
+- §5 NAO FAZER: graph.ts NAO usa `node:fs` para `readFile` (passa por `opts.fs.readFile` do FsPort). Usa `readdir` de `node:fs/promises` APENAS para listar diretorios (FsPort nao expoe readdir), alinhado com §0 "lista diretorio com bash `find` ou leitura Node".
+- §7 DoD: build (tsc) exit 0, test 7/7, lint 0 erros NOVOS. Plugin manifest respeitado (TEST_MANIFEST com capabilities `["fs"]`).
+
+**Gate de wiring:** N/A — graph e primitiva de leitura, sera consumida por EST-13b (FTS) e EST-13c (writer). Tarefas-irmaas no backlog ja cobrem a ligacao. Sem gap.
+**Gate de acoplamento:** `import` unico cross-package e de `@plataforma/estaleiro-core` (EST-02, done) — direcao `plugin-knowledge -> estaleiro-core` segue a hierarquia `protocol <- crypto <- core <- transport`/`plugins`. Sem ciclo.
+
+**INFO (nao impede aprovacao):**
+- `package.json` `exports` aponta para `./src/graph.ts` (TS source) em vez de `./dist/graph.js`. Consistente com packages/plugin-tasks/, mas exige que o consumidor tambem seja TS-aware. Confirmar se alinhado com a politica do monorepo para plugins v1.
+- `findMdFiles` faz recursao O(n) sequencial sobre o corpus. Para o wiki atual (centenas de paginas) e OKF incremental, e aceitavel; se chegar a 10k+ arquivos, paralelizar.
+- Handover do Executor (§8) nao foi preenchido pelo worker — apenas Log §9 tem resumo. Reendurecer-template ou script de executar-task deveria lembrar o worker a preencher §8 antes de `finish`.
+
+**Veredito:** APROVADO. Implementacao robusta, cobre os 7 casos da spec + 4 edge cases nao-listados, Gate verde, escopo respeitado, arquitetura correta. Pode ser integrada.
 
 ## 9. Log de Execucao (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.
 
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-06T18:25]** - *big-pickle* - `[Endurecido]`: endureceu spec — graph OKF, 7 casos, capacity=haiku, 0 decisoes abertas
+- **[2026-07-07T13:07]** - *minimax* - `[Promovida p/ ready]`: draft:hardened com deps done (EST-02) — safety-net flip
+- **[2026-07-07T13:09]** - *deepseek* - `[Iniciado]`: iniciando implementacao do plugin-knowledge graph
+- **[2026-07-07T13:13]** - *deepseek* - `[Finalizado]`: plugin-knowledge graph implementado: 7/7 testes verdes, lint limpo, build ok. Criado packages/plugin-knowledge com makeGraph + KnowledgeGraph (buildGraph, getNode, listSlugs, outbound, inbound). Frontmatter YAML via regex, wikilinks [[slug]], FsPort para leitura.
+- **[2026-07-07T13:17]** - *agile_reviewer:minimax* - `[Em revisão]`: revisando
+- **[2026-07-07T13:25]** - *agile_reviewer:minimax* - `[Aprovado]`: Integrado: merge na master (5dcb7a5), worktree removida, Gate verde (build tsc exit 0; test 7/7 passed; lint exit 0). 3 nao-bloqueantes -> ledger de pendencias.
