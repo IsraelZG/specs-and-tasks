@@ -9,6 +9,7 @@ execution_mode: sequential # parallel | sequential
 dependencies: ["T-IA-03"]
 blocks: ["T-IA-06"]
 ui: true
+capacity_target: sonnet
 ---
 
 # T-IA-05 · classificacao de intencao da command palette (busca/acao/geracao) + render progressivo
@@ -38,6 +39,7 @@ export interface CommandPalette { open(): void; close(): void;
 **File paths:** `packages/command-palette/src/intent-classifier.ts` (CREATE), `packages/command-palette/src/CommandPalette.tsx` (CREATE), `packages/command-palette/tests/intent-classifier.test.ts` (CREATE), `packages/command-palette/tests/command-palette.e2e.ts` (CREATE Playwright), `packages/command-palette/src/index.ts` (UPDATE).
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §A5](../docs/mecanica-de-telas.md) — mecânica validada no mockup A5: 3 modos como tabs explícitas (Buscar/Agir/Gerar); render progressivo = skeleton com debounce curto (~220ms) antes da lista; resultados **já filtrados por permissão antes do render**; modo Gerar com streaming token-a-token + cursor e estado de **recusa fora de escopo** (mensagem de redirecionamento, não erro); proposta gerada exige **Aceitar/Editar** explícito (diretrizes-ux §3). Pacote pronto: `Command` no `@plataforma/design-system`.
 - [caderno-3-sdk/14-ia-rag-e-agentes.md](../docs/caderno-3-sdk/14-ia-rag-e-agentes.md) — §7 (command palette, busca/ação/geração, classificação barata primeiro, render progressivo)
 - [[utilitario-de-ia]] — LLM como capacidade compute
 - Deps: T-IA-03 (HybridRetrieval para busca)
