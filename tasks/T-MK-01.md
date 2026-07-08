@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-004"] # IDs de tarefas que bloqueiam esta
 blocks: ["T-MK-02", "T-MK-03", "T-MK-04", "T-MK-05", "T-MK-06"] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-MK-01 · SPECs base PRODUCT/PRODUCT_LISTING + classes de liquidacao
@@ -90,6 +91,7 @@ export interface ProductCatalog {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §T2](../docs/mecanica-de-telas.md) — integração entre módulos: `PRODUCT`/`PRODUCT_LISTING` são payloads de drag/share (`marketplace:product`, `marketplace:order`) consumidos por Mensageria (card), Ads (promover por referência), Social (rascunho de post) e Logística (entrega). O SPEC deve garantir que o listing é **referenciável como nó** (payload carrega referência, nunca cópia). Assistente (§T1): descrição/atributos geráveis por IA a partir de foto — campos de texto do listing não devem ter formato que impeça geração assistida.
 - [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md) §1 — Item negociável: máquina genérica (produto canônico, listing, grafo)
 - [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md) §2 — Classes de liquidação (7 classes canônicas)
 - [[classe-de-liquidacao]] — Definição canônica das classes de liquidação
