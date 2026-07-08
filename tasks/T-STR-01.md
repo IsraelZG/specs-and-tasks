@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-004", "T-801"]
 blocks: ["T-STR-02", "T-STR-03", "T-STR-04"]
+capacity_target: sonnet
 ---
 
 # T-STR-01 · SPECs de conteudo/canal/colecao + reproducao adaptativa sobre o media plane
@@ -118,6 +119,7 @@ export interface MediaCatalog {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B8 + §T2](../docs/mecanica-de-telas.md) — estados de reprodução validados em mockup (sem-seeder declarado, renditions processando, buffering). Integração (§T2): `streaming:content` é payload de drag/share (conteúdo → Ads = campanha pré-roll; arquivo do Studio → publicar como conteúdo). Assistente (§T1): título/descrição/capítulos geráveis por IA como proposta.
 - [caderno-3-sdk/19-streaming-reference-spec.md](../docs/caderno-3-sdk/19-streaming-reference-spec.md) S1-S2
 - [[content-file]] — `CONTENT:FILE` como representacao fisica do blob
 - [[rendition]] — Variantes de qualidade como nos `CONTENT` irmaos
