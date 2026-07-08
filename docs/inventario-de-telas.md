@@ -3,7 +3,9 @@
 > **Objetivo:** lista exaustiva de telas/superfícies para mockup, por módulo, incluindo modais, menus,
 > estados (vazio/erro/carregando/offline) e fluxos. Complementa o
 > [inventário de componentes](rfcs/inventario-componentes-layouts.md) (Atomic Design) — aqui são as
-> **composições** (telas), lá são as peças. Cada bloco aponta a(s) task(s) de UI dona(s).
+> **composições** (telas), lá são as peças. A **mecânica de interação** de cada tela (máquinas de
+> estado de UI, gatilhos, padrões validados nos mockups Lovable) está em
+> [mecanica-de-telas.md](mecanica-de-telas.md). Cada bloco aponta a(s) task(s) de UI dona(s).
 > **Invariantes obrigatórios em toda tela:** i18n (6 locales + RTL), tokens `--ds-*` (I3), a11y AA,
 > responsividade — ver `plano-aplicacao.md §Invariantes de TODA UI` e `diretrizes-ux.md`.
 >

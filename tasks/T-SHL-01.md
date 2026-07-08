@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-004", "T-PG-01"] # IDs de tarefas que bloqueiam esta
 blocks: ["T-SHL-02", "T-SHL-03", "T-SHL-04", "T-SHL-05"] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-SHL-01 · shell FlexLayout + SPEC:WORKSPACE (default + salvos nomeados) + painel binda (modulo+pagina+params)
@@ -77,6 +78,7 @@ export type FlexLayoutJson = Record<string, unknown>;
 - [caderno-3-sdk/28-shell-e-composicao.md](../docs/caderno-3-sdk/28-shell-e-composicao.md) §1 — Shell como árvore FlexLayout; SPEC:WORKSPACE
 - [[spec-workspace]] — Definição canônica do nó SPEC:WORKSPACE
 - [[command-palette]] — Superfície de overlay que residirá sobre o shell (T-SHL-05)
+- [mecanica-de-telas.md §A1](../docs/mecanica-de-telas.md) — mecânica de interação validada no mockup Lovable A1: layout default de colunas (rails fixos ~68px sem drag), abertura em nova coluna + guarda de espaço (<1280px ou >3 colunas → colapsa a menos recente para a pilha), split como exceção, persistência via `model.toJson()`. Workspace switcher é **[proposta]** lá (mockup não cobriu) — a mecânica de UI do switcher deve seguir aquele desenho ao implementar o contrato desta task. Pacotes: `flexlayout-react` + `@plataforma/design-system` (45 componentes prontos — mapear, não portar TSX do mockup).
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
 - **[READ]** `docs/caderno-3-sdk/28-shell-e-composicao.md` §1, §11
