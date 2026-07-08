@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-LOG-01", "T-604"]
 blocks: ["T-LOG-04", "T-LOG-05"]
+capacity_target: sonnet
 ---
 
 # T-LOG-02 · fulfillment: alocacao multi-deposito por Zen + reserva por LOCK + ciclo com compensacao
@@ -133,6 +134,7 @@ export async function compensateFulfillment(
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B6](../docs/mecanica-de-telas.md) — validado no mockup B6: ciclo aguardando→alocado→em rota→entregue com o mesmo vocabulário de saga do §B2; **"sem entregadores disponíveis" é estado de primeira classe** que bloqueia a ação de alocar (disponibilidade honesta) — o contrato de alocação precisa devolver essa condição distinguível, não erro genérico.
 - [caderno-3-sdk/25-logistica-reference-spec.md](../docs/caderno-3-sdk/25-logistica-reference-spec.md) §2 — fulfillment, alocação multi-depósito, ciclo, compensação
 - [[asset-lock]] — reserva de estoque por LOCK no local eleito
 - [[saga]] — compensação via saga (re-alocar ou cancelar com estorno)
