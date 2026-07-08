@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-SOC-01", "T-PG-02", "T-IA-03"]
 blocks: ["T-SOC-03"]
 ui: true
+capacity_target: sonnet
 ---
 
 # T-SOC-02 · feed via SuperCard/Layout + ranking Zen + RRF + slot de anuncio
@@ -89,6 +90,7 @@ export interface FeedComponent {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B7](../docs/mecanica-de-telas.md) — mecânica validada no mockup B7: card de post com visibilidade por post (ícone+label), curtir otimista, overflow ⋯ (compartilhar/denunciar/bloquear com efeito recíproco explicado); **slot de anúncio = mesmo container do post orgânico + badge "Patrocinado"** (aria-label própria); stories com rail visto/não-visto, viewer com progresso 5s/story e navegação lateral. Lacuna registrada lá: thread de comentários não foi mockada — mecânica a definir no endurecimento.
 - [caderno-3-sdk/18-social-reference-spec.md](../docs/caderno-3-sdk/18-social-reference-spec.md) S4 — Feed e ranking
 - [caderno-3-sdk/29-anuncios-reference-spec.md](../docs/caderno-3-sdk/29-anuncios-reference-spec.md) S2 — Superficies de veiculacao
 - [[projecao-analitica]] — Agregados para contadores (likes, views)
