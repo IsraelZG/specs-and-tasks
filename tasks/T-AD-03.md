@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-AD-01", "T-AD-02"]
 blocks: []
+capacity_target: haiku
 ---
 
 # T-AD-03 · vetores: segmentacao lendo dado restrito, verba estourada, clique inflado
@@ -74,6 +75,7 @@ export interface AdGuards {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B9](../docs/mecanica-de-telas.md) — comportamento observável validado no mockup B9 para os 3 vetores: dado restrito → `targetingBlocked` sem vazar critérios; verba estourada → campanha para automaticamente + badge própria; clique inflado → suspeitos **excluídos da cobrança e mostrados como transparência** ("N cliques suspeitos excluídos"), métricas calculam sobre cobráveis.
 - [caderno-3-sdk/29-anuncios-reference-spec.md](../docs/caderno-3-sdk/29-anuncios-reference-spec.md) S5 — Limites honestos
 - [[anuncio]] — Anti-fraude: assinatura do observador, filtro Sybil, k-anonimato
 - T-AD-01 — AdManager (orcamento, BALANCE_STATE/LOCK)
