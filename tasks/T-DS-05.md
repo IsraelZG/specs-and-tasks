@@ -9,6 +9,7 @@ execution_mode: sequential
 ui: true
 dependencies: ["T-011"]
 blocks: ["T-DS-01", "T-DS-03"]
+capacity_target: opus-spike
 ---
 
 # T-DS-05 · Identidade visual: paleta + accent por módulo + escalas + claro/escuro
@@ -37,6 +38,7 @@ entregá-lo como ADR + tokens versionados. Decisões a fechar:
 4. **Neutros** — rampa de cinzas para superfícies/texto, claro/escuro.
 
 ## 2. Contexto RAG
+- [mecanica-de-telas.md §T1–T3](../docs/mecanica-de-telas.md) — a paleta definitiva precisa contemplar 3 affordances transversais novas: (1) **affordance de IA** ("✦ Assistente", proposta pendente de aceite) — cor/tratamento próprio e consistente em todos os módulos; (2) **drop target** de drag-and-drop (iluminado válido / esmaecido inválido — §T2); (3) tokens dos estados de saga/TTL (pendente/compensado/lock — §B2/§C, candidatos a componentes SagaProgress/TTLLock no design-system). Mockup usou paleta placeholder — não herdar cores dele.
 - [design-system-proposal.md](../docs/rfcs/design-system-proposal.md) — 4 camadas de token, override escopado por atributo, falhas a evitar (refs achatadas, contraste como gate de runtime, repo errado)
 - [caderno-3-sdk/10-design-system.md](../docs/caderno-3-sdk/10-design-system.md) — design system canônico (RFC-006)
 - [caderno-3-sdk/09-hierarchical-theme-customization.md](../docs/caderno-3-sdk/09-hierarchical-theme-customization.md) — customização app→módulo→página→componente
