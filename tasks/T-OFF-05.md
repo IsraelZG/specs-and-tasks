@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-OFF-01", "T-IA-02"] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-OFF-05 · editores de midia (imagem/video/audio) como componente/ui plugin + IA via compute
@@ -73,6 +74,7 @@ export interface AudioEditorRef {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B12](../docs/mecanica-de-telas.md) — editor de mídia em overlay fullscreen (padrão validado no mockup B12); operações de IA via compute mostram etapa real de progresso e resultado como **proposta com aceitar/editar** (atribuição de agente — diretrizes-ux §3, mesma mecânica do §A5).
 - [caderno-3-sdk/27-suite-office.md](../docs/caderno-3-sdk/27-suite-office.md) §5 — Editores de mídia (imagem, vídeo, áudio)
 - [caderno-3-sdk/27-suite-office.md](../docs/caderno-3-sdk/27-suite-office.md) §7 — Session-locks para camadas/objetos arrastáveis
 - [[perfil-de-capacidade]] — Editores de mídia são componentes/ui plugins registrados no motor de páginas
