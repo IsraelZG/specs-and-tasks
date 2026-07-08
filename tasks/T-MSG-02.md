@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-MSG-01"]
 blocks: []
 ui: true
+capacity_target: sonnet
 ---
 
 # T-MSG-02 · chamadas/conferencia via LiveKit (SDK embutido + SFU plugin) + gravacao consolidada
@@ -74,6 +75,7 @@ export interface CallPanelComponent {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B1](../docs/mecanica-de-telas.md) — chamada validada no mockup B1: 3 estados de tela (recebida com aceitar/recusar → 1:1 com remoto grande + self em PiP → grade de tiles) com controles mic/câmera/encerrar persistentes entre estados. Distribuição do plugin nativo LiveKit SFU: ver spike T-1040. Pendência cosmética conhecida: rótulo "Sua câmera" corta em coluna estreita (não é requisito).
 - [caderno-3-sdk/20-mensagens-reference-spec.md](../docs/caderno-3-sdk/20-mensagens-reference-spec.md) S3 — Chamadas e conferencia
 - [[livekit]] — Ecossistema LiveKit, `CONTENT:LIVE_SESSION`, aresta `STREAMS`
 - [[consolidacao-de-live]] — Padrao de consolidacao de segmentos em `CONTENT:FILE`
