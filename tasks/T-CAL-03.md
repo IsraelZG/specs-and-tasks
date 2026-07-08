@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-CAL-01", "T-308", "T-CN-02"] # SPEC:EVENT + Snapshot (.ics export) + pipeline tradução (idempotência external_ref)
 blocks: [] # task final do bloco
+capacity_target: sonnet
 ---
 
 # T-CAL-03 · sync externo Classe D + .ics por email + vetores
@@ -25,6 +26,7 @@ blocks: [] # task final do bloco
 Implementar conector Classe D (espelho bidirecional) para Google Calendar/Microsoft: (1) ingestão assinada de eventos externos com `external_ref` para dedup determinístico (via T-CN-02 pipeline); (2) exportação de eventos e overrides locais de volta ao provedor (bidirecional com supressão de eco); (3) geração de `.ics` (RFC 5545) para convites por email com snapshot de bootstrap (T-308); (4) vetores de segurança: (a) eco de reimportação detectado e suprimido por `external_ref`, (b) tombstone de exceção deletada propagado ao provedor externo, (c) evento externo não sobrescreve override local (precedência: local > externo). **(Fonte: [[22-calendario-reference-spec]] §4–§5; [[recorrencia]]; [[conector-externo]] classe D; T-CAL-01 SPEC:EVENT; T-308 snapshot; T-CN-02 pipeline de tradução)**
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B11](../docs/mecanica-de-telas.md) — validado no mockup B11: evento importado carrega **badge de origem** ("Importado de X") em todas as visões e no detalhe — a proveniência do sync externo é requisito de UI, não só de dado. Import `.ics` via modal com file picker.
 - **[READ]** `docs/caderno-3-sdk/22-calendario-reference-spec.md` §4–§5 — sincronização externa, .ics, limites honestos
 - **[READ]** `docs/conceitos/conector-externo.md` — taxonomia de classes, Classe D = espelho bidirecional
 - **[READ]** `docs/conceitos/recorrencia.md` — exportação de overrides como atualizações pontuais
