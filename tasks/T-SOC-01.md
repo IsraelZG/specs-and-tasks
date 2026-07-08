@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-004", "T-108"]
 blocks: ["T-SOC-02", "T-SOC-03"]
+capacity_target: sonnet
 ---
 
 # T-SOC-01 · SPECs de perfil/post/story + arestas sociais + visibilidade publica/privada
@@ -115,6 +116,7 @@ export interface SocialGraph {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §T2](../docs/mecanica-de-telas.md) — integração entre módulos: `social:post` é payload de drag/share (post → Studio abre a mídia no editor; produto → Social gera rascunho de post com card). Post/story precisam ser referenciáveis como nó para o slot de anúncio (§B9, promoção por referência) e para o drag. Assistente (§T1): rascunho de post/legenda gerado por IA entra como proposta com Aceitar/Editar — o SPEC não deve impedir post em estado rascunho-local.
 - [caderno-3-sdk/18-social-reference-spec.md](../docs/caderno-3-sdk/18-social-reference-spec.md) S1-S3
 - [[bloqueio-social]] — Politica de filtro de leitura para audiencia publica
 - [[projecao-analitica]] — Agregados incrementais pos-descriptografia
