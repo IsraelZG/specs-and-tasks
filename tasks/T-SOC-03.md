@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-SOC-01", "T-SOC-02"]
 blocks: []
 ui: true
+capacity_target: haiku
 ---
 
 # T-SOC-03 · vetores: privacidade retroativa e bloqueio como limites, story expirado, contadores como projecao
@@ -75,6 +76,7 @@ export interface SocialGuards {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B7](../docs/mecanica-de-telas.md) — comportamento validado no mockup B7 para os vetores: **story expirado é honesto** (placeholder "expirou em 24h" no lugar do conteúdo; não marca "visto"; pausa auto-avanço); **bloqueio como limite** (conteúdo some do feed, "filtrado, não apagado" — §A3). Privacidade retroativa NÃO foi mockada — definir o comportamento observável no vetor.
 - [caderno-3-sdk/18-social-reference-spec.md](../docs/caderno-3-sdk/18-social-reference-spec.md) S6 — Limites honestos
 - [[bloqueio-social]] — Filtro de leitura sobre arestas `BLOCKS`, nao garantia criptografica
 - [[projecao-analitica]] — Agregados incrementais, nao contagem direta de arestas
