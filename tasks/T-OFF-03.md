@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-OFF-01", "T-PG-01", "T-604"] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-OFF-03 · planilha first-party (motor de formulas + ZEN) + base como view estruturada/sobre-planilha
@@ -86,6 +87,7 @@ export interface BaseView {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B12](../docs/mecanica-de-telas.md) — editor em overlay fullscreen (padrão validado no mockup B12, igual T-OFF-02). **Motor de fórmulas é first-party por spec** — não adotar HyperFormula/lib externa sem decisão de arquiteto (registrado na tabela de pacotes daquele doc).
 - [caderno-3-sdk/27-suite-office.md](../docs/caderno-3-sdk/27-suite-office.md) §3 — Bases e Planilha (fonte compartilhada)
 - [[perfil-de-capacidade]] — Planilha usa perfil `documento` com componente rico de grade
 
