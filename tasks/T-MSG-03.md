@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-MSG-01"]
 blocks: []
 ui: true
+capacity_target: haiku
 ---
 
 # T-MSG-03 · presenca efemera nao-replicada + vetores
@@ -74,6 +75,7 @@ export interface PresenceIndicatorComponent {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B1](../docs/mecanica-de-telas.md) — **atenção:** presença e "digitando" NÃO foram validados no mockup (o header mostra "online · visto agora" hardcoded — placeholder). A mecânica de UI real (indicador efêmero, opt-in, desligável — diretrizes-ux §11) deve ser definida por esta task e registrada naquele doc.
 - [caderno-3-sdk/20-mensagens-reference-spec.md](../docs/caderno-3-sdk/20-mensagens-reference-spec.md) S4 — Presenca
 - [[ephemeral-messages]] — Canal de transporte volatil, `REPLICABLE_VOLATILE`
 - [[matriz-de-classificacao-transporte]] — Enquadramento de dados nao-auditaveis
