@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-EML-01", "T-EML-02"]
 blocks: []
+capacity_target: haiku
 ---
 
 # T-EML-03 · vetores: reentrega para no-op, envio falho nao marca enviado, eco suprimido
@@ -88,6 +89,7 @@ export interface EmailGuards {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B10](../docs/mecanica-de-telas.md) — comportamento observável validado no mockup B10 para os vetores: envio falho permanece "pendente"/falha, **nunca marca enviado**; reentrega = no-op comunicado como tooltip discreto ("mesmo id = mesma mensagem"); eco suprimido = chip + nota explicativa.
 - [caderno-3-sdk/21-email-reference-spec.md](../docs/caderno-3-sdk/21-email-reference-spec.md) S5 — Limites honestos
 - [[conector-espelho]] — D1 (cursor durave), D4 (supressao de eco), D5 (conflito)
 - T-EML-01 — EmailConnector (estados, cursor, envio)
