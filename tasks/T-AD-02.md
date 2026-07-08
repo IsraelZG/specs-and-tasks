@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-AD-01", "T-604", "T-IA-03"]
 blocks: ["T-AD-03"]
+capacity_target: sonnet
 ---
 
 # T-AD-02 · selecao por superficie (Zen) no contexto do espectador + medicao assinada de evento
@@ -105,6 +106,7 @@ export interface AdSelector {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B9](../docs/mecanica-de-telas.md) — validado no mockup B9: quando um critério de segmentação é restrito por permissão, a seleção precisa sinalizar `targetingBlocked` para a UI mostrar "critérios não aplicados — dado restrito" **sem revelar quais** (mesmo princípio do acesso negado §A3); anunciante só vê agregados. Verba estourada tem precedência sobre o status da campanha (pausa automática observável).
 - [caderno-3-sdk/29-anuncios-reference-spec.md](../docs/caderno-3-sdk/29-anuncios-reference-spec.md) S2-S4
 - [[anuncio]] — Protecao anti-fraude: assinatura do observador, filtro Sybil, privacidade diferencial
 - T-AD-01 — AdManager (SPECs, orcamento)
