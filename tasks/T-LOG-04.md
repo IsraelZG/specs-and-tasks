@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-LOG-01", "T-LOG-02", "T-LOG-03", "T-009a"]
 blocks: ["T-LOG-05"]
+capacity_target: sonnet
 ---
 
 # T-LOG-04 · operacao interna: dispatch-saga, entregador como listing, localizacao efemera, surge por Zen, repasse por SPEC
@@ -161,6 +162,7 @@ export function emitCourierLocation(
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B6](../docs/mecanica-de-telas.md) — validado no mockup B6: surge/pico altera a oferta de entregadores e o repasse por entrega (modal de surge/repasse); localização do entregador segue o padrão efêmero do §B5 (TTL + revogável + indicador "ao vivo" — diretrizes-ux §11).
 - [caderno-3-sdk/25-logistica-reference-spec.md](../docs/caderno-3-sdk/25-logistica-reference-spec.md) §4 — operação interna de transporte
 - [[dispatch-saga]] — coordenação transacional multidomínio para matching de entregadores
 - [[asset-lock]] — reserva temporária da disponibilidade do entregador com TTL
