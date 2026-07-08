@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-004", "T-103"] # Portas (ClockPort) + HLC para ordenação de recorrência
 blocks: ["T-CAL-02", "T-CAL-03"] # Bloqueia convites/RSVP e sync externo
+capacity_target: sonnet
 ---
 
 # T-CAL-01 · SPEC:EVENT + recorrencia RRULE com instancias virtuais + override de excecao
@@ -25,6 +26,7 @@ blocks: ["T-CAL-02", "T-CAL-03"] # Bloqueia convites/RSVP e sync externo
 Implementar `SPEC:EVENT` — a specification node que governa eventos de calendário — com recorrência RRULE no payload (frequência, intervalo, expiração), projeção de instâncias virtuais pela engine `Timeline`, e nó de override append-only (exceção referenciando mestre + data). Zero tipo de nó novo: evento é `CONTENT:EVENT` governado por `SPEC:EVENT`; recorrência é resolvida no payload, não em tipo novo. Justificativa: o modelo virtual-projection é a decisão de design que mantém o grafo minimalista (1 nó mestre em vez de N ocorrências materializadas). **(Fonte: [[22-calendario-reference-spec]] §1–§2; [[recorrencia]]; [[hlc]]; T-103 ClockPort; T-004 portas)**
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B11 + §T2](../docs/mecanica-de-telas.md) — a mecânica de instâncias virtuais + exceções desta task já foi validada em mockup (janela por visão, override por `eventId+data`, prompt "esta ocorrência vs série"). Integração (§T2): `calendar:event` é payload de drag/share (evento → chat = convite) e **alvo** de payloads (`email:message` → criar evento com trecho citado; `map:place` → preencher local). Assistente (§T1): agendamento por linguagem natural cria evento como proposta.
 - **[READ]** `docs/caderno-3-sdk/22-calendario-reference-spec.md` — fonte normativa: evento, recorrência, exceções (§1–§2)
 - **[READ]** `docs/conceitos/recorrencia.md` — definição canônica: RRULE + instâncias virtuais + override
 - **[READ]** `docs/conceitos/hlc.md` — HLC para ordenação causal de eventos recorrentes
