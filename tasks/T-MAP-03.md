@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-MAP-01", "T-MAP-02"]
 blocks: []
+capacity_target: haiku
 ---
 
 # T-MAP-03 · consumo cross-modulo + localizacao como dado sensivel/efemero + vetores
@@ -103,6 +104,7 @@ export function runEdgeCaseTests(): void;
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B5](../docs/mecanica-de-telas.md) — validado no mockup B5: compartilhamento de localização é **opt-in explícito com TTL** (modal de aviso "15 min, expira sozinho, sensível" → badge com hora de expiração + Revogar sempre visível; nunca persiste); localização negada **degrada só o widget de posição** (lista/mapa seguem com cache — parcial, não erro total); rota sempre nomeia o conector de origem (proveniência).
 - [caderno-3-sdk/23-mapa-reference-spec.md](../docs/caderno-3-sdk/23-mapa-reference-spec.md) §3-4 — consumo cross-modulo, privacidade de localização
 - [[conector-externo]] — provedor de tiles é serviço de terceiro; offline depende de tiles pré-baixados
 
