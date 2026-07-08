@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-SHL-01", "T-SHL-02"] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-SHL-03 · responsividade continua (multi-coluna para mobile) + chrome-como-modulo (menu reposicionado)
@@ -67,6 +68,7 @@ export interface ChromeAdapter {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §A1](../docs/mecanica-de-telas.md) — regime mobile validado no mockup A1: coluna única = app central; rails de comms/módulos viram **overlays fullscreen** disparados por botões no footer (toggle abre/fecha, título + Fechar); chrome reposiciona, não some. Footer desktop = status (dot de sync verde/âmbar/vermelho + online/sem-rede + app ativo); footer mobile acumula a navegação.
 - [caderno-3-sdk/28-shell-e-composicao.md](../docs/caderno-3-sdk/28-shell-e-composicao.md) §2 — Chrome como módulo (header, menus, footer = módulos comuns em regiões fixas)
 - [caderno-3-sdk/28-shell-e-composicao.md](../docs/caderno-3-sdk/28-shell-e-composicao.md) §5 — Responsividade contínua (desktop/tablet/mobile)
 - [[spec-workspace]] — Layout salvo no workspace (T-SHL-01)
