@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-OFF-01", "T-PG-01", "T-403"] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-OFF-02 · doc perfil documento (blocos, Automerge, backlinks) + markdown simples
@@ -75,6 +76,7 @@ export interface SimpleMarkdownEditor {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B12](../docs/mecanica-de-telas.md) — decisões validadas no mockup B12: editor abre em **overlay `fixed inset-0`** por cima do shell (máxima área sem quebrar colunas; shell montado atrás; Esc volta ao estado exato); **conflito CRDT resolvido = badge discreta "mesclado"**, nunca erro (diretrizes-ux §1); indicador de salvamento e presença multiplayer como chrome do editor. Pacote: Automerge (já decidido).
 - [caderno-3-sdk/27-suite-office.md](../docs/caderno-3-sdk/27-suite-office.md) §2 — Docs (Notion/Obsidian) e markdown simples
 - [[perfil-de-capacidade]] — Perfil `documento` define whitelist de blocos permitidos
 - [[sessao-colaborativa]] — Colaboração em tempo real via Automerge com opt-in de persistência
