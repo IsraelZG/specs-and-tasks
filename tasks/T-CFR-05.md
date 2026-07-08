@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-CFR-01", "T-CFR-02", "T-CFR-03", "T-CFR-04"]
 blocks: []
+capacity_target: haiku
 ---
 
 # T-CFR-05 · vetores de edge cases contábeis/fiscais/RH
@@ -46,6 +47,7 @@ import { calculatePayroll, recalculatePayroll, createLaborCharge } from '../src/
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B4](../docs/mecanica-de-telas.md) — comportamento observável validado no mockup B4 para o vetor de fechamento imutável: tentar mutar lançamento de competência fechada **falha com motivo legível** ("competência X fechada; reabertura requer administrador") — nunca no-op silencioso; recálculo retroativo declara "não altera período fechado". Jurisdição/conector ausentes não têm tela mockada — definir comportamento observável.
 - [caderno-3-sdk/17-contabil-fiscal-rh-reference-spec.md](../docs/caderno-3-sdk/17-contabil-fiscal-rh-reference-spec.md) §7 — limites honestos: recálculo retroativo, modo degradado, defasagem regulatória
 - [[jurisdicao]] — jurisdição ausente → degrada para base com fato negativo
 - [[conector-externo]] — sem conector → modo degradado declarado
