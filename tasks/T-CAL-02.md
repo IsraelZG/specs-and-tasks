@@ -9,6 +9,7 @@ execution_mode: sequential
 ui: true
 dependencies: ["T-CAL-01", "T-210"] # SPEC:EVENT (evento base) + ASSET:INVITE (cerimônia de convite)
 blocks: [] # task final do bloco
+capacity_target: sonnet
 ---
 
 # T-CAL-02 · convites/RSVP + capacidade por reserva_capacidade + render Timeline
@@ -26,6 +27,7 @@ blocks: [] # task final do bloco
 Implementar fluxo completo de convites e RSVP para eventos de calendário: (1) emissão de convite via aresta ao `PROFILE` do convidado + notificação; (2) RSVP como `CONTENT:INTENT` do convidado (aceito/recusado/talvez); (3) reserva de capacidade limitada (vagas/sala) via `reserva_capacidade` do RFC-012 A.2; (4) renderização da Timeline com eventos, recorrências projetadas e indicadores visuais de RSVP. Lógica de RSVP no core reusa `ASSET:INVITE` de T-210 como padrão de cerimônia. UI consome `Timeline` engine para renderizar instâncias virtuais. **(Fonte: [[22-calendario-reference-spec]] §3; [[asset-invite]]; [[spec-workflow]] para RSVP como máquina de estados; T-CAL-01 SPEC:EVENT base; T-210 ASSET:INVITE cerimônia)**
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B11](../docs/mecanica-de-telas.md) — mecânica validada no mockup B11: RSVP no detalhe do evento (aceitar/talvez/recusar, seleção única com feedback imediato); **capacidade**: `booked >= capacity` → badge "Lotado (N/N)" + alerta "novas inscrições bloqueadas" + o form de edição rejeita capacidade < já reservados; evento recorrente pergunta "esta ocorrência ou toda a série?" antes de editar/excluir. Visão agenda (agrupada por dia) é a base do render Timeline.
 - **[READ]** `docs/caderno-3-sdk/22-calendario-reference-spec.md` §3 — participantes, convites, RSVP, capacidade
 - **[READ]** `docs/conceitos/asset-invite.md` — cerimônia de convite: payload, consumo, lápide
 - **[READ]** `docs/conceitos/spec-workflow.md` — RSVP modelado como SPEC:WORKFLOW (máquina de estados: invited → accepted/declined/tentative)
