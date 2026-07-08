@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-004"]
 blocks: ["T-AD-02", "T-AD-03"]
+capacity_target: sonnet
 ---
 
 # T-AD-01 · SPEC:AD/AD_CAMPAIGN + RELATES:AD:PROMOTES + orcamento/pacing por BALANCE_STATE/LOCK
@@ -108,6 +109,7 @@ export interface AdManager {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B9 + §T2](../docs/mecanica-de-telas.md) — validado em mockup: verba estourada tem precedência visual/comportamental sobre o status (pausa automática observável); "promover item" cria campanha que **referencia** o nó (RELATES:AD:PROMOTES), nunca duplica. Integração (§T2): a promoção é o caso canônico de drag/share — `marketplace:product` e `streaming:content` soltos no Ads viram campanha por referência. Assistente (§T1): criativo gerado por IA a partir do item promovido, como proposta.
 - [caderno-3-sdk/29-anuncios-reference-spec.md](../docs/caderno-3-sdk/29-anuncios-reference-spec.md) S1 — Anuncio e campanha
 - [[anuncio]] — Ecossistema de anuncios: SPEC:AD, SPECIFICATION:AD_CAMPAIGN, RELATES:AD:PROMOTES
 - [[anuncio-listing]] — Listing (oferta de vendedor) como item promovido
