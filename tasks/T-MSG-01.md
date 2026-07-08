@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-201", "T-403"]
 blocks: ["T-MSG-02", "T-MSG-03"]
+capacity_target: sonnet
 ---
 
 # T-MSG-01 · envoltorio sobre o chat existente + integracao com DM social
@@ -96,6 +97,7 @@ export interface ChatWrapper {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B1](../docs/mecanica-de-telas.md) — mecânica validada no mockup B1 que o envoltório precisa suportar: status por mensagem **sending→sent→delivered→read** (pendente local vs finalizado durável), envio offline enfileirado (UI otimista, banner "enviadas ao reconectar"), autor com **tipo de ator** (me/contato/ai/system — atribuição diretrizes-ux §3). Lacuna registrada lá: estado "não entregue"+retry não foi mockado — contemplar no contrato.
 - [caderno-3-sdk/20-mensagens-reference-spec.md](../docs/caderno-3-sdk/20-mensagens-reference-spec.md) S2 — Chat
 - [caderno-3-sdk/07-chat-reference-spec.md](../docs/caderno-3-sdk/07-chat-reference-spec.md) — Base de chat
 - [caderno-3-sdk/18-social-reference-spec.md](../docs/caderno-3-sdk/18-social-reference-spec.md) S5 — DMs como mesma conversa
