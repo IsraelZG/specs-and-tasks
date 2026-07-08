@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-LOG-01", "T-LOG-02", "T-LOG-03", "T-LOG-04", "T-109"]
 blocks: []
+capacity_target: sonnet
 ---
 
 # T-LOG-05 · logistica reversa + prova de entrega/disputa (escrow) + reentrada de estoque + vetores
@@ -187,6 +188,7 @@ export async function resolveDispute(
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B6](../docs/mecanica-de-telas.md) — validado no mockup B6: disputa é **terminal alternativo** da saga de entrega (não substitui o histórico de etapas) e o valor em escrow aparece como "retido até resolução — repasse e crédito pausados"; o contrato de escrow precisa expor esse estado de retenção consultável.
 - [caderno-3-sdk/25-logistica-reference-spec.md](../docs/caderno-3-sdk/25-logistica-reference-spec.md) §5-6 — prova de entrega, disputa, logística reversa
 - [[asset-lock]] — escrow suspenso durante disputa
 - [[dispatch-saga]] — compensação via saga para reembolso/estorno
