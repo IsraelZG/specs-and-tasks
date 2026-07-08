@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-SHL-01"] # IDs de tarefas que bloqueiam esta
 blocks: ["T-SHL-05"] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-SHL-04 · drag/share como mensagem de comando + contrato de aceite + falha controlada; rota + deep-link
@@ -97,6 +98,7 @@ export interface DeepLinkHandler {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §T2](../docs/mecanica-de-telas.md) — mecânica de interação do drag/share definida lá [proposta, não validada em mockup]: ghost com preview do payload; drop targets válidos **se iluminam** (inválidos esmaecem; soltar fora = animação de retorno, sem modal de erro); uma ação possível = executa com toast+Desfazer; múltiplas = menu contextual no ponto do drop; irreversível = confirmação+time-delay. Inclui a **matriz payload→ação v1** (produto→chat/ads/social, email→calendário, place→evento, etc.) — os `payloadType`/`AcceptContract` desta task devem cobrir essa matriz. Payload carrega referência ao nó, nunca cópia.
 - [caderno-3-sdk/28-shell-e-composicao.md](../docs/caderno-3-sdk/28-shell-e-composicao.md) §6 — Drag e share como comando; contrato de aceite; segurança de intent irreversível
 - [caderno-3-sdk/28-shell-e-composicao.md](../docs/caderno-3-sdk/28-shell-e-composicao.md) §7 — Endereçabilidade e navegação (rota, URL, deep-link)
 - [[spec-workspace]] — Deep-link serializa estado de workspace (T-SHL-01)
