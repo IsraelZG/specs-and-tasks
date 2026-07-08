@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-SHL-01"] # IDs de tarefas que bloqueiam esta
 blocks: ["T-SHL-03"] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-SHL-02 · restricoes de layout no manifesto + gerenciador deterministico (recencia+pinos) + pilha de colapsados
@@ -76,6 +77,7 @@ export interface LayoutSolver {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §A1](../docs/mecanica-de-telas.md) — mecânica validada no mockup A1 que este solver formaliza: guarda de espaço (viewport <1280px OU >3 colunas abertas → colapsa a coluna **menos recente** para a pilha), pilha de colapsados como chips (clicar restaura como nova coluna; restauração = remontagem, estado efêmero zera), rails com largura fixa não-colapsável.
 - [caderno-3-sdk/28-shell-e-composicao.md](../docs/caderno-3-sdk/28-shell-e-composicao.md) §3 — Restrições de layout declaradas e gerenciador determinístico
 - [caderno-3-sdk/28-shell-e-composicao.md](../docs/caderno-3-sdk/28-shell-e-composicao.md) §4 — Geração dinâmica de coluna e pilha de colapsados
 - [[spec-workspace]] — Layout salvo como SPEC:WORKSPACE (T-SHL-01)
