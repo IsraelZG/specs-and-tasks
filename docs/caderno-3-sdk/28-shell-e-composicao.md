@@ -47,6 +47,30 @@
 1. **Arrastar item entre colunas (desktop)** e **compartilhar item (mobile)** são a **mesma operação**: uma **mensagem de comando** ao profile do módulo de destino (RFC-027 A.2) — durável (intent) ou efêmera, conforme o caso. O gesto difere; a semântica não.
 2. **Contrato de aceite declarado:** cada módulo declara os tipos de mensagem/payload que aceita. Assim o drag **destaca destinos válidos** e o share-sheet **lista destinatários válidos**. Mensagem não aceita = **falha controlada** (rejeição validada com feedback), nunca erro silencioso.
 3. **Segurança de intent irreversível.** Para comandos **irreversíveis** (deleção, transição de estado destrutiva), o gesto de drag/share **não** emite o intent imediatamente: a UI exige confirmação via **drop zones explícitas e destacadas** e oferece **time-delay** ou **undo** antes de finalizar a mensagem de comando no protocolo. Gestos acidentais são recuperáveis; o intent durável só é emitido após a janela de desfazer.
+4. **Payload referencia, nunca copia.** O payload da mensagem de comando carrega **referência ao nó do grafo** (o produto, o post, o evento), nunca uma cópia dos dados — mesmo princípio da promoção de anúncio (`RELATES:AD:PROMOTES`, caderno 29). O módulo de destino resolve a referência sob as permissões do usuário; se o destinatário não puder ler o nó, a ação falha de forma controlada (§6.2).
+5. **Resolução de ação no destino.** Se o contrato de aceite do destino mapeia o `payloadType` para **uma única ação**, ela executa direto (com undo, §6.3). Se mapeia para **múltiplas ações**, a UI apresenta o menu de ações do contrato no ponto do drop (ex.: produto solto no chat → "enviar card" | "criar oferta"). A mecânica de interação (ghost, destaque de alvos, retorno animado) está em [`docs/mecanica-de-telas.md §T2`](../mecanica-de-telas.md).
+
+### §6.1 — Matriz payload → ação (v1 mínima)
+
+Cada módulo declara seus tipos no manifesto (contrato de aceite); esta é a cobertura mínima
+esperada da v1 — a referência que os `AcceptContract` devem satisfazer:
+
+| Payload (origem) | Módulo alvo | Ação criada |
+|---|---|---|
+| `marketplace:product` | Mensageria | enviar card do produto |
+| `marketplace:product` | Anúncios | promover item (por referência) |
+| `marketplace:product` | Social | rascunho de post com card |
+| `marketplace:order` | Logística | criar/vincular entrega |
+| `marketplace:order` | Fintech | cobrança / recibo / instrumento |
+| `social:post` | Studio | abrir mídia do post no editor |
+| `studio:file` | Social / Streaming / Email | publicar / anexar |
+| `email:message` | Calendário | criar evento a partir do email (trecho citado) |
+| `email:message` | ERP | criar pendência/ordem vinculada |
+| `map:place` | Calendário | preencher local do evento |
+| `map:place` | Mensageria | compartilhar local (efêmero, TTL) |
+| `contact` | Email / Mensageria | nova conversa/email |
+| `calendar:event` | Mensageria | enviar convite no chat |
+| `streaming:content` | Anúncios | campanha pré-roll |
 
 ---
 
