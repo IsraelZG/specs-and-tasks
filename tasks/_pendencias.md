@@ -188,6 +188,18 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i1][EST-16][plugin-workflows/spec] Spec drift: EST-16 §2 cita `FsPort.mkdirp(manifest, path): Promise<void>` como membro da interface, mas o `FsPort` real em `apps/estaleiro/core/src/ports/fs.ts:5-8` so tem `readFile` + `writeFile`. `makeFsPort` faz `mkdir` internamente dentro de `writeFile` (linha 39), contornando a falta. Nao-bloqueante (worker tratou corretamente). Track: reendurecer a spec de EST-02b referenciada em EST-16 — remover `mkdirp` da lista ou adiciona-lo ao FsPort (apps/estaleiro/core/src/ports/fs.ts:5-8 vs tasks/EST-16.md:198-200)
 - [ ] [i2][EST-16][plugin-workflows] Dep extra `@gorules/zen-engine-wasm32-wasi: 1.0.0-beta.4` em `package.json:16` — nao listada em spec §3 mas e dep transitiva do `@gorules/zen-engine` (binding WASM WASI para browser). Promovida a direta pelo pnpm automaticamente. Esperado pelo design T-604. INFO (packages/plugin-workflows/package.json:16 vs tasks/EST-16.md:212-213)
 <!-- END EST-16 -->
+<!-- T-702 -->
+- [ ] [i1][T-702][transport] `PrivateSwarm` entregue como primitiva sem caller de produção no monorepo. Único import do símbolo é o próprio `tests/privateSwarm.test.ts`; nenhum caller em `packages/**` ou `apps/**`. Integração com app/product é trabalho de task futura (fora do escopo declarado em §3). Track: criar task de wiring com consumer real (ex.: `apps/bancada` aba Sync) quando aplicável (packages/transport/src/privateSwarm/privateSwarm.ts:1-357)
+<!-- END T-702 -->
+<!-- T-404a -->
+- [ ] [i1][T-404a][transport] `attemptHandshake` (`Engine.ts:88-92`) usa `await Promise.resolve()` como proxy de "ponto de suspensão real" do handshake stub. Quando T-404b plugar handshake WebRTC real, o `await` deve permanecer genuíno (não substituir por short-circuit síncrono) para preservar a semântica make-before-break documentada na §1. Track: JSDoc + preservar genuíno (packages/transport/src/promotion/Engine.ts:88-92)
+- [ ] [i2][T-404a][transport] `entry.state` permanece `RELAY_ONLY` em tentativas 1..N-1 com `FAILED` retornado (só vira `FAILED` permanente ao esgotar `attempts >= maxAttempts` em `Engine.ts:65-69`). Coerente com a leitura da spec, mas merece JSDoc explícito em `tryPromote` para evitar confusão em callers de T-404b. Track: JSDoc (packages/transport/src/promotion/Engine.ts:65-69)
+- [ ] [i3][T-404a][transport] Race condition latente: `entry.attempts += 1` (`Engine.ts:59`) e `entry.state = PROMOTING` (linha 58) NÃO são atômicos — 2 awaits concorrentes no mesmo peer podem perder 1 incremento de `attempts`. Não-bloqueante para T-404a (escopo é "core loop + NAT decision" — semântica concorrente é T-404b ou task futura). Callers de produção precisam serializar ou assumir semântica "melhor esforço". Track: documentar ou serializar (packages/transport/src/promotion/Engine.ts:55-77)
+<!-- END T-404a -->
+<!-- BEGIN EST-19 -->
+- [ ] [i1][EST-19][estaleiro] `server.mjs` NÃO compõe o host de plugins prometido na §1 — é static server + WS echo; não instancia `make{Fs,Bash,Commit}Port` nem carrega plugins (§6 nota 2 deferiu ports deliberadamente, mas nem fs/bash/commit são compostos). "Executável como ferramenta" = casca UI + WS echo. Track: EST-02/consumidor futuro (apps/estaleiro/server.mjs)
+<!-- i2 RESOLVIDO 2026-07-08 (superapp 9eab034): estaleiro-ui migrado p/ Vite + src/main.tsx (mount createRoot). UI renderiza de verdade; fallback index.html sintético removido do standalone.mjs. -->
+<!-- END EST-19 -->
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
