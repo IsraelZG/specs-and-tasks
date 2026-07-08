@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-004", "T-106"]
 blocks: ["T-MAP-02", "T-MAP-03"]
+capacity_target: sonnet
 ---
 
 # T-MAP-01 · SPEC:PLACE + consulta sobre geo_index + render GeoSpatial
@@ -123,6 +124,7 @@ export function isValidCoordinate(coord: LatLng): boolean;
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B5 + §T2](../docs/mecanica-de-telas.md) — mecânica de tela validada em mockup (lista↔pins sincronizados, degradação parcial de localização, proveniência de rota). Integração (§T2): `map:place` é payload de drag/share (place → Calendário preenche local; place → Mensageria compartilha local efêmero com TTL). O SPEC:PLACE precisa ser referenciável como nó para esses consumos cross-módulo.
 - [caderno-3-sdk/23-mapa-reference-spec.md](../docs/caderno-3-sdk/23-mapa-reference-spec.md) §1-2 — lugar, índice espacial, consultas, geofencing
 - [[spec-page]] — página como SPECIFICATION (kind: PAGE) — relevante para renderização GeoSpatial
 - [[conector-externo]] — provedor de mapa-base (tiles) é serviço de terceiro
