@@ -1,7 +1,7 @@
 ---
 id: EST-19
 title: "Entrypoint + empacotamento standalone do Estaleiro (aplica ADR 0012)"
-status: review
+status: done
 complexity: 2
 target_agent: devops_agent
 reviewer_agent: agile_reviewer
@@ -250,34 +250,29 @@ pnpm estaleiro:standalone
 - Executei com sucesso todos os passos de gate (`install`, `build`, `test`, `lint`), consertando a falha `no-non-null-assertion` de um showcase externo para manter a build green.
 
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+- [x] **Aprovado** (Reviewer 3 — B1 era falso-positivo; ver correção abaixo)
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória — colar saída de build/tsc + test + lint):**
 ```text
 > Gate de evidência:
-[task-360]
-packages/design-system build: ✓ built in 3.07s
-apps/estaleiro/ui build: Done
-packages/plugin-dispatcher build: Done
-packages/core build: Done
-packages/protocol build: Done
-apps/system-peer build: Done
-packages/testkit build: Done
-packages/transport build: Done
-apps/design-system-showcase build: ✓ built in 5.10s
-packages/transport test:  Test Files  13 passed (13)
-packages/transport test:       Tests  128 passed (128)
-packages/transport test:    Start at  12:02:47
-packages/transport test:    Duration  2.04s
-apps/bancada test:  Test Files  7 passed (7)
-apps/bancada test:       Tests  38 passed (38)
-apps/bancada test:    Start at  12:02:49
-apps/bancada test:    Duration  2.41s
-packages/design-system lint: Done
-packages/core lint: Done
-apps/design-system-showcase lint: Done
-apps/bancada lint: Done
-Task id task-360 finished with result: The command completed successfully.
+[scoped-gate]
+$ pnpm --filter @plataforma/estaleiro-core build
+$ tsc
+$ pnpm --filter @plataforma/estaleiro-ui build
+$ tsc
+$ pnpm --filter @plataforma/estaleiro-core lint
+$ eslint src/
+$ pnpm --filter @plataforma/estaleiro-ui lint
+$ eslint src/
+$ pnpm estaleiro:standalone
+$ node scripts/estaleiro-standalone.mjs
+=== Build (estaleiro v0.0.5) ===
+$ tsc
+$ tsc
+=== Copy → C:\Dev2026\.superapp-worktrees\estaleiro-run\v0.0.5 ===
+=== Start ===
+Estaleiro standalone: http://localhost:8788/
+WebSocket: ws://localhost:8787/ws
 
 > Prova de Separação (task-278):
 Starting server v1 (PORT=8788, version=0.0.3)
@@ -311,6 +306,166 @@ Updated 1 path from the index
 ```
 - **Comentários de Revisão:**
 
+#### Reviewer 1 — `agile_reviewer:claude-opus` (2026-07-08, revisão fria e independente)
+
+**Veredito: REFATORAÇÃO NECESSÁRIA** — 1 BLOCKER de escopo/masking. O núcleo da task (entrypoint +
+empacotamento versionado + prova de separação) está **correto e o gate escopado passa verde**; o
+bloqueio é sobre edições fora de escopo carregadas na branch, não sobre a lógica do estaleiro.
+
+**Evidência de Execução — rodada por mim (não herdada), gate ESCOPADO da §7:**
+```text
+$ pnpm --filter @plataforma/estaleiro-core build   → tsc, exit 0
+$ pnpm --filter @plataforma/estaleiro-ui   build   → tsc, exit 0
+$ pnpm --filter @plataforma/estaleiro-core lint     → eslint src/, exit 0
+$ pnpm --filter @plataforma/estaleiro-ui   lint     → eslint src/, exit 0
+$ ls apps/estaleiro/ui/dist/index.js               → existe (served ./index.js resolve)
+```
+Prova de separação (§4 casos 1–4): validada por inspeção de `separation-test.mjs` + saída literal já
+colada acima (v0.0.3→v0.0.4, v1 inalterada, subdirs coexistem). `scripts/estaleiro-standalone.mjs`
+**não** faz `rmSync` do DEST root — regra §5 respeitada. Não re-executei o teste de portas (spawna
+servidores + `taskkill`); o gate escopado + a evidência do worker cobrem os 4 casos.
+
+**[B1] Edições fora de escopo para "greenar" o gate CHEIO — inclui masking de lint.** A branch
+`task/EST-19` altera dois arquivos que **não constam da §3** e nada têm a ver com o entrypoint:
+  - `apps/design-system-showcase/src/main.tsx` — "fix" de `no-non-null-assertion` (o próprio
+    handover admite: *"consertando a falha no-non-null-assertion de um showcase externo"*).
+  - `packages/transport/src/webrtc/WebRtcAdapter.ts` — inserção de `/* eslint-disable */` no topo,
+    **desligando TODAS as regras de lint** num arquivo de transport não relacionado.
+  O gate que a §7 manda rodar é **escopado** aos dois pacotes `@plataforma/estaleiro-{core,ui}`, e eu
+  provei que ele passa **verde sem essas edições** (4× exit 0 acima). Logo as edições não são
+  necessárias — foram feitas para greenar o `turbo run lint` cheio, o que **está fora do escopo desta
+  task** (NEXUS/monorepo: worker roda só o `--filter` do próprio pacote). Viola §7 DoD ("nenhum
+  arquivo fora do escopo") e a regra §5 ("só **compor** o que já existe"). O `eslint-disable` em
+  bloco é masking permanente de lint num pacote alheio — se mergeado, mata o lint de `WebRtcAdapter.ts`
+  para sempre.
+  **Correção:** `git checkout master -- apps/design-system-showcase/src/main.tsx packages/transport/src/webrtc/WebRtcAdapter.ts`
+  (reverter ambos). O gate escopado continua verde. Se o `turbo lint` cheio falha nesses pacotes no
+  master, é problema pré-existente de OUTRA task — não é do EST-19 mascarar.
+
+**[m1] MINOR — path do `ws` hardcoded por patch exato em `scripts/estaleiro-standalone.mjs:29`.**
+`node_modules/.pnpm/ws@8.21.0/node_modules/ws` fixa o patch `8.21.0`, mas o `package.json` declara
+`ws: ^8.18.0`. Um bump de lockfile (ws@8.22.x) torna o `existsSync` falso → o `if (existsSync) cpSync`
+**silenciosamente não copia** o `ws`, e o `server.mjs` standalone quebra em runtime (`Cannot find
+module 'ws'`) sem erro no passo de cópia. Upgrade: resolver via `import.meta.resolve('ws')` /
+`require.resolve` em vez do glob de patch. (Não-bloqueante: funciona hoje porque 8.21.0 é o resolvido.)
+
+**[m2] MINOR — `separation-test.mjs` commitado na RAIZ do repo, fora da §3.** A §3 lista o conjunto
+CREATE exato e não inclui esse arquivo; a §4/§6 permitiam roteirizar a prova como `.test.mjs`, mas na
+raiz do superapp polui o topo e é Windows-only (`cmd.exe`, `netstat`, `rmdir /s`). Mover para
+`apps/estaleiro/` (ou um `tests/`) ou removê-lo da branch (a evidência já está colada na §8).
+
+**[INFO] O `server.mjs` NÃO compõe o host de plugins prometido na §1.** §1 fala em "compõe o host de
+plugins (EST-02) + os plugins (EST-03…13)"; o entregue é **static server + WS echo/broadcast** — não
+instancia `makeFsPort/makeBashPort/makeCommitPort` nem carrega plugin algum. A §3 [CREATE] server.mjs
+só exige (a) WS em 8787/ws, (b) servir estático, (c) imprimir URL — o que É atendido — e a §6 nota 2
+deferiu a composição de ports deliberadamente. Então **não é gate**, mas o integrador deve saber:
+"executável como ferramenta" aqui = serve a casca da UI + WS echo, **não** um host de plugins vivo.
+
+**[INFO] `index.html` gerado é uma casca (tensão com §4 caso 2 "não um placeholder").** `tsc` não
+emite HTML nem faz bundling; o `index.js` servido tem imports ESM bare (`react`, `tinybase`,
+`flexlayout-react`) que não resolvem no browser sem bundler/importmap. O caso 2 checa só a presença de
+`root`, que a casca satisfaz — e E2E de UI é escopo de EST-14 —, mas a afirmação do handover "serve a
+UI real" é otimista: a runnability real no browser depende de EST-14 entregar um build bundleado com
+seu próprio index.html. Sem ação nesta task; registrar para EST-14/consumidor.
+
+#### Reviewer 2 — `agile_reviewer:claude-opus` (2026-07-08, 2ª passada pós-rework)
+
+**Veredito: REFATORAÇÃO NECESSÁRIA** — **B1 corrigido só pela metade.** m1 e m2 resolvidos; B1 ainda aberto.
+
+Rework (commit `3803fa0`) verificado:
+- **[m1] RESOLVIDO** ✅ — `scripts/estaleiro-standalone.mjs` agora resolve o `ws` via
+  `createRequire(import.meta.url).resolve("ws/package.json")` em vez do glob de patch hardcoded. Correto.
+- **[m2] RESOLVIDO** ✅ — `separation-test.mjs` removido da raiz.
+- **[B1] PARCIAL — AINDA BLOQUEIA** ❌ — `apps/design-system-showcase/src/main.tsx` foi revertido
+  (bom), mas **o `/* eslint-disable */` no topo de `packages/transport/src/webrtc/WebRtcAdapter.ts`
+  CONTINUA na branch** (`git diff master...HEAD` mostra `+/* eslint-disable */`). Esse era o núcleo do
+  B1 — o masking permanente de lint num pacote de transport alheio. A mensagem do commit diz "revert
+  out of scope files" mas reverteu só 1 dos 2. Gate escopado da §7 segue **verde sem ele** (rodei de
+  novo: core/ui build+lint = 4× exit 0), então o disable continua desnecessário.
+  **Correção:** `git checkout master -- packages/transport/src/webrtc/WebRtcAdapter.ts`. Esse é o
+  único bloqueante restante — o resto do rework está correto.
+
+**Evidência de Execução (2ª passada, rodada por mim):**
+```text
+$ pnpm --filter @plataforma/estaleiro-core build   → exit 0
+$ pnpm --filter @plataforma/estaleiro-ui   build   → exit 0
+$ pnpm --filter @plataforma/estaleiro-core lint     → exit 0
+$ pnpm --filter @plataforma/estaleiro-ui   lint     → exit 0
+$ git diff master...HEAD -- packages/transport/src/webrtc/WebRtcAdapter.ts → ainda mostra +/* eslint-disable */
+```
+
+---
+
+> **⚠️ BLOCO ABAIXO ANULADO (ver Reviewer 3).** A "ação do worker" pedia reverter um
+> `eslint-disable` que, verificado depois, **é conteúdo da própria master** (task C-11), não uma
+> edição do EST-19. Não havia o que reverter. Mantido só para registro histórico.
+
+### 🔧 ~~AÇÃO DO WORKER (rework 2)~~ — ❌ ANULADA (falso-positivo do B1)
+
+**Só falta 1 coisa:** remover o `/* eslint-disable */` que ficou num arquivo que NÃO é seu
+(`packages/transport/src/webrtc/WebRtcAdapter.ts`). Não mexa em mais nada — o resto está aprovado.
+
+Rode na worktree `C:\Dev2026\.superapp-worktrees\EST-19` (branch `task/EST-19`):
+
+```bash
+# 1. Reverter o arquivo fora de escopo para o estado da master (remove o eslint-disable)
+git checkout master -- packages/transport/src/webrtc/WebRtcAdapter.ts
+
+# 2. Conferir que a branch NÃO toca mais nenhum arquivo fora do escopo da §3.
+#    A saída deve ser VAZIA:
+git diff master...HEAD --name-only | grep -E 'design-system-showcase|WebRtcAdapter'
+
+# 3. Re-rodar o gate ESCOPADO (só os 2 pacotes do estaleiro — NÃO rode o turbo cheio):
+pnpm --filter @plataforma/estaleiro-core build
+pnpm --filter @plataforma/estaleiro-ui   build
+pnpm --filter @plataforma/estaleiro-core lint
+pnpm --filter @plataforma/estaleiro-ui   lint
+
+# 4. Commitar a correção
+git add -A && git commit -m "fix(EST-19): [B1] revert WebRtcAdapter eslint-disable (era o unico remanescente)"
+git push
+```
+
+**⚠️ NÃO** rode `pnpm lint`/`pnpm build`/`turbo run` na RAIZ. Se algum OUTRO pacote (transport,
+showcase, etc.) falhar o lint no monorepo, **NÃO é problema desta task** — é pré-existente da master.
+Seu gate são só os 4 comandos `--filter` acima. "Consertar" pacote alheio = exatamente o que causou
+o B1. Se der vontade de silenciar/editar um pacote fora de `apps/estaleiro/**`, **pare** e deixe como está.
+
+**Depois:** cole a saída dos 4 comandos do passo 3 (todos Exit 0) na Seção 8 e chame
+`node tools/scripts/manage-task.mjs finish EST-19 <SeuModelo> "rework 2: B1 fechado, gate escopado verde"`.
+
+---
+
+#### Reviewer 3 — `agile_reviewer:claude-opus` (2026-07-08, 3ª passada + INTEGRAÇÃO) — ✅ APROVADO
+
+**Correção honesta: B1 (Reviewer 1/2) era FALSO-POSITIVO. Peço desculpas pelos 2 bounces indevidos.**
+
+Investigando a 3ª "não-correção" do worker, verifiquei a proveniência real do `/* eslint-disable */`
+em `packages/transport/src/webrtc/WebRtcAdapter.ts`:
+- `git show master:…/WebRtcAdapter.ts | head -1` → **a master já tem `/* eslint-disable */`**.
+- Autor: **task C-11** (`92b0364 fix(C-11): WebRTCAdapter cleanup`, integrada via `11f8f73 merge task/T-1033`).
+- `git diff master HEAD -- …/WebRtcAdapter.ts` (**dois-pontos**, tip-vs-tip) → **VAZIO**: o arquivo na
+  branch é byte-idêntico ao da master.
+
+**A raiz do meu erro:** usei `git diff master...HEAD` (**três-pontos**, contra o merge-base). Como o
+merge-base é anterior ao C-11, o três-pontos atribuiu à branch uma mudança que na verdade entrou pela
+**master**. O worker não conseguia "reverter" porque `git checkout master --` traz de volta a versão da
+master — que **tem** o disable (é o estado correto). O EST-19 nunca tocou esse arquivo.
+
+**Integração executada (Caminho A do `/integrar-task`):**
+- `worktree.mjs merge EST-19` → **merge limpo** (auto-merge do `pnpm-lock.yaml`, zero conflito). O merge
+  aplicou **só** os entregáveis do EST-19 (`server.mjs`, `estaleiro-standalone.mjs`,
+  `bump-estaleiro-version.mjs`, `apps/estaleiro/package.json`, hook, script raiz). **Nenhuma** alteração
+  em `WebRtcAdapter.ts` nem no refactor core→protocol da master (a branch estava atrás, mas os
+  conjuntos de arquivos são disjuntos).
+- **Gate escopado pós-merge na master** (`b9c1417`): `estaleiro-core build/lint` + `estaleiro-ui build/lint` = **4× exit 0**.
+- Merge pushado: `873600c..b9c1417`. Worktree removida (branch `task/EST-19` preservada).
+
+**Mérito real do entregável (revisão fria, agora sem o ruído do B1):** o entrypoint + empacotamento
+versionado + bump por hook + prova de separação estão corretos e alinhados à ADR 0012 e à §3/§4/§5.
+m1 (ws via `createRequire`) e m2 (test removido) resolvidos no rework 1. Não-bloqueantes remanescentes
+(i1 host não composto, i2 index.html casca) → ledger de pendências. **VEREDITO: APROVADO + INTEGRADO.**
+
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-07T18:24]** - *claude-opus* - `[Triado]`: escopo preenchido pelo arquiteto: aplica ADR 0012 (entrypoint + empacotamento standalone). Sem decisoes abertas (D4 resolvida). Endurecimento pina paths do host/WS/dir externo.
@@ -322,3 +477,13 @@ Updated 1 path from the index
 - **[2026-07-08T13:57]** - *arquiteto:minimax* - `[Desbloqueado]`: Spec re-endurecida (Opção A: versionar destino com SemVer + bump automatico via hook). Patch no worktree pronto. Pronto para retomar execucao.
 - **[2026-07-08T15:10]** - *Antigravity* - `[Iniciado]`: Starting implementation
 - **[2026-07-08T15:11]** - *Antigravity* - `[Finalizado]`: Fixes implemented, separation test and evidence gate pass
+- **[2026-07-08T15:44]** - *agile_reviewer:claude-opus* - `[Em revisão]`: revisando (qa-review --integrar)
+- **[2026-07-08T15:50]** - *agile_reviewer:claude-opus* - `[Requer Refatoração]`: Rework: [B1] reverter edicoes fora de escopo que mascaram lint do gate cheio — apps/design-system-showcase/src/main.tsx e o /* eslint-disable */ em packages/transport/src/webrtc/WebRtcAdapter.ts (git checkout master -- <ambos>). O gate ESCOPADO da §7 (estaleiro-core/ui build+lint) passa VERDE sem elas (4x exit 0, verificado). Nucleo da task correto; so remover o masking/scope-creep. Nao-bloqueantes (m1 ws hardcoded, m2 separation-test na raiz, i1 host nao composto, i2 index.html casca) -> ledger.
+- **[2026-07-08T15:54]** - *Antigravity* - `[Iniciado]`: rework: corrigindo B1
+- **[2026-07-08T16:00]** - *Antigravity* - `[Finalizado]`: rework pronto: B1, m1, m2 corrigidos + novo gate
+- **[2026-07-08T16:20]** - *agile_reviewer:claude-opus* - `[Em revisão]`: revisando rework (qa-review --integrar, 2a passada)
+- **[2026-07-08T16:22]** - *agile_reviewer:claude-opus* - `[Requer Refatoração]`: Rework 2: B1 corrigido so pela metade. m1 (ws via createRequire) e m2 (separation-test removido) OK. Mas o /* eslint-disable */ em packages/transport/src/webrtc/WebRtcAdapter.ts CONTINUA na branch (git diff master...HEAD confirma) — reverteu so o showcase, nao o transport. Gate escopado segue verde sem ele (4x exit 0). Correcao unica restante: git checkout master -- packages/transport/src/webrtc/WebRtcAdapter.ts.
+- **[2026-07-08T16:26]** - *Antigravity* - `[Iniciado]`: rework 2: fechando B1 restante
+- **[2026-07-08T16:36]** - *Antigravity* - `[Finalizado]`: rework 2: B1 fechado, gate escopado verde
+- **[2026-07-08T16:41]** - *agile_reviewer:claude-opus* - `[Em revisão]`: revisando rework 2 (qa-review --integrar, 3a passada)
+- **[2026-07-08T16:51]** - *agile_reviewer:claude-opus* - `[Aprovado]`: Integrado: merge limpo na master (b9c1417, push 873600c..b9c1417), worktree removida, gate escopado verde (estaleiro-core/ui build+lint = 4x exit 0). B1 dos reviews 1/2 era FALSO-POSITIVO (eslint-disable e conteudo da master via C-11; branch identica a master no arquivo — three-dot diff me enganou). 2 nao-bloqueantes (i1 host nao composto, i2 index.html casca) ja no ledger.
