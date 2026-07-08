@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-ERP-01", "T-108"]
 blocks: ["T-ERP-05", "T-LOG-01"]
+capacity_target: sonnet
 ---
 
 # T-ERP-02 · estoque multi-deposito + custeio como projecao + reserva por ASSET:LOCK
@@ -104,6 +105,7 @@ export async function recordMovement(
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B3](../docs/mecanica-de-telas.md) — validado no mockup B3: o `ASSET:LOCK` de reserva tem **3 estados visuais** (livre / reservado com TTL "até X" / **expirado** com alerta "estoque deveria ser liberado") — o contrato precisa expor `lockExpiresAt` consultável para a UI distinguir reserva ativa de expirada; recálculo de projeção é estado transitório que não bloqueia a listagem.
 - [caderno-3-sdk/16-erp-crm-reference-spec.md](../docs/caderno-3-sdk/16-erp-crm-reference-spec.md) §3 — estoque, movimentação, custeio como projeção, reserva por LOCK
 - [[asset-lock]] — primitiva de reserva temporária com TTL, ancora no head via `SPENDS`
 - [[projecao-analitica]] — projeções materializadas incrementais (aplica-se ao custeio)
