@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-STR-01", "T-MSG-02"]
 blocks: []
 ui: true
+capacity_target: sonnet
 ---
 
 # T-STR-03 · live via LiveKit (SDK embutido + SFU plugin) + consolidacao para CONTENT:FILE
@@ -80,6 +81,7 @@ export interface LivePlayerComponent {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B8](../docs/mecanica-de-telas.md) — mecânica validada no mockup B8: badge "ao vivo" pulsante nos cards; **live encerrada redireciona para o player VOD do mesmo conteúdo** (consolidação → CONTENT:FILE tem transição de UI própria); player com estados sem-seeder (degradação declarada), buffering (pausa progresso) e renditions processando (play indisponível). Layout de transmissão reusa o vocabulário da tela de chamada (§B1). Distribuição do SFU: spike T-1040.
 - [caderno-3-sdk/19-streaming-reference-spec.md](../docs/caderno-3-sdk/19-streaming-reference-spec.md) S3 — Live
 - [[livekit]] — Ecossistema LiveKit, `CONTENT:LIVE_SESSION`, aresta `STREAMS`
 - [[consolidacao-de-live]] — Padrao de consolidacao de segmentos em `CONTENT:FILE`
