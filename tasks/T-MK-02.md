@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-MK-01", "T-108"] # IDs de tarefas que bloqueiam esta
 blocks: ["T-MK-03"] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-MK-02 · anti-oversell por linhagem + vetor de corrida (uma unidade para uma finaliza)
@@ -75,6 +76,7 @@ export interface ConcurrencyTestVector {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B2](../docs/mecanica-de-telas.md) — requisito de contrato validado no mockup B2: o perdedor da corrida recebe **erro explícito e imediato no submit** ("este item acabou de esgotar" + garantia de não-cobrança) — o contrato anti-oversell precisa devolver falha distinguível para a UI renderizar esse caminho; a compra jamais prossegue silenciosamente.
 - [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md) §3 — Estoque, escassez e anti-oversell
 - [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md) §10 — Limite honesto: anti-oversell estrutural vale por linhagem; multi-emissor é saga
 - [[item-negociavel]] — Bem escasso vs. digital
