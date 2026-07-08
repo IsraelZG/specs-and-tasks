@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-OFF-01", "T-PG-01"] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-OFF-04 · apresentacao perfil slide + export PDF/PPTX
@@ -64,6 +65,7 @@ export interface ExportConverter {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B12](../docs/mecanica-de-telas.md) — editor em overlay fullscreen (padrão validado no mockup B12); export como modal com progresso real (sem barra falsa — diretrizes-ux §2); estado "export em progresso" é dos 7 obrigatórios da superfície.
 - [caderno-3-sdk/27-suite-office.md](../docs/caderno-3-sdk/27-suite-office.md) §4 — Apresentações (SPEC:PAGE perfil slide, mesmo motor)
 - [caderno-3-sdk/27-suite-office.md](../docs/caderno-3-sdk/27-suite-office.md) §7 — Export é conversor, não formato proprietário
 - [[perfil-de-capacidade]] — Perfil `slide` define whitelist de componentes para apresentação
