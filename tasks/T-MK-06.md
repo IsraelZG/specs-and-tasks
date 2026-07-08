@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-MK-01", "T-MK-02", "T-MK-03", "T-MK-04", "T-MK-05"] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-MK-06 · vetores: oversell multi-emissor, saga com perna externa falha, lance perdedor, cupom reusado
@@ -50,6 +51,7 @@ export interface MarketplaceVectorSuite {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B2](../docs/mecanica-de-telas.md) — comportamento observável validado no mockup para 3 dos 4 vetores: oversell → erro explícito no submit sem cobrança; saga falha → compensado com estorno explicado; lance perdedor → banner "sua oferta foi superada" + CTA de novo lance. **Cupom reusado não tem tela mockada** — definir o comportamento observável no vetor.
 - [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md) §10 — Limites honestos
 - [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md) §3.4 — Oversell multi-emissor é saga, não garantia estrutural
 - [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md) §4.2-4.3 — Saga com perna externa falha, TTL
