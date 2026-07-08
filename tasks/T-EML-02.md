@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-EML-01", "T-108"]
 blocks: ["T-EML-03"]
+capacity_target: sonnet
 ---
 
 # T-EML-02 · espelho SPEC:EMAIL idempotente por Message-ID + threading + anexos + envio como saga com supressao de eco
@@ -131,6 +132,7 @@ export interface EmailMirror {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B10](../docs/mecanica-de-telas.md) — validado no mockup B10: envio expõe estados pendente→enviado (chip "enviando…"); **eco suprimido é estado visível** com explicação ("cópia local suprimida para não duplicar; reentregas idempotentes"), não supressão invisível; lista agrupa por thread (1 linha + contador). Decisão registrada lá: sem modal de "confirmar envio" (a saga pendente já dá janela de percepção) — confirmar ao endurecer.
 - [caderno-3-sdk/21-email-reference-spec.md](../docs/caderno-3-sdk/21-email-reference-spec.md) S2-S3 — Mensagens como espelho, envio
 - [[conector-espelho]] — D3 (egresso como intent), D4 (supressao de eco), D5 (conflito)
 - [[edge-translation]] — Traducao de borda para anexos on-demand
