@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-MK-01", "T-MK-02", "T-505"] # IDs de tarefas que bloqueiam esta
 blocks: ["T-MK-04"] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-MK-03 · motor de saga Tier 1 (ASSET:LOCK, ttl_policy, compensacao) + Tier 2 opcional, estado efemero
@@ -81,6 +82,7 @@ export interface TwoPhaseCommitOrchestrator {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §B2](../docs/mecanica-de-telas.md) — vocabulário de saga validado no mockup (transversal B2/B3/B6): a UI renderiza pendente→pago→enviado + terminal **compensado** com explicação do que foi revertido; o motor precisa expor por etapa um estado consultável (done/current/pending/compensated) e, na compensação, **quais efeitos foram desfeitos** (ex.: "valor devolvido; item voltou ao estoque").
 - [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md) §4 — Checkout como saga multidomínio (Tier 1, TTL, Tier 2, estado efêmero)
 - [caderno-3-sdk/15-marketplace-reference-spec.md](../docs/caderno-3-sdk/15-marketplace-reference-spec.md) §10 — Limites honestos (janela observável no Tier 1)
 - [[saga]] — Definição canônica: anatomia, limite honesto, regra inviolável do estado
