@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-SHL-01", "T-SHL-04"] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-SHL-05 · camada de overlay + command palette (superficie) + ciclo de vida de painel (suspensao)
@@ -89,6 +90,7 @@ export interface PanelLifecycle {
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
+- [mecanica-de-telas.md §A5](../docs/mecanica-de-telas.md) — command palette validada no mockup A5: ⌘K/Ctrl-K toggle; 3 modos em tabs (Buscar/Agir/Gerar); busca com resultados progressivos (skeleton com debounce ~220ms) e **filtro de permissão antes do render** (nunca mostra-e-esconde); modo Gerar com streaming + estado de **recusa fora de escopo** (mensagem própria, não erro); Esc fecha e reseta modo. Overlay: no mockup, ConsentPrompt e CommandPalette montam acima do Workspace como camada própria (§A1). Suspensão de painel não foi coberta pelo mockup. Pacote: `@plataforma/design-system` já tem `Command` e `Modal` prontos.
 - [caderno-3-sdk/28-shell-e-composicao.md](../docs/caderno-3-sdk/28-shell-e-composicao.md) §8 — Camada de overlay e command palette
 - [caderno-3-sdk/28-shell-e-composicao.md](../docs/caderno-3-sdk/28-shell-e-composicao.md) §9 — Ciclo de vida e multi-instância (suspensão)
 - [[command-palette]] — Definição canônica (superfície de intenção; comportamento IA é T-IA-05)
