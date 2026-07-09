@@ -1,7 +1,7 @@
 ---
 id: DMM-08
 title: "Painel Terminal do Agente (side panel): stream de log do harness ao vivo"
-status: draft:placeholder
+status: draft:triaged
 complexity: 3
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -45,7 +45,28 @@ alterando arquivo), além do contexto já processado. Consome os eventos WS rote
 ### Pegadinhas conhecidas *(preencher no endurecimento)*
 
 ## 6. Feedback de Especificação
-- *[preencher no endurecimento]*
+
+### Classificação (pass-1 endurecer-fila, 2026-07-08, minimax)
+- **Status proposto:** `draft:triaged` via `triage` (pass-1)
+- **Motivo:** deps em `DMM-07` (acabei de marcar `draft:pending_decision` neste lote — 5 decisões
+  abertas de arquitetura: entrypoint, LanguageModel, PluginTools, subscription per-taskId,
+  concorrência+cancelamento). A spec §1 consome "eventos WS roteados por DMM-07" e §3 marca
+  `[READ] apps/estaleiro/ui/src/ws/**` — sem o **formato final** do que chega do DMM-07, este
+  painel só pode declarar "consome AgentWsEvent" como placeholder.
+- **Por que NÃO `harden`:** o painel lê `WsEvent` (definido em `apps/estaleiro/ui/src/ws/events.ts`)
+  e filtra por `event.type.startsWith("agent:")` (App.tsx:24); o consumidor real depende de
+  qual subset dos eventos o DMM-07 expõe (decisão 4 do DMM-07: filter client-side vs
+  roteamento server-side). Inventar o filtro aqui seria reescrever o DMM-07.
+- **Próximo passo:** após DMM-07 virar `done` (decisões fechadas + reendurecido + executado),
+  reendurecer (pass-2 JIT) com: (a) o `taskId` da task selecionada (vem do store de board,
+  EST-14b); (b) o filtro exato (client-side ou server-side); (c) o ring buffer size (NÃO-FAZER
+  §5 — citar fonte ou abrir).
+- **Capacidade:** `sonnet` já no frontmatter — render + hook é mecânico, não algorítmico.
+- **Pré-endurecimento já válido:** `ui: true` (gate manual/smoke), `dependencies: [DMM-07]`
+  consistente com `blocks:` de DMM-07.
+- **Pendente p/ pass-2:** assinatura TS do componente, path exato
+  (`apps/estaleiro/ui/src/views/terminal/**` a fixar), casos enumerados (smoke com eventos
+  mockados; ring buffer aplicado; cap de linhas).
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 - [ ] Terminal renderiza o stream ao vivo de uma task selecionada; verificação de UI feita.
@@ -64,3 +85,4 @@ pnpm --filter @plataforma/estaleiro-ui test
 - [ ] **Requer Refatoração**
 
 ## 9. Log de Execução (Agent Execution Log)
+- **[2026-07-08T18:42]** - *arquiteto:minimax* - `[Triado]`: pass-1: deps DMM-07 ainda draft:pending_decision; reendurecer JIT após DMM-07→done
