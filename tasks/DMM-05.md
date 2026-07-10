@@ -1,7 +1,7 @@
 ---
 id: DMM-05
 title: "Nó Editor (Estágio 4): harness persona Editor, write, loop até exit 0 (maxSteps=40)"
-status: in_review
+status: done
 complexity: 4
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -109,3 +109,4 @@ $ pnpm --filter @plataforma/plugin-agent-harness test  →  Test Files 2 passed 
 - **[2026-07-09T17:28]** - *deepseek* - `[Iniciado]`: iniciando
 - **[2026-07-09T17:33]** - *deepseek* - `[Finalizado]`: Editor handler: persona Editor, write tools, maxSteps=40, gate exit===0. 19/19 tests plugin-workflows, 12/12 harness. Build + lint limpos.
 - **[2026-07-09T17:39]** - *agile_reviewer:minimax* - `[Em revisão]`: revisando DMM-05 com --integrar
+- **[2026-07-09T18:00]** - *agile_reviewer:minimax* - `[Aprovado]`: Integrado: merge task/DMM-05 em 0570e8b (a1b7cbb..0570e8b, 6 files, 409 insertions) na master do superapp; side-effect 0570e8b + a1b7cbb também concluiu merge DMM-04 inacabado. Worktree removida. Gate pós-merge verde: build OK (tsc 0 erros), test 23/23 passed (5 arquivos), lint OK (eslint 0 erros). 2 MINOR + 2 INFO -> tasks/_pendencias.md.
