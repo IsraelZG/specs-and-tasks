@@ -1,7 +1,7 @@
 ---
 id: ORQ-11
 title: "Religar orquestrar.mjs no VercelAgentAdapter: remove kill-switch + spawn Crush, seleciona adapter in-process"
-status: draft:triaged
+status: ready
 complexity: 3
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -44,12 +44,10 @@ direto. Também reabilita `max_concurrent` em `orquestrador.config.json` (hoje `
 - [x] `docs/adr/0008-*.md` (ORQ-08) — critério de término/timeout (Decisão E) que o loop respeita.
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-> **A endurecer JIT (pós-ORQ-09/10).** Esboço:
-- **[UPDATE]** `tools/scripts/orquestrar.mjs` — remove kill-switch + spawn Crush; `spawnAgent` passa a
-  chamar `VercelAgentAdapter.run(...)` (in-process, registra a instância pro ORQ-10, hook `--on-finish`
-  no término). Ajusta `pruneRegistry` pro novo modelo de "instância viva" (não-pid-de-SO).
-- **[UPDATE]** `tasks/orquestrador.config.json` — `max_concurrent` > 0 (reabilita o despacho).
-- **[UPDATE]** doc curta: como o `--on-finish` continua fechando o pipeline com o adapter novo.
+## 3. Escopo de Arquivos (Inputs e Outputs)
+- **[UPDATE]** `tools/scripts/orquestrar.mjs` — remove kill-switch + spawn Crush; `spawnAgent` passa a importar `VercelAgentAdapter` de `../orchestrator/src/agentAdapter.mjs` e a chamar `VercelAgentAdapter.run(...)` in-process. Registra a instância pro ORQ-10 usando o `monitor.mjs`, hook `--on-finish` no término. Ajusta `pruneRegistry` pro novo modelo de "instância viva" via handle retornado.
+- **[UPDATE]** `tasks/orquestrador.config.json` — setar `max_concurrent: 1` para o smoke test.
+- **[UPDATE]** doc curta no início de `orquestrar.mjs` explicando como o `--on-finish` continua fechando o pipeline com o adapter in-process.
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
 - [ ] `--once`/`--on-finish` continuam funcionando com o adapter in-process (adapter fake nos testes):
@@ -68,7 +66,13 @@ direto. Também reabilita `max_concurrent` em `orquestrador.config.json` (hoje `
 3. Smoke `max_concurrent:1`. Só então subir o teto. Gate → §8 → enfileira.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-- Depende das interfaces de ORQ-09/10. Se elas mudarem no endurecimento delas, reendurecer esta.
+### Decisões Arquiteturais Fechadas (Endurecimento JIT, 2026-07-09)
+1. **Importação in-process:** Caminho correto do adapter importado em `orquestrar.mjs` será `../orchestrator/src/agentAdapter.mjs`.
+2. **Monitoramento:** Registro da instância consumirá a interface de `../orchestrator/src/monitor.mjs` consolidada na ORQ-10.
+
+### Classificação (pass-2)
+- **Status:** `draft:hardened`
+- **Motivo:** Dependências ORQ-09 e ORQ-10 done. Adapter e monitor confirmados. Pronta para execução real e remoção do kill-switch.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 - [ ] `spawn('crush')` e `EMERGENCY_DISABLE_SPAWN` removidos; `spawnAgent` chama o adapter in-process?
@@ -76,10 +80,10 @@ direto. Também reabilita `max_concurrent` em `orquestrador.config.json` (hoje `
 - [ ] Smoke `max_concurrent:1` despacha 1 agente in-process sem janela, visível/cancelável no painel?
 - [ ] `max_concurrent` reabilitado no config (começando baixo)?
 
-### Verificação automática *(a fixar no endurecimento)*
+### Verificação automática
 ```bash
-node tools/scripts/orquestrar.mjs --once --ledger-file <fixture>   # despacha in-process, sem janela
-# + smoke com 1 task real e max_concurrent:1
+node tools/scripts/orquestrar.mjs --once --ledger-file tasks/INDEX.md
+# Smoke deve executar uma task local in-process sem abrir janelas extras (usando max_concurrent: 1).
 ```
 > **GATE DE EVIDÊNCIA:** saída literal colada na §8.
 
@@ -100,3 +104,5 @@ node tools/scripts/orquestrar.mjs --once --ledger-file <fixture>   # despacha in
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03T19:48]** - *Gemini 3.1 Pro* - `[Triado]`: Triagem da task dependente na fila ORQ
+- **[2026-07-09T21:18]** - *Antigravity* - `[Endurecido]`: Endurecida JIT e movida para ready
+- **[2026-07-09T21:19]** - *Antigravity* - `[Promovida p/ ready]`: draft:hardened com deps done — safety-net flip
