@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-PG-01", "T-PG-02", "T-PG-03"]
 blocks: []
+capacity_target: haiku
 ---
 
 # T-PG-05 · vetores: componente fora do catalogo, expressao estourando orcamento, intent acima do privilegio

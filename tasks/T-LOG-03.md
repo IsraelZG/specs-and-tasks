@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-LOG-01", "T-CN-03"]
 blocks: ["T-LOG-04", "T-LOG-05"]
+capacity_target: sonnet
 ---
 
 # T-LOG-03 · transporte externo: conector de transportadora (cotacao/etiqueta/rastreio) idempotente

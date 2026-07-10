@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-PG-01", "T-PG-02"]
 blocks: ["T-PG-05"]
 ui: true
+capacity_target: sonnet
 ---
 
 # T-PG-04 · sub-dialeto de formularios sobre dataschema de SPEC

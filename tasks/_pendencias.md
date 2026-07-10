@@ -17,29 +17,23 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i2][EST-07][plugin-dispatcher] `cwd` hardcoded em `dispatcher.ts:109-111` como `'C:\\Dev2026\\superapp'` / `'C:\\Dev2026\\Docs'`. Spec §3.5 replica o padrao do `orquestrar.mjs L147-149` (tambem hardcoda). Idealmente viriam de env ou config. Nao-bloqueante (consistente com o original) (packages/plugin-dispatcher/src/dispatcher.ts:109-111)
 <!-- END EST-07 -->
 <!-- EST-14a -->
-- [ ] [i1][EST-14a][estaleiro/ui] `App.tsx` usa `createElement as h` em vez de JSX. Spec §3 nao obriga JSX (apenas tsconfig habilita), mas o comentario da spec ("render <App /> via JSDOM + RTL") sugere JSX esperado. Worker escolheu createElement por concisao. Track: decidir politica monorepo (lint rule "prefer JSX" ou liberar createElement) (apps/estaleiro/ui/src/App.tsx:1-40)
-- [ ] [i2][EST-14a][estaleiro/ui] `shell.test.tsx` caso 3 usa `screen.getByText` em vez do seletor `.flexlayout__tab` sugerido na spec. Resultado identico (verifica 5 tabs) mas estilo difere. Track: alinhar convencao de teste com spec (apps/estaleiro/ui/tests/shell.test.tsx:8-15)
-- [ ] [i3][EST-14a][estaleiro/ui] `freePort()` no `ws-client.test.ts` cria 2 `WebSocketServer` separados no caso 1 — wasteful mas nao-bloqueante. Track: reaproveitar a instancia (apps/estaleiro/ui/tests/ws-client.test.ts:6-14,22)
+<!-- Items i1→SPEC-PENDENCIAS, i2→SPEC-PENDENCIAS, i3→C-26 -->
 <!-- END EST-14a -->
 <!-- EST-13a -->
 - [x] [i1][EST-13a][plugin-knowledge] `package.json` `exports` aponta para `./src/graph.ts` (TS source) em vez de `./dist/graph.js`. ✅ RESOLVIDO em EST-13c (commit `c643d73`): `exports: { ".": "./src/index.ts" }` agora aponta para o barrel que re-exporta `makeGraph` + `makeWriter` + tipos. (packages/plugin-knowledge/package.json:7-8)
 - [ ] [i2][EST-13a][plugin-knowledge] `findMdFiles` faz recursao O(n) sequencial sobre o corpus. Para o wiki atual (centenas de paginas) e OKF incremental e aceitavel; se chegar a 10k+ arquivos, paralelizar. Track: re-medir quando corpus > 5k (packages/plugin-knowledge/src/graph.ts:88-101)
-- [ ] [i3][EST-13a][estaleiro/processo] Handover §8 nao foi preenchido pelo worker (deepseek) — apenas Log §9 tem resumo "7/7 testes verdes, lint limpo, build ok". Spec/worker-script deveria lembrar o worker a preencher §8 antes do `finish` (tasks/EST-13a.md:148-150)
+<!-- i3→SPEC-PENDENCIAS -->
 <!-- END EST-13a -->
 <!-- EST-13b -->
-- [ ] [m1][EST-13b][plugin-knowledge/spec] Spec §7 (tasks/EST-13b.md:119) diz "Testes 1–7 verdes? E os 8 de EST-13a continuam passando?" mas EST-13a tem 7 testes, não 8. Discrepância documental; spec foi escrita com contagem errada (a suite real `vitest run` mostra `tests/graph.test.ts (7 tests)`). Track: reendurecimento leve da spec, housekeeping. Real: 7+7=14. (tasks/EST-13b.md:119)
-- [ ] [m2][EST-13b][plugin-knowledge] `TermEntry.positions: number[]` em fts.ts:23 é dead code — armazenada no `buildIndex` (L93, L110) mas nunca usada em `search` (snippet via `bodyLower.indexOf`, scoring via `entry.count - titleHits`). Track: remover campo ou guardar para highlighting futuro (packages/plugin-knowledge/src/fts.ts:23,93,110)
-- [ ] [m3][EST-13b][plugin-knowledge/spec] `package.json` modificado no rework mas não listado em §3 (escopo declarava só `fts.ts`/`index.ts`/`tests/fts.test.ts` + READ `graph.ts`). Modificação do `package.json:7` (exports field) foi necessária para fix do M1. Track: adicionar `[EDIT] package.json` em §3 no reendurecimento. Mesmo padrão dos achados [m1] do EST-06/EST-10b/EST-10c (packages/plugin-knowledge/package.json:7 vs tasks/EST-13b.md §3)
+<!-- m1→SPEC-PENDENCIAS, m2→C-20, m3→SPEC-PENDENCIAS -->
 - [x] [i1][EST-13b][plugin-knowledge] **M1 do parecer re-registrado: `package.json:7` `exports` field stale — apontava para `./src/graph.ts` em vez de `./src/index.ts`.** ✅ RESOLVIDO em EST-13c (commit `c643d73`): `exports` agora aponta para `./src/index.ts` (barrel) que re-exporta `makeGraph`+`makeFts`+`makeWriter`+tipos. Wire contract com EST-14d View Knowledge agora funcional. Mesmo padrão do `i1[EST-13a]` — fechado junto pela EST-13c. (packages/plugin-knowledge/package.json:7)
 - [ ] [i2][EST-13b][plugin-knowledge] Implementação segue o pattern `makeFts`/`FtsIndexImpl` (factory + interface) consistente com `makeGraph` de EST-13a — sem inconsistência de estilo. INFO positivo (cobertura visual).
 - [ ] [i3][EST-13b][plugin-knowledge/processo] Gate de evidência triplo (build+test+lint) aplicado e logado no 1º `finish` (Log §9 2026-07-07T13:31 deepseek). Após 3 reworks consecutivos por regressão de lint (T-807, EST-02b, EST-02c), ver o gate triplo no 1º commit é o comportamento esperado desde a regra de 2026-07-06. INFO positivo.
 - [ ] [i4][EST-13b][plugin-knowledge] `signal.aborted` checado em 2 pontos (início do `buildIndex` + topo do loop por slug). Suficiente para corpus de centenas de páginas (RFC-018 E2). Para grafos com páginas gigantes indexadas, faria sentido checar a cada N iterações — não-bloqueante, track: re-medir se corpus > 5k páginas. (packages/plugin-knowledge/src/fts.ts:54,67)
-- [ ] [i5][EST-13b][plugin-knowledge/processo] Handover §8 do worker ficou em branco (apenas `-`); apenas Log §9 tem o resumo. R2 do EST-03d teve o mesmo padrão. Track: worker-script/spec deveria LEMBRAR o worker a preencher §8 antes do `finish` — não silenciar. (tasks/EST-13b.md:136-137 + Log §9 2026-07-07T13:31)
-- [ ] [i6][EST-13b][plugin-knowledge] `splitTerms` regex (fts.ts:29) é ASCII-only — não cobre acentos, cedilha, ou hifens especiais. Corpus testado (Português sem diacríticos) funciona; corpus real pode ter inconsistência (e.g., "informação" e "informacao" viram termos diferentes). Track: normalizar Unicode (NFD + remove combining marks) no rework futuro. Não-bloqueante — RFC-018 E2 não menciona Unicode (packages/plugin-knowledge/src/fts.ts:29)
+<!-- i5→SPEC-PENDENCIAS, i6→C-20 -->
 <!-- END EST-13b -->
 <!-- EST-17 -->
-- [ ] [i1][EST-17][estaleiro/spec] Spec §2 RAG cita `docs/_vendor/OmniRoute/CLAUDE.md` e `docs/_vendor/OmniRoute/README.md` como "clone raso local" de referência, mas o diretório `docs/_vendor/OmniRoute/` não existe nem na worktree `EST-17` nem em master (`git ls-tree -r HEAD --name-only` retorna vazio). A porta 20128 é publicamente verificável no repo upstream `github.com/diegosouzapw/OmniRoute` — implementação não é inválida, mas a spec prometeu um espelho local que não foi feito. Track: (a) criar o clone ou ajustar a spec para "consultar upstream em runtime"; (b) verificar se a regra "NÃO rodar de lá" implica que o clone é responsabilidade do arquiteto/humano (tasks/EST-17.md:74-75)
-- [ ] [i2][EST-17][plugin-providers/test] Test 2 (registry.test.ts:27-31) regex `/provider 'unknown' não registrado.*deepseek, openrouter/` passa por substring match ("deepseek, openrouter" é prefixo de "deepseek, openrouter, omniroute" na mensagem de erro). Funciona por acidente, não por design explícito. Track: atualizar o regex para `/deepseek.*openrouter.*omniroute/` (match dos 3 nomes) ou usar um array matcher. Não-bloqueante — testes passam, mas é acoplamento implícito. Mesmo padrão de fragilidade do i2 do EST-03d (regex contagem) (packages/plugin-providers/tests/registry.test.ts:27-31)
+<!-- i1→SPEC-PENDENCIAS, i2→C-27 -->
 - [ ] [i3][EST-17][plugin-providers/processo] Handover §8 do worker (big-pickle) foi sucinto e direto (3 bullet points + gate de evidência colado). Gate de evidência triplo (build+test+lint) aplicado no 1º `finish` (Log §9 2026-07-07T14:14). Após 3 reworks consecutivos por regressão de lint (T-807, EST-02b, EST-02c), ver o gate triplo no 1º commit é o comportamento esperado desde a regra de 2026-07-06. INFO positivo (tasks/EST-17.md:165-193)
 <!-- END EST-17 -->
 > **Última drenagem (2026-07-06):** Itens EST-03b/c/d (C-18), EST-04a/b/c (C-19) movidos para cleanup plugin-tasks. T-1037 (ADR) movido ao SPEC-PENDENCIAS. Restam 2 itens não capturados: T-802 (media), T-1028 (scheduler).
@@ -47,18 +41,11 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [m1][T-802][media] `!` non-null assertion no arquivo de teste — spec §5 proíbe `!` no geral (src está limpo); refatorar `reordered[0]!`/`tampered[0]!`/etc para guards (verifyReassemble.test.ts:53-55, 98, 147-151, 22)
 - [ ] [i1][T-1028][scheduler] `RUNNABLE_STATUSES` usa `'draft'` (alias legado) — tipo `TaskStatus` ainda inclui, compila sem erro. Migração T-1030 substituirá por `'draft:placeholder'`; scheduler deve ser atualizado junto (scheduler.ts)
 <!-- C-18 -->
-- [ ] [i1][C-18][plugin-tasks] **Cobertura de testes incompleta para os 3 fixed novos.** (a) `evidenceGuard.ts:18-21` novo check de conteudo (/build/i || /test/i) sem teste negativo; (b) `identityGuard.ts` refactor para `options.blockedActors`/`blockedRolePrefixes` sem teste de injecao; (c) `service.ts:64-69` novo check `VALID_STATUSES.has(task.status)` sem teste. Track: 3 testes a adicionar (~10-15 linhas). Nao-bloqueante (packages/plugin-tasks/src/{guards/evidenceGuard,guards/identityGuard,service}.ts)
-- [ ] [i2][C-18][plugin-tasks] **EST-03d i5 e fix parcial, nao total.** Spec sugeria refactor para metadado declarativo; worker entregou constants extraidas (REVIEW_VERBS, FINISH_VERB) que mantem acoplamento guarda<->verbo no `service.ts:55-61`. Mudanca cosmetica+readability, nao arquitetural. Track: refactor para metadado e mudanca de design (~complexity 2) (packages/plugin-tasks/src/service.ts:55-61)
-- [ ] [i3][C-18][plugin-tasks] **Duplicacao VALID_STATUSES (service.ts:11-17) vs TRANSITIONS (stateMachine.ts:12-25).** Os 12 keys de TRANSITIONS sao redeclarados como Set em service.ts. Refactor: derivar de Object.keys(TRANSITIONS) - 1 linha. Track: pode ser absorvido no re-endurecimento batch de EST-loader (packages/plugin-tasks/src/service.ts:11-17 vs packages/plugin-tasks/src/stateMachine.ts:12-25)
+<!-- i1→C-23, i2→C-23, i3→C-23 -->
 - [ ] [i4][C-18][estaleiro/processo] **Handover S8 linha 73 diz "5/13 fixed, 5/13 no-op/defer, 3/13 ja resolvidos no merge"** mas a tabela abaixo lista 13/13 destinos. Categoria "3/13 ja resolvidos" nao e reconciliada - provavel erro de digitacao. Cosmetico. Nao-bloqueante (tasks/C-18.md:73 vs tasks/C-18.md:77-89)
 <!-- END C-18 -->
 <!-- C-19 -->
-- [ ] [M1][C-19][plugin-tasks/spec] **Spec drift EST-04b m1.** Spec §4 linha 48 afirma `fixed (tsconfig.json:7, parser.ts:183,199)` mas Handover §8 linha 72 diz `defer`. Spec stale — alinhar com Handover (reendurecer C-19 ou reescrever spec §4 com taxonomia `defer→T-YYY` nomeada). Track: 1 linha na spec ou novo reendurecimento (tasks/C-19.md:48 vs tasks/C-19.md:72)
-- [ ] [M2][C-19][plugin-tasks/spec] **Spec drift EST-04b i1.** Spec §4 linha 49 afirma `fixed (package.json:12)` mas Handover §8 linha 73 diz `defer`. Mesma raiz de M1 (tasks/C-19.md:49 vs tasks/C-19.md:73)
-- [ ] [m1][C-19][plugin-tasks/processo] **Worker reverteu 2 dos 9 fixes (commits `af989b8` + `1788fae`) sem reendurecer a spec.** Padrão "spec promete fixed, código tem defer, ledger não tem entrada" replica o gap do EST-04b i1. Track: protocolo de C-tasks deve proibir `git revert` sem atualização síncrona de spec §4 (commits `af989b8`, `1788fae`)
-- [ ] [i1][C-19][plugin-tasks] **Regex de heading cobre só 3 travessões (en-dash/em-dash/hífen ASCII).** Faltam U+2010 hyphen e U+2015 horizontal bar. Cadernos com digitação exótica (e.g. copy-paste de Word) podem falhar. Track: adicionar 2 chars à classe (parser.ts:30)
-- [ ] [i2][C-19][plugin-tasks] **LOG_LINE_RE silenciosamente ignora linhas mal-formatadas.** Linhas sem o espaço após `- **` viram `if (!match) continue` sem warning. Dificulta debug. Track: push warning quando match falha (parser.ts:73-80)
-- [ ] [i3][C-19][estaleiro/processo] **Handover §8 diz "2 defer" mas worker não adicionou ao `_pendencias.md` (BEGIN/END PENDENCIAS).** Taxonomia §2a exige `defer→T-YYY` nomeado — o destino não pode ficar só no Handover. Track: drain manual + protocolo (tasks/C-19.md:72-73 vs tasks/_pendencias.md)
+<!-- M1→SPEC-PENDENCIAS, M2→SPEC-PENDENCIAS, m1→SPEC-PENDENCIAS, i1→C-23, i2→C-23, i3→SPEC-PENDENCIAS -->
 <!-- END C-19 -->
 <!-- EST-05 -->
 - [ ] [m][EST-05][plugin-fs-tools] Branch redundante `msg.includes("git write") || msg.includes("proibido")` em src/index.ts:82 — o port lança UMA string contendo ambos substrings, o `||` é defensivo contra futura mudança cosmética. Não-bloqueante; simplificar para `msg.includes("git write")` (alinhado à spec §1) (src/index.ts:82)
@@ -70,8 +57,7 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i2][C-16][estaleiro/processo] **C-16 worker não criou commit algum na branch `task/C-16` (`git log` da worktree == master até C-18 merge).** Cleanup "nada a fazer" legítimo, mas vale registrar: `wt merge C-16` será no-op de `git merge` (master já contém tudo que a branch tem). Track: nota no índice ou política de C-tasks com 0-diff (commits `0000..0`)
 <!-- END C-16 -->
 <!-- C-14 -->
-- [ ] [m][C-14][orchestrator] Handover rotula i4 ORQ-08 isDocsRepo como `no-op (já existia)` mas o diff adiciona o branch MGTIA_ROOT (código NOVO). Disposição imprecisa — re-rotular como `fixed` no rework/cleanup (tasks/C-14.md:86 vs tools/orchestrator/tools.poc.mjs:23-32)
-- [ ] [m][C-14][orchestrator] Test `agentAdapter.test.mjs:34-39` tem guard `if (callIdx >= 0 && resultIdx >= 0)` que pula a assertion se um dos eventos não foi emitido. Caso real (arquivo existe) funciona; caso edge (arquivo inexistente) passa sem verificar nada. Substituir por 3 asserts explícitos (tools/orchestrator/tests/agentAdapter.test.mjs:34-39)
+<!-- m1→C-28, m2→C-28 -->
 - [ ] [m][C-14][orchestrator] Handover cobre 13 itens mas §4 só lista 12 (inclui "m1 ORQ-15 ADR-0010" extra). Mapeamento §3↔§4 inconsistente — reescrever §4 para alinhar (tasks/C-14.md:86 vs tasks/C-14.md:46-59)
 <!-- END C-14 -->
 <!-- M-016 -->
@@ -82,7 +68,7 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- C-10 -->
 - [ ] [m][C-10][core] T-1042 `GraphStoreTx` contrato expandido — defer formalizado (escopo arquitetural; precisa decisão de design antes de poder implementar). Track: reendurecer T-1042 com a decisão de contrato (defer originário de packages/core/src/storage/sqliteStorage.ts (m1 T-1042))
 - [ ] [i1][C-10][core] T-1045 `ProjectionManager` sem caller — defer formalizado. Projeção não implementada como módulo separado; até existir um consumer, `projection.ts:20` continua oco. Track: criar caller ou remover arquivo (defer originário de packages/core/src/projection.ts (m2 T-1045))
-- [ ] [i2][C-10][core] Schema `unixepoch('subsec') * 1000` exige `user_version` bump ou `ALTER TABLE` para nodes/edges pré-existentes em clients antigos (idempotência testada em `schema.test.ts:7 testes` que recriam do zero, OK em dev; clients de produção com DB pré-existente ficarão com colunas `unixepoch()` (segundos) misturadas). Track: migration script em T-106 ou T-022 (packages/core/src/schema.ts:13,25)
+<!-- i2→C-29 -->
 <!-- END C-10 -->
 <!-- C-11 -->
 - [ ] [m1][C-11][spec] **Spec drift — path graphRouting.ts errado.** Spec §3 linha 36 declara `packages/transport/src/graph/graphRouting.ts` mas path real é `packages/transport/src/discovery/graphRouting.ts`. Worker editou path correto (bom comportamento). Track: atualizar spec §3 (1 linha) ou criar C-11b para endurecer spec (tasks/C-11.md:36 vs packages/transport/src/discovery/graphRouting.ts:1)
@@ -127,31 +113,23 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i3][EST-08][processo] EST-12 merge ae21ba4 foi PERDIDO no reset nuclear de master (reset f419a89 removeu tanto EST-08 80f79a9/bdde67a quanto EST-12 ae21ba4). Branch task/EST-12 preservado em 110530f. Porem, EST-12 ja tem B1 em ledger: branch REESCREVE packages/plugin-local-inference/ (EST-08 code) — merge direto DELETA codigo do EST-08. Track: EST-12 precisa rebase + re-merge em sequencia (pos-EST-08 fix) (master local + EST-12 B1 ledger)
 <!-- END EST-08 (rework) -->
 <!-- EST-10b -->
-- [ ] [m1][EST-10b][plugin-providers/spec] **`src/index.ts` modificado fora do escopo declarado em §3.** EST-10b §3 lista só `[READ] src/types.ts` + `[CREATE] src/fallback.ts` + `[CREATE] tests/fallback.test.ts`; o `index.ts` (criado por EST-10a) foi editado para re-exportar `CircuitBreaker`/`selectProvider` + tipos. Funcionalmente necessário (consumidores precisam dos exports), mas tecnicamente scope creep. Track: adicionar `[EDIT] src/index.ts` em §3 do EST-10b no reendurecimento, ou aceitar como acoplamento implícito ao barrel (packages/plugin-providers/src/index.ts:4-5 vs tasks/EST-10b.md §3)
-- [ ] [m2][EST-10b][plugin-providers] **DEGRADED→CLOSED recovery em `recordSuccess()` ausente.** OmniRoute L339-341 transiciona DEGRADED→CLOSED quando `failureCount <= degradationThreshold`; impl atual só trata HALF_OPEN→CLOSED. Spec §5 não exige explicitamente, mas diverge da fonte canônica. Track: implementar para fidelidade ao OmniRoute ou documentar como desvio intencional (packages/plugin-providers/src/fallback.ts:41-49 vs OmniRoute circuitBreaker.ts L339-341)
+<!-- m1→SPEC-PENDENCIAS, m2→C-27 -->
 <!-- END EST-10b -->
 <!-- EST-06 -->
-- [ ] [m1][EST-06][plugin-agent-harness] **Test 5 (runner.test.ts L150-176) é no-op.** Cria `readFileSpy` mas não assere que foi chamado — apenas verifica `tools.readFile` defined. Comentário L171-173 admite a fragilidade. Track: usar `vi.useFakeTimers()` + `vi.advanceTimersByTime(2000)` + asserir `readFileSpy` chamado com path `.cancel` (packages/plugin-agent-harness/tests/runner.test.ts:150-176)
-- [ ] [m2][EST-06][plugin-agent-harness] **Test 3 (runner.test.ts L97-115) é fraco.** Não assere que `startCancelWatcher` NÃO foi chamado quando `cancelWatcher: false`. Track: exportar `startCancelWatcher` para spy, ou mockar `setInterval` (packages/plugin-agent-harness/tests/runner.test.ts:97-115)
-- [ ] [m3][EST-06][plugin-agent-harness] **`as unknown as` cast em runner.ts:85 é code smell.** Narrowing de `PluginTools` para `CancelWatcherOpts['tools']` força `?.` chain desnecessário (L27). `PluginTools.readFile.execute` é required. Track: tipar `CancelWatcherOpts.tools` como `PluginTools` e remover cast + `?.` (packages/plugin-agent-harness/src/runner.ts:85)
+<!-- m1→C-22, m2→C-22, m3→C-22 -->
 <!-- END EST-06 -->
 <!-- EST-10c -->
-- [ ] [m1][EST-10c][plugin-providers/spec] **`src/index.ts` modificado fora do escopo declarado em §3.** EST-10c §3 lista 4 CREATE (`telemetry.ts`, `scoring.ts`, `tests/telemetry.test.ts`, `tests/scoring.test.ts`); `index.ts` (criado por EST-10a) foi editado para re-exportar `TelemetryStore` + `computeScore` + tipos. Mesmo padrão do EST-10b m1 (acoplamento implícito ao barrel). Track: adicionar `[EDIT] src/index.ts` em §3 do EST-10c no reendurecimento, ou aceitar como padrão (packages/plugin-providers/src/index.ts:7-11 vs tasks/EST-10c.md §3)
-- [ ] [m2][EST-10c][plugin-providers] **Cobertura parcial do caso 2 da §4 (janela temporal).** `tests/telemetry.test.ts:25-52` registra 4 chamadas (3 em 5min, 1 em 60min) e só assere a janela de 5min (`expect(snap5min.totalCalls).toBe(3)`); a janela de 60min (que cobriria as 4) não é testada. Lógica de janela exercitada; só falta a outra ponta. Track: adicionar `expect(snap60min.totalCalls).toBe(4)` no rework (packages/plugin-providers/tests/telemetry.test.ts:48-50)
+<!-- m1→SPEC-PENDENCIAS, m2→C-27 -->
 <!-- END EST-10c -->
 <!-- EST-09 -->
-- [ ] [m1][EST-09][plugin-context] `nanoPreprocess.ts:41` usa `(generateText as any)({...})` — cast `as any` desnecessário (já é value import). Funciona com 3 eslint-disable empilhados (`no-explicit-any`, `no-unsafe-call`, `no-unsafe-assignment`). Refator: `await generateText({...})` direto remove os 3 disables. Cheiro de padrão, não bug. Track: cleanup plugin-context (packages/plugin-context/src/nanoPreprocess.ts:40-44)
-- [ ] [m2][EST-09][plugin-context] `optimize.ts:12` redeclara inline o tipo do tokenizer (`{ encode(text): number[]; decode(ids, opts?): string }`) em vez de importar `L2Tokenizer` de `./l2Compressor.js`. Estruturalmente idêntico ao L2Tokenizer (l2Compressor.ts:5-8). Refator: importar e reusar. Track: cleanup plugin-context (packages/plugin-context/src/optimize.ts:12)
-- [ ] [m3][EST-09][plugin-context] Constante `TOK_EST = (s) => Math.ceil(s.length / 4)` duplicada em `optimize.ts:16` e `nanoPreprocess.ts:19` (mesma fórmula chars/4 do gate de 2k tok). Refator trivial: extrair para `src/constants.ts` e importar. Track: cleanup plugin-context (packages/plugin-context/src/optimize.ts:16 + src/nanoPreprocess.ts:19)
+<!-- m1→C-21, m2→C-21, m3→C-21 -->
 - [ ] [i1][EST-09][plugin-context/processo] Gate de evidência triplo (build+test+lint) aplicado e logado pelo worker (deepseek) no 1º finish. L2 com modelo real rodou 1.4s (cold-start + inferência de 510 tokens), bem dentro do testTimeout 30s herdado de EST-08. INFO positivo — comportamento esperado desde a regra de 2026-07-06.
 - [ ] [i2][EST-09][plugin-context] `package.json:6-7` `exports: { ".": "./src/index.ts" }` está CORRETO — aponta para o barrel `src/index.ts` que re-exporta todas as funções. Diferente do bug do EST-13a/b (que apontava para `src/graph.ts` direto, quebrando o `import` de `makeFts`). INFO positivo.
 - [ ] [i3][EST-09][plugin-context] 17 sondas adversariais ad-hoc (probe.test.ts) durante revisão — todas passaram após correção de 1 sonda mal-formada (testava JSON.stringify no escopo de teste em vez de propriedade do CCR store). Sondas cobriram: idempotência de hash, integridade de 1MB string, edge cases de CSV (vírgula, aspas, primitivos, objeto), graceful fallback quando L2/nano throws. INFO positivo — disciplina de revisão mantida.
 - [ ] [i4][EST-09][plugin-context] Worker (deepseek) entregou em 11min (13:21→13:32) — implementação 6 arquivos + 5 test files + 3 config files + lockfile. Conformidade com §3 e §4 da spec exata. INFO positivo — capacidade sonnet adequada para a complexidade.
 <!-- END EST-09 -->
 <!-- EST-13c -->
-- [ ] [m1][EST-13c][plugin-knowledge] `writer.ts:7` `repoRoot` é aceito em `WriterOptions` mas NUNCA usado no impl (comentário linha 18-19 marca como "reserved for future use"). Spec §0 contrato define `repoRoot: string` como campo obrigatório. Refator: remover do contrato OU usar para validar `path` (rejeitar path traversal). Dead-field viola LSP mínima. Track: cleanup plugin-knowledge (packages/plugin-knowledge/src/writer.ts:7,18-19)
-- [ ] [m2][EST-13c][plugin-knowledge/spec] `writer.ts:24` checagem de `signal.aborted` é feita ANTES de `commit.enqueue`, mas o abort pode chegar DURANTE o await — não há check pós-await. Spec §0 não exige (não há "cancelamento mid-flight" descrito), mas o probe 5 confirmou: 1 write com abort concorrente completa normalmente. Decisão de design OK, mas não documentada. Track: documentar em spec ou remover a checagem parcial (packages/plugin-knowledge/src/writer.ts:24)
-- [ ] [m3][EST-13c][plugin-knowledge/estilo] `index.ts:1-5` mistura re-exports de `graph` (EST-13a) e `writer` (EST-13c) sem agrupar — `export type { KnowledgeWriter, WriterOptions }` (linha 5) está em ordem bagunçada (deveria ser: types primeiro, depois values, ou alfabético). Cosmético. Track: cleanup (packages/plugin-knowledge/src/index.ts:1-5)
+<!-- m1→C-20, m2→SPEC-PENDENCIAS, m3→C-20 -->
 - [ ] [i1][EST-13c][plugin-knowledge/processo] Gate de evidência triplo (build+test+lint) aplicado e logado pelo worker (deepseek) no 1º finish. Worker escolheu a arquitetura de "casca fina" da Decisão FECHADA (claude-opus 2026-07-06T19:47) sem scope creep — 40 linhas em writer.ts, 0 modificações em graph.ts/fts.ts. INFO positivo — comportamento esperado desde a regra de 2026-07-06.
 - [ ] [i2][EST-13c][plugin-knowledge] **i1[EST-13a] e i1[EST-13b] finalmente RESOLVIDOS.** `package.json:7` `exports: { ".": "./src/index.ts" }` aponta para o barrel. `index.ts:1-5` re-exporta `makeGraph` + `makeWriter` + tipos. Wire contract com EST-14d View Knowledge (e qualquer consumer externo) agora funciona sem ajustes. ✅ — marcadas como `[x]` acima.
 - [ ] [i3][EST-13c][plugin-knowledge] 8 sondas adversariais ad-hoc (probe.test.ts) durante revisão — todas passaram. Sondas cobriram: delegação pura (sem git/child_process), unicode em path+content, content vazio, paralelismo de 10 writes, abort mid-flight, read de vazio/unicode/inexistente. INFO positivo — disciplina de revisão mantida.
@@ -162,10 +140,8 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [m1][EST-14b][estaleiro/processo] Handover §8 da spec está VAZIO (apenas `-`). Spec §0/§7 exige "Worker deve colar a saída literal destes comandos na Seção 8". Worker entregou mas não preencheu a evidência. Track: re-fill no rework (tasks/EST-14b.md:392-393)
 <!-- END EST-14b (m1) -->
 <!-- EST-14c -->
-- [ ] [i1][EST-14c][estaleiro/ui] Spec §1 declarava `FleetView({ ws })`; impl define `FleetView({ agents })` + wrapper `FleetTab` que faz `useFleet(ws)`. Divisão mais limpa (view = presentacional, hook = bridge reativo, wrapper = compose) e a Pegadinha Conhecida do §5 já previa centralização do dispatch em App.tsx. Nao-bloqueante; registrar na spec via cleanup se a forma `FleetView({ ws })` for canonica desejada (apps/estaleiro/ui/src/views/fleet/FleetView.tsx:9 vs tasks/EST-14c.md:67)
-- [ ] [m1][EST-14c][estaleiro/ui] `useFleet(ws).status` retornado como `string`, nao o tipo discriminado `"connected"|"disconnected"|"connecting"|"reconnecting"`. Capturado UMA vez em `useState(() => ws.getStatus())` — nao atualiza em mudancas de conexao apos mount. Spec nao exige exibicao ao vivo do status da conexao (DoD/Reviewer Checklist nao cobrem o item). Anotar para cleanup futuro se o painel precisar reagir a reconnect (apps/estaleiro/ui/src/views/fleet/hooks.ts:89,122)
-- [ ] [m2][EST-14c][estaleiro/ui] `DiffAnnotation` faz split-de-linhas com prefixo `+`/`-` puro; a referencia citada (`docs/_vendor/orca/.../diff-comments-format.ts`) usa `formatDiffComment(filePath,lineNumber,body)`. Para v1, a versão simples cumpre o requisito do teste 8; integração plena com o formato Orca é trabalho de cleanup (apps/estaleiro/ui/src/views/fleet/DiffAnnotation.tsx:7-19 vs tasks/EST-14c.md:91-92)
-- [ ] [i2][EST-14c][estaleiro/ui] `FleetAgent.status` enum declara `'starting' | 'paused'` mas `dispatchFleetEvent` so emite `'in_progress' → 'done'|'aborted'|'failed'`. Estados reservados para o futuro. INFO — alinhamento com ADR-0008 §D (apps/estaleiro/ui/src/views/fleet/hooks.ts:9)
+- [ ] [i1][EST-14c][estaleiro/ui] FleetView signature — spec §1 declara FleetView({ ws }), impl usa FleetView({ agents }) + FleetTab. Registrar na spec via cleanup. (FleetView.tsx:9 vs tasks/EST-14c.md:67)
+<!-- m1→C-25, m2→C-25, i2→C-25 -->
 <!-- END EST-14c -->
 <!-- EST-14d -->
 - [ ] [m1][EST-14d][estaleiro/ui] `KnowledgeView.fixture.ts` (99 linhas) e arquivo fora do escopo declarado pela spec §3 (nao listado em [CREATE]). Reutilizado por `App.tsx:10,65`. Track: listar como [CREATE] no rework (mock reutilizado pelo shell) ou mover para `__fixtures__/` se a convencao do monorepo tiver (apps/estaleiro/ui/src/views/knowledge/KnowledgeView.fixture.ts:1-99 vs tasks/EST-14d.md:88-95)
@@ -367,7 +343,7 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [x] [i3-r1][DMM-12][plugin-knowledge] Migration v1 hardcoded em `MIGRATIONS` array. Sem mecanismo de versionar para v2+; quando entrar nova coluna, vai precisar de `version: 2` + ALTER. INFO — `SqliteStorage` de DMM-15 já implementa; reuso OK. (packages/plugin-knowledge/src/staging.ts:12-14)
 - [x] [i4-r1][DMM-12][plugin-knowledge] IIFE `void (async () => {...})()` no init do `makeStaging` não tem tratamento de erro — se `storage.migrate()` falhar, exception é engolida. Aceitável (a proposta só é gravada depois via `INSERT` que também vai falhar), mas padrão merece log. (packages/plugin-knowledge/src/staging.ts:75-92)
 <!-- BEGIN DMM-13a (R1, REFATORAÇÃO) -->
-- [ ] [M1][DMM-13a][plugin-dispatcher] `worktreePaths.get(variant.id)!` usa non-null assertion proibida pelo lint (`@typescript-eslint/no-non-null-assertion`). Falha `pnpm --filter @plataforma/plugin-dispatcher lint`. Reescrever lookup ou embutir `worktreePath` na iteração de `pending` para eliminar o `!`. (packages/plugin-dispatcher/src/lab/lab.ts:77)
+- [x] [M1][DMM-13a][plugin-dispatcher] `worktreePaths.get(variant.id)!` usa non-null assertion proibida pelo lint (`@typescript-eslint/no-non-null-assertion`). ✅ RESOLVIDO no rework R2: refator estrutural introduziu `type PendingVariant = { variant; worktreePath }` e `pending: PendingVariant[]` carrega ambos os campos juntos. `runBatch` recebe `PendingVariant[]` em vez de `Map.get().!`. O `!` desapareceu da origem. Commit `13c1809`. (packages/plugin-dispatcher/src/lab/lab.ts:72, 119-152)
 - [ ] [i1][DMM-13a][plugin-dispatcher] `branchName` interpolado direto em `execSync` (lab.ts:19,27) sem escape. Variants vêm do Algoritmo Genético (DMM-13b, trusted), mas vira shell injection se o input virar menos confiável. Sugestão: regex `/^[A-Za-z0-9._-]+$/` em `variant.id` antes do uso. (packages/plugin-dispatcher/src/lab/lab.ts:19,27)
 - [ ] [i2][DMM-13a][estaleiro/processo] Gate de Evidência incompleto: o Handover §8 colou apenas `pnpm test`. Build (tsc) e lint não foram rodados pelo worker — ambos falham. Gate de Evidência (CLAUDE.md §6 Regra 3) exige os 3 comandos. Track: worker-script/spec deve LEMBRAR o worker a colar `build` + `test` + `lint` no `finish`. (tasks/DMM-13a.md:77-86)
 <!-- END DMM-13a (R1, REFATORAÇÃO) -->
@@ -463,4 +439,67 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [spec→C-13b] [m2][C-13][bancada/spec] Spec §3 linha 33 declara `apps/bancada/src/tabs/AuthTab.tsx` mas impl está em `components/tabs/AuthTab.tsx`. Handover rotula como "no-op" (errado — é spec drift, não no-op). Disposição correta: `spec→C-13b` re-endurecer spec. Track: atualizar spec §3 (1 linha) (tasks/C-13.md:33 vs apps/bancada/src/components/tabs/AuthTab.tsx:1)
 <!-- C-10a — plugin-providers/spec -->
 - [ ] [spec→EST-10a-followup] [m1][EST-10a][plugin-providers/spec] Spec §4 linha 53 teste 3 fala de "factory chamada com os args certos (name, baseURL, apiKey, modelId)" mas §5b M2 + fonte ORQ-09b passam só modelId (1 arg). Spec §4 em contradição com §5b. Track: alinhar spec §4 com §5b (remover 3 args extras do teste 3) ou criar EST-10a-followup (tasks/EST-10a.md:53 vs tasks/EST-10a.md:75-77)
+
+<!-- Items roteados em 2026-07-10 pelo /agrupar-cleanup — das PENDENCIAS para SPEC-PENDENCIAS -->
+<!-- EST-07 -->
+- [ ] [spec→EST-07] [i1][EST-07][plugin-dispatcher] @types/node devDep — alinhar spec §3 (packages/plugin-dispatcher/package.json:19)
+<!-- EST-14a -->
+- [ ] [decision→estaleiro/lint-policy] [i1][EST-14a][estaleiro/ui] createElement vs JSX — decidir lint rule (apps/estaleiro/ui/src/App.tsx:1-40)
+- [ ] [spec→EST-14a] [i2][EST-14a][estaleiro/ui] screen.getByText vs seletor spec (apps/estaleiro/ui/tests/shell.test.tsx:8-15)
+<!-- EST-17 -->
+- [ ] [spec→EST-17] [i1][EST-17][estaleiro/spec] docs/_vendor/OmniRoute/ missing (tasks/EST-17.md:74-75)
+<!-- C-19 -->
+- [ ] [spec→C-19] [M1][C-19][plugin-tasks/spec] Spec drift EST-04b m1 (tasks/C-19.md:48 vs tasks/C-19.md:72)
+- [ ] [spec→C-19] [M2][C-19][plugin-tasks/spec] Spec drift EST-04b i1 (tasks/C-19.md:49 vs tasks/C-19.md:73)
+- [ ] [spec→process-cleanup] [m1][C-19][plugin-tasks/processo] Worker reverteu sem reendurecer (commits af989b8, 1788fae)
+- [ ] [spec→process-cleanup] [i3][C-19][estaleiro/processo] Handover defer sem entrada no ledger (tasks/C-19.md:72-73)
+<!-- M-016 -->
+- [ ] [spec→M-016] [m][M-016][plugin-tasks/espec] Spec §7 promete 8 tests (tasks/M-016.md:184)
+- [ ] [spec→EST-10] [i2][M-016][estaleiro/operacional] EST-10 sem subtasks (tasks/EST-10.md)
+<!-- EST-08 -->
+- [ ] [spec→EST-12] [i3][EST-08][processo] EST-12 merge perdido no reset (master local + EST-12 B1 ledger)
+<!-- EST-10a -->
+- [ ] [spec→EST-10a-followup] [m1][EST-10a][spec] Spec §4 stale com §5b (tasks/EST-10a.md:53 vs 75-77)
+- [ ] [spec→process-cleanup] [i1][EST-10a][processo] Handover sem evidência literal (tasks/EST-10a.md:137-141)
+<!-- EST-12 -->
+- [ ] [spec→EST-12] [m1][EST-12][plugin-skills/spec] §4 caso 7 diverge (tasks/EST-12.md:128 vs tests/index.test.ts:112-117)
+<!-- EST-10b -->
+- [ ] [spec→EST-10b] [m1][EST-10b][plugin-providers/spec] index.ts scope creep (packages/plugin-providers/src/index.ts:4-5 vs §3)
+<!-- EST-10c -->
+- [ ] [spec→EST-10c] [m1][EST-10c][plugin-providers/spec] index.ts scope creep (packages/plugin-providers/src/index.ts:7-11 vs §3)
+<!-- EST-13a -->
+- [ ] [spec→worker-script] [i3][EST-13a][estaleiro/processo] Handover §8 não preenchido (tasks/EST-13a.md:148-150)
+<!-- EST-13b -->
+- [ ] [spec→EST-13b] [m1][EST-13b][plugin-knowledge/spec] §7 conta 8 vs 7 (tasks/EST-13b.md:119)
+- [ ] [spec→EST-13b] [m3][EST-13b][plugin-knowledge/spec] package.json não listado em §3 (package.json:7 vs §3)
+- [ ] [spec→worker-script] [i5][EST-13b][plugin-knowledge/processo] Handover §8 em branco (tasks/EST-13b.md:136-137)
+<!-- EST-13c -->
+- [ ] [spec→EST-13c] [m2][EST-13c][plugin-knowledge/spec] signal.aborted check parcial (writer.ts:24)
+<!-- EST-14b -->
+- [ ] [spec→process-cleanup] [m1][EST-14b][estaleiro/processo] Handover §8 vazio (tasks/EST-14b.md:392-393)
+<!-- EST-14c -->
+- [ ] [spec→EST-14c] [i1][EST-14c][estaleiro/ui] FleetView signature (FleetView.tsx:9 vs tasks/EST-14c.md:67)
+<!-- EST-14d -->
+- [ ] [spec→EST-14d] [m1][EST-14d][estaleiro/ui] Fixture fora do escopo (KnowledgeView.fixture.ts vs §3)
+<!-- EST-14e -->
+- [ ] [decision→arquiteto] [i5][EST-14e][estaleiro/infra] WsClient sem multi-listener (client.ts:11-16)
+- [ ] [spec→EST-14e] [i6][EST-14e][estaleiro/spec] Bridge pattern ambígua (tasks/EST-14e.md:51-65)
+<!-- EST-16 -->
+- [ ] [spec→EST-16] [i1][EST-16][plugin-workflows/spec] FsPort.mkdirp drift (fs.ts:5-8 vs tasks/EST-16.md:198-200)
+<!-- DMM-12 -->
+- [ ] [spec→DMM-12] [m1][DMM-12][plugin-knowledge/spec] §3 2 vs 9 arquivos (tasks/DMM-12.md §3)
+- [ ] [spec→DMM-12] [m1][DMM-12][plugin-knowledge/spec] R2: §3 impreciso (tasks/DMM-12.md §3)
+<!-- DMM-09 -->
+- [ ] [spec→DMM-09] [i1][DMM-09][estaleiro-ui/spec] §3 path drift (tasks/DMM-09.md §3)
+- [ ] [spec→process-cleanup] [process][DMM-09][estaleiro-ui/process] Handover §8 vazio (tasks/DMM-09.md §8)
+<!-- C-12 -->
+- [ ] [spec→process-cleanup] [m][C-12][system-peer/processo] Worker não rodou git fetch (tasks/C-12.md:8)
+<!-- C-14 (mais) -->
+- [ ] [spec→C-14b] [m][C-14][orchestrator] §3 vs §4 inconsistente (tasks/C-14.md:86 vs 46-59)
+<!-- C-11 (mais) -->
+- [ ] [spec→C-11b] [m1][C-11][spec] Path graphRouting.ts errado (tasks/C-11.md:36)
+- [ ] [spec→C-11b] [i3][C-11][processo] Evidência dead exports ausente (tasks/C-11.md:39)
+<!-- C-13 (mais) -->
+- [ ] [spec→C-13b] [m1][C-13][handover] Disposição imprecisa m2 (tasks/C-13.md:33 vs 74)
+- [ ] [spec→C-13b] [i1][C-13][spec] m2 no-op deveria ser spec (tasks/C-13.md:74)
 <!-- END SPEC-PENDENCIAS -->

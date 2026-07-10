@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-MOD-01", "T-501"] # ModuleProfile (delegado base) + UCAN (capability para escopo)
 blocks: ["T-MOD-04"] # Bloqueia vetores de segurança
+capacity_target: sonnet
 ---
 
 # T-MOD-02 · delegado por (usuario x modulo) escopado por ASSET:ROLE + operacoes cross-user com permissao do proprio usuario

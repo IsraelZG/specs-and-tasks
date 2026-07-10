@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: [] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+capacity_target: haiku | sonnet | opus-spike
 ---
 
 # T-POL-02 · Polish: T-010 system-peer (dead vi import, header redundante)

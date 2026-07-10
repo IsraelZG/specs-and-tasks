@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-ERP-01", "T-ERP-02", "T-ERP-03", "T-ERP-04"]
 blocks: []
+capacity_target: sonnet
 ---
 
 # T-ERP-05 · projecoes analiticas incrementais + teste de custo (volume)

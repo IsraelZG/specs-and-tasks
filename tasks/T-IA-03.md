@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-IA-01", "T-IA-02"]
 blocks: ["T-IA-04", "T-IA-05"]
+capacity_target: sonnet
 ---
 
 # T-IA-03 · recuperacao hibrida RRF (FTS+vetor+traversal) com filtro de permissao + bypass escalar

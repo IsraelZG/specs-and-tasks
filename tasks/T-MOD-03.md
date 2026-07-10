@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-MOD-01", "T-403"] # ModuleProfile (profile como co-editor) + Automerge Repo (documentos casca)
 blocks: ["T-MOD-04"] # Bloqueia vetores de segurança
+capacity_target: sonnet
 ---
 
 # T-MOD-03 · sessao como doc Automerge efemero local-first + opt-in de persistencia + profile como co-editor

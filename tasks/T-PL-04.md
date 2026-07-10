@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-PL-01", "T-004"]
 blocks: ["T-PL-06"]
+capacity_target: sonnet
 ---
 
 # T-PL-04 · ComputePort + escalonador com anuncio de runtime via serves + casamento de site

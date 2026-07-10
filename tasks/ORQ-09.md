@@ -9,7 +9,7 @@ execution_mode: sequential
 dependencies: ["ORQ-08"] # o ADR do spike fixa tool set, sandbox, provider registry, protocolo de evento
 subtasks: ["ORQ-09a", "ORQ-09b"]
 blocks: ["ORQ-09a", "ORQ-09b", "ORQ-10", "ORQ-11"]
-capacity_target: # a casca não executa — ver ORQ-09a/ORQ-09b
+capacity_target: N/A
 ---
 
 # ORQ-09 · VercelAgentAdapter + harness de tools

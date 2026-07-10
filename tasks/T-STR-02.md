@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-STR-01", "T-IA-02"]
 blocks: []
+capacity_target: sonnet
 ---
 
 # T-STR-02 · renditions como utilitario compute assincrono + irmaos CONTENT

@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-MK-01", "T-MK-03", "T-605"]
 blocks: ["T-MK-04b"]
 parent: "T-MK-04"
+capacity_target: sonnet
 ---
 
 # T-MK-04a · SPENDS: dedução atômica de saldo com referência causal

@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-PL-01"]
 blocks: ["T-PL-06"]
 ui: true
+capacity_target: sonnet
 ---
 
 # T-PL-02 · sandbox browser (Worker/WASM, sem autoridade ambiente) + bridge de componente

@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-004"]
 blocks: ["T-PG-02", "T-PG-03", "T-PG-04", "T-PG-05"]
+capacity_target: sonnet
 ---
 
 # T-PG-01 · schema JSON do dialeto v1 + validador estatico (lib isomorfica)

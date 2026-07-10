@@ -1,7 +1,7 @@
 ---
 id: EST-10
 title: "plugin-providers: registry direto + fallback/circuit-breaker + scoring 9-fatores + telemetria interna (absorve EST-11)"
-status: draft:decomposed
+status: done
 complexity: 5
 target_agent: devops_agent
 reviewer_agent: agile_reviewer
@@ -122,3 +122,4 @@ pnpm --filter @plataforma/plugin-providers lint
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-06T12:15]** - *deepseek* - `[Triado]`: triado — plugin-providers + telemetria, capacity=sonnet, complexidade 5 requer decomposicao, depende de EST-02 (draft)
 - **[2026-07-06T17:35]** - *big-pickle* - `[Decomposto]`: decomposto em EST-10a (registry/haiku), EST-10b (fallback/sonnet), EST-10c (scoring+telemetry/sonnet)
+- **[2026-07-07T16:58]** - *Antigravity* - `[Fechamento Manual]`: Todas as tarefas filhas foram concluídas, epic EST-10 movida para done.

@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-CFR-01", "T-CFR-02", "T-JU-01"]
 blocks: ["T-CFR-05"]
+capacity_target: sonnet
 ---
 
 # T-CFR-04 · RH: colaborador/vinculo/eventos + folha derivada jurisdicional + provisao e lancamentos

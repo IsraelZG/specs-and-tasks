@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-ERP-01", "T-CN-02"]
 blocks: ["T-ERP-05"]
+capacity_target: sonnet
 ---
 
 # T-ERP-03 · contas a pagar/receber + conciliacao por external_ref

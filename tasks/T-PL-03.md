@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-PL-01"]
 blocks: ["T-PL-06"]
+capacity_target: sonnet
 ---
 
 # T-PL-03 · sandbox node (processo/isolate, capacidades por ASSET:ROLE)

@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-CN-03"]
 blocks: ["T-EML-02", "T-EML-03"]
+capacity_target: sonnet
 ---
 
 # T-EML-01 · conector Classe D (IMAP/SMTP, cursor, polling/IDLE) — depende de T-CN-03

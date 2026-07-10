@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-PG-01"]
 blocks: ["T-PG-04", "T-PG-05"]
 ui: true
+capacity_target: sonnet
 ---
 
 # T-PG-02 · renderizador React sobre o catalogo (resolve sources, avalia ZEN sob orcamento, render progressivo)

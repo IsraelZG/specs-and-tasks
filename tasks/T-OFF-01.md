@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-PG-01", "T-004"] # IDs de tarefas que bloqueiam esta
 blocks: ["T-OFF-02", "T-OFF-03", "T-OFF-04", "T-OFF-05"] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-OFF-01 · perfis de capacidade no motor de paginas + validador por perfil (emenda spec de paginas)

@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-PL-01", "T-PL-02", "T-PL-03", "T-PL-04", "T-PL-05"]
 blocks: []
+capacity_target: haiku
 ---
 
 # T-PL-06 · vetores: bundle nao-listado, plugin com rede fora das portas, classe restrita para external

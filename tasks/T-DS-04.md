@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-DS-01", "T-015"] # Tokens compilados (para validar contra) + CI quality gate (onde o lint será integrado)
 blocks: []
+capacity_target: haiku
 ---
 
 # T-DS-04 · lint anti-literal (invariante I3)

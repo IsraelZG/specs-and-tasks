@@ -57,9 +57,12 @@ acerta em NÃO destruir código. Mas isso exige o proxy no ar e apresentar o his
 O nano bate o threshold com folga (89%–100%) a custo sub-centavo; o crusher nativo sozinho é fraco
 (guarda, não ganho); o Headroom entrega 97% mas ao custo de um serviço standing.
 
+> ⚠️ **Preços estimados (ordem de grandeza, verificar pricing atual):** deepseek-chat ~US$0.27/M input, ~US$0.28/M output.
+> O nano-preprocess custa tipicamente ~US$0.004 por payload (~13k in + ~500 out tok).
+
 ### Decisão D — Nano-preprocess: quando disparar
 Gatilho por tamanho: só acima de ~**2.000 tokens** de output (abaixo disso a latência 2–5s não paga).
-Custo do nano (in=13k+out≈420 por 2 payloads ≈ **US$0.0004**) é desprezível vs. tokens poupados no
+Custo do nano (in=13k+out≈420 por 2 payloads ≈ **US$0.004**) é desprezível vs. tokens poupados no
 modelo caro. É **lossy** — por isso **sempre pareado com o CCR store** (original recuperável). O nano
 pode também decidir *o que* comprimir (classificador barato antes do crusher/CCR).
 

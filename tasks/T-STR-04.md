@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-STR-01", "T-MK-04"]
 blocks: []
+capacity_target: sonnet
 ---
 
 # T-STR-04 · monetizacao (assinatura/PPV/ads/tip) + repasse por SPEC + vetor sem-seeder

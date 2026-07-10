@@ -183,7 +183,7 @@ export class TaskService {
     // (1) Trava start em pai decomposto
     if (action === 'start') {
       const fm = this.parseFrontmatterNaive(content);
-      const rawSubtasks = fm['subtasks'] || '';
+      const rawSubtasks = fm['subtasks'] || fm['children'] || '';
       const hasSubtasks = typeof rawSubtasks === 'string'
         ? rawSubtasks.replace(/[\[\]"\s]/g, '').split(',').filter(Boolean).length > 0
         : false;
@@ -292,9 +292,10 @@ export class TaskService {
       if (parentId && typeof parentId === 'string' && parentId.length > 0) {
         const parentRecord = pool.get(parentId);
         if (parentRecord) {
-          const rawSubs = this.parseFrontmatterNaive(
+          const parentFm = this.parseFrontmatterNaive(
             fs.readFileSync(parentRecord.path, 'utf8')
-          )['subtasks'] || '[]';
+          );
+          const rawSubs = parentFm['subtasks'] || parentFm['children'] || '[]';
           const subtaskIds: string[] = typeof rawSubs === 'string'
             ? rawSubs.replace(/[\[\]"\s]/g, '').split(',').filter(Boolean)
             : [];

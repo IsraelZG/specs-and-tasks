@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "estaleiro-standalone",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d C:\\Dev2026\\superapp && set PORT=8899 && pnpm estaleiro:standalone"],
+      "port": 8899
+    }
+  ]
+}

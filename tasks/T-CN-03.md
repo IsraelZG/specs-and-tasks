@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-CN-01", "T-CN-02", "T-201"]
 blocks: []
+capacity_target: sonnet
 ---
 
 # T-CN-03 · esqueleto Classe D (cursor, polling/webhook, supressao de eco) com provedor fake

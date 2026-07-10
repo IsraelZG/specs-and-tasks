@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-JU-01", "T-JU-02", "T-103"]
 blocks: ["T-JU-04"]
+capacity_target: sonnet
 ---
 
 # T-JU-03 · selecao por vigencia na competencia + recalculo retroativo + vetor (regra errada nunca aplicada)

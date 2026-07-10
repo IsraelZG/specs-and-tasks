@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-CN-01"]
 blocks: ["T-CN-03"]
+capacity_target: sonnet
 ---
 
 # T-CN-02 · pipeline de traducao com idempotencia por external_ref + testes de reentrega

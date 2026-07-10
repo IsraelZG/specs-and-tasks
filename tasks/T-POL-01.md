@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: [] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+capacity_target: haiku | sonnet | opus-spike
 ---
 
 # T-POL-01 · Polish: T-007 testkit (m1 código morto, m2 diff custom, m3 mensagem sem fingerprints)

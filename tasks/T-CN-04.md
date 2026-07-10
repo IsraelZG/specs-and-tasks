@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-CN-01", "T-009a"]
 blocks: []
+capacity_target: sonnet
 ---
 
 # T-CN-04 · persona agente-de-sistema por conector com ASSET:ROLE escopado + vetor

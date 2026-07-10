@@ -9,6 +9,7 @@ execution_mode: sequential # parallel | sequential
 dependencies: ["T-UI-01", "T-UI-02"]
 blocks: ["T-UI-04"]
 ui: true
+capacity_target: sonnet
 ---
 
 # T-UI-03 · componente rico GameEngine (2D/3D) data-driven com pontos ZEN + emissao de intent

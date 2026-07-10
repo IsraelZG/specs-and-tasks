@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-004", "T-JU-01"]
 blocks: ["T-CFR-02", "T-CFR-03", "T-CFR-04", "T-CFR-05"]
+capacity_target: sonnet
 ---
 
 # T-CFR-01 · plano de contas como SPEC + mapeamento fato para conta por Zen jurisdicional

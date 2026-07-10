@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-MOD-01", "T-MOD-02", "T-MOD-03"] # testa violações contra as 3 tasks base
 blocks: [] # task final do bloco — fecha a cadeia
+capacity_target: haiku
 ---
 
 # T-MOD-04 · vetores: delegado lendo dado de outro usuario, comando acima do privilegio, sessao efemera sem opt-in

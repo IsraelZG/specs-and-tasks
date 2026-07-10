@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-DS-01"] # Tokens semânticos compilados são pré-requisito — componentes consomem só camada semântica
 blocks: []
+capacity_target: sonnet
 ---
 
 # T-DS-03 · portar componentes-piloto para core/design-system consumindo tokens semanticos

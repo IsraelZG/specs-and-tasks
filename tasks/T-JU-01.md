@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-004"]
 blocks: ["T-JU-02"]
+capacity_target: sonnet
 ---
 
 # T-JU-01 · resolucao de jurisdicao efetiva (cascata) + registro no fato + testes de precedencia

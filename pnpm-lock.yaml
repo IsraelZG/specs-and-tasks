@@ -49,6 +49,9 @@ importers:
       '@rolldown/binding-linux-arm64-gnu':
         specifier: ^1.1.1
         version: 1.1.1
+      '@rolldown/binding-win32-x64-msvc':
+        specifier: ^1.1.4
+        version: 1.1.4
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
@@ -798,6 +801,12 @@ packages:
 
   '@rolldown/binding-win32-x64-msvc@1.0.3':
     resolution: {integrity: sha512-eXB7CHuaQdqmJcc3koCNtNPmT/bj2gc999kUFgBxG8Ac0NdgXc4rkCHhqrgrhN3zddvvvrgzj1e90SuSfmyIXA==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
+    os: [win32]
+
+  '@rolldown/binding-win32-x64-msvc@1.1.4':
+    resolution: {integrity: sha512-M1lpniBePobTfsa7Ks9a199e1akxsXn+GYBUKsEzv3YFzOm1HJAMNwKI3qr0Zq+mxwx9gOZoTdP1yXRYsZUocQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
@@ -3078,6 +3087,8 @@ snapshots:
 
   '@rolldown/binding-win32-x64-msvc@1.0.3':
     optional: true
+
+  '@rolldown/binding-win32-x64-msvc@1.1.4': {}
 
   '@rolldown/pluginutils@1.0.1': {}
 

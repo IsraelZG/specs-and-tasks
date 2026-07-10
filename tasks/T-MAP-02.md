@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-MAP-01", "T-CN-03"]
 blocks: ["T-MAP-03"]
+capacity_target: sonnet
 ---
 
 # T-MAP-02 · conector Classe E (geocoding/places/rotas) com cache TTL + proveniencia + flag cacheavel

@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-WF-01"]
 blocks: []
 ui: true
+capacity_target: sonnet
 ---
 
 # T-WF-04 · geracao Mermaid + read view na suite office

@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-004", "T-WF-01"]
 blocks: ["T-ERP-02", "T-ERP-03", "T-ERP-04", "T-ERP-05"]
+capacity_target: sonnet
 ---
 
 # T-ERP-01 · SPECs SALES_ORDER/PURCHASE_ORDER + ciclo como SPEC:WORKFLOW

@@ -1,7 +1,7 @@
 ---
 id: DMM-13a
 title: "Módulo Laboratório no plugin-dispatcher (clone worktrees, N variantes em paralelo, relatório)"
-status: in_review
+status: done
 complexity: 3
 parent_task: "DMM-13"
 subtasks: []
@@ -168,6 +168,55 @@ MAJOR
   "ledger / não-bloqueante", o que o worker leu como "pode pular". Corrigindo.
 - Task **fica em `review`** — `request_changes → rework` é do `/integrar-task`.
 
+### Parecer do Reviewer 3 (minimax, independente):
+- [x] **Aprovado**
+- [ ] **Requer Refatoração**
+
+- **Evidência de Execução (obrigatória):**
+```
+$ pnpm --filter @plataforma/plugin-dispatcher lint
+$ eslint src/
+(zero errors)
+$ pnpm --filter @plataforma/plugin-dispatcher build
+$ tsc
+(zero errors)
+$ pnpm --filter @plataforma/plugin-dispatcher test
+ RUN  v3.2.6 C:/Dev2026/.superapp-worktrees/DMM-13a/packages/plugin-dispatcher
+ ✓ tests/selectModel.test.ts (7 tests) 3ms
+ ✓ tests/dispatcher.test.ts (6 tests) 17ms
+ ✓ tests/lab.test.ts (13 tests) 62ms
+ Test Files  3 passed (3)
+      Tests  26 passed (26)
+```
+- **Sonda (lab.probe.test.ts, 3 testes, depois removida):** 2 passaram (B2 ainda conta
+  worktree-creation-failed em `summary.failed`; M1 refactor preserva dispatch de N
+  variantes). A 3ª falhou por **erro do meu probe** (mock `vi.mocked(execSync)`
+  vazou entre testes dentro do mesmo arquivo) — não é regressão do impl. Removida.
+- **Veredito:** APROVADO
+- **Contagem:** B:0 · M:0 · m:0 · i:0
+
+### Comentários de Revisão
+- **M1 RESOLVIDO** com refator estrutural limpo: introduziu `type PendingVariant =
+  { variant; worktreePath }` (lab.ts:72), `pending: PendingVariant[]` é construído em
+  `runLab` empurrando ambos os campos juntos (lab.ts:126,134), e `runBatch` recebe
+  `PendingVariant[]` em vez de `Map.get().!`. O `!` desapareceu da origem — não é
+  suprimido por guard, é eliminado pela estrutura. (lab.ts:72-77, 119-152). Bom.
+- **B1, B2, M1** todos fechados com Gate de Evidência completo (build + test + lint)
+  rodados pelo reviewer. (O i2 do R1 sobre "Gate do worker incompleto" segue no
+  ledger como nota de processo — não é bloqueante.)
+- **Sem regressão** — os 13 testes do lab continuam todos verdes; nenhum teste de
+  selectModel/dispatcher quebrou. Concorrência, agregação, worktreePath, model
+  override, defaults, worktree-creation-failed: tudo intacto.
+- **Sondagem anti-ancoragem:** formei o veredito após rodar lint+build+test+sonda, ANTES
+  de reler os pareceres R1/R2. Os probes passaram para o M1 refactor → fui rever os
+  R1/R2 e confirmei convergência. Sem divergência com R2.
+- Os achados **não-bloqueantes já drenados** para `tasks/_pendencias.md` (bloco
+  `<!-- DMM-13a (R1, REFATORAÇÃO) -->`) seguem lá: M1 foi resolvido (marcar `[x]` no
+  próximo `/agrupar-cleanup`), i1 (branch shell injection) e i2 (Gate de Evidência
+  parcial do worker) seguem abertos para drain futuro.
+- Task **passa para o integrator** — Caminho A do `integrar-task`: merge na master +
+  Gate verde + `approve`.
+
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-08T19:12]** - *arquiteto:minimax* - `[Triado]`: pass-1: deps DMM-06, DMM-12 ainda draft; reendurecer JIT — concurrency cap, cleanup de worktrees
 - **[2026-07-09T21:45]** - *Antigravity* - `[Endurecido]`: Decisões de arquitetura fechadas com feedback do usuário
@@ -187,3 +236,4 @@ MAJOR
 - **[2026-07-10T12:58]** - *deepseek* - `[Iniciado]`: rework: corrigindo M1 (non-null assertion na linha 79)
 - **[2026-07-10T13:01]** - *deepseek* - `[Finalizado]`: rework pronto: M1 — non-null assertion eliminada (Map+! substituído por PendingVariant[] com worktreePath inline). Build: tsc limpo. Test: 26/26 pass. Lint: 0 erros.
 - **[2026-07-10T13:03]** - *agile_reviewer:minimax* - `[Em revisão]`: R3: revisando rework 2 DMM-13a
+- **[2026-07-10T13:12]** - *agile_reviewer:minimax* - `[Aprovado]`: Integrado: merge na master (commit ea230d6, push origin/master ok). Conflito em src/index.ts resolvido combinando exports do lab (DMM-13a) com exports do fitness (DMM-13c pre-existente no master). pnpm-lock reconciliado (--ours). Worktree removida. Gate verde: build (tsc 0 errors), test (36/36 incluindo fitness do DMM-13c), lint (0 errors). M1 marcado resolvido no ledger; i1 e i2 seguem para drain futuro via /agrupar-cleanup.

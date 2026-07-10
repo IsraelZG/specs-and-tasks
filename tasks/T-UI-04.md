@@ -9,6 +9,7 @@ execution_mode: sequential # parallel | sequential
 dependencies: ["T-UI-01", "T-UI-02", "T-UI-03"]
 blocks: []
 ui: true
+capacity_target: sonnet
 ---
 
 # T-UI-04 · tier estrito de validacao + vetores (DOM externo/rede nao declarada, intent acima do privilegio)

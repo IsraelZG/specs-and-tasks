@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-004"]
 blocks: ["T-WF-02", "T-WF-04", "T-WF-05"]
+capacity_target: sonnet
 ---
 
 # T-WF-01 · formato SPEC:WORKFLOW Nivel 1 + validador + envelope (guardas Zen, acoes intent, orcamento)

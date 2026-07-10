@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-JU-01", "T-JU-02", "T-JU-03"]
 blocks: []
+capacity_target: sonnet
 ---
 
 # T-JU-04 · resolucao multi-jurisdicao por ancora de papel (origem/destino/prestacao/titular) + provisao dupla + vetor cross-border

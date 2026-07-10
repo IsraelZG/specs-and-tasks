@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-107"]
 blocks: ["T-PL-02", "T-PL-03", "T-PL-04", "T-PL-05", "T-PL-06"]
+capacity_target: sonnet
 ---
 
 # T-PL-01 · SPEC:PLUGIN + manifesto + verificacao de assinatura/listagem no loader

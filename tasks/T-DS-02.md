@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-DS-01"] # Tokens compilados são pré-requisito — "token layer leads, metadata follows"
 blocks: ["T-DS-03"] # Componentes dependem dos metadados para validação de CI
+capacity_target: haiku
 ---
 
 # T-DS-02 · importar schema de metadados AI-ready + indice + CI

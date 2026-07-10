@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-CFR-01", "T-103"]
 blocks: ["T-CFR-04", "T-CFR-05"]
+capacity_target: sonnet
 ---
 
 # T-CFR-02 · apuracao fiscal por competencia + provisao em BALANCE_STATE + arquivo SPED como projecao

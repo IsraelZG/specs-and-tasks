@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-106", "T-101"]
 blocks: ["T-IA-03"]
+capacity_target: haiku
 ---
 
 # T-IA-01 · projecao vector_index (sqlite-vec/WASM) + embedding no pipeline pos-decifra (irma do FTS)

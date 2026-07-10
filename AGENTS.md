@@ -94,3 +94,5 @@ Not lazy about: input validation at trust boundaries, error handling that preven
 > teto — não dispensa o `pnpm --filter <pkg> build/test` exigido pelo Gate de Evidência do `CLAUDE.md`.
 > E "nunca seja preguiçoso com validação/erro/segurança/acessibilidade" tem precedência sobre atalhos.
 <!-- END ponytail -->
+
+## Imported Claude Cowork project instructions

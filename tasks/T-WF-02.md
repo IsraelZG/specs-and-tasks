@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-WF-01", "T-103"]
 subtasks: ["T-WF-02a","T-WF-02b"]
 blocks: ["T-WF-03", "T-WF-05"]
+capacity_target: sonnet
 ---
 
 # T-WF-02 · interpretador Nivel 1 (estado unico, transicao evento+guarda, entry/exit, timers HLC) event-sourced

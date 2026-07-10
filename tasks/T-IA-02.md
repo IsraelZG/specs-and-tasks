@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-PL-01"]
 blocks: ["T-IA-03"]
+capacity_target: sonnet
 ---
 
 # T-IA-02 · capacidades compute de embedding e LLM como plugins (on-device + conector external)

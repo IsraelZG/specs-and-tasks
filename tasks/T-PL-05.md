@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-PL-01", "T-110"]
 subtasks: ["T-PL-05a","T-PL-05b"]
 blocks: ["T-PL-06"]
+capacity_target: sonnet
 ---
 
 # T-PL-05 · fila assincrona (task=no, claim por ASSET:LOCK, resultado assinado, idempotencia)

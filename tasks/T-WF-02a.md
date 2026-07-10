@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-WF-01", "T-103"]
 blocks: ["T-WF-02b"]
 parent: "T-WF-02"
+capacity_target: sonnet
 ---
 
 # T-WF-02a · Interpretador Nível 1: estado único + transição evento+guarda

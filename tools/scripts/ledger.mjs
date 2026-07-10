@@ -74,9 +74,9 @@ function fm(txt, key) {
 function parseLog(txt) {
   const sec = txt.split(/^##\s*9\./m)[1];
   if (!sec) return [];
-  const re = /^-\s*\*\*\[(.+?)\]\*\*\s*-\s*\*(.+?)\*\s*-\s*`\[(.+?)\]`/gm;
+  const re = /^-\s*\*\*\[(.+?)\]\*\*\s*-\s*\*(.+?)\*\s*-\s*`\[(.+?)\]`(?::\s*(.*))?/gm;
   const out = [];
-  for (const m of sec.matchAll(re)) out.push({ ts: m[1], actor: m[2].trim(), label: m[3].trim() });
+  for (const m of sec.matchAll(re)) out.push({ ts: m[1], actor: m[2].trim(), label: m[3].trim(), message: (m[4] || '').trim() });
   return out;
 }
 
@@ -92,10 +92,10 @@ function displayActor(actor) {
 
 /** Atribui papéis a partir da sequência de labels. */
 function roles(log) {
-  let worker = null, finisher = null, promotedBy = null;
+  let worker = null, finisher = null, promotedBy = null, blockCause = null;
   const reviewers = [], reworks = [];
   let pendingReqChanges = false;
-  for (const { actor: rawActor, label } of log) {
+  for (const { actor: rawActor, label, message } of log) {
     const actor = displayActor(rawActor);
     if (/Iniciado/i.test(label)) {
       if (!worker) worker = actor;            // 1ª execução
@@ -109,9 +109,11 @@ function roles(log) {
       reviewers.push(actor); pendingReqChanges = true;
     } else if (/Promovida/i.test(label)) {
       promotedBy = actor;
+    } else if (/Bloqueado/i.test(label)) {
+      blockCause = message;
     }
   }
-  return { worker, finisher, reviewers, reworks, promotedBy, last: log[log.length - 1] || null };
+  return { worker, finisher, reviewers, reworks, promotedBy, blockCause, last: log[log.length - 1] || null };
 }
 
 const uniq = (a) => [...new Set(a)];
@@ -210,14 +212,16 @@ if (jsonMode) {
     const txt = fs.readFileSync(path.join(tasksDir, file), 'utf8').replace(/\r\n/g, '\n');
     const id = fm(txt, 'id');
     if (!id) continue;
+    const title = fm(txt, 'title') || '—';
     const status = fm(txt, 'status') || 'unknown';
     const cap = fm(txt, 'capacity_target') || null;
     const ui = fm(txt, 'ui') === 'true';
     const hb = fm(txt, 'hardened_by') || null;
     const depIds = parseDeps(fm(txt, 'dependencies'));
+    const blockIds = parseDeps(fm(txt, 'blocks'));
     const events = byId.get(id) || [];
     const roles = rolesFromTransitions(events);
-    all.push({ id, status, cap, ui, hb, depIds, events, roles });
+    all.push({ id, title, status, cap, ui, hb, depIds, blockIds, events, roles });
   }
 
   // build lookup from ALL tasks (before filters) — ensures deps_ok is correct even when dep is filtered out
@@ -235,10 +239,12 @@ if (jsonMode) {
     const na = nextAction({ status: t.status, depsOk: dOk });
     return {
       id: t.id,
+      title: t.title,
       status: t.status,
       capacity_target: t.cap,
       ui: t.ui,
       dependencies: t.depIds,
+      blocks: t.blockIds,
       deps_ok: dOk,
       worker_model: t.roles.workerModel,
       reviewer_models: t.roles.reviewerModels,
@@ -269,6 +275,9 @@ if (jsonMode) {
     if (!id) continue;
     rows.push({
       id,
+      title: fm(txt, 'title') || '—',
+      dependencies: parseDeps(fm(txt, 'dependencies')),
+      blocks: parseDeps(fm(txt, 'blocks')),
       status: fm(txt, 'status') || 'unknown',
       cap: fm(txt, 'capacity_target') || '—',
       hardenedBy: fm(txt, 'hardened_by') || '—',
@@ -294,10 +303,46 @@ if (jsonMode) {
     total += list.length;
     counts.push(`${status}: ${list.length}`);
     md += `## ${status} (${list.length})\n\n`;
-    md += `| Task | Cap | Endurecido por | Worker | Reviewer | Reworks | Última atividade |\n`;
-    md += `|---|---|---|---|---|---|---|\n`;
+
+    let showDeps = status.startsWith('draft');
+    let showBlocks = status === 'ready';
+    let showCause = status === 'blocked';
+
+    let header = `| Task | Título | Cap | Endurecido por |`;
+    let separator = `|---|---|---|---|`;
+
+    if (showDeps) {
+      header += ` Dependências |`;
+      separator += `---|`;
+    }
+    if (showBlocks) {
+      header += ` Blocks |`;
+      separator += `---|`;
+    }
+    if (showCause) {
+      header += ` Causa |`;
+      separator += `---|`;
+    }
+
+    header += ` Worker | Reviewer | Reworks | Última atividade |\n`;
+    separator += `---|---|---|---|\n`;
+
+    md += header;
+    md += separator;
+
     for (const r of list) {
-      md += `| [${r.id}](./${r.id}.md) | ${r.cap} | ${r.hardenedBy} | ${cellWorker(r.roles)} | ${cellReviewer(r.roles)} | ${cellRework(r.roles)} | ${cellLast(r.roles)} |\n`;
+      let row = `| [${r.id}](./${r.id}.md) | ${r.title} | ${r.cap} | ${r.hardenedBy} |`;
+      if (showDeps) {
+        row += ` ${r.dependencies.length ? r.dependencies.join(', ') : '—'} |`;
+      }
+      if (showBlocks) {
+        row += ` ${r.blocks.length ? r.blocks.join(', ') : '—'} |`;
+      }
+      if (showCause) {
+        row += ` ${r.roles.blockCause || '—'} |`;
+      }
+      row += ` ${cellWorker(r.roles)} | ${cellReviewer(r.roles)} | ${cellRework(r.roles)} | ${cellLast(r.roles)} |\n`;
+      md += row;
     }
     md += `\n`;
   }

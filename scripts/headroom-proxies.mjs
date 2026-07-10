@@ -82,6 +82,13 @@ const PROXIES = {
     apiBaseEnv: 'OPENROUTER_API_KEY',
     apiBase: 'https://openrouter.ai/api/v1',
   },
+  zenmux: {
+    port: 8794,
+    backend: 'anyllm',
+    anyllmProvider: 'openai',
+    apiBaseEnv: 'ZENMUX_API_KEY',
+    apiBase: 'https://zenmux.ai/api/v1',
+  },
 };
 
 const PID_FILE = join(tmpdir(), 'headroom-proxies.pid.json');
@@ -200,7 +207,7 @@ function stopProxy(name) {
   const pids = loadPids();
   const entry = pids[name];
   if (!entry) return { name, wasRunning: false };
-  try { process.kill(entry.pid); } catch {}
+  try { process.kill(entry.pid); } catch { }
   delete pids[name];
   savePids(pids);
   return { name, wasRunning: true, pid: entry.pid };
@@ -357,7 +364,7 @@ function cmdDashboard(portOverride) {
               if (typeof data.pid !== 'number') continue;
               try { process.kill(data.pid, 0); } catch { unlinkSync(fp); continue; }
               instances.push(data);
-            } catch { try { unlinkSync(fp); } catch {} }
+            } catch { try { unlinkSync(fp); } catch { } }
           }
         }
         json(res, 200, instances);

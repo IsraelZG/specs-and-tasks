@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-CFR-01", "T-501", "T-512"]
 blocks: ["T-CFR-05"]
+capacity_target: sonnet
 ---
 
 # T-CFR-03 · persona contador (ASSET:ROLE escopado lendo subgrafo do cliente) + exportacoes formais

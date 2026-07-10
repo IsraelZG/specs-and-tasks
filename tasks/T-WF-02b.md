@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-WF-02a"]
 blocks: []
 parent: "T-WF-02"
+capacity_target: sonnet
 ---
 
 # T-WF-02b · Interpretador Nível 1: timers HLC + entry/exit actions

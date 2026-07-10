@@ -86,3 +86,7 @@ docs/_vendor/
 # Gate evidence snapshots — workers/reviewers salvam logs de build/test/lint durante
 # execução. Descartáveis pós-integração da task; limpos pelo /drenar-fila periodicamente.
 .dmm*-evidence/
+
+# Text files e scripts descartáveis na raiz
+*.txt
+generate_project_summary.js

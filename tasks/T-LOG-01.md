@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-WF-01", "T-ERP-02"]
 blocks: ["T-LOG-02", "T-LOG-03", "T-LOG-04", "T-LOG-05"]
+capacity_target: sonnet
 ---
 
 # T-LOG-01 · WMS: operacoes de armazem como SPEC:WORKFLOW + enderecamento + inventario ciclico

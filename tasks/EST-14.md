@@ -1,7 +1,7 @@
 ---
 id: EST-14
 title: "Frontend do Estaleiro: semente Lovable A1 (FlexLayout+TinyBase), 5 views, 1 canal WS único"
-status: draft:decomposed
+status: done
 complexity: 6
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -97,3 +97,4 @@ pnpm --filter @plataforma/estaleiro-ui lint
 - **[2026-07-07T13:25]** - *big-pickle* - `[Decomposto]`: decomposto em 5 subtasks — EST-14a (shell+WS, haiku), EST-14b (board, haiku), EST-14c (frota, sonnet), EST-14d (knowledge, haiku), EST-14e (decisions+cost, haiku)
 - **[2026-07-07T13:25]** - *big-pickle* - `[Reconciliado]`: status restaurado de draft:decomposed para draft:triaged (drift corrigido)
 - **[2026-07-07T13:25]** - *big-pickle* - `[Decomposto]`: decomposto em 5 subtasks
+- **[2026-07-07T18:11]** - *Antigravity* - `[Fechamento Manual]`: Todas as tarefas filhas foram concluídas, epic EST-14 movida para done.

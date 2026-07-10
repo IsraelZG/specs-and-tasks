@@ -366,6 +366,30 @@ describe('TaskService (máquina de estados MGTIA)', () => {
     expect(svc.getTask('P2').frontmatter.status).toBe('review');
   });
 
+  it('(4c) parentAutoClose: pai com children: (SEM subtasks:) e filhas done → pai fecha', async () => {
+    writeWith('K1', 'done', { parent: '"K0"' });
+    writeWith('K2', 'review', { parent: '"K0"' });
+    writeWith('K0', 'review', { children: '["K1","K2"]' }); // sem subtasks:
+    await svc.transition('K2', 'approve', 'agile_reviewer', 'ok');
+    expect(svc.getTask('K0').frontmatter.status).toBe('done');
+    const k0Logs = svc.getTask('K0').log.map((l) => l.label);
+    expect(k0Logs).toContain('[Auto-encerrado]');
+  });
+
+  it('(4d) parentAutoClose: pai com AMBOS subtasks: e children: → usa o que tiver conteúdo', async () => {
+    writeWith('L1', 'review', { parent: '"L0"' });
+    writeWith('L0', 'review', { subtasks: '["L1"]', children: '["X","Y","Z"]' });
+    await svc.transition('L1', 'approve', 'agile_reviewer', 'ok');
+    expect(svc.getTask('L0').frontmatter.status).toBe('done'); // leu subtasks: primeiro, achou L1 done
+  });
+
+  it('(4e) start: pai com children: (SEM subtasks:) em ready → DecomposedParentStartError', async () => {
+    writeWith('M0', 'ready', { children: '["M1","M2"]' });
+    await expect(svc.transition('M0', 'start', 'dev'))
+      .rejects.toThrow(DecomposedParentStartError);
+    expect(svc.getTask('M0').frontmatter.status).toBe('ready'); // não transicionou
+  });
+
   it('(9) idempotência: approve duas vezes não duplica auto-movimentos', async () => {
     write('A3', 'review');
     write('B3', 'draft:hardened');

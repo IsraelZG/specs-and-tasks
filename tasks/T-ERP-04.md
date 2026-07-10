@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-ERP-01", "T-WF-01"]
 blocks: ["T-ERP-05"]
+capacity_target: sonnet
 ---
 
 # T-ERP-04 · CRM (pipeline workflow, visao 360 por traversal, regua Zen)

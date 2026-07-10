@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-WF-02", "T-505", "T-501"]
 blocks: ["T-WF-05"]
+capacity_target: sonnet
 ---
 
 # T-WF-03 · integracao com saga/TTL (compensacao) e tarefa humana (APPROVED_BY)

@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: [] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+capacity_target: haiku | sonnet | opus-spike
 ---
 
 # T-POL-03 · Polish: T-203 codec (caso 7 do codec.test.ts não cobre o byte 0xc1 da spec)

@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-JU-01"]
 blocks: ["T-JU-03"]
+capacity_target: sonnet
 ---
 
 # T-JU-02 · composicao base+variante por EXTENDS + validacao variante nao contradiz invariante + degradacao para base

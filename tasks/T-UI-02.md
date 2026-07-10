@@ -9,6 +9,7 @@ execution_mode: sequential # parallel | sequential
 dependencies: ["T-UI-01"]
 blocks: ["T-UI-03"]
 ui: true
+capacity_target: sonnet
 ---
 
 # T-UI-02 · host de sandbox (iframe + Worker/OffscreenCanvas, bridge postMessage, orcamento, brokering)

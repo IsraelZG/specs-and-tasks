@@ -1,7 +1,7 @@
 ---
 id: EST-13
 title: "plugin-knowledge: docs/RAG markdown-first (OKF), FTS local, writer serial de commits"
-status: draft:decomposed
+status: done
 complexity: 5
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -76,3 +76,4 @@ independentes.
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-06T18:21]** - *big-pickle* - `[Reconciliado]`: status restaurado de draft:decomposed para draft:triaged (drift corrigido)
 - **[2026-07-06T18:21]** - *big-pickle* - `[Decomposto]`: decomposto em 13a (graph haiku), 13b (fts sonnet), 13c (writer sonnet)
+- **[2026-07-07T14:16]** - *system* - `[Auto-encerrado]`: todas as filhas done

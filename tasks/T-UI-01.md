@@ -9,6 +9,7 @@ execution_mode: sequential # parallel | sequential
 dependencies: ["T-PL-01"]
 blocks: ["T-UI-02"]
 ui: true
+capacity_target: sonnet
 ---
 
 # T-UI-01 · categoria ui no modelo de plugins + manifesto (props/intents/capacidades) — estende T-PL-01

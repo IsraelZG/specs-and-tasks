@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-PL-05a", "T-107"]
 blocks: []
 parent: "T-PL-05"
+capacity_target: haiku
 ---
 
 # T-PL-05b · Fila assíncrona: resultado assinado + idempotência

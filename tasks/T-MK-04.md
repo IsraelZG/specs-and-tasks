@@ -9,6 +9,7 @@ execution_mode: sequential # parallel | sequential
 dependencies: ["T-MK-01", "T-MK-03", "T-605"] # IDs de tarefas que bloqueiam esta
 subtasks: ["T-MK-04a","T-MK-04b"]
 blocks: ["T-MK-04a","T-MK-04b"] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-MK-04 · SPENDS/CREDITS com split multi-destino + comissao/imposto por SPEC + multi-moeda

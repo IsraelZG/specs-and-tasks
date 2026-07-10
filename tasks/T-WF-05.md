@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-WF-01", "T-WF-02", "T-WF-03"]
 blocks: []
 
+capacity_target: haiku
 ---
 
 # T-WF-05 · vetores: guarda fora do registro, acao acima do privilegio, estado nunca mutavel-replicado, orcamento estourado aborta

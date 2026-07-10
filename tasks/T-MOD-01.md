@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-004", "T-105"] # Portas (StoragePort) + PeerId (PersonaPeerId para endereçamento de módulo)
 blocks: ["T-MOD-02", "T-MOD-03"] # Bloqueia delegação e sessão colaborativa
+capacity_target: sonnet
 ---
 
 # T-MOD-01 · profile de modulo + mensageria de comando (intent duravel enderecado + sinal efemero)

@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-MK-04a"]
 blocks: []
 parent: "T-MK-04"
+capacity_target: sonnet
 ---
 
 # T-MK-04b · CREDITS: split multi-destino + comissão/imposto por SPEC + multi-moeda

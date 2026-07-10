@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-004"]
 blocks: ["T-CN-02"]
+capacity_target: sonnet
 ---
 
 # T-CN-01 · interface ExternalConnector + registro + health/quotas no system-peer

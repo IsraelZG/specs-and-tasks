@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-011"] # T-011 incorpora a lib @plataforma/design-system no monorepo
 blocks: ["T-DS-02", "T-DS-03", "T-DS-04"] # Metadados, componentes e lint dependem dos tokens compilados
+capacity_target: sonnet
 ---
 
 # T-DS-01 · importar pacote de tokens + build multi-plataforma (Style Dictionary)

@@ -28,11 +28,106 @@
 | [C-07](./C-07.md) | Cleanup: system-peer (4 não-bloqueantes) | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [C-08](./C-08.md) | Cleanup: testkit (4 não-bloqueantes) | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [C-09](./C-09.md) | Cleanup: design-system (2 não-bloqueantes) | `done` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-10](./C-10.md) | Cleanup: core (blindArchives/T-1036/T-1042/T-1045) | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-11](./C-11.md) | Cleanup: transport + protocol (T-402/T-406/T-1041/T-1033) | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-12](./C-12.md) | Cleanup: system-peer (T-401/T-408/T-804/T-1035) | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-13](./C-13.md) | Cleanup: bancada (T-111/T-512/T-807) | `done` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-14](./C-14.md) | Cleanup: orchestrator (ORQ-08/09a/09b/10/12/14/15) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-15](./C-15.md) | Cleanup: control (T-1029/T-1030/T-1031) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-16](./C-16.md) | Cleanup: estaleiro (EST-01/02a/02b/02c/03a) | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-17](./C-17.md) | Fix identityGuard para aceitar formato canônico de identidade com modelo (M1) | `done` | logic_agent | 1 |
+| [C-18](./C-18.md) | Cleanup: plugin-tasks (stateMachine, guards, service) — 13 não-bloqueantes de EST-03b/c/d | `done` | logic_agent | 2 |
+| [C-19](./C-19.md) | Cleanup: plugin-tasks (migration scripts) — 9 não-bloqueantes de EST-04a/b/c | `done` | logic_agent | 2 |
+| [C-20](./C-20.md) | Cleanup: plugin-knowledge (4 nao-bloqueantes) | `draft:placeholder` | deepseek # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-21](./C-21.md) | Cleanup: plugin-context (3 nao-bloqueantes) | `draft:placeholder` | deepseek # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-22](./C-22.md) | Cleanup: plugin-agent-harness (3 nao-bloqueantes) | `draft:placeholder` | deepseek # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-23](./C-23.md) | Cleanup: plugin-tasks (5 nao-bloqueantes) | `draft:placeholder` | deepseek # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-24](./C-24.md) | Cleanup: plugin-workflows (5 nao-bloqueantes) | `draft:placeholder` | deepseek # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-25](./C-25.md) | Cleanup: estaleiro-ui views (8 nao-bloqueantes) | `draft:placeholder` | deepseek # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-26](./C-26.md) | Cleanup: estaleiro-ui tests (4 nao-bloqueantes) | `draft:placeholder` | deepseek # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-27](./C-27.md) | Cleanup: plugin-providers (2 nao-bloqueantes) | `draft:placeholder` | deepseek # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-28](./C-28.md) | Cleanup: orchestrator (2 nao-bloqueantes) | `draft:placeholder` | deepseek # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [C-29](./C-29.md) | Cleanup: core (2 nao-bloqueantes) | `draft:placeholder` | deepseek # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [DMM-01](./DMM-01.md) | SPIKE: orquestrador declarativo (Zen decide, loop executa) — contrato + rename + PoC | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
+| [DMM-02](./DMM-02.md) | Nó Ingress (Estágio 1): tradução + crusher + l2Compressor como template de workflow | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [DMM-03](./DMM-03.md) | Nó Architect (Estágio 2): avaliador macro via plugin-providers (branching/subtasks) | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [DMM-04](./DMM-04.md) | Nó Explorer (Estágio 3): harness read-only + fs-tools + crushToCsv | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [DMM-05](./DMM-05.md) | Nó Editor (Estágio 4): harness persona Editor, write, loop até exit 0 (maxSteps=40) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [DMM-06](./DMM-06.md) | Templates de workflow por Tipagem Dinâmica (grafos JDM editáveis) | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [DMM-07](./DMM-07.md) | Roteamento de eventos runner.ts → WS → UI (host real, substitui o echo do server.mjs) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [DMM-08](./DMM-08.md) | Painel Terminal do Agente (side panel): stream de log do harness ao vivo | `done` | frontend_agent | 3 |
+| [DMM-09](./DMM-09.md) | Árvore de execução do workflow (execution view): nó atual em tempo real | `done` | frontend_agent | 4 |
+| [DMM-10](./DMM-10.md) | Editor visual JDM (@gorules/jdm-editor) na view de Planejamento | `done` | frontend_agent | 4 |
+| [DMM-11](./DMM-11.md) | Pipeline de RL (Capture & Critique): Gravação de traces e Nó 'Juiz' | `done` | logic_agent | 5 |
+| [DMM-12](./DMM-12.md) | Otimização e Auto-Cura (Human-in-the-Loop): Sugestões RAG/OKF via PRs Internos | `done` | logic_agent | 5 |
+| [DMM-13](./DMM-13.md) | Laboratório Genético de Workflows (Autoajuste A/B) — casca decomposta | `draft:decomposed` | logic_agent | 7 |
+| [DMM-13a](./DMM-13a.md) | Módulo Laboratório no plugin-dispatcher (clone worktrees, N variantes em paralelo, relatório) | `done` | logic_agent | 3 |
+| [DMM-13b](./DMM-13b.md) | Persona Meta-Arquiteto: mutação de JSON/JDM (swap nós, prompts, modelo) | `done` | logic_agent | 3 |
+| [DMM-13c](./DMM-13c.md) | Consolidado de métricas (Fitness Function): integra traces+juiz do DMM-11 | `done` | logic_agent | 3 |
+| [DMM-14](./DMM-14.md) | PluginRegistry no core do superapp (lookup-por-nome/capability) — sucessor do handler-map DI | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [DMM-15](./DMM-15.md) | Fila/estado durável do orquestrador: impl nativa do superapp (nodes/edges + canais efêmeros) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
+| [EST-01](./EST-01.md) | Bootstrap do monorepo Estaleiro (apps/estaleiro/ + packages/plugin-* scaffold) | `done` | devops_agent | 3 |
+| [EST-02](./EST-02.md) | Host de plugins do Estaleiro: manifest mínimo + mediação total de portas (fs/rede/store/eventos) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
+| [EST-02a](./EST-02a.md) | Plugin Manifest Contract (schema Zod, nomes do caderno-12) | `done` | logic_agent | 2 |
+| [EST-02b](./EST-02b.md) | Host mediation — portas FS/Bash (gating, allowlist, timeout, cwd-lock) | `done` | logic_agent | 3 |
+| [EST-02c](./EST-02c.md) | Host mediation — portas Network/Store/Eventos (HTTP, TinyBase, event bus) | `done` | logic_agent | 3 |
+| [EST-02d](./EST-02d.md) | Host: CommitPort — writer serial de commits (singleton do host, injetado; local do utilitário compartilhado EST-12/EST-13c) | `done` | logic_agent | 3 |
+| [EST-03](./EST-03.md) | plugin-tasks: schema completo (replica MGTIA 1:1) + serviço DB-first + guardas de código com escape hatch | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 7 |
+| [EST-03a](./EST-03a.md) | plugin-tasks — schema de dados (tabelas/tipos completos, replica MGTIA 1:1) | `done` | logic_agent | 3 |
+| [EST-03b](./EST-03b.md) | plugin-tasks — máquina de estados (verbos e transições válidas do ciclo MGTIA) | `done` | logic_agent | 3 |
+| [EST-03c](./EST-03c.md) | plugin-tasks — guardas de código: separação de papéis, gate de evidência, identidade (c/ escape hatch) | `done` | logic_agent | 3 |
+| [EST-03d](./EST-03d.md) | plugin-tasks — API do serviço (consumível pelo host EST-02 e UI EST-14) | `done` | logic_agent | 3 |
+| [EST-04](./EST-04.md) | Migração das ~200 tasks .md do Docs para o plugin-tasks (parser frontmatter→DB, stress-test) | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
+| [EST-04a](./EST-04a.md) | Migração — parser frontmatter+seções (markdown .md → schema plugin-tasks) | `done` | logic_agent | 3 |
+| [EST-04b](./EST-04b.md) | Migração — corpus completo (~200 tasks), casos-limite, stress-test de formato | `done` | logic_agent | 3 |
+| [EST-04c](./EST-04c.md) | Migração — validação pós-migração: integridade de dados, checksum de conteúdo, zero perda | `done` | logic_agent | 2 |
+| [EST-05](./EST-05.md) | plugin-fs-tools: migrar o harness de tools do ORQ-09a (readFile/writeFile/bash gated) pro monorepo superapp, mediado pelo host (EST-02b) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [EST-06](./EST-06.md) | plugin-agent-harness: migrar VercelAgentAdapter + observabilidade/kill do ORQ-09b/10 pro monorepo superapp | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [EST-07](./EST-07.md) | plugin-dispatcher: sucessor do orquestrar.mjs (escolhe modelo, decide o que despachar, lock de task) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [EST-08](./EST-08.md) | plugin-local-inference: substrato ORT in-process (modelo-como-dado), consumido por plugin-context e futuramente T-IA-01/T-IA-05 | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [EST-09](./EST-09.md) | plugin-context: migrar o otimizador do ORQ-13 (crusher+CCR+nano) e acrescentar tier LLMLingua-2 via plugin-local-inference | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [EST-10](./EST-10.md) | plugin-providers: registry direto + fallback/circuit-breaker + scoring 9-fatores + telemetria interna (absorve EST-11) | `done` | devops_agent | 5 |
+| [EST-10a](./EST-10a.md) | plugin-providers: registry direto (mover de ORQ-09b) | `done` | devops_agent | 2 |
+| [EST-10b](./EST-10b.md) | plugin-providers: fallback tiers + circuit-breaker/cooldown | `done` | devops_agent | 3 |
+| [EST-10c](./EST-10c.md) | plugin-providers: scoring 9-fatores + telemetria interna (ex-EST-11) | `done` | devops_agent | 3 |
+| [EST-12](./EST-12.md) | plugin-skills: gerenciamento de skills/agentes/CLAUDE.md do Estaleiro, edicoes refletidas no repo via git | `done` | devops_agent | 4 |
+| [EST-13](./EST-13.md) | plugin-knowledge: docs/RAG markdown-first (OKF), FTS local, writer serial de commits | `done` | logic_agent | 5 |
+| [EST-13a](./EST-13a.md) | plugin-knowledge: OKF graph — wikilinks + frontmatter | `done` | logic_agent | 2 |
+| [EST-13b](./EST-13b.md) | plugin-knowledge: FTS local (full-text search sobre OKF) | `done` | logic_agent | 3 |
+| [EST-13c](./EST-13c.md) | plugin-knowledge: Writer serial de commits (compartilhado com EST-12) | `done` | logic_agent | 2 |
+| [EST-14](./EST-14.md) | Frontend do Estaleiro: semente Lovable A1 (FlexLayout+TinyBase), 5 views, 1 canal WS único | `done` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 6 |
+| [EST-14a](./EST-14a.md) | Shell + Canal WS: importar semente A1 (FlexLayout+TinyBase) e configurar WebSocket único (F3) para as 5 views | `done` | frontend_agent | 2 |
+| [EST-14b](./EST-14b.md) | View Board: kanban/grid de tasks consumindo plugin-tasks (EST-03) + WS event subscription (EST-14a) | `done` | frontend_agent | 2 |
+| [EST-14c](./EST-14c.md) | View Frota: painel ao vivo de agentes via plugin-agent-harness (EST-06) + padrões Orca | `done` | frontend_agent | 3 |
+| [EST-14d](./EST-14d.md) | View Docs/RAG: navegador de markdown consumindo plugin-knowledge (EST-13) | `done` | frontend_agent | 2 |
+| [EST-14e](./EST-14e.md) | Views Decisões + Custo: fila de decisões do arquiteto e painel de custo/telemetria (EST-10) | `done` | frontend_agent | 2 |
+| [EST-15](./EST-15.md) | SPIKE: empacotamento standalone do Estaleiro (Electron?) — instância rodando separada da working tree, cadência de atualização | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [EST-16](./EST-16.md) | plugin-workflows: desenho e gestão de fluxos de agente (JDM/Zen — nano-broker, pipelines de prompt, políticas de dispatch) | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [EST-17](./EST-17.md) | OmniRoute sidecar de DEV: entrada `omniroute` no plugin-providers + doc de operação (free tiers/combos para a frota) | `done` | devops_agent | 2 |
+| [EST-18](./EST-18.md) | Extração seletiva de provedores apikey-estáticos do OmniRoute para o plugin-providers (uso sem sidecar) | `draft:triaged` | devops_agent | 2 |
+| [EST-19](./EST-19.md) | Entrypoint + empacotamento standalone do Estaleiro (aplica ADR 0012) | `done` | devops_agent | 2 |
+| [EST-20](./EST-20.md) | Implementar testes de integracao (WS) no Estaleiro | `done` | Antigravity # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
+| [EST-21](./EST-21.md) | plugin-tasks: StorageBackend durável + exports públicos | `ready` | logic_agent | 3 |
+| [EST-22](./EST-22.md) | Composition root do Estaleiro: TaskService + API HTTP + WS | `draft:triaged` | devops_agent | 4 |
+| [EST-23](./EST-23.md) | UI: TaskClient real e remoção de fixtures do Board/Decisões | `draft:triaged` | frontend_agent | 3 |
+| [EST-24](./EST-24.md) | Runtime DMM do Estaleiro — casca decomposta | `draft:decomposed` | logic_agent | 6 |
+| [EST-24a](./EST-24a.md) | Agent runtime factory: provider + tools + harness + RunService | `draft:triaged` | devops_agent | 3 |
+| [EST-24b](./EST-24b.md) | Composição do workflow DMM: registry + handlers reais + execução | `draft:triaged` | logic_agent | 4 |
+| [EST-25](./EST-25.md) | Cut-over operacional: standalone smoke e runbook | `draft:triaged` | devops_agent | 3 |
+| [EST-26](./EST-26.md) | Workflow durável: persistência integrada ao loop e restart | `draft:triaged` | logic_agent | 3 |
+| [EST-27](./EST-27.md) | Dispatcher: verbos corretos, identidade e worktrees isoladas | `draft:triaged` | devops_agent | 4 |
+| [EST-28](./EST-28.md) | Paridade das guardas MGTIA: build + test + lint + bypass | `draft:triaged` | logic_agent | 2 |
+| [EST-29](./EST-29.md) | Integração de layout FlexLayout real no shell | `draft:triaged` | frontend_agent | 3 |
+| [EST-30](./EST-30.md) | plugin-skills: layout real .claude/skills/<nome>/SKILL.md | `draft:triaged` | logic_agent | 2 |
+| [EST-31](./EST-31.md) | Testes de integração do host: API de tasks + WebSocket | `draft:triaged` | devops_agent | 3 |
+| [EST-32](./EST-32.md) | Testes de integração do runtime DMM + harness stub | `draft:triaged` | logic_agent | 3 |
+| [EST-33](./EST-33.md) | E2E Playwright do Estaleiro standalone | `draft:triaged` | frontend_agent | 3 |
 | [L-01](./L-01.md) | Ressurreicao de deadline P2P: publicacao duravel de timers workflow se peer cai | `ready` | # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [L-02](./L-02.md) | k-anonimato na segmentacao: invariante de coorte minimo (k-anonymity) | `ready` | # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [L-03](./L-03.md) | MoR + hard-stop legal: Merchant of Record e modo de bloqueio rigido | `ready` | # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [O-01](./O-01.md) | Colisao slot 09 do caderno-3: design-system vs hierarchical-theme — decidir numeracao | `draft:hardened` | logic_agent # documentação — sem código | 2 |
-| [O-02](./O-02.md) | Colisao slot 22 do caderno-3: Mapa vs Workflow — mapa unico de numeracao | `draft:hardened` | logic_agent # documentação — sem código | 2 |
+| [L-03](./L-03.md) | MoR + hard-stop legal: Merchant of Record e modo de bloqueio rigido | `blocked` | # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [M-016](./M-016.md) | Fix parentAutoClose: task.service.ts lê children: além de subtasks: no auto-close + start-detection + backfill dos 3 pais pré-existentes (EST-02/03/04) | `done` | logic_agent | 2 |
+| [O-01](./O-01.md) | Colisao slot 09 do caderno-3: design-system vs hierarchical-theme — decidir numeracao | `ready` | logic_agent # documentação — sem código | 2 |
+| [O-02](./O-02.md) | Colisao slot 22 do caderno-3: Mapa vs Workflow — mapa unico de numeracao | `ready` | logic_agent # documentação — sem código | 2 |
 | [ORQ-01](./ORQ-01.md) | ledger.mjs --json — API de leitura do estado (transitions.jsonl + frontmatter) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
 | [ORQ-02](./ORQ-02.md) | orquestrar.mjs --dry-run + orquestrador.config.json — núcleo de decisão (sem spawn) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [ORQ-03](./ORQ-03.md) | saldo.mjs — saldo dos provedores (DeepSeek, OpenRouter) p/ alimentar o dispatcher | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
@@ -44,12 +139,12 @@
 | [ORQ-09](./ORQ-09.md) | VercelAgentAdapter + harness de tools (implements AgentAdapter, multi-provider, loop in-process) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 7 |
 | [ORQ-09a](./ORQ-09a.md) | Harness de tools do AgentAdapter (readFile/writeFile/bash com gating) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
 | [ORQ-09b](./ORQ-09b.md) | VercelAgentAdapter (run() in-process + registry de provider) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [ORQ-10](./ORQ-10.md) | Observabilidade + controle: stream de eventos ao vivo no painel + cancelar/matar instancia + deteccao de travada | `in_progress` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [ORQ-11](./ORQ-11.md) | Religar orquestrar.mjs no VercelAgentAdapter: remove kill-switch + spawn Crush, seleciona adapter in-process | `draft:triaged` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [ORQ-10](./ORQ-10.md) | Observabilidade + controle: stream de eventos ao vivo no painel + cancelar/matar instancia + deteccao de travada | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
+| [ORQ-11](./ORQ-11.md) | Religar orquestrar.mjs no VercelAgentAdapter: remove kill-switch + spawn Crush, seleciona adapter in-process | `ready` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
 | [ORQ-12](./ORQ-12.md) | SPIKE: Otimização de contexto no AgentAdapter — Headroom CCR in-process + nano-preprocess (ADR + números reais) | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [ORQ-13](./ORQ-13.md) | Otimizador de contexto in-process no VercelAgentAdapter (crusher estrutural + CCR store + nano tier) | `ready` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [ORQ-14](./ORQ-14.md) | SPIKE: port do compressor ML (Kompress-v2-base) via ONNX Runtime in-process — 4ª via na bancada | `review` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
-| [ORQ-15](./ORQ-15.md) | SPIKE follow-up: infra de inferência local — validação ORQ-14, EPs GPU/NPU (Adreno/Hexagon), kompress×LLMLingua-2×nano, e o que o proxy Headroom realmente roda | `review` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
+| [ORQ-14](./ORQ-14.md) | SPIKE: port do compressor ML (Kompress-v2-base) via ONNX Runtime in-process — 4ª via na bancada | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [ORQ-15](./ORQ-15.md) | SPIKE follow-up: infra de inferência local — validação ORQ-14, EPs GPU/NPU (Adreno/Hexagon), kompress×LLMLingua-2×nano, e o que o proxy Headroom realmente roda | `done` | devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-001](./T-001.md) | Bootstrap do monorepo | `done` | devops_agent | 2 |
 | [T-002](./T-002.md) | Pipeline de CI (GitHub Actions) | `done` | devops | 2 |
 | [T-003](./T-003.md) | Pacote testkit: Relógio e Random | `done` | logic_agent | 2 |
@@ -64,7 +159,9 @@
 | [T-008](./T-008.md) | App Bancada (PWA-ready) | `done` | frontend_agent | 3 |
 | [T-009](./T-009.md) | Reset Local do Peer (client-sdk + Bancada) | `done` | backend_agent | 3 |
 | [T-009a](./T-009a.md) | ControlPort (interface + implementação core) | `ready` | backend_agent | 3 |
-| [T-009b](./T-009b.md) | WebSocketControlClient (client-sdk → Hub QA) | `draft:triaged` | backend_agent | 3 |
+| [T-009b](./T-009b.md) | WebSocketControlClient (client-sdk → Hub QA) | `ready` | backend_agent | 3 |
+| [T-009c](./T-009c.md) | Auth browser-compat no canal de controle WS | `draft:placeholder` | opus # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-009d](./T-009d.md) | Reconexão robusta do WebSocketControlClient | `draft:placeholder` | sonnet # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [T-010](./T-010.md) | Peer do sistema v0 + admin | `done` | devops | 3 |
 | [T-011](./T-011.md) | Incorporar @plataforma/design-system (lib) ao monorepo | `done` | devops_agent | 2 |
 | [T-012](./T-012.md) | Incorporar apps/design-system-showcase | `done` | frontend_agent | 1 |
@@ -128,12 +225,13 @@
 | [T-1039](./T-1039.md) | Enforcement de autorização no Archive Cargo: canServeArchive usa canAccess (não magic-string) | `ready` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
 | [T-104](./T-104.md) | BIP39 + Derivação de Chaves + Desbloqueio | `done` | crypto_agent | 3 |
 | [T-1040](./T-1040.md) | SPIKE: distribuição unificada de plugins nativos (LiveKit SFU, llama.cpp) — marketplace-only sem exceção de payload | `ready` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-1041](./T-1041.md) | Fixar as assinaturas de GraphStorePort | `in_review` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-1042](./T-1042.md) | Migrar o adapter SQLite atual para GraphStorePort | `review` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-1043](./T-1043.md) | Reescrever os 8 sitios de SQL do core para GraphStorePort | `ready` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
-| [T-1044](./T-1044.md) | Segundo adapter KV de prova para GraphStorePort | `ready` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [T-1041](./T-1041.md) | Fixar as assinaturas de GraphStorePort | `done` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-1042](./T-1042.md) | Migrar o adapter SQLite atual para GraphStorePort | `done` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-1043](./T-1043.md) | Reescrever os 8 sitios de SQL do core para GraphStorePort | `in_progress` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
+| [T-1044](./T-1044.md) | Segundo adapter KV de prova para GraphStorePort | `blocked` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-1045](./T-1045.md) | Formalizar camada de projecao sobre o query-model | `done` | core_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-1046](./T-1046.md) | Transferência de nós reais no RBSR: responder SignedNode + applyNodes sob escopo UCAN | `draft:triaged` | protocol_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [T-1046](./T-1046.md) | Transferência de nós reais no RBSR: responder SignedNode + applyNodes sob escopo UCAN | `ready` | protocol_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [T-1047](./T-1047.md) | Migrar import de applyNodes de protocol para core | `draft:placeholder` | sonnet # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 2 |
 | [T-105](./T-105.md) | PeerId e Multiaddr | `done` | protocol_agent | 2 |
 | [T-106](./T-106.md) | Schema SQLite local (nodes/edges) | `done` | core_agent | 3 |
 | [T-107](./T-107.md) | Assinatura Universal Layer 1 | `done` | core_agent | 4 |
@@ -183,53 +281,53 @@
 | [T-402](./T-402.md) | Adapter WebRTC DataChannel | `done` | transport_agent | 4 |
 | [T-403](./T-403.md) | Documentos casca Automerge | `ready` | transport_agent | 4 |
 | [T-404](./T-404.md) | ConnectionPromotionEngine (Hole Punching) | `ready` | logic_agent | 4 |
-| [T-404a](./T-404a.md) | CPE: tryPromote (core loop + NAT decision) | `ready` | logic_agent | 3 |
-| [T-404b](./T-404b.md) | CPE: getState/cancel/directCount (query) | `draft:triaged` | logic_agent | 2 |
+| [T-404a](./T-404a.md) | CPE: tryPromote (core loop + NAT decision) | `done` | logic_agent | 3 |
+| [T-404b](./T-404b.md) | CPE: getState/cancel/directCount (query) | `ready` | logic_agent | 2 |
 | [T-405](./T-405.md) | Relay de circuito | `ready` | transport_agent | 3 |
 | [T-406](./T-406.md) | Descoberta morna Graph Routing | `done` | transport_agent | 3 |
 | [T-407](./T-407.md) | Link multiaddr out-of-band | `done` | protocol_agent | 2 |
 | [T-408](./T-408.md) | Tracker WSS privado | `done` | backend_agent | 3 |
-| [T-409](./T-409.md) | Bancada: topologia | `ready` | frontend_agent | 2 |
+| [T-409](./T-409.md) | Bancada: topologia | `in_progress` | frontend_agent | 2 |
 | [T-501](./T-501.md) | Motor de UCAN Core | `done` | crypto_agent | 4 |
 | [T-502](./T-502.md) | ASSET:PERMISSION/ROLE físicos | `ready` | logic_agent | 4 |
-| [T-503](./T-503.md) | Consentimento single-pass | `draft:triaged` | logic_agent | 3 |
+| [T-503](./T-503.md) | Consentimento single-pass | `ready` | logic_agent | 3 |
 | [T-504](./T-504.md) | Revogação + cortesia | `ready` | logic_agent | 3 |
 | [T-505](./T-505.md) | Rotação de Épocas (Forward Secrecy) | `draft:decomposed` | crypto_agent | 5 |
 | [T-505a](./T-505a.md) | EpochRotation: rotate/revoke (geração de chave + UCAN gate) | `ready` | crypto_agent | 3 |
-| [T-505b](./T-505b.md) | EpochRotation: getCurrent/listEpochs (query) | `draft:triaged` | crypto_agent | 2 |
-| [T-506](./T-506.md) | Predicado de bloqueio na liberação | `draft:triaged` | logic_agent | 3 |
+| [T-505b](./T-505b.md) | EpochRotation: getCurrent/listEpochs (query) | `ready` | crypto_agent | 2 |
+| [T-506](./T-506.md) | Predicado de bloqueio na liberação | `ready` | logic_agent | 3 |
 | [T-507](./T-507.md) | STALE_EPOCH no transporte | `ready` | transport_agent | 3 |
 | [T-508](./T-508.md) | Conector SMTP | `ready` | backend_agent | 4 |
-| [T-509](./T-509.md) | Central Custody | `draft:triaged` | backend_agent | 4 |
+| [T-509](./T-509.md) | Central Custody | `ready` | backend_agent | 4 |
 | [T-510](./T-510.md) | Shamir 2-de-3 | `ready` | crypto_agent | 3 |
 | [T-511](./T-511.md) | Modelo soberano | `ready` | core_agent | 3 |
-| [T-512](./T-512.md) | Bancada: aba Auth | `review` | frontend_agent | 2 |
+| [T-512](./T-512.md) | Bancada: aba Auth | `done` | frontend_agent | 2 |
 | [T-601](./T-601.md) | Detecção Estrutural de Fork e Merge | `done` | logic_agent | 3 |
 | [T-601-rework-1](./T-601-rework-1.md) | Rework-1 de T-601: rebase contra rework-3 + MERGES (RFC-028) + maxDepth recursivo + projectProvisionalHead async | `done` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
-| [T-602](./T-602.md) | Ciclo de commit Automerge | `draft:triaged` | logic_agent | 4 |
-| [T-603](./T-603.md) | Committer determinístico | `draft:triaged` | logic_agent | 4 |
+| [T-602](./T-602.md) | Ciclo de commit Automerge | `draft:pending_decision` | logic_agent | 4 |
+| [T-603](./T-603.md) | Committer determinístico | `draft:pending_decision` | logic_agent | 4 |
 | [T-604](./T-604.md) | Zen Engine Embarcado + Invariante T1 | `ready` | logic_agent | 3 |
 | [T-605](./T-605.md) | Fluxo intent não-comutativo | `draft:triaged` | logic_agent | 5 |
 | [T-606](./T-606.md) | Congelamento escopado | `draft:triaged` | logic_agent | 3 |
 | [T-607](./T-607.md) | Política de serialização em SPEC | `ready` | protocol_agent | 3 |
-| [T-608](./T-608.md) | Bancada: aba Dados | `ready` | frontend_agent | 2 |
+| [T-608](./T-608.md) | Bancada: aba Dados | `in_progress` | frontend_agent | 2 |
 | [T-701](./T-701.md) | device_state.db — store Local+Persistente | `ready` | core_agent | 3 |
 | [T-701a](./T-701a.md) | device_state.db: DDL e migrations | `done` | core_agent | 2 |
-| [T-701b](./T-701b.md) | LinkCipher: deriveSessionKey (HKDF) | `ready` | crypto_agent | 2 |
-| [T-702](./T-702.md) | Canal do Private Swarm | `ready` | transport_agent | 4 |
+| [T-701b](./T-701b.md) | LinkCipher: deriveSessionKey (HKDF) | `blocked` | crypto_agent | 2 |
+| [T-702](./T-702.md) | Canal do Private Swarm | `done` | transport_agent | 4 |
 | [T-703](./T-703.md) | Estratégias de merge por classe | `draft:triaged` | logic_agent | 3 |
-| [T-704](./T-704.md) | Bancada: simulador 2º device | `draft:triaged` | frontend_agent | 2 |
+| [T-704](./T-704.md) | Bancada: simulador 2º device | `ready` | frontend_agent | 2 |
 | [T-705](./T-705.md) | Cerimônia QR + SAS | `ready` | crypto_agent | 5 |
 | [T-706](./T-706.md) | Documentação padrões descoberta | `ready` | protocol_agent | 1 |
 | [T-707](./T-707.md) | device_state.db | `ready` | core_agent | 3 |
 | [T-801](./T-801.md) | Storage Engine de BLOBs (Chunking) | `done` | core_agent | 4 |
 | [T-802](./T-802.md) | Remontagem verificada por Merkle/InfoHash (fronteira de confiança do BlobStorage) | `done` | core_agent | 3 |
 | [T-803](./T-803.md) | Adapter WebTorrent | `ready` | transport_agent | 4 |
-| [T-804](./T-804.md) | Cloud WebSeed + Edge translation | `rework` | backend_agent | 4 |
+| [T-804](./T-804.md) | Cloud WebSeed + Edge translation | `done` | backend_agent | 4 |
 | [T-805](./T-805.md) | Reidratação no browser | `draft:triaged` | frontend_agent | 4 |
 | [T-806](./T-806.md) | Onda 3 + G4 v0 | `draft:triaged` | core_agent | 5 |
-| [T-807](./T-807.md) | Bancada: aba Mídia | `in_review` | frontend_agent | 2 |
-| [T-901](./T-901.md) | PWA produto v0 (apps/web) — prova de consumo do SDK | `ready` | frontend_agent | 5 |
+| [T-807](./T-807.md) | Bancada: aba Mídia | `done` | frontend_agent | 2 |
+| [T-901](./T-901.md) | PWA produto v0 (apps/web) — prova de consumo do SDK | `draft:placeholder` | frontend_agent | 5 |
 | [T-902](./T-902.md) | Suíte adversarial consolidada (12 vetores §2.5 + mapa de cobertura) | `draft:triaged` | devops_agent | 4 |
 | [T-903](./T-903.md) | Telemetria local + painel (métricas na Bancada + benchmark de regressão no CI) | `ready` | frontend_agent | 4 |
 | [T-904](./T-904.md) | Caos programado (Chaos/Fuzzer sobre SimNetwork) | `draft:triaged` | devops_agent | 5 |
@@ -238,14 +336,17 @@
 | [T-AD-01](./T-AD-01.md) | SPEC:AD/AD_CAMPAIGN + RELATES:AD:PROMOTES + orcamento/pacing por BALANCE_STATE/LOCK | `ready` | logic_agent | 4 |
 | [T-AD-02](./T-AD-02.md) | selecao por superficie (Zen) no contexto do espectador + medicao assinada de evento | `draft:triaged` | logic_agent | 5 |
 | [T-AD-03](./T-AD-03.md) | vetores: segmentacao lendo dado restrito, verba estourada, clique inflado | `draft:triaged` | logic_agent | 3 |
+| [T-AD-04](./T-AD-04.md) | UI de Anúncios (campanhas com pacing, criativos, segmentação, medição) | `draft:placeholder` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-CAL-01](./T-CAL-01.md) | SPEC:EVENT + recorrencia RRULE com instancias virtuais + override de excecao | `ready` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-CAL-02](./T-CAL-02.md) | convites/RSVP + capacidade por reserva_capacidade + render Timeline | `draft:triaged` | frontend_agent # UI task — Playwright obrigatório | 3 |
 | [T-CAL-03](./T-CAL-03.md) | sync externo Classe D + .ics por email + vetores | `draft:triaged` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [T-CFG-01](./T-CFG-01.md) | UI de Configurações & Conta (geral, ThemeEditor 4 níveis, rede/peers, telemetria, notificações, permissões) | `draft:placeholder` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-CFR-01](./T-CFR-01.md) | plano de contas como SPEC + mapeamento fato para conta por Zen jurisdicional | `draft:triaged` | logic_agent | 4 |
 | [T-CFR-02](./T-CFR-02.md) | apuracao fiscal por competencia + provisao em BALANCE_STATE + arquivo SPED como projecao | `draft:triaged` | logic_agent | 5 |
 | [T-CFR-03](./T-CFR-03.md) | persona contador (ASSET:ROLE escopado lendo subgrafo do cliente) + exportacoes formais | `draft:triaged` | logic_agent | 4 |
 | [T-CFR-04](./T-CFR-04.md) | RH: colaborador/vinculo/eventos + folha derivada jurisdicional + provisao e lancamentos | `draft:triaged` | logic_agent | 4 |
 | [T-CFR-05](./T-CFR-05.md) | vetores: recalculo retroativo da epoca, fechamento imutavel, jurisdicao ausente degrada, conector fiscal ausente | `draft:triaged` | logic_agent | 3 |
+| [T-CFR-06](./T-CFR-06.md) | UI Contábil/Fiscal/RH (plano de contas, livro derivado, apuração/fechamento de competência, visão do contador, folha) | `draft:placeholder` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-CN-01](./T-CN-01.md) | interface ExternalConnector + registro + health/quotas no system-peer | `ready` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-CN-02](./T-CN-02.md) | pipeline de traducao com idempotencia por external_ref + testes de reentrega | `draft:triaged` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-CN-03](./T-CN-03.md) | esqueleto Classe D (cursor, polling/webhook, supressao de eco) com provedor fake | `draft:triaged` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
@@ -258,11 +359,13 @@
 | [T-EML-01](./T-EML-01.md) | conector Classe D (IMAP/SMTP, cursor, polling/IDLE) — depende de T-CN-03 | `draft:triaged` | devops_agent | 5 |
 | [T-EML-02](./T-EML-02.md) | espelho SPEC:EMAIL idempotente por Message-ID + threading + anexos + envio como saga com supressao de eco | `draft:triaged` | logic_agent | 5 |
 | [T-EML-03](./T-EML-03.md) | vetores: reentrega para no-op, envio falho nao marca enviado, eco suprimido | `draft:triaged` | logic_agent | 3 |
+| [T-EML-04](./T-EML-04.md) | UI de Email (caixa por thread, thread, compositor overlay, multi-conta) | `draft:placeholder` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-ERP-01](./T-ERP-01.md) | SPECs SALES_ORDER/PURCHASE_ORDER + ciclo como SPEC:WORKFLOW | `draft:triaged` | logic_agent | 4 |
 | [T-ERP-02](./T-ERP-02.md) | estoque multi-deposito + custeio como projecao + reserva por ASSET:LOCK | `draft:triaged` | logic_agent | 4 |
 | [T-ERP-03](./T-ERP-03.md) | contas a pagar/receber + conciliacao por external_ref | `draft:triaged` | logic_agent | 4 |
 | [T-ERP-04](./T-ERP-04.md) | CRM (pipeline workflow, visao 360 por traversal, regua Zen) | `draft:triaged` | logic_agent | 4 |
 | [T-ERP-05](./T-ERP-05.md) | projecoes analiticas incrementais + teste de custo (volume) | `draft:triaged` | logic_agent | 4 |
+| [T-ERP-06](./T-ERP-06.md) | UI do ERP/CRM (ordens, estoque multi-depósito com LOCK/TTL, pipeline kanban, visão 360, dashboard) | `draft:placeholder` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-IA-01](./T-IA-01.md) | projecao vector_index (sqlite-vec/WASM) + embedding no pipeline pos-decifra (irma do FTS) | `ready` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-IA-02](./T-IA-02.md) | capacidades compute de embedding e LLM como plugins (on-device + conector external) | `draft:triaged` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-IA-03](./T-IA-03.md) | recuperacao hibrida RRF (FTS+vetor+traversal) com filtro de permissao + bypass escalar | `draft:triaged` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
@@ -278,9 +381,11 @@
 | [T-LOG-03](./T-LOG-03.md) | transporte externo: conector de transportadora (cotacao/etiqueta/rastreio) idempotente | `draft:triaged` | logic_agent | 4 |
 | [T-LOG-04](./T-LOG-04.md) | operacao interna: dispatch-saga, entregador como listing, localizacao efemera, surge por Zen, repasse por SPEC | `draft:triaged` | logic_agent | 4 |
 | [T-LOG-05](./T-LOG-05.md) | logistica reversa + prova de entrega/disputa (escrow) + reentrada de estoque + vetores | `draft:triaged` | logic_agent | 4 |
+| [T-LOG-06](./T-LOG-06.md) | UI de Logística (WMS, fulfillment com saga, app do entregador, disputa/escrow) | `draft:placeholder` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-MAP-01](./T-MAP-01.md) | SPEC:PLACE + consulta sobre geo_index + render GeoSpatial | `ready` | logic_agent | 4 |
 | [T-MAP-02](./T-MAP-02.md) | conector Classe E (geocoding/places/rotas) com cache TTL + proveniencia + flag cacheavel | `draft:triaged` | devops_agent | 4 |
 | [T-MAP-03](./T-MAP-03.md) | consumo cross-modulo + localizacao como dado sensivel/efemero + vetores | `draft:triaged` | logic_agent | 3 |
+| [T-MAP-04](./T-MAP-04.md) | UI do Mapa (busca+lista+pins, detalhe de lugar, rota com proveniência, compartilhamento efêmero) | `draft:placeholder` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-MK-01](./T-MK-01.md) | SPECs base PRODUCT/PRODUCT_LISTING + classes de liquidacao | `ready` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-MK-02](./T-MK-02.md) | anti-oversell por linhagem + vetor de corrida (uma unidade para uma finaliza) | `draft:triaged` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-MK-03](./T-MK-03.md) | motor de saga Tier 1 (ASSET:LOCK, ttl_policy, compensacao) + Tier 2 opcional, estado efemero | `draft:triaged` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
@@ -289,6 +394,7 @@
 | [T-MK-04b](./T-MK-04b.md) | CREDITS: split multi-destino + comissão/imposto por SPEC + multi-moeda | `draft:triaged` | logic_agent | 4 |
 | [T-MK-05](./T-MK-05.md) | SPECs instrumento_financeiro (cessao/aporte/garantia) com APPROVED_BY, LASTRO, recourse | `draft:triaged` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-MK-06](./T-MK-06.md) | vetores: oversell multi-emissor, saga com perna externa falha, lance perdedor, cupom reusado | `draft:triaged` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 3 |
+| [T-MK-07](./T-MK-07.md) | UI do Marketplace (vitrine, detalhe com oversell, carrinho/checkout, pedidos com saga, painel do vendedor) | `draft:placeholder` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-MOD-01](./T-MOD-01.md) | profile de modulo + mensageria de comando (intent duravel enderecado + sinal efemero) | `ready` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-MOD-02](./T-MOD-02.md) | delegado por (usuario x modulo) escopado por ASSET:ROLE + operacoes cross-user com permissao do proprio usuario | `draft:triaged` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-MOD-03](./T-MOD-03.md) | sessao como doc Automerge efemero local-first + opt-in de persistencia + profile como co-editor | `draft:triaged` | logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
@@ -301,6 +407,7 @@
 | [T-OFF-03](./T-OFF-03.md) | planilha first-party (motor de formulas + ZEN) + base como view estruturada/sobre-planilha | `draft:triaged` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 5 |
 | [T-OFF-04](./T-OFF-04.md) | apresentacao perfil slide + export PDF/PPTX | `draft:triaged` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-OFF-05](./T-OFF-05.md) | editores de midia (imagem/video/audio) como componente/ui plugin + IA via compute | `draft:triaged` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
+| [T-ONB-01](./T-ONB-01.md) | UI de Onboarding & Identidade (boas-vindas, seed com confirmação ativa, desbloqueio, convite, pareamento QR+SAS) | `draft:placeholder` | frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent | 4 |
 | [T-PG-01](./T-PG-01.md) | schema JSON do dialeto v1 + validador estatico (lib isomorfica) | `ready` | logic_agent | 3 |
 | [T-PG-02](./T-PG-02.md) | renderizador React sobre o catalogo (resolve sources, avalia ZEN sob orcamento, render progressivo) | `draft:triaged` | frontend_agent | 5 |
 | [T-PG-03](./T-PG-03.md) | mecanismo EXTENDS/override por id estavel + testes de precedencia | `draft:triaged` | logic_agent | 4 |

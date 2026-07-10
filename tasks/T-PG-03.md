@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-PG-01"]
 blocks: ["T-PG-05"]
+capacity_target: sonnet
 ---
 
 # T-PG-03 · mecanismo EXTENDS/override por id estavel + testes de precedencia

@@ -9,6 +9,7 @@ execution_mode: sequential
 dependencies: ["T-PL-01", "T-110"]
 blocks: ["T-PL-05b"]
 parent: "T-PL-05"
+capacity_target: sonnet
 ---
 
 # T-PL-05a · Fila assíncrona: claim por ASSET:LOCK + lease com heartbeat

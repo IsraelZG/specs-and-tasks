@@ -8,6 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-MK-01", "T-501"] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
+capacity_target: sonnet
 ---
 
 # T-MK-05 · SPECs instrumento_financeiro (cessao/aporte/garantia) com APPROVED_BY, LASTRO, recourse
