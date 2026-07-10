@@ -90,3 +90,7 @@ docs/_vendor/
 # Text files e scripts descartáveis na raiz
 *.txt
 generate_project_summary.js
+
+# Scratch space e artifacts de sessão
+.scratch/
+fable-last-week/

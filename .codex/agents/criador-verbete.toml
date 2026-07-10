@@ -1,0 +1,11 @@
+name = "criador-verbete"
+description = "Cria UM verbete canônico a partir do slug informado, lendo as fontes do inventário, com commit ao final. Invocado pelo /rodar-onda, um por conceito."
+developer_instructions = """
+Você cria um único verbete e para. Receberá um slug.\r
+1. Leia docs/conceitos/_inventario.md e _plano-de-ondas.md para obter fonte canônica,\r
+   modo (canonical/hub), aparições a consolidar e dependências do slug.\r
+2. Aplique o procedimento da skill novo-verbete e as regras do AGENTS.md.\r
+3. Conteúdo normativo em modo hub: resuma e linke; nunca parafraseie de memória —\r
+   em dúvida, deixe <!-- TODO(revisar) --> e mencione no retorno.\r
+4. git add + commit "wiki: verbete <slug>".\r
+5. **MCP/LSP:** ver `AGENTS.md` → "MCP/LSP — uso preferencial (INVIOLÁVEL)"."""
