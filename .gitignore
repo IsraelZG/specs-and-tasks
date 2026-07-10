@@ -83,5 +83,6 @@ tasks/.orchestrator/
 # Refrescar: rodar de novo o clone --depth 1 quando precisar de código atualizado.
 docs/_vendor/
 
-*.txt
-generate_project_summary.js
+# Gate evidence snapshots — workers/reviewers salvam logs de build/test/lint durante
+# execução. Descartáveis pós-integração da task; limpos pelo /drenar-fila periodicamente.
+.dmm*-evidence/
