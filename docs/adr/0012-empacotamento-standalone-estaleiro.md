@@ -76,3 +76,17 @@ o que D4 exige para quebrar a recursão.
 - Reabrir a decisão se aparecer requisito de shell nativo (auto-update, tray, deep-link) → então
   reavaliar Tauri (bundle pequeno) sobre Electron.
 - Automação da cadência (watch/CI) é tarefa futura, fora deste spike.
+
+## Reavaliação de Mecanismo de Montagem (T-1052)
+
+Em 2026-07-12, a task **T-1052** avaliou a troca do mecanismo de montagem (`pnpm deploy` + cópia + patches manuais de imports) por um bundler Node (`esbuild`). O objetivo era verificar se um bundler reduz a fragilidade do artefato (como os hot-patches de extensões, cópia de JSONs, e manipulação manual).
+
+### Resultados da Spike
+- **Tamanho:** Bundle do servidor Node ficou com ~1.3 MB (`server.mjs`) e o Worker do browser com ~2.4 KB. O script de orquestração diminuiu consideravelmente em relação à montagem antiga.
+- **Isolamento de dependências nativas:** Dependências nativas/WASI (`better-sqlite3`, `onnxruntime`, `zen-engine`) continuam sendo empacotadas como arquivos externos (`external`) no bundle. Uma cópia limpa via `npm install --ignore-scripts` e bindings pré-compilados (pnpm store) permitiu que as DLLs/nativas continuassem rodando 100% no standalone isolado.
+- **Integração do Worker:** Foi possível emitir um `sqliteWasm.worker.js` nativamente como um entry separado ao lado do bundle, perfeitamente resolvido pelo construtor de worker com `new URL('./sqliteWasm.worker.js', import.meta.url)` sem precisar aplicar `replace()` ou patches.
+- **Estabilidade no Git:** Nenhuma sujeira residual permaneceu na working tree principal, garantindo a prova de separação exigida.
+- **Fallback WASI:** Manteve-se o fallback pontual para `@gorules/zen-engine-wasm32-wasi` via cópia e rewrite do índice em Windows ARM64.
+
+### Veredito
+**Adotar bundler (`esbuild`).** O uso do `esbuild` empacotou perfeitamente os módulos de código ESM, eliminando a dependência do `pnpm deploy` que trazia toda a cascata de `.pnpm` e linkagens indesejadas, além de dispensar regex/patches no código compilado. A estrutura original do standalone (Node externo à working tree, cadência manual) permanece idêntica.
