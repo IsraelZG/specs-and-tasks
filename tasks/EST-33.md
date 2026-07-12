@@ -1,12 +1,12 @@
 ---
 id: EST-33
 title: "E2E Playwright do Estaleiro standalone"
-status: blocked
+status: in_progress
 complexity: 3
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
-dependencies: ["EST-25", "EST-29", "EST-31", "EST-32"]
+dependencies: ["EST-25", "EST-29", "EST-31", "EST-32", "EST-34"]
 blocks: []
 capacity_target: sonnet
 ui: true
@@ -49,8 +49,33 @@ Não usar `waitForTimeout` como sincronização; esperar rede, evento ou estado 
 ## 8. Handover e revisão
 Incluir evidência do browser real e screenshots apenas se o reviewer exigir.
 
-## 9. Log
+Evidência de Sucesso (Gate do Worker):
+```
+✅ Standalone created at C:\Dev2026\.superapp-worktrees\estaleiro-run\v0.0.37
+   Start: node "C:\Dev2026\.superapp-worktrees\estaleiro-run\v0.0.37/backend/server.mjs"
+   Or:    cd C:\Dev2026\.superapp-worktrees\estaleiro-run\v0.0.37 && node backend/server.mjs
 
+Restoring workspace pnpm state...
+$ playwright test
+
+[WebServer] (node:52644) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:52644) ExperimentalWarning: WASI is an experimental feature and might change at any time
+[WebServer] Estaleiro: http://localhost:8899/
+
+[WebServer] WebSocket: ws://localhost:8899/ws
+
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium] › e2e\estaleiro.spec.ts:4:3 › Estaleiro Standalone E2E › 1. Fluxo principal (Board, Transição, WS, Terminal, Erro de API)
+[2/2] [chromium] › e2e\estaleiro.spec.ts:52:3 › Estaleiro Standalone E2E › 2. Reload e estado persistido
+  2 passed (5.1s)
+
+packages/plugin-skills lint: Done
+packages/plugin-knowledge lint: Done
+```
 
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-10T13:00]** - *Antigravity* - `[Triado]`: triado - aguardando dependencias (passo 1)
@@ -58,3 +83,5 @@ Incluir evidência do browser real e screenshots apenas se o reviewer exigir.
 - **[2026-07-10T18:18]** - *Antigravity* - `[Promovida p/ ready]`: Movendo para ready para enfileirar
 - **[2026-07-11T10:23]** - *Antigravity* - `[Iniciado]`: iniciando
 - **[2026-07-11T11:33]** - *Antigravity* - `[Bloqueado]`: Blocked by cyclic dependency TS5055 during evidence gate build. E2E tests are passing.
+- **[2026-07-12T01:21]** - *Antigravity* - `[Desbloqueado]`: Desbloqueando após EST-34 aprovada
+- **[2026-07-12T01:51]** - *Antigravity* - `[Iniciado]`: Retomando execução e rodando gates após desbloqueio
