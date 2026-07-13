@@ -12,6 +12,19 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 ---
 
 <!-- BEGIN PENDENCIAS -->
+<!-- EST-35a -->
+- [ ] [m1][EST-35a][estaleiro-ui] `package.json` version bump (0.0.39→0.0.40) fora do escopo declarado na §3 — não impacta funcionalidade, apenas registrar (apps/estaleiro/package.json)
+- [ ] [i1][EST-35a][estaleiro-ui] Screenshot visual (1280×720) delegado pelo worker — E2E funcional passa sem regressão, verificação visual pendente (tasks/EST-35a.md:65)
+<!-- END EST-35a -->
+<!-- EST-36 -->
+- [ ] [m1][EST-36][estaleiro-core] bootstrap.ts: seed é fire-and-forget (3× `void` encadeados). Tasks podem não estar disponíveis na primeira request — aceitável pois DB persiste entre boots (apps/estaleiro/core/src/bootstrap.ts:45-58)
+- [ ] [m2][EST-36][estaleiro-core] `_storage` injection em seed.ts depende de API interna (`SqliteStorageBackend.saveTask`). Se o backend mudar, quebra. Spec-aware (§6) (apps/estaleiro/core/src/seed.ts:72-79)
+- [ ] [i1][EST-36][estaleiro-core] `apps/estaleiro/package.json` version bump fora do §3 (cosmético)
+<!-- END EST-36 -->
+<!-- EST-35b -->
+- [ ] [m1][EST-35b][estaleiro-ui] DecisionsView.tsx refatorado de JSX para `h()` — mudança além do escopo declarado na §3 ("UPDATE: rótulo"). Não quebra funcionalidade e padroniza com demais views (apps/estaleiro/ui/src/views/decisions/DecisionsView.tsx)
+- [ ] [i1][EST-35b][estaleiro-ui] `apps/estaleiro/package.json` version bump (0.0.40→0.0.41) — cosmético, fora da §3
+<!-- END EST-35b -->
 <!-- EST-07 -->
 - [ ] [i1][EST-07][plugin-dispatcher] Worker adicionou `@types/node` como devDep (Handover §8 linha 296) — nao declarado na spec §3. Track: alinhar spec §3 com a dep real ou remove-la (verificar se a suite compila sem) (packages/plugin-dispatcher/package.json:19)
 - [ ] [i2][EST-07][plugin-dispatcher] `cwd` hardcoded em `dispatcher.ts:109-111` como `'C:\\Dev2026\\superapp'` / `'C:\\Dev2026\\Docs'`. Spec §3.5 replica o padrao do `orquestrar.mjs L147-149` (tambem hardcoda). Idealmente viriam de env ou config. Nao-bloqueante (consistente com o original) (packages/plugin-dispatcher/src/dispatcher.ts:109-111)
@@ -356,6 +369,45 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- EST-20 -->
 - [ ] [m1][EST-20][estaleiro/test] `server.test.ts` cobre só o happy-path do broadcast (msg com `type` → broadcast). Spec §4 pede "100% da lógica de broadcast" mas o deliverable test não exercita: `if (msg?.type)` falso, `try/catch` de JSON.parse inválido, ou a interação real do `harnessBridge`. **Mitigado em fato**: 4 sondas adversariais do reviewer (msg sem `type`, JSON inválido, ausência de eco, export `harnessBridge` não-nulo) provaram o comportamento — todas passaram. Track: adicionar 2-3 casos ao `server.test.ts` num rework de cobertura, ou criar task follow-up. Não bloqueia o merge. (apps/estaleiro/tests/integration/server.test.ts:16-50)
 <!-- END EST-20 -->
+<!-- EST-21 -->
+- [ ] [i1][EST-21][plugin-tasks] Spec §2/§5 pedem "reutilizar SQLite existente de `@plataforma/core`" mas §3 fixa a assinatura como `db: import("better-sqlite3").Database` — escolha literal levou a adicionar `better-sqlite3` como dep direta e remover o workspace dep legado `@plataforma/estaleiro-core` (zero imports em `plugin-tasks/**`, então sem efeito prático). Worker implementou a spec literalmente. Se a intenção real era forçar consumo via `core` (wrapper que re-exporta o tipo), é decisão de arquiteto — não defeito de impl. Track: ou (a) alinhar spec com a dep real (admitir `better-sqlite3` direto), ou (b) criar task para fazer `core` re-exportar o tipo e ajustar imports. (packages/plugin-tasks/package.json:18-20, packages/plugin-tasks/src/storage/sqlite.ts:1)
+<!-- END EST-21 -->
+<!-- EST-22 -->
+- [ ] [i1][EST-22][estaleiro/bootstrap] A checagem `if (!resolved.startsWith(normalize(uiDirPath)))` em `serveUiFile` é **redundante**: o `new URL(req.url ?? "/", ...)` no topo da função já normaliza `..` antes de chegar ao check, então `startsWith` nunca dispara. Defesa contra path traversal está garantida **acidentalmente** pela normalização do WHATWG URL, não pelo `startsWith` em si. Não há vetor explorável real (clientes HTTP padronizados enviam paths já normalizados), mas o check é dead code. Track: ou (a) remover o check morto, ou (b) substituí-lo por um check em `req.url` **antes** do URL constructor (defesa em profundidade). (apps/estaleiro/core/src/bootstrap.ts:230)
+<!-- END EST-22 -->
+<!-- EST-24a -->
+- [x] [m1][EST-24a][estaleiro/factory] Test #7 (`propaga sinal de abort para tools e runner`) só assserta `runMock.toHaveBeenCalled()` — o que vale para qualquer chamada. ✅ RESOLVIDO em `469f219` (rework): asserção trocada para `objectContaining({ signal: ac.signal })` + teste renomeado para "propaga sinal de abort **do factory** para o runner". Cobre o contrato de propagação end-to-end. (apps/estaleiro/core/tests/factory.test.ts:174-186)
+- [ ] [i1][EST-24a][estaleiro/factory] `bashTimeoutMs` em `AgentRuntimeOptions` (factory.ts:20) é o timeout do `makeTools` (plugin-fs-tools), não do `BashPort` em si. A propagação está correta (factory.ts:43 → makeTools), mas a nomenclatura pode confundir caller — sugerir renomear para `toolsBashTimeoutMs` em uma task futura. (apps/estaleiro/core/src/factory.ts:20,43)
+<!-- END EST-24a -->
+<!-- EST-28 -->
+- [ ] [i1][EST-28][plugin-tasks] `hasLintEvidence = />\s*pnpm.*lint/i` casa com qualquer texto que tenha `pnpm ... lint` — inclusive comentário tipo `> pnpm lint não rodou (pule)`. Tightening futuro: exigir marcador de sucesso (`0 errors`, `0 problems`, exit 0). Não-bloqueante — fraude é responsabilidade do worker + auditoria do reviewer, não do guard. (packages/plugin-tasks/src/guards/evidenceGuard.ts:19)
+- [ ] [i2][EST-28][plugin-tasks] Mensagem de erro `test/lint` (junção via `/` dos faltantes) é ambígua de ler mas inequívoca de casar. Documentar no JSDoc do `assertEvidencePresent` que o separador é `/` entre os faltantes. (packages/plugin-tasks/src/guards/evidenceGuard.ts:20-26)
+<!-- END EST-28 -->
+<!-- EST-27 -->
+- [ ] [i1][EST-27][plugin-dispatcher] `actorFromModel` faz `model.lastIndexOf('/')`; se o model chegar sem `/` (ex.: `"minimax-m3"` puro) o actor vira o nome inteiro. Se esse nome coincidir com um harness (ex.: `"opencode"`), o `assertValidModelIdentity` do plugin-tasks (EST-28) vai bloquear. Não-bloqueante — formato canônico é `provider/modelo`. (packages/plugin-dispatcher/src/dispatcher.ts:23-26)
+- [ ] [i2][EST-27][plugin-dispatcher] `worktreePath` hardcoda `C:\Dev2026\.superapp-worktrees\${taskId}` (mesma fragilidade já registrada em EST-07 i1 e EST-22 i1). Spec §3 não pede abstrair; teste só verifica substring. Não-bloqueante — candidato a task transversal de cleanup. (packages/plugin-dispatcher/src/dispatcher.ts:28-30)
+<!-- END EST-27 -->
+<!-- EST-32 -->
+- [ ] [i1][EST-32][estaleiro-core] §4 da spec menciona "Ingress→Explorer/Editor→terminal" mas os 8 testes do `workflow-runtime.integration.test.ts` usam handlers sintéticos (`step1/step2/step3`); o composer real (Ingress→Architect→Explorer→Editor de EST-24b) tem cobertura própria em `workflow-composer.test.ts` (10 testes). Cobertura existe, só está em outro arquivo. Não-bloqueante — decisão de cobertura, não defeito. (apps/estaleiro/core/tests/workflow-runtime.integration.test.ts:1-200, apps/estaleiro/core/tests/workflow-composer.test.ts:1-200)
+<!-- END EST-32 -->
+<!-- EST-34 -->
+- [ ] [M1][EST-34][repo-raiz] `rewrite.js` — script de scratch (extração de interfaces via regex) esquecido na raiz do repo, untracked, fora do escopo §3. Deletar antes de commitar; risco de `git add -A` incluí-lo. (rewrite.js)
+- [ ] [m1][EST-34][design-system-showcase] `main.tsx` alterado (non-null assertion em `getElementById('root')!`) — fora do escopo de EST-34, provável correção incidental durante troubleshooting do build. Reverter ou extrair para task própria. (apps/design-system-showcase/src/main.tsx)
+- [ ] [m2][EST-34][estaleiro-ui] `tests/smoke.test.ts` teve timeout aumentado para 15000ms — fora do escopo §3, parece fix de flakiness não relacionado ao ciclo. Documentar ou reverter. (apps/estaleiro/ui/tests/smoke.test.ts)
+- [ ] [m3][EST-34][estaleiro-contracts] `package.json` lista `@plataforma/core` em `dependencies` (runtime) mas o único uso é `import type { PluginManifest }` — spec pedia zero deps de runtime. Mover para `devDependencies`. (packages/estaleiro-contracts/package.json)
+- [ ] [i1][EST-34][estaleiro/processo] Critério "EST-33 (E2E) continua passando" não verificável nesta worktree — EST-33 está `blocked`, nunca foi mergeada em master, então `apps/estaleiro/e2e/` não existe na branch `task/EST-34`. Esperado pela ordem real de dependência; verificar quando EST-33 retomar contra o core corrigido. (tasks/EST-33.md)
+- [ ] [i2][EST-34][estaleiro-contracts] Escopo efetivo extraiu também `NetworkPort`/`StorePort` além das portas listadas explicitamente na spec §3 — interpretação razoável, não é problema. (packages/estaleiro-contracts/src/index.ts)
+<!-- END EST-34 -->
+<!-- EST-33 -->
+- [ ] [M1][EST-33][estaleiro] `apps/estaleiro/e2e-test.db`/`-shm`/`-wal` (artefatos do Playwright) não estão no `.gitignore` — já foram commitados por engano uma vez (removidos em d42610f); risco de recorrência com `git add -A`. Adicionar `apps/estaleiro/e2e-test.db*` ao `.gitignore`. (.gitignore)
+<!-- END EST-33 -->
+<!-- T-1052 -->
+- [ ] [m1][T-1052][spike/estaleiro-standalone] §8 imprime "esbuild script: ~180 lines" mas `spike/esbuild-bundle.mjs` tem 333 linhas reais. Corrompe o argumento "esbuild reduz a fragilidade" do ADR-0012 (spike/esbuild-bundle.mjs:332)
+- [ ] [i1][T-1052][spike/sqliteWasm.worker] wa-sqlite* marcados `external` no metafile; para a sonda browser do rework resolver, vai precisar import-map ou cópia local em `bundle/`. Pré-requisito, não defeito (spike/esbuild-bundle.mjs + bundle/sqliteWasm.worker.js:2-4)
+- [ ] [i2][T-1052][estaleiro/server] `bundle/server.mjs:38075` faz `var UI_DIR = fileURLToPath(new URL("./ui/", import.meta.url))` mas `apps/estaleiro/ui/` não é copiado pela spike. §4.1 só bate em `/api/tasks`; qualquer GET não-`/api/*` recebe 404. Dívida para a task de implementação do ADR (bundle/server.mjs:38075)
+- [ ] [i3][T-1052][spike/esbuild-bundle] `spike/esbuild-bundle.mjs:199,217` usa `npm install` (não pnpm) no artefato. §0 fixa pnpm@11.1.2 só para a raiz do superapp; artefato isolado em C:\tmp é runtime separado. Sem impacto no veredito — observação para a task de implementação considerar unificar o PM
+- [ ] [i4][T-1052][spike/verify-bundle] Filtro de §4.5 (`spike/`, `package.json`, `pnpm-lock.yaml`) é prova honesta de no-touch em produção. Cobertura adequada, só registro (spike/verify-bundle.mjs:185-191)
+<!-- END T-1052 -->
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
@@ -502,4 +554,9 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- C-13 (mais) -->
 - [ ] [spec→C-13b] [m1][C-13][handover] Disposição imprecisa m2 (tasks/C-13.md:33 vs 74)
 - [ ] [spec→C-13b] [i1][C-13][spec] m2 no-op deveria ser spec (tasks/C-13.md:74)
+<!-- EST-30 -->
+- [ ] [M1][EST-30][plugin-skills] `listSkills`/`listAgents` mascaram `exitCode !== 0 && stderr` como `[]` em vez de propagar — viola spec §4 ("traversal/path inválido"). Ação: trocar por `throw` + adicionar teste `rejects.toThrow` em dir inexistente. (packages/plugin-skills/src/index.ts:84-86, 115-117)
+- [ ] [m1][EST-30][plugin-skills] `writeSkill`/`writeAgent` não validam `entry.name` (path traversal). Sonda 1: `path.join('skillsDir', '../escape', 'SKILL.md')` normaliza para `.claude/escape/SKILL.md` (escapa de `skills/` mas não do cwd graças ao FsPort allowlist). Ação: rejeitar `entry.name` com `[/\\]` ou `..`; teste `rejects.toThrow`. (packages/plugin-skills/src/index.ts:102-110, 133-141)
+- [ ] [i1][EST-30][plugin-skills] `makeSkills` é primitiva testada mas sem caller de produção no worktree (spec §1 diz que integração é follow-up — não-achado desta review, flag para follow-up). (packages/plugin-skills/src/index.ts:61)
+<!-- END EST-30 -->
 <!-- END SPEC-PENDENCIAS -->
