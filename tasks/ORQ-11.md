@@ -1,7 +1,7 @@
 ---
 id: ORQ-11
 title: "Religar orquestrar.mjs no VercelAgentAdapter: remove kill-switch + spawn Crush, seleciona adapter in-process"
-status: ready
+status: obsolete
 complexity: 3
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -106,3 +106,4 @@ node tools/scripts/orquestrar.mjs --once --ledger-file tasks/INDEX.md
 - **[2026-07-03T19:48]** - *Gemini 3.1 Pro* - `[Triado]`: Triagem da task dependente na fila ORQ
 - **[2026-07-09T21:18]** - *Antigravity* - `[Endurecido]`: Endurecida JIT e movida para ready
 - **[2026-07-09T21:19]** - *Antigravity* - `[Promovida p/ ready]`: draft:hardened com deps done — safety-net flip
+- **[2026-07-10T15:13]** - *Antigravity* - `[Demovido]`: obsoleto
