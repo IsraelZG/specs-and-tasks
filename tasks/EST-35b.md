@@ -1,7 +1,7 @@
 ---
 id: EST-35b
 title: "Tactical Telemetry nas views operacionais"
-status: review
+status: done
 complexity: 4
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -62,30 +62,34 @@ pnpm --filter @plataforma/estaleiro test:e2e
 - E2E e Vitest concluídos com sucesso.
 
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória — colar saída de build/tsc + test + lint):**
 ```text
-✓ built in 2.19s (build do UI e core sem erros)
+$ pnpm --filter @plataforma/estaleiro-ui build
+✓ built in 2.65s
 
-$ vitest
+$ pnpm --filter @plataforma/estaleiro-ui test
  Test Files  13 passed (13)
       Tests  46 passed (46)
-   Duration  9.32s
+   Duration  7.50s
 
-$ eslint src/ 
+$ pnpm --filter @plataforma/estaleiro-ui lint
 (sem erros)
 
-$ playwright test
-Running 2 tests using 1 worker
-
-[1/2] [chromium] › e2e\estaleiro.spec.ts:4:3 › Estaleiro Standalone E2E › 1. Fluxo principal (Board, Transição, WS, Terminal, Erro de API)
-[2/2] [chromium] › e2e\estaleiro.spec.ts:52:3 › Estaleiro Standalone E2E › 2. Reload e estado persistido
-  2 passed (5.1s)
+$ pnpm --filter @plataforma/estaleiro test:e2e
+  2 passed (4.5s)
 ```
+- **Comentários de Revisão:**
+  - [m1] DecisionsView.tsx refatorado de JSX para `h()` (hyperscript) — fora do escopo declarado na §3 ("UPDATE: rótulo"). Não quebra funcionalidade e padroniza com FleetView/ExecutionView, mas mudança além do descrito.
+  - [i1] `apps/estaleiro/package.json` version bump (0.0.40→0.0.41) — cosmético, fora da §3.
+- **Arquivos auditados:** 5 alterados (BoardView, FleetView, ExecutionView, DecisionsView, package.json)
+- **BLOCKER:** 0 | **MAJOR:** 0 | **MINOR:** 1 | **INFO:** 1
 ## 9. Log de Execução
 - **[2026-07-12T17:15]** - *Antigravity* - `[Triado]`: triado
 - **[2026-07-12T17:15]** - *Antigravity* - `[Endurecido]`: endurecido (pass 2)
 - **[2026-07-12T17:33]** - *system* - `[Auto-promovida]`: dep EST-35a concluída
 - **[2026-07-12T17:37]** - *Antigravity* - `[Iniciado]`: iniciando
 - **[2026-07-12T17:40]** - *Antigravity* - `[Finalizado]`: Adicionado labels ASCII e verificado E2E
+- **[2026-07-12T17:44]** - *agile_reviewer:big-pickle* - `[Em revisão]`: revisando
+- **[2026-07-12T17:49]** - *agile_reviewer:big-pickle* - `[Aprovado]`: Integrado: merge na master (commit f205062), worktree removida, Gate verde (build ✓, test 46/46 ✓, lint ✓, e2e ✓). 2 nao-bloqueantes → ledger de pendencias.

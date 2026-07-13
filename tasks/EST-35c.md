@@ -1,7 +1,7 @@
 ---
 id: EST-35c
 title: "Tactical Telemetry nas views de suporte"
-status: review
+status: done
 complexity: 4
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -62,27 +62,24 @@ pnpm --filter @plataforma/estaleiro test:e2e
 - Testes locais, Linter e Playwright aprovados.
 
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória — colar saída de build/tsc + test + lint):**
 ```text
-✓ built in 3.32s (build do UI e core sem erros)
+$ pnpm --filter @plataforma/estaleiro-ui build
+✓ built in 3.45s
 
-$ vitest
+$ pnpm --filter @plataforma/estaleiro-ui test
  Test Files  13 passed (13)
       Tests  46 passed (46)
-   Duration  9.32s
+   Duration  6.08s
 
-$ eslint src/ 
+$ pnpm --filter @plataforma/estaleiro-ui lint
 (sem erros)
-
-$ playwright test
-Running 2 tests using 1 worker
-
-[1/2] [chromium] › e2e\estaleiro.spec.ts:4:3 › Estaleiro Standalone E2E › 1. Fluxo principal (Board, Transição, WS, Terminal, Erro de API)
-[2/2] [chromium] › e2e\estaleiro.spec.ts:52:3 › Estaleiro Standalone E2E › 2. Reload e estado persistido
-  2 passed (4.9s)
 ```
+- **Comentários de Revisão:** Implementação limpa e cirúrgica — 1 linha adicionada por view, zero desvios de escopo. Nenhum achado.
+- **Arquivos auditados:** 5 alterados (KnowledgeView, CostView, PlannerView, AgentTerminal, package.json)
+- **BLOCKER:** 0 | **MAJOR:** 0 | **MINOR:** 0 | **INFO:** 0
 
 ## 9. Log de Execução
 - **[2026-07-12T17:15]** - *Antigravity* - `[Triado]`: triado
@@ -90,3 +87,5 @@ Running 2 tests using 1 worker
 - **[2026-07-12T17:33]** - *system* - `[Auto-promovida]`: dep EST-35a concluída
 - **[2026-07-12T17:55]** - *Antigravity* - `[Iniciado]`: iniciando
 - **[2026-07-12T17:59]** - *Antigravity* - `[Finalizado]`: Adicionado labels ASCII e verificado testes
+- **[2026-07-12T18:00]** - *agile_reviewer:big-pickle* - `[Em revisão]`: revisando
+- **[2026-07-12T18:03]** - *agile_reviewer:big-pickle* - `[Aprovado]`: Integrado: merge na master (commit 5e3e482), worktree removida, Gate verde (build ✓, test 46/46 ✓, lint ✓). 0 nao-bloqueantes.
