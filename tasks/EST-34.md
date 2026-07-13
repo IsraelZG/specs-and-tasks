@@ -1,7 +1,7 @@
 ---
 id: EST-34
 title: "Quebra do ciclo estaleiro-core ⇄ plugins (ports + composition root)"
-status: review
+status: done
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -181,6 +181,49 @@ Porém, isso **não pode ser aprovado ainda** por um motivo de processo, não de
 
 **Divergência do parecer anterior:** não há parecer anterior — este é o primeiro.
 
+### Parecer do Reviewer (pós-rework, claude-sonnet):
+- [x] **Aprovado**
+- [ ] **Requer Refatoração**
+
+**Evidência de Execução (re-verificação completa, worktree `C:\Dev2026\.superapp-worktrees\EST-34`, branch `task/EST-34`, commits `dda121a` + `072aed2`):**
+
+```
+$ git log --oneline -3
+072aed2 fix(EST-34): extrai dependencia do zen engine para contracts quebrando o ciclo final
+dda121a fix(EST-34): [B1] [M1] commitar o trabalho da task e remover script
+560c85d merge task/EST-25
+$ git status --short
+(vazio — worktree limpa)
+
+$ pnpm -r build   (workspace inteiro)
+→ Exit code 0. Zero "TS5055". Zero warning cíclico do turbo.
+
+$ npx madge --circular --extensions ts packages/estaleiro-contracts apps/estaleiro/core packages/plugin-fs-tools packages/plugin-agent-harness packages/plugin-zen-engine
+→ Processed 67 files (1.9s) · ✔ No circular dependency found!
+
+$ pnpm --filter @plataforma/estaleiro-core test        → 13 files / 62 tests passed
+$ pnpm --filter @plataforma/plugin-fs-tools test        → 1 file / 12 tests passed
+$ pnpm --filter @plataforma/plugin-agent-harness test   → 2 files / 12 tests passed
+$ pnpm --filter @plataforma/plugin-zen-engine test       → 4 files / 17 tests passed
+$ pnpm --filter @plataforma/estaleiro test (integration) → 2 files / 12 tests passed
+
+$ pnpm --filter @plataforma/{estaleiro-core,estaleiro-contracts,plugin-fs-tools,plugin-agent-harness,plugin-zen-engine} lint
+→ eslint src/ — zero erros nos 5 pacotes
+
+$ node apps/estaleiro/tests/estaleiro-smoke.mjs
+→ === 8/8 passed ===
+```
+
+**Comentários de Revisão:**
+
+- **[B1] RESOLVIDO.** Commit `dda121a` persiste todo o trabalho original (contracts package + DI + composition root, 27 arquivos) na branch `task/EST-34`. Worktree limpa, nada pendente.
+- **[M1] RESOLVIDO.** `rewrite.js` não existe mais (confirmado — nem tracked nem untracked).
+- **[i-bônus] Achado extra do worker, positivo:** o commit `072aed2` descobriu e quebrou mais uma aresta cíclica que a spec original (§3) não listava — `packages/plugin-zen-engine` também importava `FsPort` de `@plataforma/estaleiro-core` (`src/store.ts`). Corrigido com o mesmo padrão (importar de `@plataforma/estaleiro-contracts`). Consistente com o Objetivo da task ("eliminar a dependência cíclica real"), não é scope creep — é o trabalho terminado corretamente. `madge` confirma zero ciclos mesmo incluindo `plugin-zen-engine` no escopo de varredura.
+- **m1/m2/m3 (não-bloqueantes do parecer anterior) permanecem intactos** — `design-system-showcase/main.tsx`, `ui/tests/smoke.test.ts` timeout, e `estaleiro-contracts` com `@plataforma/core` em `dependencies` (deveria ser `devDependencies`). Não foram pedidos no `request_changes` (só B1/M1 eram bloqueantes) e já estão rastreados em `tasks/_pendencias.md` — não bloqueiam esta aprovação.
+- **i1 do parecer anterior** (E2E da EST-33 não verificável nesta worktree) continua válido pelo mesmo motivo estrutural (EST-33 ainda `blocked`, nunca mergeada) — não é responsabilidade desta task.
+
+**Divergência do parecer anterior:** nenhuma — este parecer confirma que os dois achados bloqueantes (B1, M1) do Reviewer 1 foram corrigidos, sem regressão, e eleva o veredito para Aprovado.
+
 ## 9. Log de Execução (Agent Execution Log)
 
 - **[2026-07-11T11:53]** - *Antigravity* - `[Triado]`: triado
@@ -192,3 +235,5 @@ Porém, isso **não pode ser aprovado ainda** por um motivo de processo, não de
 - **[2026-07-11T22:45]** - *agile_reviewer:claude-sonnet* - `[Requer Refatoração]`: Rework: [B1] nenhum commit existe na branch task/EST-34 — todo o trabalho (contracts package + DI em core/plugins + composition root) esta apenas como diff nao commitado na worktree; commitar antes de novo finish. [M1] deletar rewrite.js (script de scratch untracked na raiz, fora do escopo). Nao-bloqueantes (m1-m3, i1-i2) -> ledger de pendencias. Merito de codigo verificado pelo reviewer: pnpm -r build limpo (0 TS5055, 0 warning ciclico), madge 0 ciclos, build+test+lint verdes em estaleiro-core/estaleiro-contracts/plugin-fs-tools/plugin-agent-harness/estaleiro, smoke standalone 8/8.
 - **[2026-07-11T22:54]** - *Antigravity* - `[Iniciado]`: rework: corrigindo B1 e M1
 - **[2026-07-12T00:50]** - *Antigravity* - `[Finalizado]`: Rework finalizado, dependências do zen-engine resolvidas e ciclo integralmente quebrado com 0 erros do TS
+- **[2026-07-12T00:52]** - *agile_reviewer:claude-sonnet* - `[Em revisão]`: revisando EST-34 pos-rework
+- **[2026-07-12T01:25]** - *agile_reviewer:Antigravity* - `[Aprovado]`: Integrado: merge na master
