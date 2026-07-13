@@ -1,0 +1,4 @@
+interface:
+  display_name: "Extract approach"
+  short_description: "Capture reusable lessons from hard problems"
+  default_prompt: "Use $extract-approach to capture the reusable approach from this solution."

@@ -20,6 +20,12 @@
 
 **Fase 2 concluída** (ondas 1–12). Inventário: `docs/conceitos/_inventario.md` · Plano: `docs/conceitos/_plano-de-ondas.md`.
 
+## Lei de Aprendizado
+
+Após cada problema não trivial resolvido, execute a habilidade `extract-approach` antes de
+prosseguir. Uma solução sem sua nota de aprendizados — ou sem a confirmação explícita de que o
+aprendizado já vive no artefato canônico — é trabalho inacabado.
+
 ---
 
 ## MGTIA — Gestão de Tarefas
@@ -72,7 +78,7 @@ Cada task iniciada ganha uma branch task/<ID> (isolamento) **no repo superapp (c
 
 **1. SDD — Spec é a fonte absoluta.** Leia o bloco "Contexto RAG" da task antes de codar. Se a spec estiver ambígua ou impossível → `pause` com o bloqueio descrito.
 
-**2. Estado e Handoff.** `start` ao iniciar. `pause` com resumo claro se travar ou estourar tokens — o próximo agente depende disso para assumir.
+**2. Estado e Handoff.** `start` ao iniciar. `pause` com resumo claro se travar ou estourar tokens — o próximo agente depende disso para assumir. **Se a task tem worktree/branch no superapp** (todas exceto tooling-do-controle, ver `integrar-task` Caminho A-tooling), **`finish` exige a worktree commitada e limpa** (`git status --short` vazio na branch `task/<ID>`) — o `TaskService.transition()` só enxerga o texto da Seção 8, nunca o estado git do repo de código, então "gate passou" sem commit real passa despercebido até o `integrar-task` tentar mergear e achar nada para integrar. Já aconteceu 2x em sequência (EST-34 rodada 1, EST-33 rodada 1) — ver `PITFALLS.md` e a task de guard correspondente.
 
 **3. Gate de Evidência (INVIOLÁVEL).** `finish` só com a saída literal de `pnpm --filter <pkg> build` + `test` + `lint` colada na mensagem. Sem evidência = não terminou. Se falhar, conserte antes — nunca finalize no escuro. (Lint entrou no gate em 2026-07-06 após 3 reworks consecutivos por regressão de lint cobrada só no review — T-807, EST-02b, EST-02c; o critério cobrado precisa ser o critério escrito.)
 
