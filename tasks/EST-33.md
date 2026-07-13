@@ -1,7 +1,7 @@
 ---
 id: EST-33
 title: "E2E Playwright do Estaleiro standalone"
-status: review
+status: done
 complexity: 3
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -176,6 +176,46 @@ O merge em `master` foi feito e o **Gate pós-merge (inviolável) FALHOU**. O me
 
 **Lição registrada:** o "Aprovado" do Reviewer 2 caiu porque a revisão rodou o gate **no worktree**, onde artefatos de build antigos (`v0.0.37`) mascararam o defeito. É exatamente o cenário que justifica rodar o gate de integração num checkout limpo — e um argumento a mais para o guard de "e2e hermético" além do guard de "commit no finish".
 
+### Parecer do Reviewer 3 (pós-rework de integração, claude-sonnet, independente):
+- [x] **Aprovado**
+- [ ] **Requer Refatoração**
+
+**Evidência de Execução (worktree `C:\Dev2026\.superapp-worktrees\EST-33`, branch `task/EST-33`, commit `97e9d9a`):**
+
+```
+$ git show 97e9d9a -- apps/estaleiro/playwright.config.ts
+→ webServer.command agora interpola `v${pkg.version}` lido de ./package.json em runtime,
+  em vez do número fixo v0.0.37. Elimina o version drift do B-int1 pela raiz.
+
+$ git show 97e9d9a -- scripts/estaleiro-standalone.mjs
+→ 3 pontos adicionam rmSync(path, {force:true}) IMEDIATAMENTE ANTES do writeFileSync
+  em arquivos dentro de DEST/backend/node_modules/.pnpm (a store hardlinked do deploy,
+  fora da árvore fonte). Sem o unlink, o writeFileSync mutava o conteúdo do inode
+  COMPARTILHADO pela store global do pnpm — e era isso que vazava como "13 package.json
+  modificados" na árvore fonte (B-int2). Unlink-antes-de-escrever quebra o hardlink,
+  isolando a mutação à cópia deployada. Fix correto na raiz, não paliativo.
+
+$ pnpm --filter @plataforma/estaleiro test:e2e
+→ Standalone bump automático para v0.0.39 (prova que o ponteiro segue a versão real).
+  Playwright: 2 passed (6.9s) — mesmos 2 cenários da §4.
+
+$ git status --porcelain --untracked-files=all   (rodado IMEDIATAMENTE APÓS o test:e2e)
+→ (vazio) — ZERO mutação no working tree, nem os fantasmas de CRLF que apareciam antes,
+  nem os .db/-shm/-wal (gitignore de M1 continua funcionando).
+
+$ pnpm --filter @plataforma/estaleiro-ui lint
+→ eslint src/ — zero erros
+```
+
+**Comentários de Revisão:**
+
+- **[B-int1] RESOLVIDO.** Verifiquei que não é uma correção pontual de número de versão (o que reintroduziria o mesmo bug na próxima release) — é estrutural: lê `pkg.version` do próprio `package.json` em runtime, então o ponteiro **sempre** acompanha o que o `pretest` acabou de construir. Provei rodando: o standalone bumpou pra v0.0.39 e o teste subiu exatamente essa versão.
+- **[B-int2] RESOLVIDO e verificado pela causa-raiz, não pelo sintoma.** Entendi por que o `rmSync`-antes-do-`writeFileSync` resolve: `deployPnpm` (`scripts/estaleiro-standalone.mjs:220`) aponta para dentro de `DEST` (o diretório de deploy, fora do repo), mas os arquivos ali são **hardlinks** para a store global do pnpm — a mesma store referenciada pelos `node_modules` da árvore fonte. Um `writeFileSync` sem unlink prévio escreve **no inode compartilhado**, mutando silenciosamente os `package.json` "reais". `git status --porcelain --untracked-files=all` rodado logo após o `test:e2e` confirma **zero** efeito colateral agora.
+- **Nenhuma regressão:** B1/M1 (rework anterior) continuam corrigidos (`.npmrc` limpo, `.gitignore` com `e2e-test.db*`), E2E 2/2, lint limpo.
+- **Ponto em aberto, não-bloqueante:** ainda não há uma prova em checkout **verdadeiramente** limpo (sem nenhum `estaleiro-run/vX` pré-existente) — mas isso deixou de importar: como o ponteiro agora é dinâmico, a presença de builds antigos é inócua (eles nunca serão escolhidos por engano). O teste decisivo que resta é o gate pós-merge na master real, que farei a seguir como parte do `/integrar-task`.
+
+**Divergência do parecer anterior:** nenhuma — confirma que os 2 achados do Addendum (B-int1, B-int2) foram corrigidos pela raiz, sem regressão, e eleva o veredito para Aprovado.
+
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-10T13:00]** - *Antigravity* - `[Triado]`: triado - aguardando dependencias (passo 1)
 - **[2026-07-10T18:18]** - *Antigravity* - `[Endurecido]`: Endurecimento com diretrizes validadas (nenhuma decisão pendente)
@@ -193,3 +233,5 @@ O merge em `master` foi feito e o **Gate pós-merge (inviolável) FALHOU**. O me
 - **[2026-07-12T14:30]** - *agile_reviewer:claude-opus* - `[Requer Refatoração]`: Rework (gate de integracao): [B-int1] E2E nao-hermetico / version drift. apps/estaleiro/playwright.config.ts webServer roda estaleiro-run/v0.0.37 hardcoded, mas pretest:e2e constroi a versao de apps/estaleiro/package.json (v0.0.38). Em checkout limpo (master) v0.0.37 nao existe -> MODULE_NOT_FOUND, gate pos-merge FALHOU. No worktree passou so por causa de um v0.0.37 sobrando de rodadas antigas (testou build velho). Fix: webServer deve apontar para a versao que o pretest constroi (ler de package.json version / env / symlink latest), nunca numero fixo; provar rodando o gate em dir sem builds antigos de estaleiro-run. Relacionado [B-int2]: estaleiro-standalone.mjs ainda suja 13 package.json no working tree durante o deploy (patch de exports sem restaurar). Merge em master foi ABORTADO (nao pushado). Detalhes no Addendum de Integracao da Secao 8.
 - **[2026-07-12T14:58]** - *Antigravity* - `[Iniciado]`: Iniciando rework para correção hermética do E2E e mutação de workspaces.
 - **[2026-07-12T14:58]** - *Antigravity* - `[Finalizado]`: Rework concluído (Integração). B-int1 (configuração E2E hermética lendo package.json dinamicamente) e B-int2 (preservação da integridade do workspace deletando hardlinks da pnpm store antes da mutação do deploy) corrigidos.
+- **[2026-07-12T15:03]** - *agile_reviewer:claude-sonnet* - `[Em revisão]`: revisando EST-33 pos-rework 3 (B-int1/B-int2 hermeticidade)
+- **[2026-07-12T15:14]** - *agile_reviewer:claude-sonnet* - `[Aprovado]`: Integrado: merge na master (commit f51c200, push origin/master 013b2a8..f51c200), worktree removida. Gate pos-merge verde em checkout limpo (real, nao worktree): pnpm --filter @plataforma/estaleiro test:e2e -> standalone buildado v0.0.39, Playwright 2/2 passed; git status --porcelain --untracked-files=all -> vazio (zero mutacao, B-int2 confirmado na raiz); pnpm --filter @plataforma/estaleiro-ui lint -> zero erros. B-int1 (version drift) e B-int2 (mutacao via hardlink do pnpm store) corrigidos pela causa raiz nesta rodada, verificados de forma independente rodando o gate real na master (nao no worktree que mascarou o bug da vez anterior). Sem nao-bloqueantes novos desta rodada.
