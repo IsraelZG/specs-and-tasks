@@ -21,6 +21,12 @@ capacity_target: sonnet
 - **Test Runner:** `vitest` (JSDOM) + `playwright` (E2E smoke)
 - **Capacidade-alvo:** sonnet
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar o feed social conforme `18-social-reference-spec.md` S4: composicao de `SuperCard` +
 `Layout` com conteudo recuperado por traversal social + RRF (RFC-011) e anuncios (RFC-015)

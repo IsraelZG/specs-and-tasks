@@ -20,6 +20,12 @@ capacity_target: sonnet
 - **Test Runner:** `vitest` (Node puro, sem browser)
 - **Capacidade-alvo:** sonnet
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar a camada de monetizacao de streaming conforme `19-streaming-reference-spec.md` S5:
 assinatura (classe `assinatura`, RFC-012) para premium/canal; pay-per-view (classe

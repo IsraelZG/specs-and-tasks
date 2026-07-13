@@ -21,6 +21,12 @@ capacity_target: haiku
 - **Test Runner:** `vitest` (JSDOM) + `playwright` (E2E smoke)
 - **Capacidade-alvo:** haiku
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar indicador de presenca efemera conforme `20-mensagens-reference-spec.md` S4: estado
 efemero nao-durave — sinal volatil, nunca no append-only replicado. Entrega best-effort;

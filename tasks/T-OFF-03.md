@@ -20,6 +20,12 @@ capacity_target: sonnet
 - **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
 - **Capacidade-alvo:** sonnet
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar planilha first-party com motor de fórmulas real, pontos ZEN, cálculo fora da main thread (worker),
 e Base (Airtable-like) como view estruturada sobre a mesma fonte de dados. Fonte: `caderno-3-sdk/27-suite-office.md §3`.

@@ -23,6 +23,12 @@ capacity_target: sonnet
 - **Capacidade-alvo:** sonnet
 - **ui:** true | **#fontes:** 5 | **link OK:** ✓ | **SEM-FONTE:** N/A
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar fluxo completo de convites e RSVP para eventos de calendário: (1) emissão de convite via aresta ao `PROFILE` do convidado + notificação; (2) RSVP como `CONTENT:INTENT` do convidado (aceito/recusado/talvez); (3) reserva de capacidade limitada (vagas/sala) via `reserva_capacidade` do RFC-012 A.2; (4) renderização da Timeline com eventos, recorrências projetadas e indicadores visuais de RSVP. Lógica de RSVP no core reusa `ASSET:INVITE` de T-210 como padrão de cerimônia. UI consome `Timeline` engine para renderizar instâncias virtuais. **(Fonte: [[22-calendario-reference-spec]] §3; [[asset-invite]]; [[spec-workflow]] para RSVP como máquina de estados; T-CAL-01 SPEC:EVENT base; T-210 ASSET:INVITE cerimônia)**
 

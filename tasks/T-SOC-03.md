@@ -21,6 +21,12 @@ capacity_target: haiku
 - **Test Runner:** `vitest` (JSDOM) + `playwright` (E2E smoke)
 - **Capacidade-alvo:** haiku
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar guards e validacoes de hardening para os limites honestos do modulo social
 (`18-social-reference-spec.md` S6): privacidade retroativa impossivel, bloqueio como filtro de

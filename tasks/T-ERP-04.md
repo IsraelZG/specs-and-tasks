@@ -20,6 +20,12 @@ capacity_target: sonnet
 - **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
 - **Capacidade-alvo:** sonnet
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar o módulo de CRM no pacote `@plataforma/erp` como lente sobre o grafo: pipeline de vendas via `StateMachine` (`SPEC:CRM_PIPELINE`) com estágios configuráveis, visão 360° do cliente por traversal (pedidos, interações, financeiro, tickets — sem tabela agregada), e régua de relacionamento como Zen disparando intents/notificações por conector classe A. Dado pessoal de CRM invoca o framework de privacidade canônico (consentimento, expurgo por rotação de época), sem criar mecanismo próprio.
 *(Fonte: `docs/caderno-3-sdk/16-erp-crm-reference-spec.md` §5)*.

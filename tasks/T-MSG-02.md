@@ -21,6 +21,12 @@ capacity_target: sonnet
 - **Test Runner:** `vitest` (JSDOM) + `playwright` (E2E smoke)
 - **Capacidade-alvo:** sonnet
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar o painel de chamadas e conferencia via **LiveKit** conforme `20-mensagens-reference-spec.md` S3:
 SDK cliente embutido (first-party), SFU como plugin `infra` exigido pelo LiveKit (RFC-010 A.3,

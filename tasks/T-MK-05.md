@@ -20,6 +20,12 @@ capacity_target: sonnet
 - **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
 - **Capacidade-alvo:** sonnet
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar SPECs de instrumento financeiro (cessão/aporte/garantia) com arestas APPROVED_BY, LASTRO,
 recourse, e propagação de inadimplência unificada declarada na Zen. Fonte: `caderno-3-sdk/15-marketplace-reference-spec.md §8`.

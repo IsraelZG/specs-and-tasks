@@ -20,6 +20,12 @@ capacity_target: haiku
 - **Test Runner:** `vitest` (Node puro, sem browser)
 - **Capacidade-alvo:** haiku
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar guards de hardening para os limites honestos do modulo de anuncios
 (`29-anuncios-reference-spec.md` S5): segmentacao nao pode ler dado restrito (privacidade por

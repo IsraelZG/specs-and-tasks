@@ -1,7 +1,7 @@
 ---
 id: T-AD-01
 title: "SPEC:AD/AD_CAMPAIGN + RELATES:AD:PROMOTES + orcamento/pacing por BALANCE_STATE/LOCK"
-status: ready
+status: draft:placeholder
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -19,6 +19,12 @@ capacity_target: sonnet
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
 - **Test Runner:** `vitest` (Node puro, sem browser)
 - **Capacidade-alvo:** sonnet
+
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
 
 ## 1. Objetivo
 Definir as especificacoes de anuncio e campanha conforme `29-anuncios-reference-spec.md` S1:
@@ -201,3 +207,4 @@ pnpm --filter nexus-backend test
 - **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
 - **[2026-07-03T20:03]** - *system* - `[Endurecido]`: Endurecimento em lote (dependencies done/empty)
 - **[2026-07-03T20:03]** - *system* - `[Auto-promovida]`: deps todas done
+- **[2026-07-10T15:14]** - *Antigravity* - `[Demovido]`: Rebaixada por obsolescencia de arquitetura (Nexus/Zen)

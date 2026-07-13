@@ -20,6 +20,12 @@ capacity_target: sonnet
 - **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
 - **Capacidade-alvo:** sonnet
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar o módulo de plano de contas e classificação contábil no pacote `@plataforma/contabil`. O plano de contas é uma `SPECIFICATION` hierárquica versionada por linhagem. A regra "fato econômico → conta débito/crédito" é Zen na SPEC contábil, parametrizável por jurisdição (a variante regional fornece o plano referencial). Mudança de regra = `SUPERSEDED_BY` com vigência por competência. O razão contábil é derivado e reconstruível da linhagem dos fatos — correção = novo fato/estorno append-only.
 *(Fonte: `docs/caderno-3-sdk/17-contabil-fiscal-rh-reference-spec.md` §1-2)*.

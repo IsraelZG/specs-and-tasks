@@ -1,7 +1,7 @@
 ---
 id: ORQ-13
 title: "Otimizador de contexto in-process no VercelAgentAdapter (crusher estrutural + CCR store + nano tier)"
-status: ready
+status: obsolete
 complexity: 5
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer

@@ -21,6 +21,12 @@ capacity_target: sonnet
 - **Test Runner:** `vitest` (Node puro)
 - **Capacidade-alvo:** sonnet
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar o verbo SPENDS no pacote `@plataforma/marketplace`: cria aresta SPENDS do pagador para o head do `ASSET:BALANCE_STATE`, valida saldo suficiente (via invariante T1 do Zen Engine), deduz atomicamente em transação SQL
 *(extraído de T-MK-04 §1; `caderno-3-sdk/15-marketplace-reference-spec.md` §5)*.

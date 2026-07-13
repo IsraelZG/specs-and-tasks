@@ -20,6 +20,12 @@ capacity_target: sonnet
 - **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
 - **Capacidade-alvo:** sonnet
 
+
+> [!WARNING]
+> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
+> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
+> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+
 ## 1. Objetivo
 Implementar o módulo de operação interna de transporte no pacote `@plataforma/logistica`: entregador/motorista como `PROFILE` que oferta capacidade como serviço negociável (listing de disponibilidade no marketplace), dispatch via saga (`ASSET:LOCK` com TTL — ofertar reserva disponibilidade, aceite confirma, recusa/expiração libera), localização ao vivo como sinal efêmero (não nó durável), precificação dinâmica (surge/distância/tempo) como Zen, e repasse ao entregador como liquidação por SPEC.
 *(Fonte: `docs/caderno-3-sdk/25-logistica-reference-spec.md` §4)*.
