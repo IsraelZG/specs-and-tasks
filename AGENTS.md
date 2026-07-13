@@ -51,6 +51,12 @@ aferição fica visível a cada sessão.
    Adoção é medida; esta seção é o contrato. Exceções legítimas a `2` e `3` devem ser declaradas
    no retorno ("usei `bash` para X porque Y").
 
+**8. Nunca `echo`/redirect de shell para editar arquivo versionado (config ou fonte).** `echo "..."
+   >> arquivo` (PowerShell) pode gravar em encoding diferente do arquivo (UTF-16LE contra um
+   `.npmrc`/`.gitignore` em UTF-8), corrompendo a linha em bytes intercalados — silencioso até um
+   parser tropeçar nela. Use a ferramenta de edição (`Edit`/`Write`) ou, em script Node,
+   `writeFileSync(path, content, 'utf-8')` explícito. Ver `PITFALLS.md` P-011.
+
 <!-- BEGIN ponytail -->
 ## Ponytail — disciplina de código enxuto (ruleset injetado)
 

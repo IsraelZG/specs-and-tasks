@@ -252,3 +252,109 @@ skill, padrão MGTIA "uma unidade por commit").
 4. **Skill healthcheck:** após criar/editar skills, comparar
    `crush_info` (campo `skills` — total e lista) com `ls .claude/skills/*/SKILL.md`. Diferença > 0
    = rodar o diagnóstico acima.
+
+---
+
+<!-- Adicione novas entradas acima desta linha, no formato P-NNN -->
+
+## P-009 · Deploy standalone muta o working tree via hardlinks do pnpm store (writeFileSync sem unlink)
+
+**Data:** 2026-07-12 (descoberto no gate de integração da EST-33, causa real do "13 package.json
+sujos" já registrado como débito não-bloqueante na EST-25)
+**Sintoma:** Rodar `pnpm --filter <pkg> test:e2e` (ou qualquer script que faça `pnpm deploy` e depois
+edite `package.json`s no destino) deixa **`package.json` de pacotes não relacionados** (`crypto`,
+`protocol`, `plugin-*`, etc. — nada do escopo da task) marcados como modificados no `git status` da
+**árvore fonte**, mesmo quando o script só deveria tocar a pasta de deploy (`estaleiro-run/vX.Y.Z/`,
+fora do repo).
+**Causa raiz:** os arquivos dentro de `<deploy>/backend/node_modules/.pnpm/**` são **hardlinks**
+para a mesma store global do pnpm (`~/.pnpm-store` ou equivalente) referenciada pelos
+`node_modules/.pnpm` da árvore fonte. Um `writeFileSync(caminho, novoConteudo)` sem `unlink` prévio
+**escreve no inode compartilhado** — a mutação vaza para todo mundo que aponta pro mesmo objeto da
+store, inclusive o checkout que você pensava estar intocado.
+**Diagnóstico:** depois de rodar o script suspeito, `git status --porcelain --untracked-files=all`
+no repo fonte (não na pasta de deploy) — se aparecer `package.json` de pacotes **fora do escopo
+declarado da task**, é este caso. Confirmar checando se o script faz `writeFileSync` num caminho
+dentro de `node_modules/.pnpm` sem `rmSync`/`unlinkSync` antes.
+**Solução aplicada:** em `scripts/estaleiro-standalone.mjs`, antes de cada `writeFileSync` que
+patcheia um arquivo dentro do `deployPnpm` (`.pnpm` do destino deployado), adicionar
+`rmSync(caminho, { force: true })` imediatamente antes. Isso quebra o hardlink (remove a entrada de
+diretório), então o `writeFileSync` seguinte cria um arquivo **novo**, isolado — não mais escreve no
+inode compartilhado.
+```js
+// ANTES (muta a store compartilhada):
+writeFileSync(deployedPkgPath, JSON.stringify(deployed, null, 2) + "\n");
+// DEPOIS (isola a escrita ao deploy):
+rmSync(deployedPkgPath, { force: true });
+writeFileSync(deployedPkgPath, JSON.stringify(deployed, null, 2) + "\n");
+```
+**Como prevenir recorrência:** qualquer script que faça `pnpm deploy`/patch de `exports`/manifests
+dentro de um destino que reusa a store do pnpm (comum em deploys "leves" que não copiam
+`node_modules` inteiro) precisa desse `rmSync`-antes-do-`writeFileSync` em **todo** ponto de escrita
+dentro de `.pnpm`. Verificar com `git status --porcelain --untracked-files=all` na árvore fonte
+**logo após** rodar o script — deve ficar vazio. Se não ficar, é este pitfall, não um bug do
+código da task. (Melhoria futura considerada e **não aplicada** por já resolver o problema
+registrado: clonar o deploy inteiro para `os.tmpdir()` antes de mutar qualquer manifest, eliminando
+o compartilhamento de store por completo — maior escopo, avaliar só se o `rmSync` pontual voltar a
+falhar em outro ponto do script.)
+
+---
+
+## P-010 · E2E não-hermético: `webServer` do Playwright com ponteiro de versão fixo mascarado por builds antigos
+
+**Data:** 2026-07-12 (EST-33, 2ª rodada de gate de integração)
+**Sintoma:** `pnpm --filter <pkg> test:e2e` passa 2/2 numa worktree, mas **falha** com
+`Cannot find module '.../estaleiro-run/vX.Y.Z/backend/server.mjs'` quando o mesmo comando roda
+depois do merge, num checkout limpo (master) — mesmo código, mesmo comando, resultado diferente.
+**Causa raiz:** `apps/estaleiro/playwright.config.ts` tinha o **número de versão do standalone
+hardcoded** em `webServer.command` (ex. `v0.0.37`), mas o hook `pretest:e2e` reconstrói o standalone
+usando a versão **atual** de `package.json` (que sobe a cada build, ex. `v0.0.38`). Numa worktree
+que já acumulou builds de rodadas anteriores (`estaleiro-run/v0.0.35`, `36`, `37`, `38`...), o
+`webServer` acha por acaso uma pasta **velha** com o número hardcoded e testa **contra ela** — o
+teste passa, mas contra um build que não é o que acabou de ser gerado. Num checkout limpo, essa
+pasta velha não existe e o erro aparece.
+**Diagnóstico:** se um E2E com `webServer.command` referenciando um artefato de build (standalone,
+bundle, dist versionado) só falha **fora** da worktree onde foi desenvolvido, suspeitar de ponteiro
+de versão fixo + pasta de builds antigos mascarando o defeito — não assumir que é problema do
+ambiente novo.
+**Solução aplicada:**
+```ts
+// ANTES (fixo, mascarável por builds velhos):
+command: 'cross-env ESTALEIRO_DB=./e2e-test.db node ../../../estaleiro-run/v0.0.37/backend/server.mjs',
+// DEPOIS (lê a versão real em runtime):
+const pkg = JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf-8'));
+// ...
+command: `cross-env ESTALEIRO_DB=./e2e-test.db node ../../../estaleiro-run/v${pkg.version}/backend/server.mjs`,
+```
+**Como prevenir recorrência:** qualquer `webServer`/fixture de E2E que aponte para um artefato
+buildado **num diretório versionado** deve ler a versão dinamicamente (do `package.json`, de uma
+env var, ou de um symlink `latest`) — nunca um número fixo. Ao revisar esse tipo de task, rodar o
+gate de integração **na master recém-mergeada**, não só na worktree — worktrees acumulam artefatos
+de rodadas anteriores que mascaram exatamente esse tipo de regressão (ver também "Gate pós-merge" na
+skill `integrar-task`).
+
+---
+
+## P-011 · Editar `.npmrc`/`.gitignore`/config via `echo`/redirect de shell corrompe encoding (UTF-16 byte-a-byte)
+
+**Data:** 2026-07-12 (EST-33, achado no rework do B1: linha `confirmModulesPurge=false` duplicada
+com um caractere por byte)
+**Sintoma:** Um arquivo de config texto (visto em `.npmrc`, risco igual em `.gitignore` ou qualquer
+arquivo pequeno editado via shell) ganha uma linha com aparência de
+`c o n f i r m - m o d u l e s - p u r g e = f a l s e` — cada caractere ASCII separado por espaço.
+O parser que consumir o arquivo (Node, pnpm, git) ou lê a linha errado ou simplesmente ignora a
+"palavra" corrompida.
+**Causa raiz:** um comando de shell (`echo "..." >> arquivo` no PowerShell, ou equivalente) escreveu
+no arquivo usando um encoding diferente do resto do arquivo (tipicamente UTF-16LE do PowerShell
+contra um arquivo UTF-8/ASCII existente). Cada byte ASCII do texto novo vem seguido do byte nulo
+(`0x00`) do UTF-16LE; ferramentas que decodificam como UTF-8/Latin-1 mostram esse `0x00` como um
+espaço, produzindo o padrão "um char por byte".
+**Diagnóstico:** `git show <rev>:<arquivo> | xxd | head` — se a linha nova tiver `XX 00` alternado
+onde `XX` é o byte ASCII esperado, é este caso.
+**Solução aplicada:** reescrever a linha inteira usando a ferramenta de edição de arquivo (Edit/Write
+do agente, ou um `writeFileSync(path, content, 'utf-8')` explícito em Node) — nunca `echo`/redirect
+de shell para tocar um arquivo de código-fonte ou config já existente.
+**Como prevenir recorrência:** proibir `echo`/redirect de shell (`>>`, `Out-File`, `Add-Content` sem
+`-Encoding utf8` explícito) para editar qualquer arquivo versionado. Regra registrada em `AGENTS.md`.
+**Limites:** isto é disciplina de ferramenta, não um guard automático — nenhum linter roda hoje para
+pegar esse padrão antes do commit. Se reaparecer com frequência, considerar um pre-commit check que
+grepa por bytes nulos intercalados em arquivos texto rastreados.
