@@ -1,7 +1,7 @@
 ---
 id: T-PL-04
 title: "ComputePort + escalonador com anuncio de runtime via serves + casamento de site"
-status: draft:triaged
+status: draft:hardened
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -89,6 +89,12 @@ export interface ComputeScheduler {
    * Registra um site como elegível para execução.
    * `local` é implícito; `peer` e `external` são registrados via anúncio.
    */
+  /**
+   * Registra o site local (dispositivo atual) com seus runtimes e recursos.
+   * Chamado uma vez na inicialização; `local` é implícito mas precisa dos
+   * runtimes/recursos para o casamento de runtime (§4.3).
+   */
+  registerLocalSite(runtimes: PluginRuntime[], resource_profile: SiteAnnouncement['resource_profile']): void;
   registerSite(announcement: SiteAnnouncement): void;
   unregisterSite(peer_id: string): void;
 
@@ -116,7 +122,16 @@ export interface ComputePort {
   /** Invoca uma capacidade compute. Resolve site e modo transparentemente. */
   invoke(request: ComputeRequest): Promise<ComputeResponse>;
 }
+
+/**
+ * Factory — ComputePort delega schedule + execute ao ComputeScheduler.
+ * O scheduler é injetado com os SiteExecutors (local/peer/external) que
+ * realizam a computação em cada site (ver §5 Step-by-Step).
+ */
+export function createComputePort(scheduler: ComputeScheduler): ComputePort
 ```
+
+> **Nota de execução:** `ComputePort.invoke()` chama `scheduler.schedule()` para eleger o site, então `scheduler.execute()` para executar. O `ComputeScheduler` recebe os adaptadores de execução (local stub, peer via rede, external via `NetworkAdapterPort`) como dependências no construtor — o scheduler não implementa transporte, delega aos adaptadores.
 
 ## 2. Contexto RAG (Spec-Driven Development)
 - [caderno-3-sdk/12-plugins-e-computacao.md](../docs/caderno-3-sdk/12-plugins-e-computacao.md) §4 (ComputePort, 3 sites, casamento de runtime), §5 (modos síncrono/assíncrono), §6.3 (classe de privacidade × site)
@@ -132,6 +147,7 @@ export interface ComputePort {
 - **[CREATE]** `packages/plugins/src/compute-port.ts` — ComputePort, ComputeScheduler, SiteAnnouncement
 - **[CREATE]** `packages/plugins/tests/compute-port.test.ts`
 - **[UPDATE]** `packages/plugins/src/index.ts` — re-export
+- **[UPDATE]** `packages/plugins/package.json` — dependência `@plataforma/protocol` (para `NetworkAdapterPort`)
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
 - [x] **Framework:** Vitest (Node puro)
@@ -149,7 +165,7 @@ Casos de teste (numerados):
 8. `schedule()` sem sites registrados (só local implícito) + plugin `node` sem Electron → `null`.
 9. `execute()` no site `local` (stub) → `ComputeResponse` com output.
 10. `execute()` com timeout → `budget_exhausted: true`.
-11. Site `external` requer NetworkAdapter declarado → se não houver, `null`.
+11. Site `external` requer `NetworkAdapterPort` (T-004) injetado no scheduler → se não houver adapter registrado, `null`.
 12. Dois peers anunciando mesma capacidade → scheduler escolhe o com menor latência (mock).
 
 ## 5. Instruções de Execução (Step-by-Step)
@@ -159,7 +175,7 @@ Casos de teste (numerados):
 > - NÃO implemente execução real de plugins — use stubs.
 
 ### Pegadinhas conhecidas
-- O site `local` é implícito e sempre registrado (browser plugin na aba/Worker; node plugin no Electron).
+- O site `local` é implícito e sempre registrado via `registerLocalSite()` (browser plugin na aba/Worker; node plugin no Electron). Os runtimes e o perfil de recurso do dispositivo são informados na registration.
 - `external` requer um NetworkAdapterPort (T-004) — sem adapter, não há rota para external.
 - `privacy_class: 'restricted'` + site `external` = proibido por construção (§6.3). O scheduler rejeita.
 - O scheduler é determinístico: mesmos sites + mesma requisição → mesmo resultado.
@@ -191,7 +207,9 @@ Casos de teste (numerados):
 ```bash
 pnpm --filter @plataforma/plugins build
 pnpm --filter @plataforma/plugins test
+pnpm --filter @plataforma/plugins lint
 ```
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal de build + test + lint na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -211,3 +229,4 @@ pnpm --filter @plataforma/plugins test
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-14T14:30]** - *claude-sonnet* - `[Endurecido]`: endureceu spec: factory ComputePort, registerLocalSite, gate lint, package.json scope
