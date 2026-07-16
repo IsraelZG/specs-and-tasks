@@ -761,3 +761,11 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i4][T-602][monorepo] `pnpm-lock.yaml` claimed em `COMMIT_EDITMSG` ("new — created") mas `glob **/pnpm-lock.yaml` retorna 0 matches. Provavelmente estado pré-existente do projeto, mas inconsistência na afirmação.
 - [ ] [i5][T-602][crypto] `packages/crypto/src/wrappers.ts` (mudança de `ed25519GetPublicKey`) está fora do §3 escopo. R2 já apontou a forma correta, então é fix de desvio anterior, não novo.
 <!-- END T-602 (Reviewer 3) -->
+
+<!-- EST-47 (Reviewer 1) -->
+- [ ] [M1→open][EST-47][estaleiro-core] Sonda 3: error propagation do `readClaudeMd` no fluxo end-to-end → 500 INTERNAL não tem cobertura. Único teste do path é o unit `chat-context.test.ts:53-60` (rejects.toThrow do `buildChatContext` puro); o `assembleAndSend().catch` em `bootstrap.ts:349-362` não é exercitado. Acoplado a B2.
+- [ ] [M2→open][EST-47][estaleiro-ui] Numeração dos casos §4.3 não é 1-1 com a spec. Worker usou 19-22 (espalhados) vs spec 12-16. Funcionalmente correto mas dificulta auditoria cruzada. Cosmético.
+- [ ] [i1→open][EST-47][estaleiro-core] Decisão D1 (spec §6) fechada com opção A — `ContextReader` expandido com `listSkills()`. Trade-off: agora 3 métodos em vez de 2, mas elimina interface `SkillsLister` paralela. Não-bloqueante, alinhado com recomendação §6.
+- [ ] [i2→open][EST-47][estaleiro-core] Verbosidade do `bootstrap.ts:301-365` — `if/else if` ramificado para `method === "POST"` é espaguete; candidato a `switch` ou roteador. Não impacta funcionalidade. (apps/estaleiro/core/src/bootstrap.ts:301-365)
+- [ ] [i3→open][EST-47][estaleiro-ui] `getByRole("checkbox", { name: /CLAUDE\.md/i })` em `ChatView.test.tsx:202` é frágil se o label da UI mudar. Acoplar a um `data-testid` ou `aria-label` estável. (apps/estaleiro/ui/src/views/chat/ChatView.test.tsx:202)
+<!-- END EST-47 (Reviewer 1) -->
