@@ -97,3 +97,6 @@ fable-last-week/
 
 # Config local de pnpm por máquina (não versionado — ver Regra 2b / P-008)
 .npmrc
+
+estaleiro.db*
+.agents/scratch/

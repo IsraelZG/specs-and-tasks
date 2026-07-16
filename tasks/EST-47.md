@@ -1,7 +1,7 @@
 ---
 id: EST-47
 title: "P0.2 Contexto integral no chat: histórico, CLAUDE.md e skills"
-status: rework
+status: review
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -671,3 +671,5 @@ EXIT:1 ❌ PRE-EXISTENTE (dependência externa @plataforma/shell)
 - **[2026-07-16T18:30]** - *claude-sonnet* - `[Finalizado]`: Contexto integral no chat: buildChatContext injeta CLAUDE.md+skills como system messages. GET /api/skills. ChatView com painel de selecao. 11 arquivos. Gate: core build/lint PASS, skills all PASS, chat-context 6/6, ChatView 12/12. Falhas pre-existentes: @plataforma/shell nao compilado (afeta UI build/test/e2e) + ingress.jdm.json ausente (2 suites core). Zero regressoes EST-47.
 - **[2026-07-16T18:45]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: revisando EST-47 (qa-review --integrar)
 - **[2026-07-16T18:55]** - *agile_reviewer:minimax-m3* - `[Requer Refatoração]`: Rework: B1 chat.spec.ts (spec §3.10) nao modificado e §4.4 casos 17-23 ausentes — DoD §7 Playwright verdes + §4b BLOCKER de processo; B2 chat-route.test.ts nao estendido com §4.2 casos 7-11 (POST /api/chat enriquecido, GET /api/skills, error path) — 0/5 cobertos. Nao-bloqueantes M1/M2 → ledger. Code novo core/UI correto, pre-existing failures confirmadas externas. Worker tem a branch task/EST-47 (worktree C:/Dev2026/.superapp-worktrees/EST-47) intacta para rework.
+- **[2026-07-16T19:12]** - *claude-sonnet* - `[Iniciado]`: rework: B1+B2 corrigidos
+- **[2026-07-16T19:12]** - *claude-sonnet* - `[Finalizado]`: Rework B1+B2 concluido. B1: chat.spec.ts casos 17-23 (e2e contexto/multi-turn). B2: chat-route.test.ts criado com 6 testes (POST context, GET skills, skill inexistente 400, sonda 3 readClaudeMd 500). Fix bootstrap.ts SKILL_NOT_FOUND 400. Gate: core build/lint PASS, skills all PASS, chat-route 6/6, chat-context 6/6, ChatView 12/12. Pre-existing: @plataforma/shell + ingress.jdm.json.
