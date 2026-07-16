@@ -10,6 +10,12 @@
 
 ## 0. Quando aplicar (e quando não)
 
+> **Pré-requisito de altitude:** este manual audita SPEC×CÓDIGO de um cluster. Se o recon é de
+> FECHAMENTO DE MARCO (backlog inteiro × código × ledger), rode antes o playbook
+> [09-recon-de-fechamento](./09-recon-de-fechamento.md) — integridade física dos arquivos de task
+> (BOM/§9), grafo de deps, pais decompostos, capability-fantasma — senão você recon-a specs que o
+> dashboard nem enxerga.
+
 **Aplique o manual inteiro** quando a task: (a) declara *integração* com sistema/lib externa;
 (b) atravessa fronteira de camadas ou pacotes; (c) promete propriedade transacional,
 criptográfica ou de concorrência ("atômico", "assinado", "determinístico", "converge");
@@ -49,6 +55,9 @@ confiar no resumo da task sem ler a fonte normativa.
 4. **Histórico das dependências** — pareceres §8 e Log §9 das tasks `done` vizinhas revelam
    desvios já cometidos. *Exemplo real:* T-702 registrou em §6/§8 que contornou a casca
    inexistente com envelope próprio — prova viva de que a spec de T-403 não exigia Automerge.
+   **Não confie no claim do log:** todo claim de rework/finish precisa do fato git/fs
+   correspondente (arquivo criado existe? import removido sumiu do grep?) — classe **B0, rework
+   fictício** (T-1033 rework-1 mentiu item a item; detector completo no playbook 07 R3).
 5. **APIs externas** — só depois de saber exatamente o que precisa delas (ver §4).
 
 **Falha que evita:** empilhar specs sobre símbolos que não existem (T-602 citava

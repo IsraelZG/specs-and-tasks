@@ -40,22 +40,34 @@ function wslPath(winPath) {
   return m ? `/mnt/${m[1].toLowerCase()}/${m[2].replace(/\\/g, '/')}` : winPath;
 }
 
-function cmdNew(id) {
-  if (!id) die('uso: worktree new <ID>');
+function cmdNew(id, baseRef) {
+  if (!id) die('uso: worktree new <ID> [--base <ref>]');
   requireCodeRepo();
   const wt = wtPath(id);
   const branch = `task/${id}`;
   if (fs.existsSync(wt)) {
     console.log(`• worktree já existe: ${wt}`);
   } else {
-    const addArgs = branchExists(branch)
-      ? ['worktree', 'add', wt, branch]
-      : ['worktree', 'add', '-b', branch, wt];
+    // --base <ref>: campanhas encadeadas (ADR 0017) — a branch da task N nasce do HEAD da task
+    // N-1 (branch stack), não do trunk. Sem --base, comportamento original (HEAD do checkout).
+    let addArgs;
+    if (branchExists(branch)) {
+      if (baseRef) die(`branch ${branch} já existe — --base só vale na criação`);
+      addArgs = ['worktree', 'add', wt, branch];
+    } else {
+      addArgs = baseRef
+        ? ['worktree', 'add', '-b', branch, wt, baseRef]
+        : ['worktree', 'add', '-b', branch, wt];
+    }
     if (git(addArgs, { stdio: 'inherit' }).status !== 0) die('git worktree add (superapp) falhou');
+    const baseSha = git(['rev-parse', 'HEAD'], { cwd: wt }).stdout.trim();
     console.log(`• worktree do superapp criada: ${wt}  (branch ${branch})`);
-    console.log('• pnpm install (store quente)...');
-    if (spawnSync('pnpm', ['install'], { cwd: wt, stdio: 'inherit', shell: true }).status !== 0) {
-      die('pnpm install falhou na worktree');
+    console.log(`• BASE: ${baseRef ?? 'HEAD do checkout principal'} @ ${baseSha} — registre no manifesto da campanha; o QA diffa contra esta base (dois-pontos), não necessariamente master`);
+    if (fs.existsSync(path.join(wt, 'package.json'))) {
+      console.log('• pnpm install (store quente)...');
+      if (spawnSync('pnpm', ['install'], { cwd: wt, stdio: 'inherit', shell: true }).status !== 0) {
+        die('pnpm install falhou na worktree');
+      }
     }
   }
   console.log('\n✅ pronto. Despache o worker (opencode) no WSL apontando pro CÓDIGO:');
@@ -98,9 +110,12 @@ function cmdRm(id) {
   console.log(`✅ worktree removida: ${wt}  (branch task/${id} preservada — apague com 'git -C "${codeRepo}" branch -D task/${id}' se quiser)`);
 }
 
-const [cmd, id] = process.argv.slice(2);
+const argvRest = process.argv.slice(2);
+const [cmd, id] = argvRest;
+const baseFlag = argvRest.indexOf('--base');
+const baseRef = baseFlag !== -1 ? argvRest[baseFlag + 1] : undefined;
 switch (cmd) {
-  case 'new': cmdNew(id); break;
+  case 'new': cmdNew(id, baseRef); break;
   case 'ls': cmdLs(); break;
   case 'merge': cmdMerge(id); break;
   case 'rm': cmdRm(id); break;
