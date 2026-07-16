@@ -14,6 +14,10 @@ capacity_target: sonnet # pode escalar p/ opus-spike se o mapeamento schema jdm-
 
 # DMM-10 · Editor visual JDM (@gorules/jdm-editor)
 
+> **Registro histórico:** esta entrega permanece `done`, mas `@gorules/jdm-editor` foi reprovado
+> como fundação visual no Estaleiro. `EST-44` o remove incrementalmente em favor do `FlowGrid`
+> compartilhado da ADR 0016. O formato JDM e `@plataforma/plugin-zen-engine` continuam canônicos.
+
 ## 0. Ambiente de Execução Obrigatório
 - **Runtime:** Node v20+ · **PM:** `pnpm` · **Monorepo:** Turborepo · UI: FlexLayout + TinyBase
 

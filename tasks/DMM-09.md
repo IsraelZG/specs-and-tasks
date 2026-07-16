@@ -14,6 +14,10 @@ capacity_target: sonnet
 
 # DMM-09 · Árvore de execução do workflow
 
+> **Registro histórico:** esta entrega permanece `done`, mas a visualização hardcoded/flexbox não é
+> a direção canônica. A substituição incremental está em `EST-44`, sobre o `FlowGrid` definido pela
+> ADR 0016. Zen/JDM e os eventos de execução são preservados; somente a projeção visual é trocada.
+
 ## 0. Ambiente de Execução Obrigatório
 - **Runtime:** Node v20+ · **PM:** `pnpm` · **Monorepo:** Turborepo · UI: FlexLayout + TinyBase
 
