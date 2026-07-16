@@ -6,7 +6,7 @@ complexity: 5
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: ["T-OFF-01", "T-PG-01", "T-604"] # IDs de tarefas que bloqueiam esta
+dependencies: ["T-OFF-01", "T-PG-01", "T-609"] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
 capacity_target: sonnet
 ---

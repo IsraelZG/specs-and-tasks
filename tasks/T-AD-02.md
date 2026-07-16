@@ -6,7 +6,7 @@ complexity: 5
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
-dependencies: ["T-AD-01", "T-604", "T-IA-03"]
+dependencies: ["T-AD-01", "T-609", "T-IA-03"]
 blocks: ["T-AD-03"]
 capacity_target: sonnet
 ---
