@@ -41,10 +41,20 @@ function taskStatus(id) {
 try { git('fetch --quiet origin'); } catch { /* offline — usa o que tem */ }
 
 const masterFiles = new Set(git('ls-tree -r --name-only master').split('\n').filter(SRC));
+// A task may have been integrated by moving a source file between packages. Comparing only
+// path names would report every historical task that touched the old path as "missing" forever.
+// Restrict the map to renames recorded on master, so a move is accepted only when the destination
+// is actually present in the product branch.
+const masterRenames = new Map();
+for (const line of git('log master --diff-filter=R --find-renames --name-status --format=').split('\n')) {
+  const match = line.match(/^R\d*\t(.+)\t(.+)$/);
+  if (match) masterRenames.set(match[1], match[2]);
+}
 const refs = git('for-each-ref --format=%(refname) refs/remotes/origin/task/').split('\n').filter(Boolean);
 
 const integration = [];
 const status = [];
+const relocated = new Map();
 for (const ref of refs) {
   const id = ref.replace(/.*\/task\//, '');
   if (/rework|followup/.test(id)) continue;
@@ -52,7 +62,15 @@ for (const ref of refs) {
   if (!st) continue;
   const branchFiles = git(`ls-tree -r --name-only ${ref}`).split('\n').filter(SRC);
   if (branchFiles.length === 0) continue;
-  const missing = branchFiles.filter((f) => !masterFiles.has(f));
+  const missing = branchFiles.filter((f) => {
+    if (masterFiles.has(f)) return false;
+    const destination = masterRenames.get(f);
+    if (destination && masterFiles.has(destination)) {
+      relocated.set(`${f}\t${destination}`, { from: f, to: destination });
+      return false;
+    }
+    return true;
+  });
   if (st === 'done' && missing.length) integration.push({ id, missing });
   else if (st !== 'done' && missing.length === 0 &&
            ['ready', 'review', 'rework', 'blocked', 'in_progress'].includes(st)) {
@@ -68,6 +86,11 @@ if (integration.length) {
     missing.forEach((f) => console.log(`      • ${f}`));
   }
 } else console.log('✅ Sem integration drift (todo código de task done está na master).');
+
+if (relocated.size) {
+  console.log(`ℹ️  Relocações reconhecidas na master (${relocated.size}):`);
+  for (const { from, to } of relocated.values()) console.log(`   ${from} → ${to}`);
+}
 
 console.log('');
 if (status.length) {
