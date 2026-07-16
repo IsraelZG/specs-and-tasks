@@ -42,6 +42,19 @@ function ensureQueue() {
 }
 
 /**
+ * Detecta rebase/merge já em andamento (ex.: uma rodada anterior do flush morreu no meio de um
+ * `pull --rebase` conflitante). Rodar `git commit`/`add` por cima disso corrompe o estado — melhor
+ * abortar cedo e mandar resolver na mão do que tentar adivinhar.
+ */
+function gitOpInProgress() {
+  const gitDir = path.join(root, '.git');
+  if (fs.existsSync(path.join(gitDir, 'rebase-merge'))) return 'rebase';
+  if (fs.existsSync(path.join(gitDir, 'rebase-apply'))) return 'rebase';
+  if (fs.existsSync(path.join(gitDir, 'MERGE_HEAD'))) return 'merge';
+  return null;
+}
+
+/**
  * Existência CASE-SENSITIVE — o Windows FS é case-insensitive (`existsSync('tasks/ledger.md')` casa
  * com `LEDGER.md`), mas o pathspec do git é case-sensitive: o descasamento vira erro permanente.
  * Confere o basename exato no listing do diretório. Pega `T-004A.md` vs `T-004a.md` (typo de agente).
@@ -84,6 +97,21 @@ function ls() {
 
 // ---- flush -----------------------------------------------------------------
 function flush(author = 'fila') {
+  // Guarda de entrada: se uma rodada anterior morreu no meio de um pull --rebase conflitante, o
+  // repo está com rebase/merge pendente. Commitar/enfileirar por cima disso corrompe o estado —
+  // aborta alto e manda resolver na mão (mesma disciplina do resto do fluxo: nunca contornar
+  // silenciosamente uma falha de ambiente).
+  const op = gitOpInProgress();
+  if (op) {
+    console.error(
+      `⚠ ${op === 'rebase' ? 'rebase' : 'merge'} em andamento no Docs — flush abortado sem tocar a fila.\n` +
+      `   Resolva manualmente: "git status" pra ver os conflitos, resolva-os, "git add" os arquivos,\n` +
+      `   e "git ${op === 'rebase' ? 'rebase --continue' : 'commit'}" (ou "git ${op === 'rebase' ? 'rebase' : 'merge'} --abort"\n` +
+      `   se quiser desistir e tentar de novo depois). Só então re-rode "fila.mjs flush".`
+    );
+    process.exit(1);
+  }
+
   // Fila vazia NÃO retorna cedo: ainda pode haver commit local não-pushado de uma rodada anterior
   // cujo push falhou (self-heal mais abaixo). Só não há nada a fazer se a fila vazia E o push em dia.
   const files = fs.existsSync(queueDir)
@@ -135,11 +163,29 @@ function flush(author = 'fila') {
       // --autostash: o working tree quase sempre tem edição não-commitada de OUTRO agente; sem
       // isso o rebase recusa ("unstaged changes"). O autostash guarda e repõe só o que é tracked-mod.
       git(['pull', '--rebase', '--autostash']);
+    } catch (e) {
+      // Falha aqui é quase sempre CONFLITO de rebase (a outra máquina pushou algo incompatível),
+      // não falha de push — mensagem tem que apontar pro problema certo, senão quem lê tenta
+      // "re-rodar" um push que nunca foi o que quebrou, e o repo fica preso em rebase-em-progresso
+      // pra próxima rodada (que agora o gitOpInProgress() acima pega, mas só depois de confundir).
+      console.error(
+        '⚠ git pull --rebase falhou — provável CONFLITO com o que a outra máquina pushou.\n' +
+        '   O repo está com rebase em andamento. Resolva na mão: "git status", corrija os\n' +
+        '   conflitos, "git add" + "git rebase --continue" (ou "git rebase --abort" pra desistir),\n' +
+        '   e só então re-rode "fila.mjs flush".\n' +
+        '   ' + (e.stderr || e.message).trim()
+      );
+      process.exit(1);
+    }
+    try {
       git(['push']);
       console.log('✅ push concluído.');
     } catch (e) {
-      console.error('⚠ push falhou (resolva e re-rode flush — ele reempurra os commits pendentes):',
-        (e.stderr || e.message).trim());
+      console.error(
+        '⚠ push falhou depois de um pull limpo (provável corrida com push externo entre o pull e ' +
+        'o push) — re-rode "fila.mjs flush", ele reempurra os commits pendentes:',
+        (e.stderr || e.message).trim()
+      );
       process.exit(1);
     }
   }

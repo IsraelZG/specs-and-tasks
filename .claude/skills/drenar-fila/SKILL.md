@@ -24,23 +24,31 @@ tem branch isolada, não há working tree compartilhado.
 ## Passos
 1. **Espia** (opcional): `node tools/scripts/fila.mjs ls` — quantos commits pendentes e suas mensagens.
 2. **Drena:** `node tools/scripts/fila.mjs flush <SeuNome>`. O script:
+   - **guarda de entrada:** aborta imediatamente (sem tocar a fila) se detectar rebase/merge já em
+     andamento no Docs — sinal de que uma rodada anterior morreu no meio de um pull conflitante;
    - commita cada intenção **atômica por path** (`git commit -m "<msg>" -- <paths>`), em ordem cronológica;
    - consome a intenção só se o commit deu certo (intenção sem mudança real → descartada; erro de
      git real → **mantida** pra próxima rodada);
-   - ao final, `git pull --rebase` + `git push` (um só push pra todos os commits).
-3. **Se o push falhar** (colisão com push externo): o script para com exit 1. Rode
-   `git pull --rebase` à mão, resolva o que aparecer, e **re-rode** `fila.mjs flush` — o que já foi
-   commitado não re-entra (a intenção já foi consumida); só o push restante acontece.
-4. **Refresca o ledger de ciclo de vida** (barato, é o heartbeat periódico): `node tools/scripts/ledger.mjs`.
+   - ao final, `git pull --rebase --autostash` (multi-máquina — ver Regra 2b do `CLAUDE.md` — a
+     outra máquina pode ter pushado enquanto você commitava) **+** `git push` (um só push pra todos
+     os commits).
+3. **Se o `pull --rebase` falhar (conflito):** o script para com exit 1 e avisa que é conflito de
+   rebase, não de push — o repo fica com um rebase em andamento. Rode `git status`, resolva os
+   conflitos, `git add` + `git rebase --continue` (ou `--abort` pra desistir), e só então **re-rode**
+   `fila.mjs flush` — a guarda de entrada do passo 2 vai recusar rodar até você resolver.
+4. **Se só o `push` falhar** (rebase limpo, mas alguém pushou entre o pull e o push): o script para
+   com exit 1 mas o repo fica num estado consistente — **re-rode** `fila.mjs flush` direto, sem
+   intervenção manual; o que já foi commitado não re-entra (a intenção já foi consumida).
+5. **Refresca o ledger de ciclo de vida** (barato, é o heartbeat periódico): `node tools/scripts/ledger.mjs`.
    Regenera `tasks/LEDGER.md` (gitignored) projetando os Logs §9 — quem foi worker/reviewer/rework de
    cada task, agrupado por status. Não commita nada (artefato local).
-5. **Limpa artifacts órfãos da raiz:** remove diretórios `.dmm*-evidence/` (snapshots de Gate
+6. **Limpa artifacts órfãos da raiz:** remove diretórios `.dmm*-evidence/` (snapshots de Gate
    pós-integração) e arquivos `.tmp-*.log` / `.tmp/` (logs de sessão de agentes). Ambos já
    gitignored; são descartáveis. One-liner:
    ```
    node -e "const fs=require('fs'),p=require('path');const dirt=fs.readdirSync('.').filter(f=>f.startsWith('.dmm')||f.startsWith('.tmp-')||f==='.tmp');for(const f of dirt)fs.rmSync(p.join('.',f),{recursive:true,force:true});console.log(dirt.length+' artifacts removidos')"
    ```
-6. **Reporte** quantos commitou, quantos evidence dirs limpou, e o que pulou. **PARE.**
+7. **Reporte** quantos commitou, quantos evidence dirs limpou, e o que pulou. **PARE.**
 
 ## NÃO faça
 - **NÃO** rode `git add -A`/`git add tasks/` no Docs — nem aqui. O flush commita só os paths das
