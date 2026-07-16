@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design System UI"
+  short_description: "Build UI with canonical platform tokens"
+  default_prompt: "Use -system-ui to design this interface with the canonical platform system."

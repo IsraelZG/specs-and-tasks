@@ -94,6 +94,11 @@ Se a task não estiver em status `review`, PARE e informe. Não revise tarefas e
 
 ## 2. Verificar escopo dos arquivos
 
+Antes de ler o parecer anterior ou avaliar mérito, compare o **diff completo da branch da task**
+com o merge-base da branch de integração. Use o MCP de git para listar `A/M/D/R`; `HEAD~1` não é
+aceitável, pois uma task pode ter vários commits. Registre no Parecer uma tabela curta:
+`declarado | alterado | disposição`.
+
 Para cada arquivo `[CREATE]` declarado na Seção 3:
 - Confirme que o arquivo existe.
 - Se ausente → **BLOCKER**.
@@ -101,11 +106,15 @@ Para cada arquivo `[CREATE]` declarado na Seção 3:
 Para cada arquivo `[EDIT]` declarado:
 - Confirme que o arquivo foi modificado (leia e valide que a mudança faz sentido).
 
-Detecte **arquivos criados/modificados fora do escopo declarado** com:
-```bash
-git diff --name-only HEAD~1 HEAD 2>/dev/null || git status --short
-```
-Arquivos fora do escopo declarado → **MAJOR** no mínimo (pode ser BLOCKER se alterarem lógica não relacionada).
+Regras de comparação:
+- `[READ]` **não** autoriza modificação. `[CREATE]`/`[UPDATE]` só autorizam o path explícito ou
+  arquivos sob diretório explicitamente declarado.
+- Arquivo ignorado e efêmero não entra no diff; arquivo rastreado entra, inclusive renomeado ou
+  deletado.
+- Mudança necessária mas não declarada exige justificativa causal no Handover. Se corrigir a spec,
+  registre `spec→T-XXX`; se for melhoria oportunista, registre `defer→T-XXX` em vez de absorvê-la.
+- Arquivo rastreado fora do escopo sem disposição é **MAJOR** e impede aprovação. É **BLOCKER** se
+  amplia privilégio, vaza segredo, altera contrato público ou contorna um gate.
 
 ---
 

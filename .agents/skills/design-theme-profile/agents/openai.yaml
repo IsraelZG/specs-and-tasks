@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Theme Profile"
+  short_description: "Author scoped reusable visual theme profiles"
+  default_prompt: "Use -theme-profile to define a named visual theme without breaking the design system."
