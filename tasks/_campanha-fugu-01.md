@@ -1,5 +1,4 @@
 ---
-id: _campanha-fugu-01
 campaign_id: FUGU-01
 status: PRONTA
 created: 2026-07-14
