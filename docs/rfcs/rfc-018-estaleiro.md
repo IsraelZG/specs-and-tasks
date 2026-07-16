@@ -1,6 +1,6 @@
 # RFC-018 — Estaleiro: independência da camada de orquestração (mini-superapp descartável + plugins duráveis)
 
-- **Status:** draft (26/26 decisões de desenho tomadas — pronto para decompor em tasks EST-*)
+- **Status:** draft em evolução (desenho-base fechado; emendas incrementais absorvidas antes das tasks de cada prioridade)
 - **Data:** 2026-07-05
 - **Autor:** claude-fable (a partir do briefing do arquiteto)
 - **Decisor:** Israel (arquiteto da plataforma)
@@ -31,6 +31,7 @@ evoluir o ecossistema existente), as abordagens agora são **totalmente segregad
 | D2 | **Fonte de verdade** | **Híbrida por tipo:** docs/RAG/conhecimento = **markdown-first** (OKF: .md+frontmatter, grafo navegável, git = histórico); tasks/estado operacional = **DB-first** (transições são eventos, não edições de arquivo). |
 | D3 | **OmniRoute** | **Só extrair mecanismos** — NÃO rodar o serviço standing (coerente com ADR-0008/0009). Portar: fallback em tiers/circuit-breaker do registry de providers; engines de compressão que faltam (session-dedup, relevance). O proxy Headroom morre de vez. **EMENDA (2026-07-06, arquiteto — híbrido):** liberado rodar o OmniRoute como **sidecar de DEV** (instância local standing, porta 20128) para dar à frota acesso aos free tiers/combos via UMA entrada OpenAI-compatible no `plugin-providers` (EST-17); o veto a rodar/copiar continua valendo para o PRODUTO. Extração seletiva de provedores apikey-estáticos (uso sem sidecar) fica gatilhada em EST-18. Racional: copiar a fatia (registry+executors+oauth+DB+dashboard) = fork permanente e provedores OAuth inertes sem a UI de conexão de contas; rodar dá updates via git pull. Claude Code sob assinatura segue não-proxiável (mesma limitação do Headroom). |
 | D4 | **Orca** | **Inspiração; UI própria** — frontend TinyBase (padrão Lovable A1/FlexLayout). Copiar os padrões: fan-out de 1 prompt → N worktrees, diff annotation, abrir worktree a partir de task. |
+| D5 | **Grafo de conhecimento de código** | **Plugin durável separado:** `@plataforma/plugin-knowledge-graph`. Núcleo AST determinístico em SQLite; arestas inferidas são opt-in e identificadas. `web-tree-sitter` é candidato sujeito a spike, não escolha ratificada por alegação. |
 
 ### Decisões do questionário A–G (2026-07-05, resolvidas via sessão de perguntas em lote)
 
@@ -77,9 +78,13 @@ superapp (monorepo) — FONTE
 ├── apps/estaleiro/            ← DESCARTÁVEL: core (host mediador) + UI (FlexLayout+TinyBase)
 │   ├── core/                  (host medeia TODAS as portas — fs/rede/store/eventos, A2/A3;
 │   │                           plugins só se enxergam via host, nunca import direto)
-│   └── ui/                    (semente Lovable A1 — F1; 5 views: board·decisões·frota·RAG·custo — F2;
-│                                1 canal WS pra tudo, reusa stream ADR-0008 §D — F3)
-└── packages/                  ← DURÁVEL: @plataforma/plugin-* (G1), migra 1:1 pro superapp
+│   └── ui/                    (semente Lovable A1 — F1; consome design-system, ui-engines e shell;
+│                                adapters/views de domínio ficam locais; 5 views: board·decisões·
+│                                frota·RAG·custo — F2; 1 canal WS — F3)
+└── packages/                  ← DURÁVEL: pacotes compartilhados migram 1:1 pro superapp
+    ├── design-system/         (tokens + atoms/molecules; sem regra de negócio)
+    ├── ui-engines/            (ADR 0016: FlowGrid + componentes funcionais agnósticos)
+    ├── shell/                 (FlexLayout + solver/lifecycle/workspaces; seed = EST-29)
     ├── plugin-fs-tools/       (harness readFile/writeFile/bash gated — ORQ-09a)
     ├── plugin-agent-harness/  (VercelAgentAdapter + eventos + kill — ORQ-09b/10)
     ├── plugin-dispatcher/     (D1, NOVO: escolhe modelo, decide o que despachar, trava lock —
@@ -93,15 +98,18 @@ superapp (monorepo) — FONTE
     │                           serviço externo; ortogonal ao plugin-providers abaixo)
     ├── plugin-providers/      (registry direto + fallback tiers/scoring 9-fatores ← extração
     │                           OmniRoute, C1; Crush/opencode migram pra cá, C4; protocolo HTTP
-    │                           OpenAI-compatible — cobre cloud E modelo local via servidor tipo
-    │                           Ollama/LM Studio, é só troca de baseURL, sem mecanismo novo)
+    │                           OpenAI-compatible — a primeira fatia valida DeepSeek remoto; modelo
+    │                           local via Ollama/LM Studio fica para uma onda posterior, por troca
+    │                           de baseURL sem mecanismo novo)
     │                          [telemetria de custo/uso é MÓDULO INTERNO de plugin-providers —
     │                           §6.4 mesclou o antigo plugin-telemetry: era a mesma capacidade]
     ├── plugin-workflows/      (pós-questionário: fluxos declarativos JDM avaliados via zen-engine
     │                           — mesma engine de T-604; nano-broker, pipelines de prompt,
-    │                           políticas de dispatch; editor visual candidato: @gorules/jdm-editor)
+    │                           políticas de dispatch; projeção visual via FlowGrid da ADR 0016)
     ├── plugin-tasks/          (schema COMPLETO — B1; sucessor do MGTIA, DB-first)
     ├── plugin-knowledge/      (docs/RAG markdown-first + FTS local — E2; writer serial — B4)
+    ├── plugin-knowledge-graph/ (NOVO: AST incremental + relações extracted em SQLite; relações
+    │                            inferred opcionais e segregadas; consultas de vizinhança/caminho/impacto)
     └── plugin-skills/         (B5, NOVO: gerencia skills/agentes/CLAUDE.md; edições internas
                                 refletem no repo via git — a UI de skills é a fonte, git é log)
 ```
@@ -125,6 +133,21 @@ processo (não previstos no esboço original): `plugin-skills` (B5), `plugin-tel
 está pronto para decompor em tasks EST-* (ver §5).
 
 ## 5. Impacto nas tasks enfileiradas (estado 2026-07-05)
+
+### Emenda de execução incremental (2026-07-13)
+
+A decomposição original EST-01..16 registra a arquitetura, mas não autoriza construir tudo em
+paralelo. A execução corrente segue a ordem normativa de `docs/especificacao-estaleiro.md §1` em
+rolling wave: Fase 0 → P1 → gate remoto+local → P2. Por isso o `plugin-knowledge-graph` **não ganha
+task agora**: seu primeiro entregável será um spike de P2, criado just-in-time depois do gate de P1.
+O spike deve decidir por evidência o parser/gramáticas, o schema incremental e o contrato mínimo;
+só então uma ADR Accepted registra essas escolhas.
+
+Para UI, o corte mínimo reutilizável é `T-DS-01 → T-DS-03 → T-UIE-01 → T-UIE-03 → EST-42`. O spike de identidade visual
+`T-DS-05` pode evoluir valores dos tokens em paralelo e não bloqueia esse corte: componentes
+consomem a camada semântica, não a paleta literal. Shell FlexLayout e views específicas continuam em
+`apps/estaleiro` apenas como adapters/composição; engines vão para `@plataforma/shell` e
+`@plataforma/ui-engines` (ADR 0016).
 
 | Task | Status | Impacto |
 |---|---|---|
@@ -155,7 +178,7 @@ está pronto para decompor em tasks EST-* (ver §5).
 | EST-13 | plugin-knowledge (OKF+FTS+writer serial) | EST-02 | 5 — decompor |
 | EST-14 | Frontend (semente Lovable A1, 5 views) | EST-03, EST-06, EST-10, EST-13 | 6 — decompor |
 | EST-15 | SPIKE empacotamento standalone (D4) | EST-14 | 4 (opus-spike) |
-| EST-16 | plugin-workflows (desenho/gestão de fluxos — JDM/Zen, mesma engine de T-604; editor visual `@gorules/jdm-editor` a validar) | EST-02, EST-07 | 4 |
+| EST-16 | plugin-workflows (desenho/gestão de fluxos — JDM/Zen, mesma engine de T-604; adapter para `FlowGraphViewModel`) | EST-02, EST-07 | 4 |
 
 Todas em `draft:placeholder` — seguem o fluxo MGTIA normal no Docs (`/endurecer-task` decompõe as
 de complexidade ≥5, `/arquiteto-decisoes` resolve o que ficar em aberto, `/arquiteto-promover`
@@ -243,9 +266,32 @@ o vendor; EST-10 fallback/scoring do OmniRoute; EST-14 padrões de UI do orca; c
 do sift) devem citar **caminho de arquivo exato dentro do vendor**, não mais URL do GitHub — mesma
 disciplina de "cite ou escale" do endurecimento.
 
+### 6.7 — `plugin-knowledge` × `plugin-knowledge-graph`: complementares, não duplicados
+
+`plugin-knowledge` ingere e recupera documentos por identidade, texto, FTS e futura similaridade
+vetorial. `plugin-knowledge-graph` indexa a estrutura do código e responde relações reproduzíveis
+entre arquivos e símbolos. PDFs/Markdown são normalizados pelo primeiro; o segundo pode receber
+trechos documentais apenas para produzir arestas `inferred`, nunca para duplicar a ingestão.
+
+O núcleo do grafo de código funciona sem LLM. Arestas `extracted` e `inferred` carregam proveniência
+distinta, e consultas usam somente `extracted` por padrão. `shortest_path` com hipóteses exige opção
+explícita do chamador. A atualização é incremental por hash de arquivo e usa storage mediado pelo
+host, em tabelas próprias no SQLite. A superfície mínima candidata é: indexar/atualizar, consultar
+vizinhança, caminho mínimo e impacto.
+
+O projeto [Graphify](https://github.com/Graphify-Labs/graphify) é referência funcional; não é
+dependência nem fonte a ser portada. O binding WASM
+[web-tree-sitter](https://github.com/tree-sitter/tree-sitter/tree/master/lib/binding_web) só será
+ratificado após spike provar as gramáticas-alvo, desempenho incremental e Windows ARM64. Antes
+disso não há ADR de implementação: ADR registra a decisão fechada pelo spike, não a proposta.
+
 ## 7. Referências
+
+- [ADR 0016 — UI engines e FlowGrid](../adr/0016-ui-engines-e-flow-grid.md)
 - ADR-0008/0009/0010/0011 · caderno 30 (otimização de contexto/tooling) · caderno 31 (cofre de código) · caderno 12 (plugins) · caderno 14 (IA/RAG)
 - OmniRoute (`github.com/diegosouzapw/OmniRoute`, MIT) — extração: fallback tiers, session-dedup, relevance; validação: pipeline deles converge com nosso ladder (LLMLingua-2/CCR/crusher)
 - Orca (`github.com/stablyai/orca`, MIT) — padrões de UI: fan-out N worktrees, diff annotation, task→worktree
 - sift (`github.com/botirk38/sift`) — trigram p/ code-context (E2) · OKF · JSON→CSV (E3)
+- Graphify (`github.com/Graphify-Labs/graphify`) — referência de knowledge graph de código; sem port direto
+- Tree-sitter Web (`tree-sitter/tree-sitter/lib/binding_web`) — candidato Node/WASM sujeito a spike
 - Lições ORQ: bancada antes de adotar claim (headroom 8,5% real; kompress ilegível; L2 250ms) — **toda adoção passa pela bancada**
