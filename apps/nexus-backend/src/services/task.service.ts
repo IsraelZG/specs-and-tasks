@@ -184,9 +184,7 @@ export class TaskService {
     if (action === 'start') {
       const fm = this.parseFrontmatterNaive(content);
       const rawSubtasks = fm['subtasks'] || fm['children'] || '';
-      const hasSubtasks = typeof rawSubtasks === 'string'
-        ? rawSubtasks.replace(/[\[\]"\s]/g, '').split(',').filter(Boolean).length > 0
-        : false;
+      const hasSubtasks = this.parseIdArray(rawSubtasks).length > 0;
       if (hasSubtasks || current === 'draft:decomposed') {
         throw new DecomposedParentStartError(id);
       }
@@ -257,10 +255,7 @@ export class TaskService {
     // (2) Auto-promote on harden: deps done → ready
     if ((action === 'harden' || action === 'decide') && rule.to === 'draft:hardened') {
       const fm = this.parseFrontmatterNaive(content);
-      const deps = fm['dependencies'] || '[]';
-      const depIds: string[] = typeof deps === 'string'
-        ? deps.replace(/[\[\]"\s]/g, '').split(',').filter(Boolean)
-        : [];
+      const depIds = this.parseIdArray(fm['dependencies'] || '[]');
       const pool = this.loadAllTasks();
       if (this.depsAllDone(depIds, pool)) {
         this.autoTransition(id, 'ready', '[Auto-promovida]', 'deps todas done');
@@ -274,12 +269,9 @@ export class TaskService {
       // (3) Promove dependentes elegíveis
       for (const [, rec] of pool) {
         if (rec.frontmatter.status !== 'draft:hardened') continue;
-        const rawDeps = this.parseFrontmatterNaive(
+        const recDeps = this.parseIdArray(this.parseFrontmatterNaive(
           fs.readFileSync(rec.path, 'utf8')
-        )['dependencies'] || '[]';
-        const recDeps: string[] = typeof rawDeps === 'string'
-          ? rawDeps.replace(/[\[\]"\s]/g, '').split(',').filter(Boolean)
-          : [];
+        )['dependencies'] || '[]');
         if (!recDeps.includes(id)) continue;
         if (this.depsAllDone(recDeps, pool)) {
           this.autoTransition(rec.id, 'ready', '[Auto-promovida]', 'dep ' + id + ' concluída');
@@ -295,10 +287,7 @@ export class TaskService {
           const parentFm = this.parseFrontmatterNaive(
             fs.readFileSync(parentRecord.path, 'utf8')
           );
-          const rawSubs = parentFm['subtasks'] || parentFm['children'] || '[]';
-          const subtaskIds: string[] = typeof rawSubs === 'string'
-            ? rawSubs.replace(/[\[\]"\s]/g, '').split(',').filter(Boolean)
-            : [];
+          const subtaskIds = this.parseIdArray(parentFm['subtasks'] || parentFm['children'] || '[]');
           const allDone = subtaskIds.length > 0 && subtaskIds.every((sid) => {
             const child = pool.get(sid);
             return child && child.frontmatter.status === 'done';
@@ -380,6 +369,14 @@ export class TaskService {
 
   // ------------------------------------------------------------- utilitários
 
+  /** Parseia arrays de ids do frontmatter naive (dependencies/blocks/subtasks).
+   *  Strip do comentário inline (`# IDs de tarefas...`) que o template gera — sem ele o último id
+   *  vira `T-XXX#comentario`, depsAllDone falha e o auto-promote (T-1029) nunca dispara. */
+  private parseIdArray(raw: unknown): string[] {
+    if (typeof raw !== 'string') return [];
+    return raw.replace(/#.*$/, '').replace(/[\[\]"\s]/g, '').split(',').filter(Boolean);
+  }
+
   /** Carrega todas as tasks de ambos os diretórios num Map<id, record>. */
   private loadAllTasks(): Map<string, TaskRecord> {
     const map = new Map<string, TaskRecord>();
@@ -450,7 +447,8 @@ export class TaskService {
   // para garantir saída idêntica à ferramenta legada.
 
   private parseFrontmatterNaive(content: string): Record<string, string> {
-    const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    // Tolera BOM (UTF-8 salvo por PowerShell) — sem o strip a task some do INDEX (caso T-1033).
+    const match = content.replace(/^﻿/, '').match(/^---\r?\n([\s\S]*?)\r?\n---/);
     if (!match) return {};
     const fm: Record<string, string> = {};
     for (const line of match[1].split('\n')) {

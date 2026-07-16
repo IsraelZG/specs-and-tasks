@@ -27,7 +27,7 @@ const prefix = process.argv[2] || '';
 
 /** Frontmatter flat parser (stdlib — sem dep de yaml). */
 function parse(file) {
-  const txt = fs.readFileSync(path.join(tasksDir, file), 'utf8').replace(/\r\n/g, '\n');
+  const txt = fs.readFileSync(path.join(tasksDir, file), 'utf8').replace(/\r\n/g, '\n').replace(/^﻿/, '');
   const fm = txt.match(/^---\n([\s\S]*?)\n---/);
   if (!fm) return null;
   const body = txt.slice(fm[0].length);

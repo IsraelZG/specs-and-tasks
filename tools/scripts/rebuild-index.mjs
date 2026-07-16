@@ -7,7 +7,8 @@ import path from 'path';
  */
 
 function parseFrontmatter(content) {
-  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  // ﻿: tolera BOM (UTF-8 salvo por PowerShell) — sem o strip a task some do INDEX (caso T-1033)
+  const match = content.replace(/^﻿/, '').match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) return {};
 
   const frontmatter = {};

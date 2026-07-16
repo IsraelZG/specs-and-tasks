@@ -16,14 +16,15 @@ export type TaskStatus =
   | 'in_review'
   | 'rework'
   | 'done'
-  | 'blocked';
+  | 'blocked'
+  | 'obsolete';
 
 export type TaskAction =
   | 'triage' | 'harden' | 'decide' | 'block_decision' | 'decompose'  // endurecimento (draft ladder)
   | 'promote' | 'start' | 'pause' | 'finish'
   | 'claim' | 'approve' | 'request_changes'
   | 'block' | 'unblock'
-  | 'demote';
+  | 'demote' | 'obsolete';
 
 export interface TransitionRule {
   /** Estados de origem permitidos, ou '*' para qualquer estado. */
@@ -52,6 +53,10 @@ export const TRANSITIONS: Record<TaskAction, TransitionRule> = {
   block:          { from: '*',                                                   to: 'blocked',                logLabel: '[Bloqueado]' },
   unblock:        { from: ['blocked'],                                           to: 'ready',                  logLabel: '[Desbloqueado]' },
   demote:         { from: ['ready'],                                              to: 'draft:placeholder',       logLabel: '[Demovido]' },
+  // Encerramento sem execução (superada/redundante/premissa dissolvida). Nunca a partir de
+  // in_progress/in_review (trabalho ativo) nem done (histórico). Antes deste verbo, obsolescência
+  // era edição manual de frontmatter (caso T-604), que gera StatusDriftError na transição seguinte.
+  obsolete:       { from: ['draft', 'draft:placeholder', 'draft:triaged', 'draft:pending_decision', 'draft:hardened', 'draft:decomposed', 'ready', 'blocked', 'rework'], to: 'obsolete', logLabel: '[Obsoleto]' },
 };
 
 /** Rótulo usado por logProgress (registro sem mudança de status). */

@@ -64,7 +64,8 @@ const STATUS_ORDER = [
 ];
 
 function fm(txt, key) {
-  const m = txt.match(/^---\n([\s\S]*?)\n---/);
+  // ﻿: agentes PowerShell salvam UTF-8 com BOM; sem o strip a task some do ledger (caso T-1033)
+  const m = txt.replace(/^﻿/, '').match(/^---\n([\s\S]*?)\n---/);
   if (!m) return null;
   const f = m[1].match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
   return f ? f[1].replace(/#.*$/, '').trim().replace(/^["']|["']$/g, '') : null;
@@ -72,7 +73,9 @@ function fm(txt, key) {
 
 /** Extrai (ts, ator, label) de cada linha do Log §9. */
 function parseLog(txt) {
-  const sec = txt.split(/^##\s*9\./m)[1];
+  // .slice(1).join: tasks com §9 duplicada (header "## 9. Log" curto + seção criada pelo serviço,
+  // ou mojibake — 28 casos reais) têm entradas na 2ª seção; ler só a 1ª zerava as colunas de papel.
+  const sec = txt.split(/^##\s*9\./m).slice(1).join('\n');
   if (!sec) return [];
   const re = /^-\s*\*\*\[(.+?)\]\*\*\s*-\s*\*(.+?)\*\s*-\s*`\[(.+?)\]`(?::\s*(.*))?/gm;
   const out = [];
