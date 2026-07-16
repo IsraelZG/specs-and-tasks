@@ -1,13 +1,13 @@
 ---
 id: T-PL-03
 title: "sandbox node (processo/isolate, capacidades por ASSET:ROLE)"
-status: draft:triaged
+status: draft:hardened
 complexity: 5
 target_agent: devops_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-PL-01"]
-blocks: ["T-PL-06"]
+blocks: ["T-PL-06", "T-PL-07", "T-PL-08", "T-PL-09"]
 capacity_target: sonnet
 ---
 
@@ -92,6 +92,14 @@ export interface NodeSandbox {
   /** Termina o sandbox (SIGTERM → SIGKILL após timeout). */
   shutdown(): Promise<void>;
 }
+
+/**
+ * Factory — cria o sandbox node.
+ * Usa `child_process.fork()` (isolamento por processo) como default;
+ * `worker_threads` como fallback quando o bundle é ESM puro.
+ * Em teste: stub in-process que valida capacidades sem spawn real.
+ */
+export function createNodeSandbox(): NodeSandbox
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
@@ -106,6 +114,7 @@ export interface NodeSandbox {
 - **[CREATE]** `packages/plugins/src/sandbox-node.ts` — NodeSandbox, NodeSandboxCapabilities
 - **[CREATE]** `packages/plugins/tests/sandbox-node.test.ts`
 - **[UPDATE]** `packages/plugins/src/index.ts` — re-export
+- **[UPDATE]** `packages/plugins/package.json` — dependência `@plataforma/protocol` (para tipos de porta)
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
 - [x] **Framework:** Vitest (Node puro)
@@ -134,13 +143,13 @@ Casos de teste (numerados):
 > - NÃO implemente sandbox browser (T-PL-02).
 
 ### Pegadinhas conhecidas
-- O sandbox node usa `ASSET:ROLE` para escopar acesso — o plugin recebe uma persona com papel limitado.
-- `input_schema` e `output_schema` são validados contra o manifesto da capacidade (T-PL-01).
+- O sandbox node usa `child_process.fork()` por default (isolamento por processo, mais seguro); `worker_threads` é fallback para bundles ESM puros. Em teste, use stub in-process que simula o comportamento sem spawn real. O escopo de capacidades (graph/network/FS) é derivado do `ASSET:ROLE` da persona do plugin (§6.1).
+- `input_schema` e `output_schema` são validados contra o manifesto da capacidade (T-PL-01). O stub de teste rejeita input que não casa com `input_schema` (caso 3) e capability_id não declarado (caso 4).
 - Orçamento `cpuMs` e `timeoutMs` são distintos: cpuMs é tempo de CPU, timeoutMs é wall-clock.
 - `shutdown()` deve ser graceful (SIGTERM, aguardar, SIGKILL).
 
-1. **[TDD]** Crie `packages/plugins/tests/sandbox-node.test.ts` com os 13 casos (RED).
-2. Implemente `packages/plugins/src/sandbox-node.ts`.
+1. **[TDD]** Crie `packages/plugins/tests/sandbox-node.test.ts` com os 13 casos (RED). O stub de sandbox valida capacidades (graph entity_ids, network ports, FS paths) in-process sem spawn real.
+2. Implemente `packages/plugins/src/sandbox-node.ts` — `createNodeSandbox()` com `child_process.fork()` (produção) e stub in-process (teste).
 3. Atualize `packages/plugins/src/index.ts`.
 4. Rode build + test (Seção 7) e cole saída.
 
@@ -165,7 +174,9 @@ Casos de teste (numerados):
 ```bash
 pnpm --filter @plataforma/plugins build
 pnpm --filter @plataforma/plugins test
+pnpm --filter @plataforma/plugins lint
 ```
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal de build + test + lint na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -185,3 +196,4 @@ pnpm --filter @plataforma/plugins test
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-14T14:30]** - *claude-sonnet* - `[Endurecido]`: endureceu spec: factory createNodeSandbox, child_process.fork default, gate lint, package.json scope
