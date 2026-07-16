@@ -7,7 +7,7 @@ target_agent: logic_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-107"]
-blocks: ["T-PL-02", "T-PL-03", "T-PL-04", "T-PL-05", "T-PL-06"]
+blocks: ["T-PL-02", "T-PL-03", "T-PL-04", "T-PL-05", "T-PL-06", "T-PL-07", "T-PL-08", "T-PL-09"]
 capacity_target: sonnet
 ---
 
