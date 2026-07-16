@@ -1,13 +1,13 @@
 ---
 id: T-SHL-02
 title: "restricoes de layout no manifesto + gerenciador deterministico (recencia+pinos) + pilha de colapsados"
-status: draft:triaged
+status: done
 complexity: 4
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-SHL-01"] # IDs de tarefas que bloqueiam esta
-blocks: ["T-SHL-03"] # IDs de tarefas que esta bloqueia
+blocks: ["T-SHL-03", "EST-45"] # IDs de tarefas que esta bloqueia
 capacity_target: sonnet
 ---
 
@@ -81,6 +81,8 @@ export interface LayoutSolver {
 - [caderno-3-sdk/28-shell-e-composicao.md](../docs/caderno-3-sdk/28-shell-e-composicao.md) §3 — Restrições de layout declaradas e gerenciador determinístico
 - [caderno-3-sdk/28-shell-e-composicao.md](../docs/caderno-3-sdk/28-shell-e-composicao.md) §4 — Geração dinâmica de coluna e pilha de colapsados
 - [[spec-workspace]] — Layout salvo como SPEC:WORKSPACE (T-SHL-01)
+- [ADR 0016](../docs/adr/0016-ui-engines-e-flow-grid.md) e `tasks/EST-45.md` — o solver é
+  compartilhado; a adoção pelo Estaleiro acontece depois, por adapter incremental.
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
 - **[READ]** `docs/caderno-3-sdk/28-shell-e-composicao.md` §3, §4, §11
@@ -124,7 +126,15 @@ Casos de teste (numerados):
 5. Rode build + test e cole saída.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-Nenhuma pendência. Contratos derivados do caderno §3 e §4.
+> **Endurecimento (deepseek — 2026-07-15):** deps T-SHL-01 está `done` → endurecimento JIT (pass-2).
+> Ajustes:
+> - `lint` adicionado ao Gate (§7) conforme Regra 3 do CLAUDE.md (2026-07-06).
+> - Gate de Evidência explicitado com nota sobre lint.
+> - Contratos confrontados com `packages/shell/src/workspace.ts` (T-SHL-01 done):
+>   `PanelBind`, `FlexLayoutJson`, `WorkspaceSpec`, `ShellRoot` — todos alinhados com a spec
+>   de T-SHL-01 §1. O solver de layout é consumido pelo `ShellRoot` ao abrir/fechar painéis
+>   e gerenciar a pilha de colapsados.
+> **Decisões em aberto: 0.**
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist:
@@ -133,28 +143,110 @@ O agente `agile_reviewer` usará esta checklist:
 - [ ] Pilha de colapsados preserva todos os painéis não-visíveis?
 - [ ] Restrições (minWidth, minUsefulWidth, collapsesToRail) são respeitadas?
 - [ ] `pnpm test` verde com 8 casos?
+- [ ] `pnpm lint` verde — eslint src/ sem erros?
 
-### Verificação automática
+### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 ```bash
-pnpm --filter @plataforma/shell build
-pnpm --filter @plataforma/shell test
+pnpm --filter @plataforma/shell build      # tsc — precisa terminar sem erro
+pnpm --filter @plataforma/shell test       # vitest — precisa ficar verde
+pnpm --filter @plataforma/shell lint       # eslint src/ — sem erros (Regra 3 do CLAUDE.md)
 ```
+> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
+> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
+> **Lint é parte do gate** desde 2026-07-06 (3 reworks consecutivos por regressão de lint cobrada só no review — T-807, EST-02b, EST-02c).
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
-- 
+- **[deepseek]** Implementação completa do solver de layout determinístico: `layout-manager.ts` (interfaces), `layout-solver.ts` (algoritmo guloso: pinos primeiro, recência decrescente), `manifest-types.ts` (ModuleManifest), `tests/layout-solver.test.ts` (9 testes — 8 casos da Seção 4 + caso extra para rail). Re-export no `index.ts`. Gate verde.
+- **Gate de Evidência:**
+```
+=== BUILD ===
+$ vite build
+vite v5.4.21 building for production...
+✓ 19 modules transformed.
+dist/index.js  895.05 kB │ gzip: 197.91 kB
+✓ built in 5.68s
+
+=== TEST ===
+$ vitest run
+✓ tests/layout-solver.test.ts (9 tests) 6ms
+✓ tests/workspace.test.ts (7 tests) 120ms
+Test Files  2 passed (2)
+     Tests  16 passed (16)
+
+=== LINT ===
+$ eslint src/
+(exit 0 — sem erros)
+```
 
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
+- **Evidência de Execução (obrigatória — saída real de pnpm --filter @plataforma/shell {build,test,lint} rodada dentro da worktree `C:\Dev2026\.superapp-worktrees\T-SHL-02` no branch `task/T-SHL-02` @ `494e271f`):**
+
 ```
-(cole aqui a saída real de pnpm build e pnpm test)
+$ pnpm --filter @plataforma/shell build
+> @plataforma/shell@0.1.0 build C:\Dev2026\.superapp-worktrees\T-SHL-02\packages\shell
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 19 modules transformed.
+rendering chunks...
+[vite:dts] Start generate declaration files...
+computing gzip size...
+[vite:dts] Declaration files built in 1284ms.
+dist/index.js  895.05 kB │ gzip: 197.91 kB
+✓ built in 3.25s
+
+$ pnpm --filter @plataforma/shell test
+> @plataforma/shell@0.1.0 test C:\Dev2026\.superapp-worktrees\T-SHL-02\packages\shell
+> vitest run
+
+ RUN  v3.2.6 C:/Dev2026/.superapp-worktrees/T-SHL-02/packages/shell
+
+ ✓ tests/layout-solver.test.ts (9 tests) 5ms
+ ✓ tests/workspace.test.ts (7 tests) 93ms
+
+ Test Files  2 passed (2)
+      Tests  16 passed (16)
+   Start at  17:29:01
+   Duration  5.21s
+
+$ pnpm --filter @plataforma/shell lint
+> @plataforma/shell@0.1.0 lint C:\Dev2026\.superapp-worktrees\T-SHL-02\packages\shell
+> eslint src/
+
+(sem saída — exit 0, sem erros)
 ```
+
 - **Comentários de Revisão:**
+  - **Implementação completa e conforme spec.** Os 5 arquivos da §3 existem no branch `task/T-SHL-02` @ `494e271f`: `src/index.ts` (atualizado, re-exporta os 6 tipos + `createLayoutSolver`), `src/layout-manager.ts` (63 linhas, todos os 6 contratos da §1 com JSDoc e cross-refs), `src/layout-solver.ts` (80 linhas, algoritmo guloso: pinos primeiro, recência decrescente, trilho não-dispara-cascata, pilha ordenada menos-recente-primeiro), `src/manifest-types.ts` (13 linhas), `tests/layout-solver.test.ts` (245 linhas, 9 testes cobrindo 1-a-1 os 8 casos da §4 + sub-caso `8b Rail consome minWidth do viewport`).
+  - **Gate verde:** build (`vite build` 19 modules) + test (16/16 passed) + lint (exit 0). Diferencial: a worktree `C:\Dev2026\.superapp-worktrees\T-SHL-02` está **viva** e com `node_modules` instalado, então a evidência é reproduzível. Comando: `git worktree list` mostra a worktree ativa em `494e271 [task/T-SHL-02]`.
+  - **Cobertura 1-a-1 dos 8 casos da §4:** ✅
+    1. Viewport 1920: 3 visíveis (600 cada) — verde.
+    2. Viewport 1024: 2 visíveis (c=600, b=424), a→stack — verde.
+    3. Viewport 375 mobile: 1 visível (a=375 best-effort), b→stack — verde.
+    4. Pinos vencem recência: pinned (recency 50) visível antes de normal (recency 500) — verde.
+    5. Recência: 2 não-pinados, menos recente colapsa — verde.
+    6. Mínima-útil (< minUsefulWidth) colapsa mesmo acima de minWidth — verde.
+    7. Determinismo: 100 execuções idênticas, output byte-a-byte igual — verde.
+    8. Rail ocupa minWidth (não preferredWidth) — verde.
+  - **Coupling gate:** solver puro (sem React, sem rede, sem storage). Imports só entre arquivos do próprio pacote. Sem inversão de camadas. ✅
+  - **Comportamento correto de pegadinhas da §5:** pinos alocados primeiro, recência decrescente, `collapsesToRail: true` consome `minWidth` sem disparar cascata, `collapseStack` é `[...stackPanels].reverse()` (menos recente primeiro). Trilho vs. pilha bem diferenciado.
+  - **Achado MINOR (não-bloqueante) — spec feedback:** a nota `# tsc — precisa terminar sem erro` em §7 da spec (linha 150) é **incorreta** para o pacote `@plataforma/shell`: o `package.json` declara `"build": "vite build"` (com `vite-plugin-dts` para os `.d.ts`). O worker executou o comando que o pacote realmente define (vide gates acima: `> vite build`), e tudo passa. A nota da spec é herança da forma original da §7 (de quando o pacote ainda era `tsc` puro) e precisa ser endurecida em re-pass do `endurecer-task`. **Não é defeito de código — é nota de spec desatualizada.** Registrar no ledger de pendências ou marcar como `spec→T-SHL-02` no `agrupar-cleanup` para endurecedor atualizar a nota.
+
+- **Divergência do parecer anterior (se houver):** n/a (primeiro parecer).
+- **Decisão final do reviewer (Reviewer 1 — `agile_reviewer:minimax-m3`, 2026-07-15):** **APROVADO**. Branch `task/T-SHL-02` @ `494e271f` deve ser merged em master via `integrar-task`.
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-15T19:54]** - *deepseek* - `[Endurecido]`: endureceu spec → lint no gate, contratos verificados
+- **[2026-07-15T19:54]** - *system* - `[Auto-promovida]`: deps todas done
+- **[2026-07-15T19:59]** - *deepseek* - `[Iniciado]`: iniciando implementação do solver de layout
+- **[2026-07-15T20:07]** - *deepseek* - `[Finalizado]`: solver de layout implementado: layout-manager + layout-solver + manifest-types + 9 testes. Build+test+lint verdes (16 testes, 0 erros)
+- **[2026-07-15T20:13]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: revisando T-SHL-02 (--integrar)
+- **[2026-07-15T20:34]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: Integrado: merge task/T-SHL-02 em master (commit 61cf04a, +413 linhas, 5 arquivos), worktree removida, branch task/T-SHL-02 preservada. Gate pós-merge: build verde (vite build 19 modules, dist/index.js 895.05 kB), test 16/16 passed (9 layout + 7 workspace), lint verde nos arquivos de T-SHL-02. Pendências (não-bloqueantes): spec→T-SHL-02 (m1: nota # tsc desatualizada em §7) + i1 (drift pré-existente workspace-store.ts:19 de T-SHL-01, não-bloqueante para T-SHL-02). Push origin master: 9bb8a68..61cf04a.
