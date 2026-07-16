@@ -130,12 +130,24 @@ function flush(author = 'fila') {
       fs.rmSync(full);
       continue;
     }
+    // Paths gitignored (tasks/INDEX.md, dist/, .nexus/…) fazem o `git add` falhar na entrada
+    // INTEIRA, e o catch retinha a entrada para sempre como "transiente". Filtra-os antes.
+    // check-ignore sai 0 com ignorados no stdout, 1 quando nenhum é ignorado (throw esperado).
+    let ignored = [];
+    try { ignored = git(['check-ignore', '--', ...existing]).trim().split('\n').filter(Boolean); }
+    catch { /* nenhum path ignorado */ }
+    const commitPaths = existing.filter((p) => !ignored.includes(p));
+    if (!commitPaths.length) {
+      skipped.push(`${f}: só paths gitignored (${existing.join(', ')}) — descartado`);
+      fs.rmSync(full);
+      continue;
+    }
     try {
       // Stage EXPLÍCITO por path (necessário p/ arquivos NOVOS — `git commit -- path` ignora
       // untracked). Seguro aqui porque o flush é o ÚNICO committer: sem a corrida do `git add -A`
       // que varreria arquivos de outro agente. O `commit -- <paths>` ainda limita ao que é nosso.
-      git(['add', '--', ...existing]);
-      git(['commit', '-m', message, '--', ...existing]);
+      git(['add', '--', ...commitPaths]);
+      git(['commit', '-m', message, '--', ...commitPaths]);
       committed++;
       fs.rmSync(full); // consumido só se o commit deu certo
     } catch (e) {
