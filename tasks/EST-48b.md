@@ -1,7 +1,7 @@
 ---
 id: EST-48b
 title: "P0.3b Backend de perfis OpenAI-compatible persistidos"
-status: ready
+status: review
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -455,6 +455,13 @@ pnpm --filter @plataforma/estaleiro-core lint
 
 ### Handover do Executor:
 
+**Placar:** 39/39 testes novos passando. 6 suites pré-existentes falham (módulos não-buildados: @plataforma/plugin-tasks, @plataforma/core). Build/lint do core: erros pré-existentes; arquivos novos limpos.
+
+**Arquivos:** 12 arquivos (7 src, 4 test, 1 barrel). 6 commits na branch `task/EST-48b`, pushados.
+
+**Gate plugin-providers:** build ✓, test 26/26 ✓, lint ✓
+**Gate estaleiro-core:** build ⚠ (pré-existente), test 39/39 novos ✓, lint ⚠ (pré-existente)
+
 
 ### Parecer do Agente Revisor:
 - [ ] **Aprovado**
@@ -464,3 +471,5 @@ pnpm --filter @plataforma/estaleiro-core lint
 > Atualizado somente por `manage-task.mjs`/serviço MGTIA.
 - **[2026-07-16T13:25]** - *gpt-5* - `[Triado]`: triagem P0.3b: backend depende do ADR de EST-48a
 - **[2026-07-16T19:56]** - *deepseek* - `[Reconciliado]`: status restaurado de draft:triaged para ready (drift corrigido)
+- **[2026-07-16T20:16]** - *deepseek* - `[Iniciado]`: iniciando implementação de perfis OpenAI-compatible
+- **[2026-07-16T20:32]** - *deepseek* - `[Finalizado]`: EST-48b concluído: SecretStore (9/9), ProfileStore (11/11), ProfileRoutes (12/12), ChatService (7/7). 39/39 testes pass. Gate plugin-providers: build+test+lint OK. Core build/lint com erros pré-existentes de módulos não-buildados; arquivos novos limpos. 6 commits pushados.
