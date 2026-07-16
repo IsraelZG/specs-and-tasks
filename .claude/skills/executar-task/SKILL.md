@@ -28,10 +28,21 @@ CLAUDE.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
   bate com uma dependência `done` é decisão de arquitetura — não conserto de worker.
 
 ## Passo a passo
-1. **Prontidão:** `<CTRL>/tasks/$ARGUMENTS.md` deve estar `status: ready`. Se `draft:*` → **PARE**
-   (precisa endurecer — `/endurecer-task`). Se `review`/`done` → **PARE** (não reexecute).
-2. **Worktree (uma por task — disciplina INVIOLÁVEL):**
-   - Se ainda **não** existe, crie do controle: `pnpm wt new $ARGUMENTS` (roda `worktree.mjs`, que
+1. **Prontidão comum:** sem manifesto de campanha, a task deve estar `status: ready`; `draft:*` →
+   **PARE**. Em campanha, um descendente `draft:hardened` pode receber admissão staged somente pelo
+   procedimento do passo 2. `review`/`done` → **PARE**.
+2. **Admissão de campanha (se aplicável):** localize o único `_campanha-*.md` que contém a task.
+   - Crie primeiro a worktree na base declarada: trunk usa `pnpm wt new $ARGUMENTS`; descendente usa
+     `pnpm wt new $ARGUMENTS --base task/<PREDECESSOR>`.
+   - Registre a base: trunk → `campanha.mjs register-review-base <manifesto> $ARGUMENTS master`;
+     descendente → `campanha.mjs register-stack-base <manifesto> $ARGUMENTS task/<PREDECESSOR>`.
+   - Rode `campanha.mjs validate` e `campanha.mjs can-start`. Falha ou predecessor antes de
+     `review` → PARE. Se a task estiver `draft:hardened`, só após esses checks chame `promote` com
+     motivo `admissão staged <campaign_id>`; depois chame `start`.
+   - Descendente cujo predecessor ainda não está `done` permanece **staged**: pode ser implementado,
+     commitado, pushado e gated, mas não pode chamar `finish`.
+3. **Worktree comum (uma por task — disciplina INVIOLÁVEL):**
+   - Fora de campanha, se ainda **não** existe, crie do controle: `pnpm wt new $ARGUMENTS` (roda `worktree.mjs`, que
      cria em `C:\Dev2026\.superapp-worktrees\$ARGUMENTS` na branch `task/$ARGUMENTS` e imprime o
      caminho do `manage-task.mjs`). **Nunca** crie worktree à mão nem em outro diretório — já
      quebrou antes (worktrees iam parar em `.nexus-worktrees`). Confira com `pnpm wt ls`.
@@ -55,8 +66,15 @@ CLAUDE.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
    > finalize com a saída colada. **pnpm 11:** se `pnpm install` der `ERR_PNPM_IGNORED_BUILDS`, o campo
    > é `allowBuilds:` → `<pkg>: true` no `pnpm-workspace.yaml` (P-006), **não** `onlyBuiltDependencies`;
    > e config nova só vale após apagar `node_modules`+`pnpm-lock.yaml` (o lock velho pula a resolução).
-6. **Finalize** (ledger): `node "<CTRL>/tools/scripts/manage-task.mjs" finish $ARGUMENTS <EU> "<resumo + placar de testes>"`.
+6. **Finalize** (ledger): antes do `finish` de task em campanha, rode `campanha.mjs can-finish
+   <manifesto> $ARGUMENTS`. O comando exige deps `done`, branch transplantada e
+   `review_base_sha` válida. Depois chame `node "<CTRL>/tools/scripts/manage-task.mjs" finish
+   $ARGUMENTS <EU> "<resumo + placar de testes>"`.
    - Move pra `review`. Daqui em diante o reviewer assume — você **NÃO** aprova.
+   - **Staged:** se o predecessor ainda não está `done`, chame `pause` com "staged — implementação
+     e gates prontos; aguardando upstream <predecessor>". Após ele ficar `done`, retome, faça
+     `git rebase --onto master <stack_base_sha> task/$ARGUMENTS`, registre `review_base_sha` com
+     `campanha.mjs register-review-base ... master`, re-gate e só então rode `can-finish` + `finish`.
 6a. **VERIFIQUE a transição — NÃO assuma que deu certo (INVIOLÁVEL).** A saída do `finish` deve
    mostrar explicitamente `Status: review`. Qualquer coisa diferente (erro, status inalterado,
    exceção) → **NÃO prossiga** para push/enqueue como se a task estivesse fechada. Confirme lendo

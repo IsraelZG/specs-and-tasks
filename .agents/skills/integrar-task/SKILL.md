@@ -27,6 +27,18 @@ que já está na Seção 8 da task. É o passo que faltava e que causou o gap de
 - Em tasks complexas há **vários** pareceres (review-only). Considere o **agregado**: só prossiga
   para aprovar se TODOS os bloqueantes (`Bn`) estão resolvidos e o último veredito é Aprovado.
 
+**Validação de campanha (INVIOLÁVEL):** se a task pertence a uma campanha (`tasks/_campanha-*.md`),
+verifique ANTES do merge:
+
+1. **Predecessor `done`:** `node tools/scripts/campanha.mjs state <manifesto>` — o predecessor
+   declarado no manifesto deve estar `done`. Se não, PARE (descendente staged não pode ser
+   integrado antes do predecessor).
+2. **Base de review válida:** `node tools/scripts/campanha.mjs check-review-base <manifesto>
+   $ARGUMENTS` deve terminar com exit 0. `pending`, branch fora da base ou qualquer erro → PARE.
+3. **Manifesto válido:** `node tools/scripts/campanha.mjs validate <manifesto>` — se falhar, PARE.
+
+Essas validações previnem integração de descendente antes do transplante/re-gate (ADR 0017 §5).
+
 ## Detecta tooling-do-controle (sem worktree) — ANTES de escolher o caminho
 
 Algumas tasks (ex.: `ORQ-*`) são **tooling do Docs** — editam scripts/skills direto no controle, sem
