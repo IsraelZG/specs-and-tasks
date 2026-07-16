@@ -7,7 +7,7 @@ target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, fr
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-DS-01"] # Tokens compilados são pré-requisito — "token layer leads, metadata follows"
-blocks: ["T-DS-03"] # Componentes dependem dos metadados para validação de CI
+blocks: [] # Metadados AI-ready não bloqueiam a conformação dos seis componentes-piloto de T-DS-03
 capacity_target: haiku
 ---
 
