@@ -108,7 +108,19 @@ relevantes — sem ele, YAML/JSON cuspem erros espúrios em `.md`.
 
 ---
 
-## 3. Boas práticas
+## 3. LSP e MCP como capacidade de plataforma vs. ferramenta MGTIA
+
+> **Distinção normativa:** LSP e MCP no playbook são **ferramentas que os agentes de desenvolvimento
+> (MGTIA) usam** para trabalhar no código (diagnósticos, referências, git, GitHub). No wiki de
+> produto, `lsp-plugin` e `mcp-plugin` são **archetypes de plugin da plataforma**
+> (`caderno-3-sdk/12-plugins-e-computacao.md §3`) — capacidades padronizadas que qualquer agente
+> pode invocar para inteligência de linguagem e tool-calling, respectivamente. A ferramenta que o
+> agente usa para construir ≠ o contrato que o agente expõe como serviço. O playbook cataloga a
+> primeira; o caderno-3/12 define o segundo.
+
+---
+
+## 4. Boas práticas
 
 1. **MCP sobre shell:** prefira `mcp__git_*` a `bash git ...`. Evita escaping, encoding e timeouts.
 2. **Context7 antes de codar:** confirme assinaturas de API com `context7` em vez de chutar.
