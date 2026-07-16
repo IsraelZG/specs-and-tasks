@@ -1,7 +1,7 @@
 ---
 id: EST-48a
 title: "P0.3a SPIKE: persistência segura de credenciais de provider"
-status: draft:hardened
+status: ready
 complexity: 4
 target_agent: devops_agent
 reviewer_agent: agile_reviewer
@@ -147,3 +147,4 @@ Todos devem retornar Exit Code 0. *(Escopo: pacote do spike; não há mudança e
 - **[2026-07-16]** - *claude-opus* - `[Endurecido]`: spec endurecida → draft:hardened; ADR-0018, casos enumerados, contrato SecretStore derivado de EST-48b, gate scoped a @plataforma/estaleiro-core
 - **[2026-07-16T17:16]** - *claude-opus* - `[Reconciliado]`: status restaurado de draft:hardened para draft:triaged (drift corrigido)
 - **[2026-07-16T17:17]** - *claude-opus* - `[Endurecido]`: endureceu spec: ADR-0018, casos enumerados, contrato SecretStore derivado de EST-48b, gate scoped
+- **[2026-07-16T19:09]** - *deepseek* - `[Promovida p/ ready]`: draft:hardened com deps done — safety-net flip
