@@ -1,7 +1,7 @@
 ---
 id: EST-47
 title: "P0.2 Contexto integral no chat: histórico, CLAUDE.md e skills"
-status: in_review
+status: rework
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -581,7 +581,7 @@ pnpm --filter @plataforma/estaleiro test:e2e
 
 **Placar de testes EST-47:** chat-context.test.ts 6/6 ✓ · ChatView.test.tsx 12/12 ✓ · lint ChatView.test.tsx 0 erros ✓
 
-**Gate de Evidência (saída literal):**
+**Gate de Evidência — Rework (saída literal):**
 
 ```
 === 1. pnpm --filter @plataforma/estaleiro-core build ===
@@ -589,12 +589,10 @@ $ tsc
 EXIT:0 ✅
 
 === 2. pnpm --filter @plataforma/estaleiro-core test ===
-Test Files  2 failed | 16 passed (18)
-     Tests  11 failed | 92 passed (103)
-Falhas PRE-EXISTENTES: workflow-composer.test.ts + workflow-runtime.integration.test.ts
-  → ENOENT: ingress.jdm.json ausente em packages/plugin-workflows/dist/nodes/ingress/
-  → NÃO é regressão do EST-47 (arquivos não modificados)
-chat-context.test.ts: 6/6 ✅
+Test Files  2 failed | 17 passed (19)
+     Tests  11 failed | 98 passed (109)
+Falhas PRE-EXISTENTES: workflow-composer.test.ts + workflow-runtime.integration.test.ts (ingress.jdm.json)
+chat-context.test.ts: 6/6 ✅ · chat-route.test.ts: 6/6 ✅ (B2 + Sonda 3 cobertos)
 
 === 3. pnpm --filter @plataforma/estaleiro-core lint ===
 $ eslint src/
@@ -605,8 +603,7 @@ $ tsc
 EXIT:0 ✅
 
 === 5. pnpm --filter @plataforma/plugin-skills test ===
-Test Files  1 passed (1)
-     Tests  16 passed (16)
+Tests  16 passed (16)
 EXIT:0 ✅
 
 === 6. pnpm --filter @plataforma/plugin-skills lint ===
@@ -614,13 +611,13 @@ $ eslint src/
 EXIT:0 ✅
 
 === 7. pnpm --filter @plataforma/estaleiro-ui build ===
-Build failed — @plataforma/shell não compilado (pacote não existe em dist/)
-EXIT:1 ❌ PRE-EXISTENTE (migração EST-45)
+Build failed — @plataforma/shell não compilado
+EXIT:1 ❌ PRE-EXISTENTE
 
 === 8. pnpm --filter @plataforma/estaleiro-ui test ===
 Test Files  2 failed | 14 passed (16)
      Tests  1 failed | 71 passed (72)
-Falhas PRE-EXISTENTES: smoke.test.ts + shell.test.tsx → @plataforma/shell não resolvido
+Falhas PRE-EXISTENTES: smoke.test.ts + shell.test.tsx → @plataforma/shell
 ChatView.test.tsx: 12/12 ✅
 
 === 9. pnpm --filter @plataforma/estaleiro-ui lint ===
@@ -630,14 +627,15 @@ EXIT:1 ❌ PRE-EXISTENTE
 
 === 10. pnpm --filter @plataforma/estaleiro test:e2e ===
 Pretest:e2e depende de estaleiro-ui build → falha em cascata por @plataforma/shell
-EXIT:1 ❌ PRE-EXISTENTE
+EXIT:1 ❌ PRE-EXISTENTE (dependência externa @plataforma/shell)
 ```
 
-**Diagnóstico de falhas pré-existentes:**
-1. `@plataforma/shell` não compilado — afeta UI build/test/lint/e2e. Causa: worktree criado antes do build de `@plataforma/shell` (migração EST-45).
-2. `ingress.jdm.json` ausente em `plugin-workflows/dist/` — afeta 2 suites de teste do core. Causa: build incompleto do plugin-workflows.
+**Rework B1/B2:**
+- B1: `chat.spec.ts` — adicionados casos 17-23 (§4.4): multi-turn, CLAUDE.md marker, skill content, skill não-selecionada, path traversal, anti-compactação, toggles. E2E não roda por @plataforma/shell ausente.
+- B2: `chat-route.test.ts` (CRIADO) — casos 7-11 + Sonda 3 (§4.2): POST com/sem context, GET /api/skills, skill inexistente → 400, contextReader ausente, readClaudeMd erro → 500. Todos 6/6 verdes.
+- Fix bootstrap.ts: SKILL_NOT_FOUND error code para skill inexistente (400 em vez de 500).
 
-Nenhuma falha é regressão do EST-47. Todo código novo (chat-context, ChatView context panel, server contextReader) compila, testa e linta limpo.
+**Placar rework:** chat-context 6/6 ✓ · chat-route 6/6 ✓ · ChatView 12/12 ✓ · lint core 0 erros ✓
 
 ### Parecer do Agente Revisor (Reviewer 1 — minimax-m3, 2026-07-16):
 - [ ] **Aprovado**
@@ -672,3 +670,4 @@ Nenhuma falha é regressão do EST-47. Todo código novo (chat-context, ChatView
 - **[2026-07-16T17:54]** - *claude-sonnet* - `[Iniciado]`: iniciando execução
 - **[2026-07-16T18:30]** - *claude-sonnet* - `[Finalizado]`: Contexto integral no chat: buildChatContext injeta CLAUDE.md+skills como system messages. GET /api/skills. ChatView com painel de selecao. 11 arquivos. Gate: core build/lint PASS, skills all PASS, chat-context 6/6, ChatView 12/12. Falhas pre-existentes: @plataforma/shell nao compilado (afeta UI build/test/e2e) + ingress.jdm.json ausente (2 suites core). Zero regressoes EST-47.
 - **[2026-07-16T18:45]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: revisando EST-47 (qa-review --integrar)
+- **[2026-07-16T18:55]** - *agile_reviewer:minimax-m3* - `[Requer Refatoração]`: Rework: B1 chat.spec.ts (spec §3.10) nao modificado e §4.4 casos 17-23 ausentes — DoD §7 Playwright verdes + §4b BLOCKER de processo; B2 chat-route.test.ts nao estendido com §4.2 casos 7-11 (POST /api/chat enriquecido, GET /api/skills, error path) — 0/5 cobertos. Nao-bloqueantes M1/M2 → ledger. Code novo core/UI correto, pre-existing failures confirmadas externas. Worker tem a branch task/EST-47 (worktree C:/Dev2026/.superapp-worktrees/EST-47) intacta para rework.

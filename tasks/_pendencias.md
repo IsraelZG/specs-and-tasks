@@ -760,6 +760,10 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [m8][T-602][workers] Caso 9: asserir que change local de B sobreviveu ao merge (não só `mergedState defined` em l.415).
 - [ ] [i4][T-602][monorepo] `pnpm-lock.yaml` claimed em `COMMIT_EDITMSG` ("new — created") mas `glob **/pnpm-lock.yaml` retorna 0 matches. Provavelmente estado pré-existente do projeto, mas inconsistência na afirmação.
 - [ ] [i5][T-602][crypto] `packages/crypto/src/wrappers.ts` (mudança de `ed25519GetPublicKey`) está fora do §3 escopo. R2 já apontou a forma correta, então é fix de desvio anterior, não novo.
+- [ ] [m9][T-602][workers] `allNodes` populado por `rangeScan` no caso 8 (l.360-364) mas nunca usado (dead code). Limpar.
+- [ ] [m10][T-602][workers] Caso 11 (l.451, 454) usa `'author-1'` como key para `getEntityHead`/`getEntityId`; semanticamente `node.id` seria mais correto. Funciona por acidente.
+- [ ] [i6][T-602][workers] `hashNode` adicionado ao import em `commitCycle.ts:5` sem estar listado na spec §1:54. Necessário para o B1.6 fix (R2). Justificado.
+- [ ] [recomendação→T-603][workers] Quando T-603 (co-assinatura) entrar, validar que `prepared.snapshotHash` é preenchido em `prepareCommit()` antes de co-assinar (hoje `finalizeCommit:250` recomputa via `sha256(prepared.snapshot)`, enfraquecendo a invariante "PreparedCommit imutável" do spec §1:114-123).
 <!-- END T-602 (Reviewer 3) -->
 
 <!-- EST-47 (Reviewer 1) -->
