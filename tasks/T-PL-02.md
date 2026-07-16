@@ -1,7 +1,7 @@
 ---
 id: T-PL-02
 title: "sandbox browser (Worker/WASM, sem autoridade ambiente) + bridge de componente"
-status: draft:triaged
+status: draft:hardened
 complexity: 5
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -18,7 +18,7 @@ capacity_target: sonnet
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (JSDOM com Web Worker mock) + `playwright` (smoke E2E com Worker real)
+- **Test Runner:** `vitest` (JSDOM com Web Worker mock, casos 1–9) + `playwright` (smoke E2E com Worker real, casos 10–11)
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
@@ -59,6 +59,15 @@ export interface ComponentBridgeMessage extends SandboxBridgeMessage {
 
 export type BridgeMessageHandler = (msg: SandboxBridgeMessage) => void;
 
+/**
+ * Catálogo de componentes disponíveis para renderização via bridge.
+ * Derivado de RFC-008 §4 / caderno-3-sdk/26-plugins-frontend.
+ * O host injeta a lista de nomes válidos no construtor da bridge.
+ */
+export interface ComponentCatalog {
+  has(component: string): boolean;
+}
+
 export interface BrowserSandbox {
   /**
    * Cria um Worker (ou WASM instance) isolado para executar o plugin.
@@ -80,6 +89,13 @@ export interface SandboxHandle {
   /** Termina o sandbox e libera recursos. */
   terminate(): void;
 }
+
+/**
+ * Factory — cria o sandbox com as opções de isolamento.
+ * A bridge recebe o ComponentCatalog para validar nomes de componente
+ * antes de enviar `render_component` ao host.
+ */
+export function createBrowserSandbox(catalog: ComponentCatalog): BrowserSandbox
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
@@ -96,6 +112,8 @@ export interface SandboxHandle {
 - **[CREATE]** `packages/plugins/src/bridge.ts` — bridge de componente tipada
 - **[CREATE]** `packages/plugins/tests/sandbox-browser.test.ts`
 - **[UPDATE]** `packages/plugins/src/index.ts` — re-export
+- **[CREATE]** `packages/plugins/tests/sandbox-browser.e2e.ts` — smoke Playwright (casos 10–11)
+- **[UPDATE]** `packages/plugins/package.json` — devDependency `@playwright/test`
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
 - [x] **Framework:** Vitest (JSDOM com Worker mock) + Playwright (smoke com Worker real)
@@ -123,7 +141,7 @@ Casos de teste (numerados):
 
 ### Pegadinhas conhecidas
 - Web Workers em JSDOM precisam de mock (vitest não tem Worker real). Use `vitest-webworker` ou mock manual.
-- A bridge de componente é postMessage tipada — o host valida que `component` existe no catálogo antes de renderizar.
+- A bridge de componente é postMessage tipada — o host valida que `component` existe no `ComponentCatalog` (injetado na factory) antes de renderizar. Componente fora do catálogo → erro controlado, sem render.
 - `allowedPorts` vazio significa SEM rede. Um `fetch` para qualquer URL deve falhar.
 - WASM é carregado via `WebAssembly.instantiateStreaming` dentro do Worker — o bundle URL deve ser same-origin ou ter CORS.
 
@@ -132,7 +150,7 @@ Casos de teste (numerados):
 3. Implemente `packages/plugins/src/bridge.ts` (mensageria tipada).
 4. Atualize `packages/plugins/src/index.ts`.
 5. Rode build + test (Seção 7) e cole saída.
-6. Smoke Playwright (casos 10–11).
+6. Smoke Playwright (casos 10–11): crie `tests/sandbox-browser.e2e.ts` com fixture HTML mínimo que carrega a bridge num Worker real. Playwright valida `render_component` (caso 10) e componente inexistente (caso 11).
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
 **Links validados:**
@@ -157,7 +175,10 @@ Casos de teste (numerados):
 ```bash
 pnpm --filter @plataforma/plugins build
 pnpm --filter @plataforma/plugins test
+pnpm --filter @plataforma/plugins lint
+pnpm --filter @plataforma/plugins test:e2e  # Playwright (casos 10–11)
 ```
+> **GATE DE EVIDÊNCIA:** Worker cola a saída literal de build + test + lint + test:e2e na Seção 8.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -177,3 +198,4 @@ pnpm --filter @plataforma/plugins test
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-14T14:30]** - *claude-sonnet* - `[Endurecido]`: endureceu spec: ComponentCatalog, factory createBrowserSandbox, gate lint+e2e, Playwright scope
