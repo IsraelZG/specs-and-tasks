@@ -8,7 +8,7 @@ reviewer_agent: agile_reviewer
 execution_mode: sequential
 ui: true
 dependencies: ["T-011"]
-blocks: ["T-DS-01", "T-DS-03"]
+blocks: []
 capacity_target: opus-spike
 ---
 
@@ -16,7 +16,9 @@ capacity_target: opus-spike
 
 > **Tipo: spike de design** (entregável = ADR + tokens + tabela de opções). Tem decisões em aberto
 > por natureza — o objetivo é **gerar opções e fechá-las**, não implementar contra uma decisão pronta.
-> Precede T-DS-01/03 (os tokens importados/portados devem já conter este sistema).
+> Evolui os valores por trás do contrato semântico e pode rodar em paralelo ao corte mínimo
+> T-DS-01/03. Não bloqueia componentes: a independência entre componente e paleta é justamente o
+> contrato que os tokens devem provar.
 
 ## 0. Ambiente de Execução Obrigatório
 - **Runtime:** Node.js v20+ / browser
@@ -46,7 +48,7 @@ entregá-lo como ADR + tokens versionados. Decisões a fechar:
 - [diretrizes-ux.md](../docs/diretrizes-ux.md) §8/§9 (a11y AA, só tokens)
 
 ## 3. Escopo de Arquivos (entregáveis)
-- **[CREATE]** `docs/adrs/adr-00X-identidade-visual.md` — decisões + opções comparadas + tooling escolhido
+- **[CREATE]** `docs/adr/adr-00X-identidade-visual.md` — decisões + opções comparadas + tooling escolhido
 - **[CREATE/UPDATE]** `packages/design-system/tokens/` — `--ds-accent-*` por módulo, neutros, escalas de raio/borda/elevação, claro+escuro
 - **[CREATE]** amostra/preview (Storybook/showcase ou página estática) provando accent+modo por módulo
 - **[UPDATE]** `caderno-3-sdk/10-design-system.md` — nota do sistema de accent por módulo (se normativo)
