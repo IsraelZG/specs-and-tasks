@@ -506,6 +506,9 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [m4][T-UIE-02][ui-engines] `verify.ps1` criado na raiz do repo `superapp` (fora de `packages/ui-engines`, fora do escopo §3) — só espelha os 4 comandos do Gate, sem risco (verify.ps1)
 - [ ] [i1][T-UIE-02][ui-engines] "Edit Node" no Inspector emite `changes: { label: label + ' (edited)' }` fixo — funcional (não mais `{}` vazio) mas não é um formulário livre; UI melhor teria campos editáveis (packages/ui-engines/src/flow/FlowInspector.tsx:73)
 <!-- END T-UIE-02 -->
+<!-- C-30 -->
+- [ ] [m1][C-30][estaleiro-core] `apps/estaleiro/package.json` version bump 0.0.69 → 0.0.70 fora do §3 — cosmético, mesmo padrão de EST-43a (0.0.63→0.0.64) (apps/estaleiro/package.json)
+<!-- END C-30 -->
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
@@ -705,3 +708,20 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i1][T-403][transport] Erro de build pré-existente em syncCoordinator.ts:173 (`StoragePort` vs `GraphStorePort`) — NÃO causado por T-403. (packages/transport/src/syncCoordinator.ts:173)
 - [ ] [i2][T-403][transport] 6 erros de lint pré-existentes (depreciação `StoragePort`) em graphRouting.ts + syncCoordinator.ts — NÃO causados por T-403. (packages/transport/src/discovery/graphRouting.ts:69,81; packages/transport/src/syncCoordinator.ts:68,91,279,280)
 <!-- END T-403 -->
+<!-- EST-45 -->
+- [ ] [i1][EST-45][estaleiro-ui] Spec §3 menciona "8 abas existentes" mas `defaultLayout()` define 9 tabs (Board, Execução, Frota, Docs/RAG, Decisões, Custo, Config, Planejamento, Terminal). Todas funcionais, mas spec desatualizada. (apps/estaleiro/ui/src/shell/default-layout.ts:63-106)
+- [ ] [i2][EST-45][estaleiro] E2E Playwright falha por schema SQLite pré-existente (plugin-tasks) — coluna `data` ausente. Não causado por EST-45; requer rebuild do plugin-tasks com migration. (plugin-tasks/storage/sqlite.js)
+<!-- END EST-45 -->
+
+<!-- T-602 -->
+- [ ] [M1][T-602][workers] `prepareCommit()` é `async` na impl; spec §1:142-143 é explícito "Síncrono". Mudança de contrato de API. (packages/workers/src/sync/commitCycle.ts:184)
+- [ ] [M2][T-602][workers] `CommitCycleConfig.storage: GraphStorePort` em vez de `StoragePort & GraphStorePort` (spec §1:106). Afrouxa tipo. (packages/workers/src/sync/commitCycle.ts:33)
+- [ ] [M3][T-602][workers] Caso 11 "rollback atômico" **não testado** (storage não instrumentado). Teste é cópia do caso 6. (packages/workers/tests/commitCycle.test.ts:340-354)
+- [ ] [M4][T-602][workers] Caso 12 "snapshot exato" **não testado** (`sha256(payload) === prepared.snapshotHash` ausente). Teste só conta bytes. (packages/workers/tests/commitCycle.test.ts:356-368)
+- [ ] [M5][T-602][workers] Caso 9 "reconexão" **não testado** (re-uso de `receiveRemoteChange`; nenhum cenário de queda + load de snapshot + A.merge). (packages/workers/tests/commitCycle.test.ts:311-319)
+- [ ] [m1][T-602][workers] Caso 3 usa `setTimeout(r, 10)` real (l.224) — viola §5 "NÃO use timers reais nos testes — use VirtualClock". (packages/workers/tests/commitCycle.test.ts:224)
+- [ ] [m2][T-602][workers] Caso 7 não exercita race "change de peer durante commit" (clearStaging seletivo). (packages/workers/tests/commitCycle.test.ts:275-290)
+- [ ] [m3][T-602][workers] Caso 8 não aplica `A.merge` nem verifica que tabela `nodes` só recebe commits. (packages/workers/tests/commitCycle.test.ts:292-309)
+- [ ] [i1][T-602][workers] Assinatura de `insertNodeWithEdges` em `core/src/lineage.ts:75` diverge do spec (GraphStorePort-only vs `StoragePort & GraphStorePort`).
+- [ ] [i2][T-602][workers] TypeScript não flagou `nodeId: string` vs `id: ULID` — hardening recomenda `exactOptionalPropertyTypes` + `noUncheckedIndexedAccess` em `tsconfig.base.json`.
+<!-- END T-602 -->
