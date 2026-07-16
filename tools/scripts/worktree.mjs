@@ -34,15 +34,41 @@ function defaultBranch() {
   return git(['show-ref', '--verify', '--quiet', 'refs/heads/main']).status === 0 ? 'main' : 'master';
 }
 
-/** C:\X\Y -> /mnt/c/X/Y (pro --dir do opencode no WSL). */
-function wslPath(winPath) {
-  const m = winPath.match(/^([A-Za-z]):[\\/](.*)$/);
-  return m ? `/mnt/${m[1].toLowerCase()}/${m[2].replace(/\\/g, '/')}` : winPath;
+/**
+ * Sincroniza um repo com origin ANTES de criar worktree/merge (modelo multi-máquina: nunca
+ * presuma que o checkout local é o mais recente — a outra máquina pode ter pushado). Falha alto
+ * (die) em vez de seguir num repo desatualizado/divergente — silenciar isso é como nascem
+ * worktrees criadas a partir de um master velho e merges que conflitam na hora do push.
+ */
+function ensureUpToDate(dir, label) {
+  console.log(`• sincronizando ${label} (fetch + pull --ff-only)...`);
+  if (spawnSync('git', ['fetch', 'origin'], { cwd: dir, stdio: 'inherit', encoding: 'utf8' }).status !== 0) {
+    die(`git fetch falhou em ${label} — verifique a conexão/remote antes de continuar`);
+  }
+  const dirty = spawnSync('git', ['status', '--porcelain'], { cwd: dir, encoding: 'utf8' }).stdout.trim();
+  if (dirty) {
+    die(`${label} tem mudanças não commitadas — commit/stash antes de continuar (rode aqui: git -C "${dir}" status)`);
+  }
+  const branch = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: dir, encoding: 'utf8' }).stdout.trim();
+  const hasUpstream = spawnSync('git', ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}'], { cwd: dir, encoding: 'utf8' }).status === 0;
+  if (!hasUpstream) {
+    console.log(`  (${label}: branch '${branch}' sem upstream — pulando pull, nada pra sincronizar)`);
+    return;
+  }
+  const r = spawnSync('git', ['pull', '--ff-only', 'origin', branch], { cwd: dir, stdio: 'inherit', encoding: 'utf8' });
+  if (r.status !== 0) {
+    die(`${label} (branch '${branch}') está divergente de origin/${branch} — não é fast-forward.\n` +
+      `   Provavelmente a outra máquina pushou algo que conflita com commits locais não pushados.\n` +
+      `   Resolva manualmente (git -C "${dir}" pull / rebase / merge) antes de continuar.`);
+  }
 }
 
 function cmdNew(id, baseRef) {
   if (!id) die('uso: worktree new <ID> [--base <ref>]');
   requireCodeRepo();
+  console.log('• checando se CONTROLE e CÓDIGO estão atualizados com origin (multi-máquina)...');
+  ensureUpToDate(docsRoot, 'controle (Docs)');
+  ensureUpToDate(codeRepo, 'código (superapp)');
   const wt = wtPath(id);
   const branch = `task/${id}`;
   if (fs.existsSync(wt)) {
@@ -70,11 +96,11 @@ function cmdNew(id, baseRef) {
       }
     }
   }
-  console.log('\n✅ pronto. Despache o worker (opencode) no WSL apontando pro CÓDIGO:');
-  console.log(`   opencode run --dir ${wslPath(wt)} "Execute /executar-task ${id}"`);
+  console.log('\n✅ pronto. Despache o worker (opencode, nativo Windows) apontando pro CÓDIGO:');
+  console.log(`   opencode run --dir "${wt}" "Execute /executar-task ${id}"`);
   console.log('\n   No fluxo dois-repos, o worker:');
   console.log(`   • lê a spec em      ${path.join(docsRoot, 'tasks', id + '.md')}`);
-  console.log(`   • coda/commita/pusha NA worktree (${wslPath(wt)})`);
+  console.log(`   • coda/commita/pusha NA worktree (${wt})`);
   console.log(`   • rastreia status:  node "${manageTask}" <start|finish> ${id} <worker> "<msg>"`);
   console.log(`   Ao terminar:  node tools/scripts/worktree.mjs merge ${id}   &&   ...rm ${id}`);
 }
@@ -95,9 +121,10 @@ function cmdMerge(id) {
   }
   const cur = git(['rev-parse', '--abbrev-ref', 'HEAD']).stdout.trim();
   if (cur !== main) die(`o superapp está em '${cur}', não '${main}' — troque antes do merge`);
+  ensureUpToDate(codeRepo, 'código (superapp)'); // pode estar atrás se a outra máquina já mergeou/pushou
   const r = git(['merge', '--no-ff', branch, '-m', `merge ${branch}`], { stdio: 'inherit' });
   if (r.status !== 0) die(`merge de ${branch} falhou (conflito?) — resolva manualmente no superapp`);
-  console.log(`✅ ${branch} mergeado em ${main} (superapp)`);
+  console.log(`✅ ${branch} mergeado em ${main} (superapp). Não esqueça: git push origin ${main}`);
 }
 
 function cmdRm(id) {

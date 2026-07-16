@@ -194,6 +194,32 @@ WSL/opencode foi abandonado para execução de tasks.
 
 ---
 
+## P-008 · Multi-máquina: repo local pode estar desatualizado — pull não é mais opcional
+
+**Data:** 2026-06-22
+**Contexto:** Antes, todo o trabalho rodava numa única máquina (ARM64), então o checkout local
+era sempre a versão mais recente por definição. A partir de 2026-06-22 passamos a trabalhar
+também numa segunda máquina (x64, opencode nativo Windows) contra o **mesmo remote** dos repos
+`Docs` e `superapp`.
+**Risco:** criar uma worktree (`pnpm wt new`) ou fazer merge (`pnpm wt merge`) a partir de um
+`master`/`Docs` desatualizado — a outra máquina pode ter pushado tasks, mergeado código, ou
+avançado o ledger (`tasks/*.md`, `INDEX.md`) enquanto você trabalhava localmente.
+**Solução aplicada:**
+1. `tools/scripts/worktree.mjs` agora faz `git fetch` + `pull --ff-only` automático no `Docs` e
+   no `superapp` antes de `new`/`merge`, e **aborta** (não segue silenciosamente) se houver
+   mudanças não commitadas ou divergência (não-fast-forward) — nesse caso resolva manualmente.
+2. Mesmo assim, **dê `git pull` manual em ambos os repos no início de cada sessão** e sempre que
+   alternar de máquina — o pull automático do script só cobre o instante de `new`/`merge`, não o
+   tempo todo em que você está com a worktree aberta.
+3. **Toda task só está de fato encerrada depois dos dois pushes:** código (`git push -u origin
+   task/<ID>`, e depois do merge `git push origin master` no `superapp`) e controle (`git push`
+   no `Docs` com o `tasks/<ID>.md` atualizado). Um `finish` sem push deixa a outra máquina "no
+   escuro".
+**Como prevenir recorrência:** ver `docs/fluxo-worktrees.md` (seção "Multi-máquina") e
+`CLAUDE.md` (Regra 2b) de ambos os repos.
+
+---
+
 <!-- Adicione novas entradas acima desta linha, no formato P-NNN -->
 
 ## P-012 · Gate `pnpm --filter <pkg> build/test` numa worktree nova falha por `dist/` das deps ausente (e `-- --args` quebra o vitest)
