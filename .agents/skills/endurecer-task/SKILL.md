@@ -45,7 +45,11 @@ mole, porque finge dureza. Na dúvida entre derivar e inventar: é ABERTO.
      `pnpm --filter <pkg> build`/`test`/`lint` exatos + a nota do **Gate de Evidência** (saída
      literal colada na Seção 8). **Lint é parte do gate** (Regra 3 do AGENTS.md, desde 2026-07-06
      — 3 reworks consecutivos por regressão de lint cobrada só no review); task endurecida sem
-     `lint` no bloco gera rework garantido.
+     `lint` no bloco gera rework garantido. **Escope o gate ao(s) pacote(s) da task** (`--filter`);
+     só escreva `pnpm -r build/test/lint` (workspace inteiro) quando o próprio objetivo da task for
+     provar limpeza global (ex.: quebra de ciclo entre pacotes) — caso contrário o gate fica lento
+     e roda pacotes fora do escopo (ver EST-34, onde o `-r` era necessário; é a exceção, não o
+     padrão do nexus congelado).
    - **Frontmatter:** `complexity` coerente (5 exige quebra), `target_agent` válido (sem typos),
      `dependencies` conferidas contra o que a task realmente consome.
    - **Contratos cross-task / fontes "canônicas" (confrontação obrigatória):** se o spec referencia
@@ -63,6 +67,19 @@ mole, porque finge dureza. Na dúvida entre derivar e inventar: é ABERTO.
         Se o tipo pode não bater com uma dependência já `done`, é decisão do arquiteto AGORA
         (Seção 6), não workaround do worker DEPOIS. (Origem: EST-04a R1 — worker alargou
         `schema.ts` de OUTRA task pra caber, spec não previa o gap.)
+   - **Teste do contrato fake-integrável (quando a integração É o objetivo):** se o *objetivo* da
+     task é "integrar a biblioteca X", pergunte: *os casos de teste passam numa implementação que
+     nunca importa X?* Se sim, o contrato é um rename — endureça até a resposta ser não:
+     1. fixe pacote+versão verificados na fonte (npm/registro, não memória) e o `[UPDATE]
+        package.json` no escopo;
+     2. cite no contrato os símbolos REAIS da lib (classe a estender, método a chamar, evento a
+        assinar), verificados no repositório da lib;
+     3. inclua ≥1 caso de teste **anti-fake** que reprova a implementação sem a lib (ex.: spy no
+        adapter da lib, asserção sobre evento/formato que só a lib produz).
+     *Escopo:* só quando a integração é o entregável declarado — lib usada como detalhe interno
+     não precisa de anti-fake. (Origem: T-403 — "Integração do Automerge Repo" satisfazível por
+     `Map`+pub/sub; os 8 casos passavam sem nenhum símbolo do pacote; 3 tasks downstream
+     empilhadas no vazio e T-702 contornou com envelope próprio.)
 3. **Gate de saída — classifique em UM dos destinos do `draft:<sub>`** (executabilidade) **e atribua capacidade**.
    Use os **verbos do serviço** (`manage-task.mjs`) — NUNCA edite `status` no frontmatter à mão:
 

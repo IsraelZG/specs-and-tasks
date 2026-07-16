@@ -34,7 +34,13 @@ tem branch isolada, não há working tree compartilhado.
 4. **Refresca o ledger de ciclo de vida** (barato, é o heartbeat periódico): `node tools/scripts/ledger.mjs`.
    Regenera `tasks/LEDGER.md` (gitignored) projetando os Logs §9 — quem foi worker/reviewer/rework de
    cada task, agrupado por status. Não commita nada (artefato local).
-5. **Reporte** quantos commitou e o que pulou (o flush já imprime). **PARE.**
+5. **Limpa artifacts órfãos da raiz:** remove diretórios `.dmm*-evidence/` (snapshots de Gate
+   pós-integração) e arquivos `.tmp-*.log` / `.tmp/` (logs de sessão de agentes). Ambos já
+   gitignored; são descartáveis. One-liner:
+   ```
+   node -e "const fs=require('fs'),p=require('path');const dirt=fs.readdirSync('.').filter(f=>f.startsWith('.dmm')||f.startsWith('.tmp-')||f==='.tmp');for(const f of dirt)fs.rmSync(p.join('.',f),{recursive:true,force:true});console.log(dirt.length+' artifacts removidos')"
+   ```
+6. **Reporte** quantos commitou, quantos evidence dirs limpou, e o que pulou. **PARE.**
 
 ## NÃO faça
 - **NÃO** rode `git add -A`/`git add tasks/` no Docs — nem aqui. O flush commita só os paths das

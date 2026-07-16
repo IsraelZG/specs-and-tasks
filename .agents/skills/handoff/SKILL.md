@@ -159,7 +159,7 @@ Agente documenta as decisões não-óbvias, surpresas e aprendizados para alimen
 ### Padrão 4: Handoff cross-agent (revisão adversarial)
 
 O documento de handoff gerado pode ser passado para qualquer agente (CodeX, Copilot CLI,
-Gemini CLI, etc.) — não precisa ser outro Codex. Isso é intencional: o formato Markdown
+Gemini CLI, etc.) — não precisa ser outro agente do mesmo harness. Isso é intencional: o formato Markdown
 simples garante portabilidade total.
 
 ---

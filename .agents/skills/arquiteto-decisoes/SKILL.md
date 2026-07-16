@@ -24,6 +24,14 @@ opções reais, e — com a escolha dele — destrava as tasks. Você NÃO inven
 2. **Consolide.** Agrupe decisões que são **a mesma escolha** repetida (ex.: "qual o tipo de
    `PeerId`?" aparece em T-3, T-7, T-9). Uma decisão do humano deve propagar para todas as tasks que
    ela destrava — não pergunte 3 vezes a mesma coisa.
+2b. **Re-busque o cânone antes de ratificar um "sem-fonte".** Se a decisão nasceu de uma cláusula
+   marcada *sem-fonte* pelo endurecimento (uma fórmula/valor proposto sem citação), faça UMA busca
+   dirigida em `docs/conceitos/` + cadernos antes de apresentá-la: o flag "sem fonte" pode estar
+   errado. Se a fonte canônica existir, ela **resolve a decisão sem o humano** (CITE OU ESCALE
+   vale para cá também) — registre a resolução citando-a e não pergunte. (Origem: T-603 D3 —
+   desempate `blake2s256(entity_id‖HLC)` foi flagrado "sem fonte" e ratificado assim mesmo,
+   quando `caderno-2-protocol/04 §4` fixava "menor entity_id ativo no ciclo" e contradizia a
+   fórmula inventada.)
 3. **Apresente opções (AskUserQuestion).** Para cada grupo, faça **uma** pergunta com 2–4 opções
    concretas (não "o que você quer?" — sim "`PeerId = string base58` ou `= Uint8Array(32)`?"), com o
    trade-off de cada uma numa linha. Recomende a 1ª opção quando houver uma escolha tecnicamente

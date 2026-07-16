@@ -23,14 +23,25 @@ Este arquivo define as regras de desenvolvimento do SuperApp, adaptadas do arqui
 Como um agente executando tarefas (Worker):
 
 1. **Escopo Estrito:** A Seção 3 da especificação da tarefa (`<Docs>/tasks/<ID>.md`) é o escopo absoluto. Não toque em arquivos fora dela. Não instale libs não autorizadas.
-2. **Gate de Evidência (INVIOLÁVEL):** Só finalize a tarefa com a saída literal de `pnpm install && pnpm -r build && pnpm -r test && pnpm -r lint` (Exit Code 0) colada na Seção 8 da especificação da tarefa. Sem evidência = tarefa incompleta.
+2. **Gate de Evidência (INVIOLÁVEL):** Só finalize a tarefa com a saída literal de
+   `pnpm --filter <pacote-da-task> build` + `test` + `lint` (Exit Code 0) colada na Seção 8 da
+   especificação da tarefa. Sem evidência = tarefa incompleta. Escopar com `--filter` é a regra
+   (Regra 3 do CLAUDE.md do projeto); `pnpm -r` só quando o objetivo da task é provar limpeza
+   global do workspace (ex.: quebra de ciclo entre pacotes).
 3. **Gerenciamento de Status por Script:** Transições de status (`start`, `finish`, `pause`, `block`) devem ser feitas **apenas** rodando o script:
-   `node "<Docs>/tools/scripts/manage-task.mjs" <ação> <ID> Antigravity "<msg>"`
+   `node "<Docs>/tools/scripts/manage-task.mjs" <ação> <ID> <EU> "<msg>"`
+   `<EU>` = o **modelo real** que está rodando (`deepseek`, `gemini`, `claude-sonnet`, `minimax`…),
+   **nunca** o harness/TUI (`Crush`, `Antigravity`, `opencode`) nem um papel (`agile_reviewer`,
+   `logic_agent`) — ver "Identidade do agente" no CLAUDE.md do projeto.
    NUNCA altere status, `INDEX.md` ou logs de histórico manualmente nos markdowns.
 4. **Separação de Papéis:** O Worker NUNCA chama `approve` ou `request_changes` (ações exclusivas do Reviewer). Se o `finish` falhar porque a task já está em `review`, PARE e use `pause`.
-5. **Commit duplo:**
+5. **Persistência dupla:**
    - No repositório do código (`superapp`): push do branch da task (`git push -u origin task/<ID>`).
-   - No repositório de controle (`Docs`): commit da spec atualizada (`git -C "<Docs>" add tasks/<ID>.md && git -C "<CTRL>" commit -m "chore(<ID>): review + evidência"`).
+   - No repositório de controle (`Docs`): **NUNCA rode git** (paralelismo INVIOLÁVEL — vários
+     agentes num working tree único). **Enfileire** a intenção de commit:
+     `node "<Docs>/tools/scripts/fila.mjs" add <ID> "chore(<ID>): review + evidência"` — um único
+     consumidor serial (`/drenar-fila`) commita+pusha em lote.
+6. **Agrupamento de Comandos Restritos:** Para minimizar interrupções do usuário com pop-ups de permissão de terminal (visto que o "Sempre Permitir" é bloqueado por segurança para comandos como `node`, `npm`, `pnpm`, `pip`), encadeie a execução de múltiplos comandos em uma única chamada `run_command` (ex: `pnpm install && pnpm run build && pnpm run test`) sempre que possível, para que o humano revise e aprove o bloco inteiro de uma vez só.
 
 <!-- BEGIN ponytail -->
 ## Ponytail — disciplina de código enxuto (ruleset injetado)

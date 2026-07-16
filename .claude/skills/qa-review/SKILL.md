@@ -97,6 +97,32 @@ tasks importantes recebam **mais de uma** revisão independente. Então:
   3…) — o parecer anterior fica preservado. Se a 2ª revisão achar um bloqueante, o **agregado**
   vira REFATORAÇÃO (o `integrar-task` só aprova se o ÚLTIMO veredito é Aprovado e zero `Bn` aberto).
 
+### 2c. Gate obrigatório: diff × escopo da Seção 3
+
+Antes de aceitar o Parecer, confirme que o `agile-reviewer` comparou **o diff inteiro da branch da
+task contra a base correta** com a Seção 3 da spec. `HEAD~1` é insuficiente: perde commits
+anteriores da mesma task. Use o MCP de git para obter nomes e status `A/M/D/R`; não use um diff
+parcial nem confie apenas no handover.
+
+**Base do diff por contexto:**
+
+- **Task em campanha:** rode `campanha.mjs check-review-base <manifesto> <ID>` e use
+  `git diff <review_base_sha>..task/<ID>`. `review_base_sha: pending`, predecessor não `done` ou
+  task ainda `in_progress` significam que o elo está staged e **não pode ser revisado**. Nunca use
+  `stack_base_sha` para QA: ela serve ao transplante/invalidação, não ao parecer final.
+- **Task trunk-based** (sem campanha): diff contra o merge-base com a branch de integração
+  (comportamento original).
+
+- `[READ]` nunca autoriza modificação. `[CREATE]` e `[UPDATE]` autorizam só o path declarado ou
+  arquivos sob um diretório explicitamente declarado. Arquivos ignorados efêmeros não entram no
+  diff, mas artefatos rastreados entram.
+- O Parecer deve trazer uma tabela curta `declarado | alterado | disposição`. Mudança necessária
+  mas não declarada precisa de justificativa causal no handover e de `spec→T-XXX` quando exigir
+  correção da spec; melhoria oportunista vai para `_pendencias.md`, não é absorvida silenciosamente.
+- Arquivo rastreado fora do escopo, sem disposição, é **MAJOR** e produz `REFATORAÇÃO NECESSÁRIA`.
+  Se ampliar privilégio, vazar segredo, mudar contrato público ou contornar um gate, é **BLOCKER**.
+- Relatório sem esta comparação é incompleto, mesmo com build e testes verdes; devolva-o ao reviewer.
+
 ## 3. Consolidar e apresentar
 
 Se apenas uma task: exiba o relatório completo diretamente.
