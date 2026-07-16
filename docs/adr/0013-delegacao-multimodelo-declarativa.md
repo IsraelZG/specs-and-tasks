@@ -1,6 +1,6 @@
 # ADR 0013 — Arquitetura de Delegação Multi-Modelo Híbrida (Declarativa)
 
-- **Status:** Aceita (2026-07-08)
+- **Status:** Aceita (2026-07-08); §1.2/editor visual supersedido pela ADR 0016 (2026-07-13)
 - **Contexto:** Estaleiro (RFC-018) — camada de workflow sobre os plugins `@plataforma/*` já entregues.
 - **Implementada por:** tasks `DMM-01`…`DMM-10`.
 
@@ -37,8 +37,9 @@ dos agentes.
   `bash grep`, Editor alterando arquivo), além do contexto já processado.
 
 **1.2. Visão de Planejamento (Editor de Workflows e Wiki)**
-- **Editor Visual JDM (`@gorules/jdm-editor`):** montar/alterar livremente a esteira (o "cérebro" da
-  delegação): quais etapas a task passa (Tradução → Macro Planejamento → Exploração → Edição).
+- **Editor visual `FlowGrid` (ADR 0016):** montar/alterar a esteira em grade determinística. Um
+  adapter traduz entre o JDM persistido e `FlowGraphViewModel`; `@gorules/jdm-editor` foi
+  supersedido por inadequação de UX. O Zen Engine permanece como avaliador de regras.
 - **Gestão de RAG/Wiki:** curadoria do contexto semântico que alimenta os agentes (reaproveita a UI v1).
 
 ### 2. Backend (Delegação via Workflows Declarativos)

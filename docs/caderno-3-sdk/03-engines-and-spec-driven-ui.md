@@ -7,14 +7,17 @@ Este documento descreve as diretrizes de composição visual (Padrão A Puro), o
 ## 1. O Padrão A Puro (Composição por Wrappers)
 
 Para assegurar previsibilidade de código e legibilidade, a camada de interface segue rigorosamente o **Padrão A Puro**:
-* **Motores Genéricos (Core Engines)**: Vivem no core compartilhado da aplicação (`packages/core/src/engines/`). São polimórficos, genéricos e totalmente agnósticos a regras de negócios específicas (não conhecem os tipos de chat, transações ou marketplaces).
+* **Motores Genéricos (UI Engines)**: Vivem no pacote React compartilhado
+  `@plataforma/ui-engines` (`packages/ui-engines/src/`). São polimórficos, genéricos e totalmente
+  agnósticos a regras de negócios específicas. O pacote é separado de `@plataforma/core`, que não
+  recebe dependência de React (ADR 0016).
 * **Wrappers Nomeados (Application Components)**: Vivem nos respectivos módulos de negócio (ex: `modules/chat/components/`). Eles instanciam a core engine genérica passando renderizadores especializados para os nós de negócio.
 
 **Hierarquia de composição (RFC-006 §A.2 — estrita, sem atalhos):**
 
 ```
 módulo (wrapper nomeado)
-  └─ engine genérica (core/engines)
+  └─ engine genérica (@plataforma/ui-engines ou @plataforma/shell)
        └─ componentes do design system (core/design-system)
             └─ tokens semânticos
 ```
@@ -25,14 +28,14 @@ módulo (wrapper nomeado)
 
 *Exemplo de Composição:*
 ```typescript
-// Core Engine (packages/core/src/engines/timeline.tsx)
+// UI Engine (packages/ui-engines/src/timeline.tsx)
 export function Timeline<T>({ items, renderItem, layout }: TimelineProps<T>) {
   // Gerenciamento genérico de virtualização e scroll
   return <div className={layout}>{items.map(renderItem)}</div>;
 }
 
 // Wrapper do Módulo Chat (modules/chat/components/chat-timeline.tsx)
-import { Timeline } from 'core/engines/timeline';
+import { Timeline } from '@plataforma/ui-engines/timeline';
 
 export function ChatTimeline({ messages }: { messages: ChatMessage[] }) {
   return (
@@ -63,6 +66,10 @@ A plataforma consolida a interface em um conjunto enxuto de engines polimórfica
 * **Composer**: Caixa de entrada de texto rica (rich-text) com plugins integrados para suporte a autocomplete de menções (`@`), comandos de sistema (`/`) e upload assíncrono de arquivos.
 * **ContextMenu & BottomSheet**: Componentes modais mobile-first com animações spring baseadas em gestos físicos de arraste (drag-to-dismiss) e integração com feedback háptico dos dispositivos móveis.
 * **StateMachine**: Renderizador de processos estruturados exibido como Kanban de colunas arrastáveis ou Stepper de etapas. A engine interpreta nós `SPEC:WORKFLOW` (RFC-022 / [[spec-workflow]]), validando as transações contra as regras e procedimentos Zen declarados no workflow antes de executá-las localmente sob o regime de event sourcing.
+* **FlowGrid**: Editor e visualizador determinístico de fluxos progressivos. Colunas representam
+  profundidade/dependência; linhas representam paralelismo; bifurcações e joins são arestas. Não
+  persiste X/Y e recebe somente `FlowGraphViewModel`. Adapters separados traduzem JDM do Estaleiro e
+  `SPEC:WORKFLOW` do SuperApp. Em modo de execução sobrepõe estado e nó atual. Contrato: ADR 0016.
 * **AuditTrail**: Visualizador especializado na Linhagem de Versões [[mfa-s|MFA-S]] de um documento Automerge. Reconstrói os diffs semânticos e permite a viagem no tempo (Time Travel) carregando e reidratando snapshots passados via Graph-Based Routing.
 
 ### 2.3 Motores Especializados
@@ -70,7 +77,9 @@ A plataforma consolida a interface em um conjunto enxuto de engines polimórfica
   * `GeoSpatial:Geographic`: Mapas globais clássicos integrados com Mapbox/Leaflet.
   * `GeoSpatial:Cartesian`: Coordenadas planas e bidimensionais para representação de plantas baixas, estoques de galpões e diagramas industriais.
 * **RelationGraph**: Visualizador de grafos (Webgl/Canvas) para exibir diagramas de relacionamentos de governança, organogramas ou rastreabilidade de cadeias de suprimentos.
-* **WorkspaceShell**: Shell de layout contendo sidebars colapsáveis, lista de colaboradores online e área de trabalho estruturada.
+* **WorkspaceShell**: Shell de layout no pacote próprio `@plataforma/shell`, contendo sidebars
+  colapsáveis, lifecycle de painéis e área de trabalho estruturada. Consome UI engines e design
+  system; não é reimplementado por módulo.
 
 ---
 

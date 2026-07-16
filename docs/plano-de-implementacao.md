@@ -343,8 +343,14 @@ Cada item vira teste permanente na suíte (`testkit/adversarial/`):
 
 - **T-DS-01 · Importar pacote de tokens + build multi-plataforma.** Mover os artefatos de tokens JSON e `style-dictionary.config.js` do protótipo para `core/design-system`. Configurar build Style Dictionary gerando CSS custom properties, JS/TS, React Native, iOS Swift, Android XML e variante TV. *Aceite:* `pnpm --filter @plataforma/design-system build` verde; tipos exportados; nenhuma variável literal hardcoded.
 - **T-DS-02 · Importar schema de metadados + índice + CI.** Mover o schema TypeScript canônico (`ComponentIdentity`, `Usage`, etc.) e o gerador de `components.index.json` para o pacote. Integrar ao CI validação de drift de schema, tokens mal classificados e anti-patterns malformados. *Aceite:* CI verde com testes de validação automáticos.
-- **T-DS-03 · Portar componentes-piloto para `core/design-system` consumindo tokens semânticos.** Migrar `Button`, `Input`, `Card`, `Message`, `NavItem`, `Toast` (shadcn-based) para consumir exclusivamente tokens semânticos exportados pelo build do T-DS-01. Nenhum componente consome primitivos diretamente nem valores literais. *Aceite:* lint anti-literal (I3) verde; teste Playwright de smoke para cada componente.
+- **T-DS-03 · Auditar e conformar o catálogo já importado.** O pacote já contém dezenas de componentes; não portar novamente. Verificar `Button`, `Input`, `Card`, `Message`, `NavItem` e `Toast` contra tokens semânticos, exports, metadados e smoke real, corrigindo somente desvios. *Aceite:* build/test/lint verdes, seis componentes consumíveis pelo Estaleiro sem código duplicado.
 - **T-DS-04 · Lint anti-literal (I3).** Implementar regra de lint de CI que bloqueia qualquer declaração de cor/fonte/dimensão literal em qualquer módulo. Integrar ao pipeline de build do monorepo. *Aceite:* `pnpm lint` falha em caso de literal hardcoded; passe no código limpo.
+
+### 12.1a UI Engines compartilhadas (ADR 0016)
+
+- **T-UIE-01 · Bootstrap `@plataforma/ui-engines`.** Criar o pacote React intermediário entre módulos e design system, com contratos agnósticos e `FlowGraphViewModel`. *Aceite:* pacote não importa stores/serviços de domínio e passa build/test/lint.
+- **T-UIE-02 · FlowGrid determinístico.** Implementar layout topológico em grade, edição por comandos e overlay de execução; sem X/Y persistido e com ciclos rejeitados no v1. *Aceite:* testes puros do layout + smoke Playwright de edição e execução.
+- **T-UIE-03 · Administração de conectores.** Implementar `ConnectorHealthCard`, `ConnectorHealthDashboard` e `ConnectorConfigForm` agnósticos, consumidos pela Config de providers do Estaleiro. *Aceite:* nenhum segredo em props/DOM e EST-42 usa a engine sem duplicar controles.
 
 ---
 
@@ -399,7 +405,7 @@ Cada item vira teste permanente na suíte (`testkit/adversarial/`):
 
 > Estas tarefas definem a árvore FlexLayout do shell, gerenciamento de espaço e a composição visual de painéis de módulos. Fonte normativa: `docs/caderno-3-sdk/28-shell-e-composicao.md`.
 
-- **T-SHL-01 · Shell FlexLayout + SPEC:WORKSPACE.** Construir o shell baseado em árvore FlexLayout polimórfica ligando cada painel a uma tupla (módulo, rota, params), implementando o nó `SPEC:WORKSPACE` para serializar e salvar os layouts de workspaces. *Aceite:* layouts de colunas aninhadas renderizam corretamente na Bancada e salvam/restauram dinamicamente.
+- **T-SHL-01 · Shell FlexLayout + SPEC:WORKSPACE.** Extrair a engine compartilhada usando EST-29 como seed de comportamento, ligando cada painel a uma tupla (módulo, rota, params) e implementando `SPEC:WORKSPACE` sobre `StoragePort`. O layout default/localStorage do Estaleiro é adapter, não contrato. *Aceite:* layouts de colunas aninhadas renderizam corretamente na Bancada e salvam/restauram dinamicamente.
 - **T-SHL-02 · Solver de Layout e Pilha de Colapsados.** Implementar o gerenciador de espaço determinístico resolvendo as restrições declaradas nos manifestos (larguras, colapso) e empilhando painéis excedentes em uma pilha visível de colapsados. *Aceite:* redimensionamentos recalculam e colapsam painéis sem perda silenciosa de estado.
 - **T-SHL-03 · Responsividade Contínua e Chrome como Módulo.** Adaptar o shell para transição contínua (multi-colunas no desktop ↔ tela única com footer no mobile) e modelar os menus/headers/footers (chrome) como módulos comuns spec-driven reconfiguráveis. *Aceite:* layouts mobile e desktop usam a mesma lógica unificada de navegação; themeable.
 - **T-SHL-04 · Drag-and-Drop e Compartilhamento como Comandos.** Implementar gestos de arrastar (desktop) e compartilhar (mobile) como mensagens de comando dirigidas ao profile do módulo de destino, com regras de drop zones e undo para intents irreversíveis. *Aceite:* arrastar itens destaca alvos válidos; confirmações barram intents irreversíveis acidentais.

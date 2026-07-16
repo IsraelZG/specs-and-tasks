@@ -113,7 +113,7 @@ O esforço de evoluir do Nível 1 para o Nível 2 está **concentrado no interpr
 ## §8 — Exibição via Mermaid
 
 1. A definição `SPEC:WORKFLOW` gera **deterministicamente** um diagrama Mermaid (`stateDiagram-v2` ou `flowchart`): estados→nós, transições→arestas, guardas→rótulos; Nível 2 usa concorrência (`--`) e estados compostos. Reusa o renderizador Mermaid da suíte office.
-2. **Ressalva honesta — Mermaid é vista, não modelo:** desenha estados e transições, mas não captura fielmente guardas Zen, compensação e timers. É leitura/documentação; a **fonte da verdade é o `SPEC:WORKFLOW`**. Edição visual rica (arrastar nós) é, mais tarde, um componente de página (RFC-008), não o Mermaid-renderer.
+2. **Ressalva honesta — Mermaid é vista, não modelo:** desenha estados e transições, mas não captura fielmente guardas Zen, compensação e timers. É leitura/documentação; a **fonte da verdade é o `SPEC:WORKFLOW`**. Edição visual usa o `FlowGrid` compartilhado (ADR 0016) por meio de adapter `SPEC:WORKFLOW → FlowGraphViewModel`; não edita a string Mermaid nem persiste coordenadas X/Y.
 
 ---
 

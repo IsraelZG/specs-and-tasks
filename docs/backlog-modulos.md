@@ -63,7 +63,8 @@ Origem: [[caderno-3-sdk/10-design-system]] *(slot 09 — ver Spike O-01)*
 
 - **T-DS-01** importar pacote de tokens + build multi-plataforma (Style Dictionary).
 - **T-DS-02** importar schema de metadados AI-ready + CI.
-- **T-DS-03** portar componentes-piloto para `core/design-system` consumindo tokens semânticos.
+- **T-DS-03** auditar e conformar o catálogo já importado em `packages/design-system`, começando
+  pelo piloto que desbloqueia os UI engines compartilhados.
 - **T-DS-04** lint anti-literal (invariante I3).
 
 #### P0.2 — Conectores Externos · DoD Cloud

@@ -27,6 +27,8 @@ Polimórficos e reutilizados por vários módulos:
 - `SpreadsheetGrid` — grade de fórmulas (RFC-025).
 - `KanbanBoard` — quadro de estágios (CRM — RFC-013).
 - `WorkflowDiagram` — Mermaid de `SPEC:WORKFLOW` (RFC-022).
+- `FlowGrid` — grade determinística para editar/acompanhar fluxos progressivos (ADR 0016); adapters
+  JDM e `SPEC:WORKFLOW`, sem coordenadas persistidas.
 - `CommandPalette` — overlay de intenção (RFC-026/011).
 - `NavRail` / `AppHeader` / `AppFooter` — chrome-como-módulo (RFC-026).
 - `PanelManager` / `ColumnStack` — gerenciador de espaço + pilha de colapsados (RFC-026).
@@ -139,7 +141,7 @@ Polimórficos e reutilizados por vários módulos:
 
 **Mapa (RFC-021):** `CustomGeoPin` (a, ícone temático da SPEC), `ZoomControl` (a), `MapOverlayCard` (m, card flutuante transparente), `PlaceAutocompleteInput` (m, RRF local + fallback Classe E), `InteractiveMapCanvas` (o, ≈ `MapCanvas`, aceita pins reativos cross-módulo).
 
-**Workflow (RFC-022):** `StatusStepIndicator` (a), `TimerCountdownBadge` (a), `TransitionArrow` (a), `WorkflowNodeBox` (m, destaque do estado ativo), `ApprovalRequestBanner` (m, `APPROVED_BY` pausando instância), `VisualWorkflowEditor` (o, ReactFlow→DSL), `WorkflowInstanceAuditLog` (o, ≈ `TransitionLog`, vista "metrô").
+**Workflow (RFC-022):** `StatusStepIndicator` (a), `TimerCountdownBadge` (a), `TransitionArrow` (a), `WorkflowNodeBox` (m, destaque do estado ativo), `ApprovalRequestBanner` (m, `APPROVED_BY` pausando instância), `FlowGridEditor` (o, adapter `SPEC:WORKFLOW → FlowGraphViewModel`, ADR 0016), `WorkflowInstanceAuditLog` (o, ≈ `TransitionLog`, vista "metrô").
 
 **Logística (RFC-023):** `StatusTimelineDot` (a), `BarcodeScannerWidget` (a), `DeliveryRouteStop` (m), `DispatchKanbanBoard` (o), `FulfillmentWaveManager` (o), `DispatchBoard` (o, já — mapa+kanban), `WMSScannerView` (template mobile).
 
