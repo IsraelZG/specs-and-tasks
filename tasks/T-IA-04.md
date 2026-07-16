@@ -6,7 +6,7 @@ complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: ["T-IA-03", "T-501"]
+dependencies: ["T-IA-03", "T-501", "T-DS-06"]
 blocks: ["T-IA-06"]
 capacity_target: sonnet
 ---
@@ -41,6 +41,7 @@ export function validateDelegation(delegation: AgentDelegation, currentTime: num
 ## 2. Contexto RAG (Spec-Driven Development)
 - [mecanica-de-telas.md §T1](../docs/mecanica-de-telas.md) — a persona delegada desta task é o substrato do **assistente contextual presente em todo módulo** (3 portas de entrada: palette ⌘K, "✦ Assistente" na toolbar, seleção→menu flutuante). Requisitos de UI que o contrato precisa suportar: proposta-first (nada se auto-aplica; Aceitar emite intent com atribuição de delegado), escopo/persona **visíveis ao lado da proposta**, streaming cancelável, recusa fora de escopo como estado (validado no mockup A5). Tabela de ações canônicas por módulo está no §T1.
 - [caderno-3-sdk/14-ia-rag-e-agentes.md](../docs/caderno-3-sdk/14-ia-rag-e-agentes.md) — §5 (agente como persona, delegação, teto de abuso, SPEC:PAGE, trilha de procedência)
+- [T-DS-06](./T-DS-06.md) — porta canônica `query → inspect` do catálogo; o agente recebe candidatos e metadados válidos em vez de inventar componentes/props
 - [[agente-de-ia]] — definição canônica: atua em nome de usuário, distinto de agente-de-sistema
 - Deps: T-IA-03 (recuperação híbrida — agente usa para contexto), T-501 (UCAN — `draft`, delegação usa UCAN para `ASSET:ROLE`)
 
