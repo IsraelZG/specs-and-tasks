@@ -11,7 +11,12 @@
       "Bash(node -e \"console.log\\(require.resolve\\('section-matter', {paths:['node_modules/.pnpm/gray-matter@4.0.3/node_modules']}\\)\\)\")",
       "PowerShell(Get-Item \"node_modules\\\\.pnpm\\\\gray-matter@4.0.3\\\\node_modules\\\\section-matter\" -Force | Format-List Name,Attributes,LinkType,Target,Mode; Write-Host \"---\"; \\(Get-Item \"node_modules\\\\.pnpm\\\\gray-matter@4.0.3\\\\node_modules\\\\section-matter\" -Force\\).GetType\\(\\).Name)",
       "PowerShell($tmp = \"$env:TEMP\\\\secpol_check.cfg\"; secedit /export /cfg $tmp /areas USER_RIGHTS | Out-Null; Select-String -Path $tmp -Pattern \"SeCreateSymbolicLinkPrivilege\"; Remove-Item $tmp -Force)",
-      "PowerShell(Remove-Item \"$env:TEMP\\\\symlink_test\" -Force -ErrorAction SilentlyContinue; try { New-Item -ItemType SymbolicLink -Path \"$env:TEMP\\\\symlink_test\" -Target \"$env:TEMP\" -ErrorAction Stop | Out-Null; Write-Host \"SYMLINK CRIADO COM SUCESSO\"; Remove-Item \"$env:TEMP\\\\symlink_test\" -Force } catch { Write-Host \"FALHOU: $\\($_.Exception.Message\\)\" })"
+      "PowerShell(Remove-Item \"$env:TEMP\\\\symlink_test\" -Force -ErrorAction SilentlyContinue; try { New-Item -ItemType SymbolicLink -Path \"$env:TEMP\\\\symlink_test\" -Target \"$env:TEMP\" -ErrorAction Stop | Out-Null; Write-Host \"SYMLINK CRIADO COM SUCESSO\"; Remove-Item \"$env:TEMP\\\\symlink_test\" -Force } catch { Write-Host \"FALHOU: $\\($_.Exception.Message\\)\" })",
+      "Bash(node tools/scripts/fila.mjs ls)",
+      "Bash(node tools/scripts/fila.mjs flush *)",
+      "Bash(node tools/scripts/ledger.mjs)",
+      "Bash(node tools/scripts/ledger.mjs *)",
+      "Bash(node tools/scripts/cleanup-artifacts.mjs)"
     ]
   },
   "hooks": {
