@@ -196,6 +196,36 @@ WSL/opencode foi abandonado para execução de tasks.
 
 <!-- Adicione novas entradas acima desta linha, no formato P-NNN -->
 
+## P-012 · Gate `pnpm --filter <pkg> build/test` numa worktree nova falha por `dist/` das deps ausente (e `-- --args` quebra o vitest)
+
+**Data:** 2026-07-15 (Gate do FUGU-01 elo 3 / T-1039)
+**Sintoma:** Numa worktree recém-criada, rodar o gate exato da spec
+(`pnpm --filter @plataforma/core build`) falha com dezenas de
+`TS2307: Cannot find module '@plataforma/crypto'` / `'@plataforma/protocol'`; e rodar o teste com
+argumentos extras (`pnpm --filter @plataforma/core test -- --runInBand <arquivo>`) falha com
+`Failed to resolve entry for package "@plataforma/protocol"` no `vite:import-analysis`.
+**Causa raiz:** dois problemas distintos:
+1. O script `build` de cada pacote é só `tsc` — **não** reconstrói as dependências internas. Numa
+   worktree nova, o `dist/` de `crypto`/`protocol` ainda não existe, então o `tsc` de `core` não
+   acha os tipos/entradas das deps. (O `pnpm turbo run build` da raiz resolve porque orquestra a
+   ordem do grafo; o `pnpm --filter <pkg> build` isolado, não.)
+2. `pnpm --filter <pkg> test -- <args>` repassa os `<args>` ao vitest de um jeito que confunde a
+   resolução de workspace do Vite — o erro aparece como "entry for package" de uma dep, mascarando
+   que o problema é o argumento, não o código.
+**Solução:**
+1. Antes do gate isolado, construa as deps na ordem do grafo:
+   `pnpm --filter @plataforma/crypto build && pnpm --filter @plataforma/protocol build && pnpm --filter @plataforma/core build`
+   (ordem `crypto → protocol → core → transport`). Depois os 3 comandos do gate rodam limpos.
+2. Rode o teste **sem** `-- --args`: `pnpm --filter <pkg> test` (vitest run já roda tudo). Para um
+   arquivo só, prefira `pnpm --filter <pkg> exec vitest run <arquivo>` em vez de repassar via `--`.
+**Como prevenir recorrência:** ao pegar uma task numa worktree nova, rode `pnpm turbo run build`
+(ou a cadeia de deps acima) **uma vez** antes do gate isolado da spec — o gate por-pacote pressupõe
+`dist/` das deps presente. E nunca dependa de `-- --args` no `pnpm test`; é fonte de erro
+disfarçado de "pacote não resolvido".
+**Limites:** vale para o gate isolado por pacote. `pnpm turbo run build` na raiz não precisa disso
+(já ordena o grafo). Se o erro de módulo persistir mesmo após construir as deps, aí sim suspeitar
+de store incompleto (P-003) ou symlink quebrado (P-005).
+
 ## P-008 · Skill com frontmatter YAML inválido é silenciosamente ignorada pelo Crush
 
 **Data:** 2026-06-26
