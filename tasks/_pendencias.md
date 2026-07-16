@@ -12,6 +12,11 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 ---
 
 <!-- BEGIN PENDENCIAS -->
+<!-- 009-02 -->
+- [ ] [m1][009-02][core] spec §3 diz `[UPDATE] workflow-engine.ts` mas o arquivo não existia no master (era `A` no diff) — worker entregou como CREATE. Funcionalmente equivalente, sem impacto; registrado para rastreio
+- [ ] [m1][009-02][core] `checkBlockingRules` exportado de `@plataforma/core` mas sem caller de produção ainda (Grep em `packages/*/src/**` retorna só a própria definição + teste). Integração com state machine de fato (ex.: `plugin-workflows` chamar pre-transition) fica para task de wiring futura
+- [ ] [i1][009-02][core] branch `task/009-02` preservada em origin após merge (já integrado na master `753a58c`) — apagar via `git -C C:/Dev2026/superapp branch -D task/009-02` se desejado
+<!-- END 009-02 -->
 <!-- EST-35a -->
 - [ ] [m1][EST-35a][estaleiro-ui] `package.json` version bump (0.0.39→0.0.40) fora do escopo declarado na §3 — não impacta funcionalidade, apenas registrar (apps/estaleiro/package.json)
 - [ ] [i1][EST-35a][estaleiro-ui] Screenshot visual (1280×720) delegado pelo worker — E2E funcional passa sem regressão, verificação visual pendente (tasks/EST-35a.md:65)
@@ -494,6 +499,13 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- EST-43b -->
 - [ ] [M1][EST-43b][estaleiro] `package.json` version bump (`0.0.67` → `0.0.69`) fora do escopo declarado em §3 (que lista `[UPDATE]` apenas para `apps/estaleiro/ui/src/views/config/ConfigView.test.tsx`). Mudança puramente cosmetic; reverter ou mover para task de release dedicada (apps/estaleiro/package.json:3)
 <!-- END EST-43b -->
+<!-- T-UIE-02 -->
+- [ ] [m1][T-UIE-02][ui-engines] Bump de `vitest` `^1.2.0` → `^3.0.0` em `package.json`/`pnpm-lock.yaml` não declarado na Seção 3 — necessário p/ compat React 19/jsdom 29, sem risco aparente (packages/ui-engines/package.json)
+- [ ] [m2][T-UIE-02][ui-engines] `FlowInspector` botão "Edit" reemite `update_node` com `changes: {}` vazio — sem campos de formulário reais; mesmo após corrigir o BLOCKER de connect/disconnect/reorder, edição via Inspector segue decorativa (packages/ui-engines/src/flow/FlowInspector.tsx:39-46)
+- [ ] [m3][T-UIE-02][ui-engines] Nenhum teste verifica a presença real de `<line>` no SVG do `FlowEdgeLayer` — o bug de B2 (edges nunca renderizadas) foi corrigido mas ficaria invisível numa regressão futura (packages/ui-engines/src/flow/FlowEdgeLayer.tsx)
+- [ ] [m4][T-UIE-02][ui-engines] `verify.ps1` criado na raiz do repo `superapp` (fora de `packages/ui-engines`, fora do escopo §3) — só espelha os 4 comandos do Gate, sem risco (verify.ps1)
+- [ ] [i1][T-UIE-02][ui-engines] "Edit Node" no Inspector emite `changes: { label: label + ' (edited)' }` fixo — funcional (não mais `{}` vazio) mas não é um formulário livre; UI melhor teria campos editáveis (packages/ui-engines/src/flow/FlowInspector.tsx:73)
+<!-- END T-UIE-02 -->
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
@@ -684,3 +696,12 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i1][T-404b][transport] `cancel(peerId)` é no-op em peers DIRECT/FAILED/inexistentes (verificado por S1/S2/S3 das sondas), mas o JSDoc do método não explicita essa garantia. Track: 1 linha no JSDoc de `Engine.ts:90` deixando claro "no-op fora de PROMOTING" (packages/transport/src/promotion/Engine.ts:90)
 - [ ] [i2][T-404b][transport] `directCount` é O(n) sobre `entries` (varre `entries.values()` em `Engine.ts:99-103`). Hoje a engine tem ≤ dezenas de peers, irrelevante. Se chegar a milhares, contador incremental atualizado nos `entry.state = …` vira upgrade. Marcar com `ponytail:` no comentário do método. (packages/transport/src/promotion/Engine.ts:97-104)
 <!-- END T-404b -->
+
+<!-- T-403 -->
+- [ ] [M1][T-403][transport] Testes 2, 3, 6, 10 em automergeShell.test.ts usam `toBeGreaterThanOrEqual(0)` — nunca falham mesmo se broadcast não entregar. Trocar para `toBeGreaterThan(0)` ou `toBe(1)` + verificar payload/senderPeerId. (packages/transport/tests/automergeShell.test.ts:131,161,211,282)
+- [ ] [M2][T-403][transport] Teste 15 não testa oversize real: `shell.broadcastEphemeral()` enfileira sem erro; o `encodeFrame` rejeita no adapter assíncrono. Reestruturar para testar via lane real ou verificar contador `droppedOversize` do adapter. (packages/transport/tests/automergeShell.test.ts:439-452)
+- [ ] [M3][T-403][transport] `pnpm-workspace.yaml` fora do escopo (§3) — adicionou `cbor-extract: true`. Mudança correta (side-effect da dep Automerge) mas precisa declarar no escopo. (pnpm-workspace.yaml:7)
+- [ ] [m1][T-403][transport] Teste 4 `listOpenDocs()` retorna 1 após `closeDoc` — correto (TTL não disparou), mas asserção parece contradizer "closeDoc libera recursos". Adicionar comentário. (packages/transport/tests/automergeShell.test.ts:168-171)
+- [ ] [i1][T-403][transport] Erro de build pré-existente em syncCoordinator.ts:173 (`StoragePort` vs `GraphStorePort`) — NÃO causado por T-403. (packages/transport/src/syncCoordinator.ts:173)
+- [ ] [i2][T-403][transport] 6 erros de lint pré-existentes (depreciação `StoragePort`) em graphRouting.ts + syncCoordinator.ts — NÃO causados por T-403. (packages/transport/src/discovery/graphRouting.ts:69,81; packages/transport/src/syncCoordinator.ts:68,91,279,280)
+<!-- END T-403 -->
