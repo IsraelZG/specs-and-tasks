@@ -509,6 +509,10 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- C-30 -->
 - [ ] [m1][C-30][estaleiro-core] `apps/estaleiro/package.json` version bump 0.0.69 → 0.0.70 fora do §3 — cosmético, mesmo padrão de EST-43a (0.0.63→0.0.64) (apps/estaleiro/package.json)
 <!-- END C-30 -->
+<!-- EST-44 -->
+- [ ] [m1][EST-44][estaleiro-ui] `update_node` com `changes: {}` passa no filtro (vacuous truth) e seta `name: undefined` — guardar com `if (Object.keys(command.changes).length === 0 || command.changes.label === undefined) return jdm;` (jdm-flow-adapter.ts:78)
+- [ ] [m2][EST-44][estaleiro-ui] `connect` não valida existência de source/target em `jdm.nodes` antes de criar aresta — arestas dangling possíveis (jdm-flow-adapter.ts:61-72)
+<!-- END EST-44 -->
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
@@ -725,3 +729,35 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i1][T-602][workers] Assinatura de `insertNodeWithEdges` em `core/src/lineage.ts:75` diverge do spec (GraphStorePort-only vs `StoragePort & GraphStorePort`).
 - [ ] [i2][T-602][workers] TypeScript não flagou `nodeId: string` vs `id: ULID` — hardening recomenda `exactOptionalPropertyTypes` + `noUncheckedIndexedAccess` em `tsconfig.base.json`.
 <!-- END T-602 -->
+
+<!-- T-602 (Reviewer 2, pós-rework 2026-07-16) -->
+- [x] [M1→fix][T-602][workers] `prepareCommit()` async → agora síncrono em `commitCycle.ts:203` (Reviewer 2 confirmou).
+- [x] [M2→fix][T-602][workers] `CommitCycleConfig.storage: GraphStorePort` → agora `StoragePort & GraphStorePort` em `commitCycle.ts:35` (com eslint-disable no-deprecated).
+- [~] [M3→partial][T-602][workers] Caso 11 "rollback atômico" — `commitCycle.test.ts:446-463` instrumenta `putEdge` mas SÓ valida "ZERO aresta". Faltam: ZERO nó novo, `entity_heads`/`entity_members` intactos, staging preservado, re-tentativa.
+- [x] [M4→fix][T-602][workers] Caso 12 "snapshot exato" — `commitCycle.test.ts:482-486` agora valida `sha256(storedNode.payload) === sha256(prepared.snapshot)`.
+- [~] [M5→STUB][T-602][workers] Caso 9 "reconexão" — AINDA não exercita A.load/A.merge. `commitCycle.test.ts:402-426` declara `dA`/`dB` nunca usadas. **Reviewer 2 confirma claim do rework era falsa.**
+- [~] [m1→weak][T-602][workers] Caso 3 "limiar 50" — `commitCycle.test.ts:253` usa `await clock.advance(0)` que é **no-op** (testkit/src/clock.ts:26 retorna early se `ms<=0`). Fire-and-forget do `void this.forceCommit()` não é verificado.
+- [x] [m2→fix][T-602][workers] Caso 7 "clearStaging seletivo" — `commitCycle.test.ts:337-340` adiciona `pc3` (3º peer) e verifica sobrevivência.
+- [~] [m3→partial][T-602][workers] Caso 8 "2 editores convergem" — shells conectados + 2 commits, mas nenhum `A.merge` é chamado. Spec §4 ("tabela `nodes` só recebe commits") não testada.
+- [ ] [m4][T-602][workers] Caso 11 stub: spec §4 lista 6 invariantes; teste só cobre 1 (aresta zero). (packages/workers/tests/commitCycle.test.ts:446-463)
+- [ ] [m5][T-602][workers] Caso 9 stub: vars `dA`/`dB` declaradas nunca usadas. Sem `A.load(snapshot)` nem `A.merge(docLocal, docSnapshot)`. (packages/workers/tests/commitCycle.test.ts:402-426)
+- [ ] [m6][T-602][workers] Caso 8 sem `A.merge`: shells conectados + 2 commits em storage compartilhado, mas nenhuma asserção de convergência dos docs. (packages/workers/tests/commitCycle.test.ts:343-400)
+- [ ] [M6][T-602][workers] `entityId = authorId` em `commitCycle.ts:234` (vs spec implícito "uma entidade por doc"); defensável mas divergente.
+- [ ] [i3][T-602][workers] `@noble/curves@^2.0.0` adicionado em `package.json:14` (fora do escopo §1:46-50). Mover `ed25519.getPublicKey(sk)` para `packages/crypto/src/wrappers.ts` e remover dep transitiva.
+- [ ] [i1→open][T-602][core] `insertNodeWithEdges` em `core/src/lineage.ts:76` ainda é `storage: GraphStorePort` (spec exige `StoragePort & GraphStorePort`).
+<!-- END T-602 (Reviewer 2) -->
+
+<!-- T-602 (Reviewer 3, pós-rework #2 2026-07-16) -->
+- [x] [B1.6→fix][T-602][workers] `parentHash` non-root corrigido em `commitCycle.ts:240-243` (`hashNode(parent)` em vez de `snapshotHash`).
+- [~] [M1.3→partial][T-602][workers] Caso 11 rollback **ainda parcial** (3/6 invariantes): ✅ (b) ZERO aresta, (e) staging preservado, (f) retry ok. ❌ (a) ZERO nó novo não testado; (c) `entity_heads` check é no-op (l.456-459 descarta promise); (d) `entity_members` só comentário.
+- [x] [M1.5→fix][T-602][workers] Caso 9 reconexão: `commitCycle.test.ts:409,412` chamam `A.load` + `A.merge` reais. Stub `dA`/`dB` eliminado. Assert fraco (l.415) — `mergedState` definido, mas não crava que change local de B sobreviveu.
+- [x] [m1.1→fix-fraco][T-602][workers] Caso 3: `clock.advance(1)` em vez de `advance(0)` (mecanismo OK). Assert tolerante a ambos os caminhos (l.260-264).
+- [x] [m1.3→fix][T-602][workers] Caso 8: mesmo `authorId`, 2 commits, AUTHORED===2 + MUTATES≥1.
+- [ ] [i1.1→open][T-602][core] `core/src/lineage.ts:76` ainda `storage: GraphStorePort` (spec §1:75 exige `& StoragePort`).
+- [x] [i1.3→fix][T-602][crypto] `@noble/curves` removido de `workers/package.json`; `ed25519GetPublicKey` exportado em `crypto/wrappers.ts:26-28` e usado em `commitCycle.ts:96`.
+- [ ] [M7][T-602][workers] **NOVO: `double_finalizeCommit` cria nó fantasma.** Trace estático: 2× `forceCommit()` sem stage ⇒ 1º normal; 2º: `pendingChanges=[]`, `isRoot=false` (`#lastNodeId` setado), persiste nó com `parentHash=hashNode(nodeId1)`, `payload=A.save(doc)` (mesmo), `AUTHORED` com `count=0`, `MUTATES` fantasma. Guardas existem em `#onInactivity:154` e `#onMaxPendingTimeout:170` mas não em `forceCommit`/`finalizeCommit` públicos. Fix: throw ou no-op se `pendingChanges.length === 0`.
+- [ ] [m7][T-602][workers] Caso 3: trocar assertion tolerante (l.260-264) por `expect(cycle.pendingChanges).toHaveLength(0)` após `await`.
+- [ ] [m8][T-602][workers] Caso 9: asserir que change local de B sobreviveu ao merge (não só `mergedState defined` em l.415).
+- [ ] [i4][T-602][monorepo] `pnpm-lock.yaml` claimed em `COMMIT_EDITMSG` ("new — created") mas `glob **/pnpm-lock.yaml` retorna 0 matches. Provavelmente estado pré-existente do projeto, mas inconsistência na afirmação.
+- [ ] [i5][T-602][crypto] `packages/crypto/src/wrappers.ts` (mudança de `ed25519GetPublicKey`) está fora do §3 escopo. R2 já apontou a forma correta, então é fix de desvio anterior, não novo.
+<!-- END T-602 (Reviewer 3) -->
