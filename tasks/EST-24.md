@@ -1,7 +1,7 @@
 ---
 id: EST-24
 title: "Runtime DMM do Estaleiro — casca decomposta"
-status: draft:decomposed
+status: done
 complexity: 6
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -44,3 +44,4 @@ Não executar diretamente; verificar gates dos dois filhos.
 
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-10T12:50]** - *gpt-5* - `[Decomposto]`: Casca decomposta em EST-24a (runtime factory) e EST-24b (workflow DMM real); executar apenas os filhos.
+- **[2026-07-14T12:30]** - *system* - `[Auto-encerrado retroativo]`: M-016: todas as 2 filhas done — backfill one-shot

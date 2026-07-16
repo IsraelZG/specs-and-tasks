@@ -1,7 +1,7 @@
 ---
 id: DMM-13
 title: "Laboratório Genético de Workflows (Autoajuste A/B) — casca decomposta"
-status: draft:decomposed
+status: done
 complexity: 7
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -107,3 +107,4 @@ Tipo de Tarefa.
 
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-08T19:12]** - *arquiteto:minimax* - `[Decomposto]`: complexity 7 > 5 (exige quebra); fatiado em DMM-13a (dispatch), DMM-13b (geração), DMM-13c (pontuação)
+- **[2026-07-14T12:30]** - *system* - `[Auto-encerrado retroativo]`: M-016: todas as 3 filhas done — backfill one-shot

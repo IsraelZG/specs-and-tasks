@@ -1,7 +1,7 @@
 ---
 id: T-PL-05
 title: "fila assincrona (task=no, claim por ASSET:LOCK, resultado assinado, idempotencia)"
-status: draft:triaged
+status: draft:decomposed
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -216,3 +216,4 @@ pnpm --filter @plataforma/plugins test
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-14T12:30]** - *claude-fable* - `[Decomposto]`: Pai com subtasks declaradas não pode permanecer executável (DecomposedParentStartError só barra no start; status agora reflete a decomposição)

@@ -1,7 +1,7 @@
 ---
 id: EST-35
 title: "Implementar design Tactical Telemetry UI e CSS global — casca decomposta"
-status: draft:decomposed
+status: done
 complexity: 5
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -147,3 +147,4 @@ O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-12T16:31]** - *gpt-5* - `[Decisão pendente]`: D-EST35-1/2/3: referencia visual, escopo de componentes e estrategia/evidencia FlexLayout nao possuem fonte decidida
 - **[2026-07-12T16:50]** - *gpt-5* - `[Decomposto]`: decisão: tokens locais e alpha_dark; oito abas fatiadas em EST-35a (shell), EST-35b (operacionais) e EST-35c (suporte)
+- **[2026-07-14T12:30]** - *system* - `[Auto-encerrado retroativo]`: M-016: todas as 3 filhas done — backfill one-shot

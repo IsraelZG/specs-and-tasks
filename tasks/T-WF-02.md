@@ -1,7 +1,7 @@
 ---
 id: T-WF-02
 title: "interpretador Nivel 1 (estado unico, transicao evento+guarda, entry/exit, timers HLC) event-sourced"
-status: draft:triaged
+status: draft:decomposed
 complexity: 5
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -203,3 +203,4 @@ pnpm --filter @plataforma/workflow test
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-14T12:30]** - *claude-fable* - `[Decomposto]`: Pai com subtasks declaradas não pode permanecer executável (DecomposedParentStartError só barra no start; status agora reflete a decomposição)
