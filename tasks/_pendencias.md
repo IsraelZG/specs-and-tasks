@@ -12,6 +12,13 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 ---
 
 <!-- BEGIN PENDENCIAS -->
+<!-- P-01 -->
+- [ ] [m1][P-01][superapp/processo] `tasks/.telemetry/` criado dentro do superapp para telemetria opcional — diretório não faz parte da estrutura do repo; sink real deve ser definido por P-02 (scripts/gate.mjs:70-80)
+- [ ] [m2][P-01][controle] `tools/scripts/manage-task.mjs` reescrito quase inteiro (CRLF→LF + reformatação), dificultando review; alteração deveria ser mínima (tools/scripts/manage-task.mjs)
+<!-- END P-01 -->
+<!-- P-04 -->
+- [ ] [m1][P-04][controle] Testes de auto-resume usaram fixtures com status `in_progress`/`ready` e não exercitaram o fluxo real de `pause`/`block` nem o status `blocked` (tasks/P-04.md:80-84)
+<!-- END P-04 -->
 <!-- 009-02 -->
 - [ ] [m1][009-02][core] spec §3 diz `[UPDATE] workflow-engine.ts` mas o arquivo não existia no master (era `A` no diff) — worker entregou como CREATE. Funcionalmente equivalente, sem impacto; registrado para rastreio
 - [ ] [m1][009-02][core] `checkBlockingRules` exportado de `@plataforma/core` mas sem caller de produção ainda (Grep em `packages/*/src/**` retorna só a própria definição + teste). Integração com state machine de fato (ex.: `plugin-workflows` chamar pre-transition) fica para task de wiring futura
@@ -519,6 +526,9 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [m2][L-03][core] `tests/mor-hardstop.test.ts:53` asserta só `toThrow(BlockingError)` sem verificar `message`/`checks`; um `toThrow(/nfe-emitida/)` tornaria regressão de payload visível
 - [ ] [i1][L-03][shell] `packages/shell/vite.config.ts.timestamp-*.mjs` (temp do Vite) aparece como untracked e suja `git status --short` das worktrees — candidato a `.gitignore`
 <!-- END L-03 -->
+<!-- P-03 -->
+- [ ] [m1][P-03][controle] `get-task.mjs:13-14` duplica `codeRepo`+`worktreesBase` de `worktree.mjs:32-33` — spec §3/§5 diz "reusar, não duplicar"; exportar `getWorktreePath(id)` do worktree.mjs e importar aqui (tools/scripts/get-task.mjs:13-14)
+<!-- END P-03 -->
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
@@ -783,3 +793,7 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- EST-48b -->
 - [ ] [m1][EST-48b][estaleiro] Version bump em `apps/estaleiro/package.json` (0.0.82→0.0.88) fora do escopo declarado (§3). Mudança cosmética, sem impacto funcional.
 <!-- END EST-48b -->
+
+<!-- P-05 -->
+- [ ] [m1][P-05][integrar-task] renumeração saltou o passo 5 em `.claude/skills/integrar-task/SKILL.md` (gap 4→6) ao inserir o novo step "Atualiza manifesto de saúde (fire-and-forget)"; conteúdo e referências internas (ex.: "passo 6" em §11) seguem corretas — fix trivial em passagem futura (re-renumerar 6→5 ou inserir um passo 5 entre o manifesto e o push) (.claude/skills/integrar-task/SKILL.md:78-100)
+<!-- END P-05 -->
