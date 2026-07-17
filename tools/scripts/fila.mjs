@@ -25,9 +25,12 @@
  * um lockfile no .commit-queue/ — mas a skill roda um de cada vez, então YAGNI por ora.
  */
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { performance } from 'node:perf_hooks';
+import { emit } from './lib/telemetry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..', '..');
@@ -205,9 +208,24 @@ function flush(author = 'fila') {
 
 // ---- dispatch --------------------------------------------------------------
 const [cmd, ...rest] = process.argv.slice(2);
-if (cmd === 'add') add(rest[0], rest[1], rest.slice(2));
-else if (cmd === 'flush') flush(rest[0]);
-else if (cmd === 'ls') ls();
+const fStart = performance.now();
+const dispatchActor = rest[0] || process.env.MGTIA_ACTOR || os.hostname();
+
+if (cmd === 'add') {
+  add(rest[0], rest[1], rest.slice(2));
+  emit({
+    task: rest[0], phase: 'fila.add',
+    cmd: `node tools/scripts/fila.mjs add ${rest[0]} "${rest[1] || ''}"`,
+    wallMs: Math.round(performance.now() - fStart), exitCode: 0, actor: dispatchActor,
+  });
+} else if (cmd === 'flush') {
+  flush(rest[0]);
+  emit({
+    phase: 'fila.flush',
+    cmd: `node tools/scripts/fila.mjs flush`,
+    wallMs: Math.round(performance.now() - fStart), exitCode: 0, actor: rest[0] || 'fila',
+  });
+} else if (cmd === 'ls') { ls(); }
 else {
   console.error('uso: fila.mjs add <taskId> "<msg>" [paths...] | flush [autor] | ls');
   process.exit(1);

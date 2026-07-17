@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { performance } from 'node:perf_hooks';
+import { emit } from './lib/telemetry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..', '..');
@@ -321,6 +323,7 @@ export function removePidfile(id) {
 }
 
 export function dispatchOnce(ledgerFile) {
+  const t0 = performance.now();
   const config = loadConfig();
   const ledger = fetchLedger(ledgerFile);
   const balances = fetchBalances();
@@ -337,6 +340,54 @@ export function dispatchOnce(ledgerFile) {
   if (plan.planned.length === 0 && plan.skipped.length > 0) {
     console.log('nenhum agente spawnado');
   }
+
+  emit({
+    phase: 'orquestrar.dispatch',
+    cmd: 'node tools/scripts/orquestrar.mjs --once',
+    wallMs: Math.round(performance.now() - t0), exitCode: 0, actor: 'system',
+    extra: { planned: plan.planned.length, skipped: plan.skipped.length, slots: plan.slots, running: rc },
+  });
+}
+
+export function resumeTask(resumeId, ledgerFile) {
+  const t0 = performance.now();
+  const config = loadConfig();
+  const ledger = fetchLedger(ledgerFile);
+  const balances = fetchBalances();
+  const alive = pruneRegistry();
+
+  const task = ledger.find(t => t.id === resumeId);
+  if (!task) {
+    console.error(`task ${resumeId} não encontrada no ledger`);
+    emit({ task: resumeId, phase: 'orquestrar.resume', wallMs: Math.round(performance.now() - t0), exitCode: 1, actor: 'system', extra: { error: 'task not found' } });
+    return;
+  }
+  if (task.busy) {
+    console.log(`task ${resumeId} já está em execução (busy)`);
+    emit({ task: resumeId, phase: 'orquestrar.resume', wallMs: Math.round(performance.now() - t0), exitCode: 0, actor: 'system', extra: { skipped: 'busy' } });
+    return;
+  }
+  if (alive.find(a => a.pidfile && a.pidfile.includes(resumeId))) {
+    console.log(`task ${resumeId} já tem pidfile ativo`);
+    emit({ task: resumeId, phase: 'orquestrar.resume', wallMs: Math.round(performance.now() - t0), exitCode: 0, actor: 'system', extra: { skipped: 'pidfile-active' } });
+    return;
+  }
+
+  const sel = selectModel(task, config, balances.filter(b => !b.ok).map(b => b.provider));
+  if (sel.model === null) {
+    console.error(`sem modelo para ${resumeId}: ${sel.reason}`);
+    emit({ task: resumeId, phase: 'orquestrar.resume', wallMs: Math.round(performance.now() - t0), exitCode: 1, actor: 'system', extra: { error: sel.reason } });
+    return;
+  }
+
+  const cwd = (task.next_action === 'work' || task.next_action === 'rework')
+    ? 'C:\\Dev2026\\superapp'
+    : '.';
+
+  const item = { id: resumeId, action: task.next_action, role: task.next_action, model: sel.model, cwd, reason: `resume (${sel.reason})` };
+  console.log(`force-dispatch: ${resumeId} action=${item.action} model=${item.model} cwd=${item.cwd}`);
+  spawnAgent(item);
+  emit({ task: resumeId, phase: 'orquestrar.resume', wallMs: Math.round(performance.now() - t0), exitCode: 0, actor: 'system', extra: { model: sel.model, action: item.action } });
 }
 
 async function main() {
@@ -346,6 +397,9 @@ async function main() {
   const onFinishIdx = args.indexOf('--on-finish');
   const onFinish = onFinishIdx !== -1;
   const onFinishId = onFinish ? args[onFinishIdx + 1] || null : null;
+  const resumeIdx = args.indexOf('--resume');
+  const resume = resumeIdx !== -1;
+  const resumeId = resume ? args[resumeIdx + 1] || null : null;
 
   let ledgerFile = null;
   const lfIdx = args.indexOf('--ledger-file');
@@ -353,6 +407,16 @@ async function main() {
 
   if (once) {
     withLock(() => dispatchOnce(ledgerFile));
+    return;
+  }
+
+  if (resume) {
+    if (!resumeId) {
+      console.error('--resume requer <id>');
+      process.exit(1);
+    }
+    console.log(`resume: ${resumeId}`);
+    resumeTask(resumeId, ledgerFile);
     return;
   }
 
@@ -377,11 +441,12 @@ async function main() {
     return;
   }
 
-  console.log('Uso: node tools/scripts/orquestrar.mjs [--dry-run] [--ledger-file <path>] [--once] [--on-finish <id>]');
+  console.log('Uso: node tools/scripts/orquestrar.mjs [--dry-run] [--ledger-file <path>] [--once] [--on-finish <id>] [--resume <id>]');
   console.log('  --dry-run        Imprime o plano de despacho (sem efeito colateral)');
   console.log('  --ledger-file    Usa arquivo JSON como fixture de ledger (testes)');
   console.log('  --once           Despacha agentes respeitando max_concurrent');
   console.log('  --on-finish <id> Remove pidfile e re-despacha');
+  console.log('  --resume <id>    Re-despacha (fire-and-forget) task que estava bloqueada');
 }
 
 const isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
