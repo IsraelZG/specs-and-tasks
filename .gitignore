@@ -91,6 +91,9 @@ docs/_vendor/
 # execução. Descartáveis pós-integração da task; limpos pelo /drenar-fila periodicamente.
 .dmm*-evidence/
 
+# Telemetria JSONL embutida nos scripts (P-02). Regenerável, NÃO versionar.
+tasks/.telemetry/
+
 # Text files e scripts descartáveis na raiz
 *.txt
 generate_project_summary.js
