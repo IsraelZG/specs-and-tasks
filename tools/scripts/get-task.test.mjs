@@ -21,12 +21,14 @@ function removeTemp(file) {
   try { fs.unlinkSync(file); } catch {}
 }
 
-// 1) case-insensitive + in_progress
-const c33 = run('c-33');
-assert.match(c33, /ID · C-33/i, 'deve resolver C-33');
-assert.match(c33, /worker-retomada/, 'in_progress => papel worker-retomada');
-assert.match(c33, /executar-task/, 'in_progress => skill executar-task');
-assert.match(c33, /guarda de identidade:.*gpt-5/, 'deve identificar executor do §9');
+// 1) case-insensitive + in_progress => worker-retomada (fixture sintética — status real muda)
+const f0 = writeTemp('FAKE-INPROG', `---\nid: FAKE-INPROG\nstatus: in_progress\n---\n# x\n## 2. Contexto RAG\n## 9. Log de Execução\n- **[2026-07-17T00:00]** - *gpt-5* - \`[Iniciado]\``);
+const inprog = run('fake-inprog');
+assert.match(inprog, /ID · FAKE-INPROG/i, 'case-insensitive deve resolver');
+assert.match(inprog, /worker-retomada/, 'in_progress => papel worker-retomada');
+assert.match(inprog, /executar-task/, 'in_progress => skill executar-task');
+assert.match(inprog, /guarda de identidade:.*gpt-5/, 'deve identificar executor do §9');
+removeTemp(f0);
 
 // 2) done => nada a fazer (C-31 via C31)
 const c31 = run('C31');
@@ -42,18 +44,23 @@ assert.strictEqual(obj.verb, 'nada a fazer');
 assert.ok(obj.skillText === null || typeof obj.skillText === 'string');
 assert.match(obj.identityGuard, /agile_reviewer:claude-opus/, 'JSON guarda de identidade');
 
-// 4) review => reviewer/qa-review/claim + guarda de identidade
-const p01 = run('P-01');
-assert.match(p01, /reviewer/, 'review => papel reviewer');
-assert.match(p01, /qa-review/, 'review => skill qa-review');
-assert.match(p01, /claim/, 'review => verbo claim');
-assert.match(p01, /guarda de identidade:/, 'deve imprimir guarda de identidade');
+// 4) review => reviewer/qa-review/claim + --integrar por padrão + guarda de identidade
+const f5 = writeTemp('FAKE-REVIEW', `---\nid: FAKE-REVIEW\nstatus: review\n---\n# x\n## 2. Contexto RAG\n## 9. Log de Execução\n- **[2026-07-17T00:00]** - *gpt-5* - \`[Finalizado]\``);
+const rev = run('FAKE-REVIEW');
+assert.match(rev, /reviewer/, 'review => papel reviewer');
+assert.match(rev, /qa-review/, 'review => skill qa-review');
+assert.match(rev, /claim/, 'review => verbo claim');
+assert.match(rev, /--integrar/, 'review => invocação recomendada com --integrar por padrão');
+assert.match(rev, /guarda de identidade:/, 'deve imprimir guarda de identidade');
+removeTemp(f5);
 
 // 5) ready => worker/executar-task/start
-const p03 = run('P-03');
-assert.match(p03, /papel · worker/, 'ready => papel worker');
-assert.match(p03, /executar-task/, 'ready => skill executar-task');
-assert.match(p03, /start/, 'ready => verbo start');
+const f6 = writeTemp('FAKE-READY', `---\nid: FAKE-READY\nstatus: ready\n---\n# x\n## 2. Contexto RAG\n## 9. Log de Execução\n- **[2026-07-17T00:00]** - *gpt-5* - \`[Iniciado]\``);
+const rdy = run('FAKE-READY');
+assert.match(rdy, /papel · worker/, 'ready => papel worker');
+assert.match(rdy, /executar-task/, 'ready => skill executar-task');
+assert.match(rdy, /start/, 'ready => verbo start');
+removeTemp(f6);
 
 // 6) in_review => PARE
 const f1 = writeTemp('FAKE-IN-REVIEW', `---\nid: FAKE-IN-REVIEW\nstatus: in_review\n---\n# x\n## 2. Contexto RAG\n## 9. Log de Execução\n- **[2026-07-17T00:00]** - *gpt-5* - \`[Iniciado]\``);

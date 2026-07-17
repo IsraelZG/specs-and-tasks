@@ -35,7 +35,7 @@ const STATE_MAP = {
   'draft:hardened': { role: 'arquiteto', skill: 'arquiteto-promover', verb: 'promote' },
   'ready': { role: 'worker', skill: 'executar-task', verb: 'start' },
   'in_progress': { role: 'worker-retomada', skill: 'executar-task', verb: '—' },
-  'review': { role: 'reviewer', skill: 'qa-review', verb: 'claim' },
+  'review': { role: 'reviewer', skill: 'qa-review', args: '--integrar', verb: 'claim' },
   'in_review': { role: 'ninguém', skill: null, verb: 'PARE' },
   'rework': { role: 'worker', skill: 'rework-task', verb: 'start' },
   'blocked': { role: 'ninguém', skill: null, verb: 'nada a fazer' },
@@ -222,6 +222,9 @@ function textOutput() {
   const lines = [];
 
   lines.push(`ID · ${taskId} · status · ${fm.status} · papel · ${state.role} · próximo verbo · ${state.verb}`);
+  if (state.skill) {
+    lines.push(`invocação recomendada: /${state.skill}${state.args ? ` ${state.args}` : ''} ${taskId}`);
+  }
   lines.push(identityGuard);
   lines.push('---');
   lines.push('## Task');
@@ -290,6 +293,7 @@ function jsonOutput() {
     role: state.role,
     verb: state.verb,
     skill: state.skill,
+    args: state.args || null,
     identityGuard,
     rag: rag.map(r => ({ link: r.link, status: r.status, resolved: r.resolved, snippet: r.content ? r.content.slice(0, 2000) : null })),
     scopePaths,
