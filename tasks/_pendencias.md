@@ -773,3 +773,7 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i2→open][EST-47][estaleiro-core] Verbosidade do `bootstrap.ts:301-365` — `if/else if` ramificado para `method === "POST"` é espaguete; candidato a `switch` ou roteador. Não impacta funcionalidade. (apps/estaleiro/core/src/bootstrap.ts:301-365)
 - [ ] [i3→open][EST-47][estaleiro-ui] `getByRole("checkbox", { name: /CLAUDE\.md/i })` em `ChatView.test.tsx:202` é frágil se o label da UI mudar. Acoplar a um `data-testid` ou `aria-label` estável. (apps/estaleiro/ui/src/views/chat/ChatView.test.tsx:202)
 <!-- END EST-47 (Reviewer 1) -->
+
+<!-- EST-48b -->
+- [ ] [m1][EST-48b][estaleiro] Version bump em `apps/estaleiro/package.json` (0.0.82→0.0.88) fora do escopo declarado (§3). Mudança cosmética, sem impacto funcional.
+<!-- END EST-48b -->
