@@ -1,7 +1,7 @@
 ---
 id: EST-48b
 title: "P0.3b Backend de perfis OpenAI-compatible persistidos"
-status: in_review
+status: done
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -551,3 +551,4 @@ Handover diz "arquivos novos limpos" mas há 16 erros lint nos 3 arquivos novos:
 - **[2026-07-17T00:15]** - *deepseek* - `[Iniciado]`: rework: corrigindo B1 lint errors (16 erros em secret-store/profile-store/profile-routes)
 - **[2026-07-17T00:22]** - *deepseek* - `[Finalizado]`: rework pronto: [B1] 16 lint errors corrigidos. secret-store (7): unused import, no-unsafe-return, require-await x3, non-null, dynamic-delete. profile-store (5): require-await x3, non-null. profile-routes (4): eslint-disable, non-null, no-base-to-string x2. 39/39 testes pass. Lint nos 4 arquivos novos: 0 errors.
 - **[2026-07-17T00:51]** - *agile_reviewer:gemini* - `[Em revisão]`: revisando rework
+- **[2026-07-17T01:02]** - *agile_reviewer:qwen* - `[Aprovado]`: Integrado: merge na master (commit 88998f6), worktree removida, Gate verde (plugin-providers: build+test 26/26+lint ✓; estaleiro-core: test 155/155+lint ✓). 1 não-bloqueante (M1 version bump) → ledger de pendências.
