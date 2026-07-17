@@ -16,8 +16,14 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [m1][P-01][superapp/processo] `tasks/.telemetry/` criado dentro do superapp para telemetria opcional — diretório não faz parte da estrutura do repo; sink real deve ser definido por P-02 (scripts/gate.mjs:70-80)
 - [ ] [m2][P-01][controle] `tools/scripts/manage-task.mjs` reescrito quase inteiro (CRLF→LF + reformatação), dificultando review; alteração deveria ser mínima (tools/scripts/manage-task.mjs)
 <!-- END P-01 -->
+<!-- P-02 -->
+- [x] [M1][P-02][controle] `telemetry.test.mjs` não cobre o path real do `root`... ✅ RESOLVIDO em rework: teste agora importa `lib/telemetry.mjs` real via `telemetry-test-helper.mjs` e verifica `tasks/.telemetry/<ID>.jsonl`. (tools/scripts/telemetry.test.mjs:61-98)
+- [x] [M2][P-02][controle] `orquestrar.dispatch` e `fila.flush` sem `task`... ✅ RESOLVIDO em rework: eventos sem task caem em `_system.jsonl`. (tools/scripts/lib/telemetry.mjs:62)
+<!-- END P-02 -->
 <!-- P-04 -->
 - [ ] [m1][P-04][controle] Testes de auto-resume usaram fixtures com status `in_progress`/`ready` e não exercitaram o fluxo real de `pause`/`block` nem o status `blocked` (tasks/P-04.md:80-84)
+- [ ] [m2][P-04][controle] Sem sub-estado `in_progress:paused` na máquina de estados, o `pause` apenas loga a tag no §9 sem mudar o status — o filtro do hook pós-approve (B0) terá que usar heurística (ex.: mensagem recente com `[blocked-on:...]`) em vez de `status === 'paused'`. Decisão de implementação do rework, não bloqueante agora (spec §4 "Fora de Escopo")
+- [ ] [m3][P-04][controle] Diff de tooling-do-controle mistura P-04 com P-05: o bloco `if (action === 'finish')` em `manage-task.mjs:19-53` (validação `.gate/<treeSha>.json`) pertence a P-05, não a P-04. Sem worktree separado, vai tudo no mesmo commit. Sem justificativa causal no handover — separar em commit próprio ou declarar `spec→P-05` no rework (tools/scripts/manage-task.mjs:19-53)
 <!-- END P-04 -->
 <!-- 009-02 -->
 - [ ] [m1][009-02][core] spec §3 diz `[UPDATE] workflow-engine.ts` mas o arquivo não existia no master (era `A` no diff) — worker entregou como CREATE. Funcionalmente equivalente, sem impacto; registrado para rastreio
@@ -529,6 +535,18 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- P-03 -->
 - [ ] [m1][P-03][controle] `get-task.mjs:13-14` duplica `codeRepo`+`worktreesBase` de `worktree.mjs:32-33` — spec §3/§5 diz "reusar, não duplicar"; exportar `getWorktreePath(id)` do worktree.mjs e importar aqui (tools/scripts/get-task.mjs:13-14)
 <!-- END P-03 -->
+<!-- P-06 -->
+- [ ] [m1][P-06][controle/spec] Spec §4/§5 diz `wt refresh` "async", implementação é síncrona. Funcional para uso manual; se for automático pós-merge, async seria melhor (não bloqueia). Track: manter sync, atualizar spec se quiser async (tools/scripts/worktree.mjs:248-296)
+- [ ] [m2][P-06][controle/handover] Handover §8 não documenta allowlist de writable roots para `_slot-*` (spec §3 exige). Config de harness, não código — humano aplica. Track: adicionar nota em handover ou PITFALLS.md (tasks/P-06.md:34)
+<!-- END P-06 -->
+<!-- P-07 -->
+- [ ] [M1][P-07][controle] `get-task.mjs` não implementa `--skill <name>`. Skill normativa prescreve o flag (`executar-task/SKILL.md:54`, `rework-task/SKILL.md:40`) mas `tools/scripts/get-task.mjs:16-22` só trata `--json`; flag silenciosamente descartada. Handover §8 não flagou a divergência. Resolução: (a) P-03 adiciona suporte a `--skill` (STATE_MAP já tem seleção certa; flag seria override), OU (b) P-07 remove `--skill executar-task`/`--skill rework-task` das skills (.claude/skills/executar-task/SKILL.md:54, .claude/skills/rework-task/SKILL.md:40, tools/scripts/get-task.mjs:16-22)
+- [ ] [m1][P-07][controle] `executar-task/SKILL.md` tem dois passos "3." (L44 e L51). Handover §8 diz "Numeração corrigida", mas a renumeração foi incompleta: o step "Inicie" deveria ter sido renumerado para 4 (depois de 3=Worktree), e Context pack empurrado para 5. Em `rework-task` (L30-67) a numeração 1..11 está correta. Fix trivial em passagem futura (.claude/skills/executar-task/SKILL.md:44,51)
+- [ ] [i1][P-07][controle] A §7 verificação `grep -l "3 níveis|get-task|pnpm gate|PROC-PENDENCIAS" .claude/skills/*/SKILL.md tasks/_pendencias.md` retorna 4 skills + `_pendencias.md` — `endurecer-task` NÃO aparece (não fala desses termos; é fora do escopo da skill). Falso-positivo do critério, não gap do diff (tasks/P-07.md:62)
+<!-- END P-07 -->
+<!-- P-04 -->
+- [ ] [m3][P-04][controle] Gate validation on `finish` (manage-task.mjs:22-56) é trabalho P-05 (saúde.mjs + preflight) incluído no diff de P-04 sem declaração em §3. Efeito neutro p/ tooling-do-controle (sem worktree). Separar em commit próprio ou justificar em próxima passagem.
+<!-- END P-04 -->
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
@@ -797,3 +815,7 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- P-05 -->
 - [ ] [m1][P-05][integrar-task] renumeração saltou o passo 5 em `.claude/skills/integrar-task/SKILL.md` (gap 4→6) ao inserir o novo step "Atualiza manifesto de saúde (fire-and-forget)"; conteúdo e referências internas (ex.: "passo 6" em §11) seguem corretas — fix trivial em passagem futura (re-renumerar 6→5 ou inserir um passo 5 entre o manifesto e o push) (.claude/skills/integrar-task/SKILL.md:78-100)
 <!-- END P-05 -->
+
+<!-- BEGIN PROC-PENDENCIAS -->
+<!-- Achados de processo (P0/P1 de relatórios de execução / tooling observada) que o `/agrupar-cleanup` drena em tasks de tooling. -->
+<!-- END PROC-PENDENCIAS -->
