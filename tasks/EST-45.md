@@ -1,7 +1,7 @@
 ---
 id: EST-45
 title: "migrar shell do Estaleiro para @plataforma/shell compartilhado"
-status: in_review
+status: done
 complexity: 4
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -253,3 +253,4 @@ src/ — limpo (arquivos alterados)
 - **[2026-07-16T16:43]** - *deepseek* - `[Iniciado]`: rework: corrigindo [M1] — adicionar teste de migracao v1→v2
 - **[2026-07-16T16:45]** - *deepseek* - `[Finalizado]`: rework pronto: [M1] corrigido — teste de migracao v1→v2 adicionado (5 testes). Gate: build OK, 63/63 tests pass, lint limpo
 - **[2026-07-16T17:15]** - *agile_reviewer:qwen3.7-plus* - `[Em revisão]`: revisando rework
+- **[2026-07-17T01:08]** - *claude-sonnet* - `[Reconciliado]`: status restaurado de in_review para done (drift corrigido)
