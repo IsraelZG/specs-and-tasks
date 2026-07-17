@@ -75,25 +75,27 @@ Foi o approve manual que travou ORQ-02 esperando ORQ-01 (aprovada na mão, sem a
 3. **Gate pós-merge (INVIOLÁVEL).** Rode `pnpm --filter <pacote(s) da task> build && test && lint`
    na master e **confirme verde**. Sem Gate verde, o merge não vale — `git merge --abort` e devolva
    para `rework` com o motivo.
-4. **Commit + push** do merge no superapp (`git push origin master`).
-5. **Verifica integração:** `node tools/scripts/drift-check.mjs` → sem novo integration drift para
+4. **Atualiza manifesto de saúde (fire-and-forget).** Rode `node tools/scripts/saude.mjs` em background
+   (não aguarde — o manifesto regenera assíncrono) para que o manifesto reflita o estado pós-merge.
+6. **Commit + push** do merge no superapp (`git push origin master`).
+7. **Verifica integração:** `node tools/scripts/drift-check.mjs` → sem novo integration drift para
    `$ARGUMENTS` (os arquivos do deliverable estão na master).
-6. **Remove a worktree:** `node tools/scripts/worktree.mjs rm $ARGUMENTS` (preserva a branch).
-7. **Pendências:** extraia os achados **não-bloqueantes** (`MAJOR`/`MINOR`/`INFO`) dos pareceres da
+8. **Remove a worktree:** `node tools/scripts/worktree.mjs rm $ARGUMENTS` (preserva a branch).
+9. **Pendências:** extraia os achados **não-bloqueantes** (`MAJOR`/`MINOR`/`INFO`) dos pareceres da
    Seção 8 e **anexe** ao `tasks/_pendencias.md` (entre os marcadores `BEGIN/END PENDENCIAS`), uma
    linha por achado: `- [ ] [M|m|i][$ARGUMENTS][pacote] achado — ref`. (Não crie task `-followup`.)
-8. **Fecha o status pelo serviço:** o ator é `agile_reviewer:<SeuModelo>` (papel autoriza, modelo fica
+10. **Fecha o status pelo serviço:** o ator é `agile_reviewer:<SeuModelo>` (papel autoriza, modelo fica
    no ledger — ver "Identidade do agente" no CLAUDE.md): `node tools/scripts/manage-task.mjs approve
    $ARGUMENTS agile_reviewer:<SeuModelo> "Integrado: merge na master (commit <hash>), worktree
    removida, Gate verde (<evidência>). N não-bloqueantes → ledger de pendências."`
    *(O `approve → done` automaticamente dispara `autoPromoteDependents` e `parentAutoClose` — T-1029.
    Não é mais necessário reendurecer dependentes nem encerrar pais decompostos manualmente.)*
-9. **Persiste o controle — ENFILEIRE** (agentes não rodam git no Docs; ver Paralelismo no CLAUDE.md).
+11. **Persiste o controle — ENFILEIRE** (agentes não rodam git no Docs; ver Paralelismo no CLAUDE.md).
    Enfileire UMA intenção com **só os arquivos que VOCÊ tocou**: `tasks/$ARGUMENTS.md` (default) e
    `tasks/_pendencias.md`: `node tools/scripts/fila.mjs add $ARGUMENTS "<msg>" tasks/_pendencias.md`.
    **NÃO** enfileire `INDEX.md` (gitignored). Um `/drenar-fila` commita+pusha depois — você não toca
-   git no Docs (no superapp, o push do merge já foi no passo 4).
-10. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
+   git no Docs (no superapp, o push do merge já foi no passo 6).
+12. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
    `node tools/scripts/orquestrar.mjs --on-finish $ARGUMENTS` — para liberar seu slot e deixar o
    orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; é disparar e seguir.
 

@@ -67,6 +67,10 @@ meta-tasks/INDEX.md
 # ledger.mjs. Derivado dos Logs (que SÃO versionados nas tasks); como o INDEX, é artefato local.
 tasks/LEDGER.md
 
+# Manifesto de saúde da master — projeção regenerável (saude.mjs), como INDEX/LEDGER
+tasks/SAUDE.md
+tasks/.saude.json
+
 # Fila de commits do controle — intenções enfileiradas pelos agentes (fila.mjs add), consumidas
 # pela skill /drenar-fila (fila.mjs flush). Transiente, nunca versionado. Tira o git do caminho
 # quente dos agentes: eles editam o md + enfileiram; um único committer serial commita+pusha.
