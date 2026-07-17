@@ -16,7 +16,8 @@
       "Bash(node tools/scripts/fila.mjs flush *)",
       "Bash(node tools/scripts/ledger.mjs)",
       "Bash(node tools/scripts/ledger.mjs *)",
-      "Bash(node tools/scripts/cleanup-artifacts.mjs)"
+      "Bash(node tools/scripts/cleanup-artifacts.mjs)",
+      "Bash(node tools/scripts/sync-superapp.mjs)"
     ]
   },
   "hooks": {

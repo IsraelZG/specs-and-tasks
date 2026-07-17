@@ -39,13 +39,21 @@ tem branch isolada, não há working tree compartilhado.
 4. **Se só o `push` falhar** (rebase limpo, mas alguém pushou entre o pull e o push): o script para
    com exit 1 mas o repo fica num estado consistente — **re-rode** `fila.mjs flush` direto, sem
    intervenção manual; o que já foi commitado não re-entra (a intenção já foi consumida).
-5. **Refresca o ledger de ciclo de vida** (barato, é o heartbeat periódico): `node tools/scripts/ledger.mjs`.
+5. **Sincroniza o superapp (CÓDIGO):** `node tools/scripts/sync-superapp.mjs` — `pull --ff-only` do
+   master do superapp. O `fila.mjs` (passos acima) só cuida do Docs (CONTROLE); nada mais puxa o
+   código periodicamente, então o master do superapp desta máquina ficava velho entre um
+   `pnpm wt new`/`merge` e o próximo (aconteceu: 41 commits atrás numa troca de máquina, quebrando o
+   Gate — ver Regra 2b do `CLAUDE.md`). O script é seguro: **pula** (não força, não mescla) se o
+   checkout estiver sujo ou fora do master, e sai com **exit 1** só em divergência real (que aí
+   precisa de `git pull`/rebase manual no superapp antes da próxima worktree).
+6. **Refresca o ledger de ciclo de vida** (barato, é o heartbeat periódico): `node tools/scripts/ledger.mjs`.
    Regenera `tasks/LEDGER.md` (gitignored) projetando os Logs §9 — quem foi worker/reviewer/rework de
    cada task, agrupado por status. Não commita nada (artefato local).
-6. **Limpa artifacts órfãos da raiz:** `node tools/scripts/cleanup-artifacts.mjs` — remove
+7. **Limpa artifacts órfãos da raiz:** `node tools/scripts/cleanup-artifacts.mjs` — remove
    diretórios `.dmm*-evidence/` (snapshots de Gate pós-integração) e arquivos `.tmp-*.log` / `.tmp/`
    (logs de sessão de agentes). Ambos já gitignored; são descartáveis.
-7. **Reporte** quantos commitou, quantos evidence dirs limpou, e o que pulou. **PARE.**
+8. **Reporte** quantos commitou, se o superapp foi atualizado/pulado, quantos evidence dirs limpou, e
+   o que pulou. **PARE.**
 
 ## NÃO faça
 - **NÃO** rode `git add -A`/`git add tasks/` no Docs — nem aqui. O flush commita só os paths das
