@@ -204,3 +204,21 @@ Perfilar setup/teardown, criação de banco e serialização dos casos. Manter a
 - incidentes envolvendo estado sujo ou perda de mudanças.
 
 Uma única execução não estabelece tendência. A L-03 fornece um caso diagnóstico e um formato inicial; a conclusão sobre regressão deve usar ao menos três execuções comparáveis por pacote/ambiente, preferencialmente cinco ou mais.
+
+## 9. Retomada do executor — gate renovado
+
+Após a confirmação de que a task ainda estava em `in_progress` (não em `review`), a mesma worktree foi retomada. A branch `task/L-03` estava limpa, em `6bdbcbd`, e `pull --ff-only` confirmou que estava atualizada.
+
+| Fase | Parede do processo | Parede da chamada da ferramenta | Resultado |
+|---|---:|---:|---|
+| `pull --ff-only` | 3,4 s | 8,5 s | atualizada, sem novos commits |
+| `pnpm --filter @plataforma/core build` | 3,4 s | 7,3 s | verde |
+| `pnpm --filter @plataforma/core test` | 8,0 s (Vitest: 5,70 s) | ~18,1 s | 27 arquivos / 241 testes verdes |
+| `pnpm --filter @plataforma/core lint` | 7,3 s | 17,3 s | vermelho: os mesmos 13 erros basais |
+| `manage-task.mjs pause` | 1,2 s | 5,3 s | log de handoff registrado; status projetado segue `in_progress` |
+
+O diff `master...task/L-03` contém somente os cinco arquivos da própria L-03; nenhum dos seis arquivos apontados pelo lint faz parte dele. Como `master` não avançou, isso confirma que o lint vermelho é baseline da base da task, não regressão introduzida nesta branch.
+
+### Tempo de análise e pensamento
+
+O conteúdo do raciocínio interno não é registrado nem exposto. Nesta sessão, o tempo de análise/decisão entre chamadas não teve cronômetro autônomo e está marcado como **`not_measured`**, em vez de ser estimado. O tempo observável acima separa duração do processo da duração da chamada da ferramenta; esta diferença é parte da motivação para a telemetria JSONL proposta na seção 6.
