@@ -1,7 +1,7 @@
 ---
 id: EST-48b
 title: "P0.3b Backend de perfis OpenAI-compatible persistidos"
-status: review
+status: in_review
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -523,6 +523,23 @@ Handover diz "arquivos novos limpos" mas há 16 erros lint nos 3 arquivos novos:
 
 **Positivo:** Impl funcional correta, security model sound, 39/39 testes, arquitetura limpa, seed migration OK, fallback env preservado.
 
+### Parecer do Agente Revisor (gemini) — Rework #1 Review:
+- [x] **Aprovado**
+- [ ] **Requer Refatoração**
+
+**Veredito:** APROVADO
+
+**Gate pós-rework:**
+- plugin-providers: build ✓, test 26/26 ✓, lint ✓
+- estaleiro-core: test 39/39 ✓ (EST-48b tests), lint 4 arquivos novos: 0 errors ✓
+- Pre-existing failures (commit.test.ts, build errors) não causados por EST-48b
+
+**[B1] RESOLVIDO:** 16 lint errors corrigidos nos 3 arquivos novos.
+
+**Diff × Escopo:** Todos arquivos declarados implementados conforme spec. Version bump (M1) → pendências.
+
+**Positivo:** Implementação completa, security model sound, 39/39 testes, arquitetura limpa, seed migration OK, fallback env preservado, zero regressão.
+
 ## 9. Log de Execução
 > Atualizado somente por `manage-task.mjs`/serviço MGTIA.
 - **[2026-07-16T13:25]** - *gpt-5* - `[Triado]`: triagem P0.3b: backend depende do ADR de EST-48a
@@ -533,3 +550,4 @@ Handover diz "arquivos novos limpos" mas há 16 erros lint nos 3 arquivos novos:
 - **[2026-07-17T00:10]** - *agile_reviewer:gemini* - `[Requer Refatoração]`: Rework: [B1] 16 erros lint em arquivos novos (secret-store.ts:7, profile-store.ts:5, profile-routes.ts:4). Handover diz 'arquivos limpos' mas lint falha. Corrigir: unused import, no-unsafe-return, require-await, no-non-null-assertion, no-dynamic-delete, no-base-to-string. [M1] version bump fora escopo → pendências.
 - **[2026-07-17T00:15]** - *deepseek* - `[Iniciado]`: rework: corrigindo B1 lint errors (16 erros em secret-store/profile-store/profile-routes)
 - **[2026-07-17T00:22]** - *deepseek* - `[Finalizado]`: rework pronto: [B1] 16 lint errors corrigidos. secret-store (7): unused import, no-unsafe-return, require-await x3, non-null, dynamic-delete. profile-store (5): require-await x3, non-null. profile-routes (4): eslint-disable, non-null, no-base-to-string x2. 39/39 testes pass. Lint nos 4 arquivos novos: 0 errors.
+- **[2026-07-17T00:51]** - *agile_reviewer:gemini* - `[Em revisão]`: revisando rework
