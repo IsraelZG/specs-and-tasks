@@ -513,6 +513,12 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [m1][EST-44][estaleiro-ui] `update_node` com `changes: {}` passa no filtro (vacuous truth) e seta `name: undefined` — guardar com `if (Object.keys(command.changes).length === 0 || command.changes.label === undefined) return jdm;` (jdm-flow-adapter.ts:78)
 - [ ] [m2][EST-44][estaleiro-ui] `connect` não valida existência de source/target em `jdm.nodes` antes de criar aresta — arestas dangling possíveis (jdm-flow-adapter.ts:61-72)
 <!-- END EST-44 -->
+<!-- L-03 -->
+- [ ] [M1][L-03][core] **Wiring da família MoR/blocking (009-01 + 009-02 + L-03): zero callers de produção.** `assertFiscalTransition`, `checkBlockingRules`, `createMoRContext` e `stepRequiresMoR` só são chamados pelos próprios testes — o módulo `packages/core/src/workflow/` é hoje uma biblioteca de predicados puros, sem pipeline executável que os invoque. O hard stop fiscal (NF-e obrigatória) **não é enforçado em lugar nenhum em runtime**. Não é regressão da L-03 (as deps já `done` têm a mesma forma); é lacuna arquitetural da família → precisa de **task de integração** que ligue o predicado à máquina de estados real (ex.: `plugin-workflows`/`plugin-zen-engine` chamar `assertFiscalTransition` na pre-transition). Consolida e supersede a linha equivalente de 009-02 acima (packages/core/src/workflow/workflow-engine.ts:132)
+- [ ] [m1][L-03][core] `evaluateMoRHardStop` (mor-hardstop.ts:20) é wrapper de passagem: `context` e `transition` não influenciam a decisão de bloqueio (que só depende de `rules`+`checks`). Correto por spec (caso 3: "workflow sem MoR continua funcionando"), mas a "integração MoR+blocking" é composição sem acoplamento — revisitar se a jurisdição do MoR precisar gatilhar regras (packages/core/src/workflow/mor-hardstop.ts:20-31)
+- [ ] [m2][L-03][core] `tests/mor-hardstop.test.ts:53` asserta só `toThrow(BlockingError)` sem verificar `message`/`checks`; um `toThrow(/nfe-emitida/)` tornaria regressão de payload visível
+- [ ] [i1][L-03][shell] `packages/shell/vite.config.ts.timestamp-*.mjs` (temp do Vite) aparece como untracked e suja `git status --short` das worktrees — candidato a `.gitignore`
+<!-- END L-03 -->
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
