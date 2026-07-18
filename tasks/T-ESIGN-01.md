@@ -1,7 +1,7 @@
 ---
 id: T-ESIGN-01
 title: "SPIKE: discovery jurídico e de integração DocuSeal"
-status: draft:triaged
+status: draft:hardened
 complexity: 5
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -73,3 +73,4 @@ Fecha decisões de produto/jurídico antes de tasks de conector, UI plugin ou wo
 ## 9. Log de Execução
 > Preenchido somente via `manage-task.mjs`.
 - **[2026-07-16T14:21]** - *gpt-5* - `[Triado]`: Discovery jurídico, produto e fronteira de integração DocuSeal triada.
+- **[2026-07-18T11:21]** - *gemini* - `[Endurecido]`: endureceu spec spike bem especificado
