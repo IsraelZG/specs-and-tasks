@@ -12,6 +12,7 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 ---
 
 <!-- BEGIN PENDENCIAS -->
+- [ ] [M][C-20][@plataforma/plugin-knowledge] Artefato de gate stale na worktree: o `.gate/<tree>.json` commitado em `task/C-20` após o 1º commit (`8ec6aa9`) ficou stale após o 2º commit (`e90af59` — fix de NFD no search) e não foi regerado; o `finish` rodou contra a tree antiga. Re-rodar `pnpm gate <pkg>` antes do `finish` sempre que houver commit adicional na mesma task; idealmente o próprio `manage-task.mjs finish` deveria regerar o gate contra o `HEAD^{tree}` da branch, não aceitar artefato antigo.
 <!-- P-01 -->
 - [ ] [m1][P-01][superapp/processo] `tasks/.telemetry/` criado dentro do superapp para telemetria opcional — diretório não faz parte da estrutura do repo; sink real deve ser definido por P-02 (scripts/gate.mjs:70-80)
 - [ ] [m2][P-01][controle] `tools/scripts/manage-task.mjs` reescrito quase inteiro (CRLF→LF + reformatação), dificultando review; alteração deveria ser mínima (tools/scripts/manage-task.mjs)
@@ -815,6 +816,12 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- P-05 -->
 - [ ] [m1][P-05][integrar-task] renumeração saltou o passo 5 em `.claude/skills/integrar-task/SKILL.md` (gap 4→6) ao inserir o novo step "Atualiza manifesto de saúde (fire-and-forget)"; conteúdo e referências internas (ex.: "passo 6" em §11) seguem corretas — fix trivial em passagem futura (re-renumerar 6→5 ou inserir um passo 5 entre o manifesto e o push) (.claude/skills/integrar-task/SKILL.md:78-100)
 <!-- END P-05 -->
+
+<!-- EST-48c (Reviewer 1) -->
+- [ ] [M1][EST-48c][estaleiro] `apps/estaleiro/package.json` version bump (0.0.90→0.0.92) fora do escopo declarado na §3 da spec. Cosmético, sem impacto funcional; mesmo padrão de housekeeping registrado para EST-35a, EST-36, EST-48b. Disposição sugerida: reverter e delegar a task de housekeeping ou absorver em release notes (apps/estaleiro/package.json:3)
+- [ ] [M2][EST-48c][estaleiro-ui] `ProfileSection.test.tsx` cobre 13 dos 14 casos exigidos na Seção 4.1 da spec. Faltam explícitos: caso 3 (assertion de que o perfil criado aparece renderizado na lista após submit — atualmente só verifica que `create` foi chamado) e caso 14 (anti-fake localStorage — nenhum teste dedicado que afirme que após criar/ativar perfil, `localStorage.getItem(...)` não contém a apiKey). Cobertura parcial dos 14 cenários da spec. (apps/estaleiro/ui/src/views/config/ProfileSection.test.tsx:1-362 vs tasks/EST-48c.md:85-120)
+- [ ] [m1][EST-48c][estaleiro-ui] `ProfileSection.tsx:2` importa `CreateProfileInput` e `UpdateProfileInput` de `@plataforma/plugin-providers` mas nenhum dos dois tipos é referenciado no corpo do componente. Lint `@typescript-eslint/no-unused-vars`. Provavelmente sumirá automaticamente quando B2 (resolução de imports) for consertado e o módulo for importado por outros consumidores. (apps/estaleiro/ui/src/views/config/ProfileSection.tsx:2)
+<!-- END EST-48c (Reviewer 1) -->
 
 <!-- BEGIN PROC-PENDENCIAS -->
 <!-- Achados de processo (P0/P1 de relatórios de execução / tooling observada) que o `/agrupar-cleanup` drena em tasks de tooling. -->
