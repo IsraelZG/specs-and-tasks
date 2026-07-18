@@ -1,7 +1,7 @@
 ---
 id: T-OFF-01
 title: "perfis de capacidade no motor de paginas + validador por perfil (emenda spec de paginas)"
-status: draft:triaged
+status: ready
 complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -124,11 +124,14 @@ O agente `agile_reviewer` usará esta checklist:
 - [ ] Motor é único — perfis são declaração, não motores separados?
 - [ ] `pnpm test` verde com 8 casos?
 
-### Verificação automática
+### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 ```bash
 pnpm --filter @plataforma/page-engine build
 pnpm --filter @plataforma/page-engine test
+pnpm --filter @plataforma/page-engine lint
 ```
+> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
+> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -148,3 +151,5 @@ pnpm --filter @plataforma/page-engine test
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-18T11:21]** - *gemini* - `[Endurecido]`: endureceu spec adicionado lint ao gate
+- **[2026-07-18T11:21]** - *system* - `[Auto-promovida]`: deps todas done
