@@ -1,7 +1,7 @@
 ---
 id: T-PG-03
 title: "mecanismo EXTENDS/override por id estavel + testes de precedencia"
-status: draft:triaged
+status: ready
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -126,11 +126,14 @@ Casos de teste (numerados):
 - [ ] Operações com alvo não encontrado vão para `unresolved` (nunca crash)?
 - [ ] Ids permanecem únicos após merge (L4)?
 
-### Verificação automática
+### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 ```bash
 pnpm --filter @plataforma/pages build
 pnpm --filter @plataforma/pages test
+pnpm --filter @plataforma/pages lint
 ```
+> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
+> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -150,3 +153,5 @@ pnpm --filter @plataforma/pages test
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-18T11:32]** - *gemini* - `[Endurecido]`: endureceu spec: 12 casos enumerados, gate com lint, contratos derivados de caderno-3/11 L4
+- **[2026-07-18T11:32]** - *system* - `[Auto-promovida]`: deps todas done
