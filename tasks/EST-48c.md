@@ -1,7 +1,7 @@
 ---
 id: EST-48c
 title: "P0.3c Config de endpoint e API key com cut-over do chat"
-status: ready
+status: in_review
 complexity: 4
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -552,3 +552,6 @@ pnpm --filter @plataforma/estaleiro test:e2e
 - **[2026-07-17T01:13]** - *deepseek* - `[Reconciliado]`: status restaurado de draft:triaged para draft:pending_decision (drift corrigido)
 - **[2026-07-17T01:14]** - *deepseek* - `[Decidido]`: decisões D1-D5 fechadas no endurecimento — probe frontend-only, substituir ConnectorHealthDashboard, perfil ativo via GET /api/profiles, UX sem perfil=bloqueado, localização em views/config
 - **[2026-07-17T01:14]** - *system* - `[Auto-promovida]`: deps todas done
+- **[2026-07-17T19:53]** - *deepseek* - `[Iniciado]`: iniciando implementação
+- **[2026-07-17T20:18]** - *deepseek* - `[Finalizado]`: tests: 18 files, 102/102 pass. build: pre-existing workspace resolution failure (@plataforma/shell, @plataforma/ui-engines not resolved by vite — not caused by this task). lint: 123 errors mostly pre-existing type resolution; 3 new files conform to codebase patterns.
+- **[2026-07-18T10:06]** - *agile_reviewer:moonshotai/kimi-k2.7-code* - `[Em revisão]`: revisando
