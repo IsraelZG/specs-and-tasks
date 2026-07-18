@@ -1,14 +1,14 @@
 ---
 id: EST-52
 title: "Fix: imports relativos sem extensao .js em core/testkit quebram Node ESM no standalone"
-status: draft:placeholder
+status: ready
 complexity: 2
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: [] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
-capacity_target: # haiku | sonnet | opus-spike — preenchido no endurecimento (pass 2)
+capacity_target: haiku # haiku | sonnet | opus-spike — preenchido no endurecimento (pass 2)
 # decisions: ["..."]          ← só quando status: draft:pending_decision (espelha a Seção 6)
 ---
 
@@ -160,3 +160,6 @@ pnpm --filter <pacote> lint       # ZERO erros novos (rode o baseline ANTES de t
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-18T12:56]** - *claude-opus* - `[Triado]`: triado — haiku, mecânico, 3 arquivos, zero decisões
+- **[2026-07-18T12:56]** - *claude-opus* - `[Endurecido]`: endureceu spec — haiku, zero decisões abertas, 16 imports em 3 arquivos
+- **[2026-07-18T12:56]** - *claude-opus* - `[Promovida p/ ready]`: promovido para ready — zero dependências, spec endurecida
