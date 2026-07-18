@@ -1,15 +1,15 @@
 ---
 id: T-BW-01
 title: "Bancada: composition root real (storage OPFS + KeyVault + SwarmRegistry + WS reais)"
-status: draft:triaged
+status: ready
 complexity: 3
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-004b", "T-110", "T-204", "T-205"]
 blocks: [] # IDs de tarefas que esta bloqueia
-capacity_target: # haiku | sonnet | opus-spike — preenchido no endurecimento (pass 2)
-# decisions: ["..."]          ← só quando status: draft:pending_decision (espelha a Seção 6)
+capacity_target: haiku
+# decisions: []
 ---
 
 # T-BW-01 · Bancada: composition root real (storage OPFS + KeyVault + SwarmRegistry + WS reais)
@@ -18,61 +18,83 @@ capacity_target: # haiku | sonnet | opus-spike — preenchido no endurecimento (
 - **Runtime:** Node.js v20+
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
-- **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
-- **Capacidade-alvo:** haiku | sonnet | opus-spike *(ver regra "Dimensionamento de Tarefas" no CLAUDE.md: spec sem decisões em aberto, contratos explícitos, sem API externa não-fixada, verificação por comando)*
+- **Test Runner:** `vitest` (pacotes core/protocol/apps) e `playwright` (E2E/Frontend)
+- **Capacidade-alvo:** haiku
 
 ## 1. Objetivo
-Substituir os placeholders do composition root da Bancada (`apps/bancada/src/App.tsx`) por
-instâncias REAIS: StoragePort OPFS (`sqliteWasmStorage`, T-004b), `KeyVault` real (T-110/T-1036),
-`SwarmRegistry` real (T-205) e adapter WebSocket (T-204) conectando ao system-peer local. É a base
-de todas as demais T-BW-*: enquanto o root é fake, cada aba "real" continua exibindo estado de mock.
-
-**Estado real (auditoria 2026-07-14):** `App.tsx` declara `// Placeholder impls — system-peer
-integration deferred to wiring task (T-XXX bancada-wiring)` (mídia inteira), `// mock UCAN state
-for E2E testing` e clock local; KeyVault/SwarmRegistry são importados mas alimentados com estado
-sintético. Esta é a "T-XXX bancada-wiring" que o código promete.
+Substituir os placeholders do composition root da Bancada (`apps/bancada/src/App.tsx`) por instâncias REAIS: StoragePort OPFS (`sqliteWasmStorage`, T-004b), `KeyVault` real (T-110/T-1036), `SwarmRegistry` real (T-205) e adapter WebSocket (T-204) conectando ao system-peer local. É a base de todas as demais T-BW-*: enquanto o root é fake, cada aba "real" continua exibindo estado de mock.
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [ ] plano-de-implementacao.md §3 E0.3 e §2.4 (reset/cenários)
-- [ ] T-004b (sqliteWasmStorage)
-- [ ] T-110/T-1036 (KeyVault)
-- [ ] T-204 (WS adapter)
-- [ ] T-205 (SwarmRegistry)
+- [plano-de-implementacao.md](../docs/plano-de-implementacao.md) §3 E0.3 e §2.4 (reset/cenários)
+- [T-004b.md](T-004b.md) (sqliteWasmStorage)
+- [T-110.md](T-110.md) / [T-1036.md](T-1036.md) (KeyVault)
+- [T-204.md](T-204.md) (WS adapter)
+- [T-205.md](T-205.md) (SwarmRegistry)
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-*(Defina EXATAMENTE quais arquivos o agente deve ler, criar ou modificar. Não edite arquivos fora deste escopo)*
-- **[READ]** `caminho/do/arquivo/referencia.ts` (Funções/Classes existentes a serem lidas)
-- **[CREATE]** `caminho/novo/arquivo.ts` (O formato esperado do output)
-- **[UPDATE]** `caminho/existente.ts` (Linhas X a Y, ou adicionar função Z)
+- **[READ]** `apps/bancada/src/App.tsx` (arquivo do Shell da Bancada a ser modificado)
+- **[READ]** `packages/core/src/sqliteWasmStorage.ts` (definição de SqliteWasmStorage que implementa GraphStorePort)
+- **[READ]** `packages/core/src/keyVault.ts` (definição de KeyVault)
+- **[READ]** `packages/transport/src/websocket.ts` (definição de WsAdapter que implementa NetworkAdapterPort)
+- **[READ]** `packages/transport/src/SwarmRegistry.ts` (definição de SwarmRegistry)
+- **[UPDATE]** `apps/bancada/src/App.tsx` (instanciar SqliteWasmStorage, WsAdapter e integrar com KeyVault e SwarmRegistry)
+- **[UPDATE]** `apps/bancada/tests/App.test.tsx` (mockar Worker ou SqliteWasmStorage para os testes passarem no JSDOM)
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** (Vitest para Node puro / Playwright para E2E / React Testing Library em JSDOM)
-- [ ] **Métricas/Cobertura:** (Ex: Testar todos os ramos de erro, testar a assinatura inválida)
-- [ ] **Ambiente do Teste:** (Node puro, sem browser / Headless browser)
-- [ ] **Fora de Escopo:** (O que NÃO precisa ser testado)
-> **Se a task afeta UI** (frontend_agent ou escopo em `apps/*-frontend/**`): unit/JSDOM NÃO
-> basta. Especifique aqui um **smoke Playwright** (browser real) OU exija a verificação manual
-> do revisor (subir o app e exercitar o fluxo) — o `agile-reviewer` trata isso como BLOCKER de
-> processo. Marque `ui: true` no frontmatter para deixar explícito.
+- [x] **Framework:** Vitest + React Testing Library (JSDOM) para unitários/integração do App; Playwright (headless browser) para E2E smoke tests.
+- [x] **Métricas/Cobertura:** Garantir que o `App.test.tsx` passe 100% sem erros de Worker não-suportado. Garantir que a cobertura dos botões/abas e fluxo de renderização permaneça verde.
+- [x] **Ambiente do Teste:** JSDOM (Vitest unit) e headless browser (Playwright E2E).
+- [x] **Fora de Escopo:** Testes de lógica profunda do SwarmRegistry ou do SQLite WASM/OPFS de baixo nível (já cobertos em suas respectivas tarefas de pacote). O foco aqui é exclusivamente a instanciação e o wiring correto dos componentes no root.
+- [x] **Smoke Playwright:** Rodar `pnpm --filter @plataforma/bancada test:e2e` para validar que o app inicia na porta dev e as abas carregam sem erros no console (conforme `bancada.smoke.spec.ts`).
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ REGRAS DO QUE NÃO FAZER:**
-> -
-> -
+> - **NÃO** remova os botões das abas ou mude o layout visual do Shell da Bancada.
+> - **NÃO** use `console.error` ao tratar falha de conexão do `WsAdapter` com o system-peer, para evitar que testes de console falhem. Use `console.warn`.
+> - **NÃO** remova a aba Mídia ou seus placeholders de reprodução/upload (que serão tratados na respectiva task downstream T-BW-06).
 
-### Pegadinhas conhecidas *(preencher pelo Task Architect — armadilhas que derrubam um modelo leve)*
-*(Liste aqui os erros prováveis e como evitá-los. Ex.: "mudar uma assinatura síncrona para `async`*
-*exige `await` em TODOS os callers (controller, rota REST, MCP tools)"; "mapear `A.foo → bar`*
-*ao passar para o método X"; "não duplicar a lógica de Y — chamar o método existente Z".)*
-- *[Nenhuma identificada]*
+### Pegadinhas conhecidas
+- *Web Workers em JSDOM*: JSDOM não suporta Web Workers nativamente. Instanciar `SqliteWasmStorage` no construtor de `App.tsx` fará com que `new Worker(...)` lance uma exceção em testes unitários. Portanto, **é obrigatório** mockar `SqliteWasmStorage` ou a classe `Worker` global em `apps/bancada/tests/App.test.tsx` ou nos setups de teste aplicáveis.
 
-1. **[TDD]** Escreva o teste em `...`
-2. Implemente `...`
-3. Refatore.
+1. **[TDD - Mock Worker em Testes Unitários]**
+   Atualize `apps/bancada/tests/App.test.tsx` para mockar `SqliteWasmStorage` de `@plataforma/core` antes dos testes rodarem. A classe mockada deve implementar as assinaturas usadas:
+   ```typescript
+   vi.mock("@plataforma/core", async (importOriginal) => {
+     const original = await importOriginal<typeof import("@plataforma/core")>();
+     return {
+       ...original,
+       SqliteWasmStorage: class {
+         constructor() {}
+         migrate() { return Promise.resolve(); }
+         exec() { return Promise.resolve([]); }
+         close() { return Promise.resolve(); }
+       }
+     };
+   });
+   ```
+
+2. **[Wiring no App.tsx]**
+   Importe as instâncias reais no `apps/bancada/src/App.tsx`:
+   - `SqliteWasmStorage` e `MIGRATIONS` de `@plataforma/core`
+   - `WsAdapter` de `@plataforma/transport`
+   - `useEffect` de `react`
+
+3. **[Instanciação e Migração]**
+   Dentro da função componente `App`:
+   - Instancie `storage = useMemo(() => new SqliteWasmStorage("bancada-db"), [])`.
+   - Adicione um `useEffect` para disparar `storage.migrate(MIGRATIONS)` ao carregar o componente, capturando e logando eventuais erros de forma segura (`console.error` para migração falha é aceitável, pois é um erro de inicialização crítico).
+
+4. **[Instanciação e Conexão de Transporte]**
+   - Instancie `wsAdapter = useMemo(() => new WsAdapter({ peerUrls: new Map([['system-peer', 'ws://127.0.0.1:3000']]) }), [])`.
+   - Adicione um `useEffect` para chamar `wsAdapter.connect('system-peer')` em background. Use `.catch((err) => console.warn("[Bancada] System-peer connection deferred:", err))` para evitar poluição ou quebra de testes quando o peer local não estiver online.
+
+5. **[Validação]**
+   - Rode localmente `pnpm --filter @plataforma/bancada build` para validar types e imports.
+   - Rode `pnpm --filter @plataforma/bancada test` para verificar que os testes unitários do shell estão verdes com os mocks aplicados.
+   - Rode `pnpm --filter @plataforma/bancada test:e2e` para validar a inicialização em browser Playwright.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **ATENÇÃO:** Se a spec (RAG) for ambígua, contraditória ou o design pattern imposto for impossível, **PARE**. Mude o status para `blocked` e escreva o motivo abaixo. Não alucine uma abstração não documentada.
-- *[Nenhum problema identificado]*
+- *[Nenhum problema identificado: todas as dependências (T-004b, T-110, T-204, T-205) estão prontas e suas APIs/interfaces estão 100% definidas e estáveis]*
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
@@ -80,14 +102,16 @@ O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
 - [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
 - [ ] Linter (`pnpm lint`) não acusa problemas?
 - [ ] A implementação respeita a Regra do Que Não Fazer?
-- [ ] **[gate de wiring — se a task entrega primitiva de autorização/privacidade]** existe caller de produção em `src/**` que a consome no caminho real, OU há task de integração linkada? (primitiva só testada = feature NÃO entregue)
-- [ ] **[gate de acoplamento — se a task adiciona import cruzando pacote]** o import respeita a direção `protocol ← crypto ← core ← transport` (`visao-arquitetural.md §1`) e NÃO fecha ciclo?
+- [ ] **[gate de acoplamento]** o import respeita a direção de pacotes (`protocol` ← `crypto` ← `core` ← `transport` ← `bancada`) e não fecha ciclo?
+- [ ] A instanciação de `SqliteWasmStorage` e `WsAdapter` está de acordo com as especificações do monorepo?
+- [ ] Os testes unitários do Shell da Bancada passam sob JSDOM mockando a criação de Workers?
 
-### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+### Verificação automática
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
-pnpm --filter <pacote> lint       # ZERO erros novos (rode o baseline ANTES de tocar; regressão de lint bloqueia no review)
+pnpm --filter @plataforma/bancada build      # tsc + vite build — precisa terminar sem erro
+pnpm --filter @plataforma/bancada test       # vitest unitarios em JSDOM precisam passar
+pnpm --filter @plataforma/bancada test:e2e   # Playwright smoke test da bancada passa
+pnpm --filter @plataforma/bancada lint       # ZERO erros de eslint
 ```
 > **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
 > saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
@@ -108,3 +132,5 @@ pnpm --filter <pacote> lint       # ZERO erros novos (rode o baseline ANTES de t
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-14T12:46]** - *claude-fable* - `[Triado]`: Wiring da Bancada — auditoria 2026-07-14: placeholders declarados no App.tsx; endurecimento profundo just-in-time quando as deps fecharem
+- **[2026-07-18T11:08]** - *gemini* - `[Endurecido]`: endureceu spec
+- **[2026-07-18T11:08]** - *system* - `[Auto-promovida]`: deps todas done
