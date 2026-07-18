@@ -1,16 +1,15 @@
 ---
 id: EST-51
 title: "Fix: server.mjs serve ui/ cru em vez de ui/dist"
-status: draft:placeholder
+status: in_progress
 complexity: 1
-target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+target_agent: devops_agent
 reviewer_agent: agile_reviewer
-execution_mode: sequential # parallel | sequential
-dependencies: [] # IDs de tarefas que bloqueiam esta
-blocks: [] # IDs de tarefas que esta bloqueia
-capacity_target: # haiku | sonnet | opus-spike — preenchido no endurecimento (pass 2)
+execution_mode: sequential
+dependencies: []
+blocks: []
+capacity_target: haiku
 ui: true
-# decisions: ["..."]          ← só quando status: draft:pending_decision (espelha a Seção 6)
 ---
 
 # EST-51 · Fix: server.mjs serve ui/ cru em vez de ui/dist
@@ -20,105 +19,111 @@ ui: true
 - **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
 - **Test Runner:** `vitest` (pacotes core/protocol) e `playwright` (E2E/Frontend)
-- **Capacidade-alvo:** haiku | sonnet | opus-spike *(ver regra "Dimensionamento de Tarefas" no CLAUDE.md: spec sem decisões em aberto, contratos explícitos, sem API externa não-fixada, verificação por comando)*
+- **Capacidade-alvo:** haiku
 
 ## 1. Objetivo
-`apps/estaleiro/server.mjs` serve arquivos estáticos de `apps/estaleiro/ui/` (a pasta de
-**código-fonte** da UI — `index.html` de dev, que referencia `<script type="module"
-src="/src/main.tsx">`, um `.tsx` que o browser não sabe executar cru) em vez de
-`apps/estaleiro/ui/dist/` (o build de produção do vite). Isso significa que rodar
-`node server.mjs` diretamente no monorepo (sem passar pelo pipeline de deploy standalone em
-`scripts/estaleiro-standalone.mjs`) NUNCA serviu um app funcional — só o deploy standalone (que
-copia `ui/dist` para outro lugar) já funcionou. Corrigir para servir sempre `ui/dist`.
+`apps/estaleiro/server.mjs:7` define `UI_DIR` apontando para `./ui/` (pasta de **código-fonte**
+da UI — `index.html` de dev com `<script type="module" src="/src/main.tsx">`, um `.tsx` que o
+browser não executa cru). O correto é apontar para `./ui/dist/` (build de produção do Vite).
+Rodar `node server.mjs` no monorepo nunca serviu um app funcional — só o deploy standalone
+(via `scripts/estaleiro-standalone.mjs`) funcionava porque copia `ui/dist` para outro layout e
+faz patch da string. Corrigir ambos: o `server.mjs` local E o patch literal do standalone.
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- `apps/estaleiro/server.mjs:7` — `const UI_DIR = fileURLToPath(new URL("./ui/", import.meta.url));`
-  — aponta para a pasta fonte, não para `./ui/dist/`.
-- `apps/estaleiro/core/src/bootstrap.ts` (`serveUiFile`, em torno da linha 524) — recebe `uiDir`
-  e serve arquivos estáticos dele com fallback para `index.html`; não sabe nem precisa saber a
-  diferença entre fonte e build — só serve o que `uiDir` apontar.
-- `apps/estaleiro/ui/dist/` — já é gerado por `pnpm --filter @plataforma/estaleiro-ui build`
-  (vite build padrão, `outDir: 'dist'` em `apps/estaleiro/ui/vite.config.ts`).
-- `scripts/estaleiro-standalone.mjs` — pipeline de empacotamento standalone (T-1052/EST-19/EST-25)
-  que builda tudo e copia `ui/dist` para `estaleiro-run/vNN/`; é o único caminho que hoje produz
-  um app servível — este script NÃO deve ser alterado por esta task (ele já copia o dist certo
-  para o destino certo; o bug é só no `server.mjs` local do monorepo).
-- `apps/estaleiro/package.json:"start"` → `"node server.mjs"` — comando canônico de start local.
+- `apps/estaleiro/server.mjs:7` — `const UI_DIR = fileURLToPath(new URL("./ui/",
+  import.meta.url));` — aponta para fonte, não para `./ui/dist/`.
+- `apps/estaleiro/core/src/bootstrap.ts:~524` (`serveUiFile`) — recebe `uiDir` e serve
+  estáticos com fallback para `index.html`; não sabe diferença entre fonte e build.
+- `apps/estaleiro/ui/vite.config.ts` — `outDir: 'dist'`, `emptyOutDir: true` (confirmado).
+- `apps/estaleiro/package.json` — `"start": "node server.mjs"`, sem `prestart`.
+- `scripts/estaleiro-standalone.mjs:209-212` — faz `.replace()` literal buscando
+  `` `fileURLToPath(new URL("./ui/", import.meta.url))` `` e substituindo por
+  `` `fileURLToPath(new URL("../ui/", import.meta.url))` ``. Se a string fonte mudar e o
+  replace não for atualizado, o patch **não casa** e o standalone quebra silenciosamente
+  (server.mjs deployado aponta para `./ui/dist/` que não existe no layout standalone).
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-- **[UPDATE]** `apps/estaleiro/server.mjs` — trocar `new URL("./ui/", import.meta.url)` por
-  `new URL("./ui/dist/", import.meta.url)`.
-- **[READ]** `apps/estaleiro/ui/vite.config.ts` — confirmar `outDir: 'dist'` (não deveria
-  precisar mudar).
-- **[UPDATE]** `apps/estaleiro/package.json` — se `"start"` não builda a UI antes de subir o
-  server, considerar adicionar um script `"prestart": "pnpm --dir ../../ --filter
-  @plataforma/estaleiro-ui build"` (padrão já usado em `"pretest:e2e"` do mesmo package.json) —
-  **decisão do worker se incluir ou só documentar no README/task que `pnpm --filter
-  @plataforma/estaleiro-ui build` precisa rodar antes de `pnpm start`** (evitar side-effect
-  surpresa de rebuildar em todo `pnpm start`, mas também evitar UI stale servida por engano —
-  escalar como achado na Seção 6 se ficar em dúvida, não decidir sozinho um comportamento que
-  afeta todos os devs).
+- **[UPDATE]** `apps/estaleiro/server.mjs` — linha 7: trocar `"./ui/"` por `"./ui/dist/"`.
+- **[UPDATE]** `scripts/estaleiro-standalone.mjs` — linha 210: trocar a string de busca do
+  `.replace()` de `` `fileURLToPath(new URL("./ui/", import.meta.url))` `` para
+  `` `fileURLToPath(new URL("./ui/dist/", import.meta.url))` ``. A string de substituição
+  (linha 211) **NÃO muda** — continua `` `fileURLToPath(new URL("../ui/", import.meta.url))` ``
+  porque no layout standalone os arquivos já estão em `<DEST>/ui/` (sem subpasta `dist/`).
+- **[READ]** `apps/estaleiro/ui/vite.config.ts` — confirmar `outDir: 'dist'` (não mudar).
 
 ## 4. Estratégia de Testes Estrita (Test-Driven Development)
-- [ ] **Framework:** verificação manual + Playwright existente (`apps/estaleiro/e2e/*.spec.ts`,
-  que já sobe o servidor via `pretest:e2e` → `estaleiro-standalone.mjs`, então não é afetado por
-  este bug hoje; mas depois do fix, `pnpm start` direto também deve funcionar).
-- [ ] **Ambiente do Teste:** manual — `pnpm --filter @plataforma/estaleiro-ui build` seguido de
-  `pnpm --filter @plataforma/estaleiro start`, abrir `http://localhost:8899/` no browser e
-  confirmar que a página carrega JS/CSS compilados (não um 404 ou um `.tsx` cru servido como
-  `text/javascript`).
-- [ ] **Fora de Escopo:** não mexer no pipeline `estaleiro-standalone.mjs` nem no Playwright
-  E2E existente (esses já funcionam por outro caminho).
-> `ui: true` — afeta como a UI é servida. Reviewer sobe `pnpm start` e confirma no browser.
+- **Framework:** verificação manual + `test:integration` existente.
+- **Ambiente:** Node.js v20+, browser para verificação visual.
+- **Casos de verificação:**
+  1. `pnpm --filter @plataforma/estaleiro-ui build` → confirmar `apps/estaleiro/ui/dist/index.html` existe.
+  2. `pnpm --filter @plataforma/estaleiro start` → abrir `http://localhost:8899/` → página
+     carrega (JS/CSS compilados, não `.tsx` cru nem 404).
+  3. `pnpm --filter @plataforma/estaleiro test:integration` → verde, sem regressão.
+- **Fora de escopo:** não alterar Playwright E2E, não alterar `ui/src`, não adicionar
+  bundler/dev-server novo (Vite dev server, HMR).
 
 ## 5. Instruções de Execução (Step-by-Step)
 > **⚠️ REGRAS DO QUE NÃO FAZER:**
-> - NÃO alterar `scripts/estaleiro-standalone.mjs` — ele já funciona corretamente.
-> - NÃO remover ou alterar a pasta `apps/estaleiro/ui/src` (fonte) — o fix é só o `uiDir` que o
->   `server.mjs` local aponta.
-> - NÃO adicionar bundler/dev-server novo (Vite dev server, HMR) — fora de escopo; o objetivo é
->   só servir o build de produção corretamente.
+> - NÃO adicionar script `prestart` no `package.json` — o worker deve buildar a UI manualmente
+>   antes de `pnpm start` (documentar no handover). Evitar side-effect surpresa de rebuild em
+>   todo start.
+> - NÃO remover ou alterar `apps/estaleiro/ui/src` (fonte).
+> - NÃO alterar a lógica do `estaleiro-standalone.mjs` além da string de busca do `.replace()`
+>   da linha 210.
 
 ### Pegadinhas conhecidas
-- `apps/estaleiro/ui/dist/` só existe depois de rodar o build — se o worker testar `pnpm start`
-  sem buildar antes, vai ver 404 em tudo e pode concluir erroneamente que o fix não funcionou.
-  Sempre buildar a UI primeiro.
-- `serveUiFile` em `bootstrap.ts` faz fallback de path traversal check (`resolved.startsWith(...)`)
-  — não precisa mexer nisso, só o `uiDir` de entrada muda.
+- `ui/dist/` só existe após build — se testar `pnpm start` sem buildar antes, verá 404 e pode
+  concluir erroneamente que o fix falhou. Sempre buildar a UI primeiro.
+- O `.replace()` do standalone é **literal** (não regex) — se a string de busca não casar
+  exatamente, o patch é silently skipped e o deploy quebra.
 
-1. Buildar a UI (`pnpm --filter @plataforma/estaleiro-ui build`) e confirmar `ui/dist/index.html`
-   existe.
-2. Alterar `server.mjs:7` para apontar para `./ui/dist/`.
-3. Rodar `pnpm --filter @plataforma/estaleiro start` (ou `node server.mjs` de dentro de
-   `apps/estaleiro`) e abrir `http://localhost:8899/` no browser — confirmar que a página carrega
-   (não é suficiente confirmar HTTP 200; abrir no browser mesmo, dado que EST-50 pode ainda
-   estar em aberto e a tela pode aparecer vazia por outro motivo — isso é esperado e não é
-   regressão desta task).
-4. Decidir e documentar (ou implementar, se trivial) o script `prestart` conforme §3.
+### Passos
+1. Buildar UI: `pnpm --filter @plataforma/estaleiro-ui build` → confirmar `ui/dist/index.html`.
+2. Editar `apps/estaleiro/server.mjs:7`:
+   ```js
+   // antes
+   const UI_DIR = fileURLToPath(new URL("./ui/", import.meta.url));
+   // depois
+   const UI_DIR = fileURLToPath(new URL("./ui/dist/", import.meta.url));
+   ```
+3. Editar `scripts/estaleiro-standalone.mjs:210`:
+   ```js
+   // antes
+   `fileURLToPath(new URL("./ui/", import.meta.url))`,
+   // depois
+   `fileURLToPath(new URL("./ui/dist/", import.meta.url))`,
+   ```
+   A linha 211 (replacement) **NÃO muda**.
+4. Rodar `pnpm --filter @plataforma/estaleiro test:integration` → confirmar verde.
+5. Rodar `pnpm --filter @plataforma/estaleiro start` → abrir `http://localhost:8899/` no
+   browser → confirmar página carrega (JS/CSS compilados).
+6. Rodar `pnpm --filter @plataforma/estaleiro lint` → zero erros novos.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-- *[Nenhum problema identificado — causa raiz confirmada em sessão de diagnóstico 2026-07-18: um
-  server dev temporário apontando `uiDir` para `ui/dist/` serviu a UI corretamente; o
-  `server.mjs` real do repo aponta para `ui/` (fonte) e por isso nunca funcionou localmente.]*
-- **Relacionada:** [EST-50](./EST-50.md) — sem o fix de CSS, mesmo servindo o `dist` certo a tela
-  ainda vai parecer vazia; as duas tasks são independentes mas o teste manual completo desta
-  task só fica visualmente satisfatório depois que EST-50 também estiver corrigida. Não é
-  dependência de bloqueio (esta task testa "serve o dist certo", não "a UI está bonita").
+- **Divergência detectada no endurecimento:** a spec original (placeholder) dizia "NÃO alterar
+  `scripts/estaleiro-standalone.mjs`". Investigando, o standalone faz `.replace()` literal
+  buscando a string exata `fileURLToPath(new URL("./ui/", import.meta.url))` (linha 209-212).
+  Mudar `server.mjs` sem atualizar essa string de busca faz o patch falhar silenciosamente —
+  o deploy standalone quebra. A correção é mecânica (uma string literal) e não altera a
+  *lógica* do standalone — apenas a string que ele busca para substituir. Incluido como
+  `[UPDATE]` na Seção 3.
+- **Relacionada:** EST-50 — sem o fix de CSS, a tela pode parecer vazia mesmo servindo o
+  `dist` certo. Independente, não é dependência de bloqueio.
 
-## 7. Definition of Done (DoD) & Reviewer Checklist
+## 7. Definition Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
-- [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O `pnpm test` roda sem erros no ambiente especificado (Node/JSDOM)?
-- [ ] Linter (`pnpm lint`) não acusa problemas?
-- [ ] A implementação respeita a Regra do Que Não Fazer?
-- [ ] **[gate de wiring — se a task entrega primitiva de autorização/privacidade]** existe caller de produção em `src/**` que a consome no caminho real, OU há task de integração linkada? (primitiva só testada = feature NÃO entregue)
-- [ ] **[gate de acoplamento — se a task adiciona import cruzando pacote]** o import respeita a direção `protocol ← crypto ← core ← transport` (`visao-arquitetural.md §1`) e NÃO fecha ciclo?
+- [ ] O código segue estritamente os arquivos de Output especificados (Seção 3)?
+- [ ] `pnpm --filter @plataforma/estaleiro test:integration` roda sem erros?
+- [ ] `pnpm --filter @plataforma/estaleiro lint` — ZERO erros novos?
+- [ ] A implementação respeita as regras "NÃO FAZER" da Seção 5?
+- [ ] Verificação manual: `pnpm start` serve UI compilada em `http://localhost:8899/`?
+- [ ] O `.replace()` do standalone (linha 210) foi atualizado para casar com a nova string?
 
 ### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 ```bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
-pnpm --filter <pacote> lint       # ZERO erros novos (rode o baseline ANTES de tocar; regressão de lint bloqueia no review)
+pnpm --filter @plataforma/estaleiro build        # tsc — precisa terminar sem erro
+pnpm --filter @plataforma/estaleiro test:integration  # precisa ficar verde, sem regressão
+pnpm --filter @plataforma/estaleiro lint          # ZERO erros novos
 ```
 > **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
 > saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
@@ -132,9 +137,11 @@ pnpm --filter <pacote> lint       # ZERO erros novos (rode o baseline ANTES de t
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória — colar saída de build/tsc + test + lint):**
 ```
-(cole aqui a saída real de pnpm build, pnpm test e pnpm lint)
+(cole aqui a saída real de pnpm build, pnpm test:integration e pnpm lint)
 ```
 - **Comentários de Revisão:**
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
+- **[2026-07-18T12:04]** - *qwen3.7-plus* - `[Promovida p/ ready]`: promovido: hardened sem deps, pronto para execução
+- **[2026-07-18T12:55]** - *deepseek* - `[Iniciado]`
