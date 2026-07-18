@@ -548,6 +548,9 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- P-04 -->
 - [ ] [m3][P-04][controle] Gate validation on `finish` (manage-task.mjs:22-56) é trabalho P-05 (saúde.mjs + preflight) incluído no diff de P-04 sem declaração em §3. Efeito neutro p/ tooling-do-controle (sem worktree). Separar em commit próprio ou justificar em próxima passagem.
 <!-- END P-04 -->
+<!-- C-21 -->
+- [ ] [M1][C-21][@plataforma/plugin-context] Scope creep em m3: spec §3 dizia apenas `export const TOK_EST = (s: string): number => Math.ceil(s.length / 4);` para `src/constants.ts`, mas worker extraiu também `GATE_TOK = 2000` no mesmo arquivo. Funcionalmente correto (GATE_TOK é usado em 3 sites de optimize.ts) e coeso, mas §3 não autorizava. Decidir: (a) estender spec retroativamente, (b) reverter GATE_TOK para inline em optimize.ts. Sem decisão de arquiteto, o rework de C-21 só fecha B1 (cast `as any` em nanoPreprocess.ts:41). (packages/plugin-context/src/constants.ts:1-2)
+<!-- END C-21 -->
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
