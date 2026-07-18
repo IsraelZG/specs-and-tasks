@@ -1,7 +1,7 @@
 ---
 id: T-PG-02
 title: "renderizador React sobre o catalogo (resolve sources, avalia ZEN sob orcamento, render progressivo)"
-status: draft:triaged
+status: ready
 complexity: 5
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -212,11 +212,14 @@ O agente `agile_reviewer` usará esta checklist:
 - [ ] `state` local é transiente e não persiste entre montagens diferentes?
 - [ ] Orçamento estourado produz `budgetExhausted: true` sem crash?
 
-### Verificação automática
+### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 ```bash
 pnpm --filter @plataforma/pages build
 pnpm --filter @plataforma/pages test
+pnpm --filter @plataforma/pages lint
 ```
+> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
+> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -236,3 +239,5 @@ pnpm --filter @plataforma/pages test
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-18T11:21]** - *gemini* - `[Endurecido]`: endureceu spec 15 casos de teste gate com lint
+- **[2026-07-18T11:21]** - *system* - `[Auto-promovida]`: deps todas done
