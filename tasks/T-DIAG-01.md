@@ -1,7 +1,7 @@
 ---
 id: T-DIAG-01
 title: "SPIKE: adoção controlada de Archify para artefatos arquiteturais"
-status: draft:triaged
+status: draft:hardened
 complexity: 5
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -10,61 +10,146 @@ dependencies: []
 blocks: []
 capacity_target: opus-spike
 ---
-
 # T-DIAG-01 · SPIKE: adoção controlada de Archify para artefatos arquiteturais
 
 ## 0. Ambiente de Execução Obrigatório
 - **Natureza:** tooling do repositório Docs; não cria worktree nem altera código do SuperApp.
 - **Capacidade-alvo:** `opus-spike`; entregável = piloto reprodutível, artefatos derivados e decisão de adoção. Não torna Archify obrigatório.
 - **Isolamento:** checkout/instalação temporária em `C:\tmp\t-diag-01-archify`; nunca instalar globalmente nem modificar configuração do usuário.
-- **Versão:** fixar e registrar a release/commit exato no endurecimento; referência atual: [Archify v2.11.0](https://github.com/tt-a1i/archify/tree/v2.11.0).
+- **Versão:** Archify v2.11.0 (Git repo: `https://github.com/tt-a1i/archify`, release tag `v2.11.0`).
 
 ## 1. Objetivo
-Avaliar Archify como ferramenta opcional para agentes arquitetos produzirem diagramas técnicos derivados de
-documentos canônicos. O piloto deve usar uma fonte real, validar `JSON IR → HTML/SVG`, testar atualização por
-mudança restrita no JSON e decidir como versionar, revisar e publicar esses artefatos sem criar uma fonte de
-verdade paralela.
+Avaliar Archify como ferramenta opcional para agentes arquitetos produzirem diagramas técnicos derivados de documentos canônicos. O piloto deve usar uma fonte real, validar `JSON IR → HTML/SVG`, testar atualização por mudança restrita no JSON e decidir como versionar, revisar e publicar esses artefatos sem criar uma fonte de verdade paralela.
 
-## 2. Contexto RAG
-- `docs/adr/0016-ui-engines-e-flow-grid.md` — fonte canônica do piloto: fronteiras entre Design System, `ui-engines`, páginas e plugins.
-- `docs/caderno-3-sdk/10-design-system.md` e `docs/caderno-3-sdk/12-plugins-e-computacao.md` — tokens, engines, capability manifest e sandbox.
-- `CLAUDE.md` §Wiki — prose normativa/ADR é canônica; diagramas são artefatos derivados, nunca substitutos.
-- [Archify README v2.11.0](https://github.com/tt-a1i/archify/tree/v2.11.0) — JSON IR tipado, validadores, renderização HTML/SVG e CLI.
-- [exemplo de pipeline JSON IR](https://github.com/tt-a1i/archify/blob/v2.11.0/examples/archify-repo.html) e [schema reference](https://github.com/tt-a1i/archify/tree/v2.11.0/docs) — referências de estrutura; não copiar estilo/código sem necessidade.
+## 2. Contexto RAG (Spec-Driven Development)
+- [ADR 0016 — UI Engines compartilhadas e FlowGrid determinístico](file:///c:/Dev2026/Docs/docs/adr/0016-ui-engines-e-flow-grid.md) — fonte canônica do piloto: fronteiras entre Design System, `ui-engines`, páginas e plugins.
+- [caderno-3-sdk/10-design-system.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/10-design-system.md) — tokens do design system.
+- [caderno-3-sdk/12-plugins-e-computacao.md](file:///c:/Dev2026/Docs/docs/caderno-3-sdk/12-plugins-e-computacao.md) — sandbox e capability manifest.
+- [Archify v2.11.0 Repository](https://github.com/tt-a1i/archify/tree/v2.11.0) — README, JSON IR tipado, validadores, renderização HTML/SVG e CLI.
+- [Archify schemas](https://github.com/tt-a1i/archify/tree/v2.11.0/archify/schemas) — schemas de validação.
 
-## 3. Escopo do Piloto
-1. Criar `docs/diagramas/adr-0016-ui-boundaries.json` como fonte editável do diagrama e gerar `docs/diagramas/adr-0016-ui-boundaries.html` e `.svg` como derivados.
-2. Mostrar no máximo 12 elementos: Design System, `@plataforma/ui-engines`, `@plataforma/pages`, plugin UI opaco, capability manifest, sandbox e seus fluxos/fronteiras. A fonte textual decide todos os elementos; lacunas viram anotação, não invenção.
-3. Executar as validações/checagens do CLI da versão pinada contra o JSON e HTML/SVG; registrar comandos e saída literal.
-4. Alterar uma propriedade localizada do JSON (posição, rótulo ou cor semântica), re-renderizar e demonstrar que o restante se mantém estável e revisável em diff.
-5. Avaliar visualmente legibilidade em tema claro/escuro, export SVG, texto alternativo/descrição próxima ao artefato e `prefers-reduced-motion`; não usar animação como requisito.
-6. Propor uma convenção mínima: quando usar diagramas, diretório/nomenclatura, JSON como fonte, HTML/SVG como derivados, como gerar no CI e como evitar artefatos obsoletos.
+## 3. Escopo de Arquivos (Inputs e Outputs)
+- **[READ]** `docs/adr/0016-ui-engines-e-flow-grid.md` — Fonte de verdade para os elementos do diagrama.
+- **[CREATE]** `docs/diagramas/adr-0016-ui-boundaries.json` — Fonte editável do diagrama (JSON IR no formato `architecture` do Archify).
+- **[CREATE]** `docs/diagramas/adr-0016-ui-boundaries.html` — HTML interativo gerado.
+- **[CREATE]** `docs/diagramas/adr-0016-ui-boundaries.svg` — SVG estático gerado (ou exportado).
+- **[CREATE]** `C:\tmp\t-diag-01-archify\package.json` — Arquivo de controle para a instalação local e isolada.
 
-## 4. Critérios de Decisão
-- `GO opcional` somente se o JSON, HTML e SVG forem gerados localmente sem rede durante renderização, passarem os validadores e forem revisáveis por diff.
-- O diagrama deve explicar uma relação material que a prosa sozinha torna difícil; diagramas decorativos ou duplicação literal da ADR são `NO-GO`.
-- Adoção não pode exigir skill global, serviço hospedado, fonte remota, fonte proprietária ou edição manual do HTML/SVG.
-- O JSON/HTML/SVG deve declarar na primeira linha ou cabeçalho a fonte canônica e a versão/commit do Archify.
-- Se uma mudança na ADR deixar o diagrama semanticamente desatualizado, a solução precisa oferecer um gatilho claro de atualização/review, não alegar sincronização automática inexistente.
+### Contrato de Dados - TypeScript interfaces para Archify JSON IR (v2.11.0):
+```typescript
+export interface ArchifyMeta {
+  title: string;
+  subtitle?: string;
+  output?: string;
+  animation?: "trace" | "none";
+  viewBox?: [number, number];
+}
 
-## 5. Não Fazer / Pegadinhas
-- **NÃO** alterar a semântica da ADR para caber no layout nem usar o diagrama como evidência arquitetural independente.
+export interface ArchifyLayout {
+  mode: "grid";
+  origin?: [number, number];
+  cols?: number;
+  gapX?: number;
+  gapY?: number;
+  cellW?: number;
+  cellH?: number;
+}
+
+export type ArchifyComponentType = "external" | "frontend" | "backend" | "database" | "messagebus" | "cache" | "broker";
+
+export interface ArchifyComponent {
+  id: string;
+  type: ArchifyComponentType;
+  label: string;
+  sublabel?: string;
+  row?: number;
+  col?: number;
+  pos?: [number, number];
+  size?: [number, number];
+}
+
+export interface ArchifyConnection {
+  from: string;
+  to: string;
+  label?: string;
+  dir?: "forward" | "back" | "both" | "none";
+}
+
+export interface ArchifyArchitectureIR {
+  schema_version: 1;
+  diagram_type: "architecture";
+  meta: ArchifyMeta;
+  layout?: ArchifyLayout;
+  components: ArchifyComponent[];
+  connections?: ArchifyConnection[];
+}
+```
+
+## 4. Estratégia de Testes Estrita (Test-Driven Development)
+1. **Cenário 1: Validação de Schema (JSON IR)**:
+   - **Procedimento:** Executar o validador do CLI da versão pinada contra `docs/diagramas/adr-0016-ui-boundaries.json`.
+   - **Resultado esperado:** Retorno limpo de validação (Exit Code 0).
+2. **Cenário 2: Cobertura Semântica da ADR-0016**:
+   - **Procedimento:** Verificar se o diagrama contém exatamente as 7 entidades básicas da ADR-0016: `@plataforma/design-system`, `@plataforma/ui-engines`, `@plataforma/shell`, `@plataforma/pages`, plugin UI opaco, capability manifest, e a sandbox.
+   - **Resultado esperado:** As entidades devem estar mapeadas em `components` no JSON IR.
+3. **Cenário 3: Estabilidade de Renderização (Diff)**:
+   - **Procedimento:** Alterar uma propriedade (ex: `sublabel` ou `type` de um componente no JSON IR), re-renderizar o HTML/SVG e realizar `git diff`.
+   - **Resultado esperado:** Apenas as linhas correspondentes ao componente alterado devem mudar, sem alterar coordenadas globais ou reordenar chaves.
+4. **Cenário 4: Checagem Visual de Layout (Inspect / Check)**:
+   - **Procedimento:** Executar a checagem de artefato `archify check` no HTML final gerado.
+   - **Resultado esperado:** Zero erros de intersecções inválidas ou transbordamentos de viewBox (Exit Code 0).
+5. **Cenário 5: Acessibilidade de Tema (Preferências)**:
+   - **Procedimento:** Validar no HTML gerado a existência de classes CSS de suporte a light/dark theme e `@media (prefers-reduced-motion: reduce)`.
+   - **Resultado esperado:** Suporte a toggle de tema funcional e sem animações forçadas.
+
+## 5. Instruções de Execução (Step-by-Step)
+1. Clone o repositório do Archify temporariamente:
+   `git clone -b v2.11.0 https://github.com/tt-a1i/archify.git C:\tmp\t-diag-01-archify`
+2. Instale as dependências locais de forma isolada em `C:\tmp\t-diag-01-archify`:
+   `cd C:\tmp\t-diag-01-archify && pnpm install`
+3. Crie a pasta de destino dos diagramas caso não exista: `mkdir -p docs/diagramas`
+4. Crie o arquivo `docs/diagramas/adr-0016-ui-boundaries.json` com os 12 elementos e fluxos mapeados a partir da ADR-0016.
+5. Valide o arquivo JSON IR:
+   `node C:\tmp\t-diag-01-archify\bin\archify.mjs validate architecture docs/diagramas/adr-0016-ui-boundaries.json`
+6. Renderize o arquivo HTML/SVG:
+   `node C:\tmp\t-diag-01-archify\bin\archify.mjs render architecture docs/diagramas/adr-0016-ui-boundaries.json docs/diagramas/adr-0016-ui-boundaries.html`
+7. Inspecione visualmente o HTML gerado e execute a checagem:
+   `node C:\tmp\t-diag-01-archify\bin\archify.mjs check docs/diagramas/adr-0016-ui-boundaries.html`
+8. Faça uma mudança restrita no JSON, re-renderize e registre o diff para avaliar estabilidade.
+9. Remova a instalação temporária ao finalizar (exceto os artefatos sob `docs/diagramas/`).
+
+### ⚠️ REGRAS DO QUE NÃO FAZER:
 - **NÃO** instalar com `npx skills add ... -g`, copiar a skill para configurações globais ou adicionar dependência ao monorepo.
-- **NÃO** gerar diagrama para toda ADR/RFC por padrão; gatilho inicial: arquitetura, fluxo de dados, sequência, ciclo de vida ou fronteira de segurança com relação 3+ difícil de ler linearmente.
+- **NÃO** alterar a semântica da ADR para caber no layout nem usar o diagrama como evidência arquitetural independente.
 - **NÃO** editar HTML/SVG derivado manualmente; corrigir somente JSON e renderizar de novo.
-- **NÃO** incluir segredos, topologia de produção, IPs, identificadores de clientes ou detalhes de ataque em artefatos públicos.
 
 ## 6. Feedback de Especificação
-O worker deve pausar se a ADR-0016 não fornecer elementos/relacionamentos suficientes para o piloto: registrar
-a lacuna como feedback, sem inventar componentes. A decisão final pode ser `NO-GO`, ou restringir Archify a
-documentos de arquitetura produzidos sob demanda por arquiteto/documentador.
+> **Decisões arquiteturais ou bloqueios identificados no endurecimento:**
+> - Nenhuma decisão em aberto identificada. O escopo está 100% mapeado a partir da ADR-0016 e da especificação do Archify v2.11.0.
 
-## 7. Definition of Done
-- [ ] JSON IR, HTML e SVG do piloto versionados sob `docs/diagramas/`, com link à fonte canônica e versão pinada.
-- [ ] Saída literal de validação, renderização e checagem de artefato registrada na §8.
-- [ ] Uma alteração localizada no JSON re-renderizada e conferida por diff.
-- [ ] Avaliação de acessibilidade/legibilidade, peso dos artefatos e licença MIT registrada.
-- [ ] ADR curta ou seção de decisão: `NO-GO | uso opcional`, gatilhos, convenção e responsabilidade de atualização.
+## 7. Definition of Done (DoD) & Reviewer Checklist
+
+### Verificação automática (Gate de Evidência)
+O Worker deve colar a saída literal destes comandos na Seção 8 (Handover):
+```bash
+# Validar JSON IR contra o schema oficial
+node C:\tmp\t-diag-01-archify\bin\archify.mjs validate architecture docs/diagramas/adr-0016-ui-boundaries.json
+
+# Renderizar HTML do diagrama
+node C:\tmp\t-diag-01-archify\bin\archify.mjs render architecture docs/diagramas/adr-0016-ui-boundaries.json docs/diagramas/adr-0016-ui-boundaries.html
+
+# Checagem de integridade visual do HTML
+node C:\tmp\t-diag-01-archify\bin\archify.mjs check docs/diagramas/adr-0016-ui-boundaries.html
+```
+Todos devem retornar Exit Code 0.
+
+### Checklist do Reviewer
+O agente `agile_reviewer` usará esta checklist para aprovar ou rejeitar o PR:
+- [ ] O JSON IR está sob `docs/diagramas/adr-0016-ui-boundaries.json`?
+- [ ] O HTML e SVG gerados estão sob `docs/diagramas/` e declaram no topo a versão do Archify e a fonte canônica?
+- [ ] O diagrama contém no máximo 12 elementos e cobre as entidades descritas na ADR-0016?
+- [ ] Foi anexada a evidência do gate de validação/checagem?
+- [ ] A proposta de convenção de adoção está documentada no handover?
 
 ## 8. Log de Handover e Revisão
 ### Handover do Executor:
@@ -77,3 +162,4 @@ documentos de arquitetura produzidos sob demanda por arquiteto/documentador.
 ## 9. Log de Execução
 > Preenchido somente via `manage-task.mjs`.
 - **[2026-07-16T18:20]** - *gpt-5* - `[Triado]`: Spike Archify triada: piloto derivado da ADR-0016, com JSON IR versionado e decisão de adoção opcional.
+- **[2026-07-18T11:02]** - *gemini* - `[Endurecido]`: endureceu spec
