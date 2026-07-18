@@ -24,7 +24,7 @@ function removeTemp(file) {
 // 1) case-insensitive + in_progress => worker-retomada (fixture sintética — status real muda)
 const f0 = writeTemp('FAKE-INPROG', `---\nid: FAKE-INPROG\nstatus: in_progress\n---\n# x\n## 2. Contexto RAG\n## 9. Log de Execução\n- **[2026-07-17T00:00]** - *gpt-5* - \`[Iniciado]\``);
 const inprog = run('fake-inprog');
-assert.match(inprog, /ID · FAKE-INPROG/i, 'case-insensitive deve resolver');
+assert.match(inprog, /DESPACHO MGTIA · FAKE-INPROG/i, 'case-insensitive deve resolver');
 assert.match(inprog, /worker-retomada/, 'in_progress => papel worker-retomada');
 assert.match(inprog, /executar-task/, 'in_progress => skill executar-task');
 assert.match(inprog, /guarda de identidade:.*gpt-5/, 'deve identificar executor do §9');
@@ -33,7 +33,7 @@ removeTemp(f0);
 // 2) done => nada a fazer (C-31 via C31)
 const c31 = run('C31');
 assert.match(c31, /nada a fazer/, 'done => nada a fazer');
-assert.match(c31, /ID · C-31/i, 'deve resolver C-31 sem hífen');
+assert.match(c31, /DESPACHO MGTIA · C-31/i, 'deve resolver C-31 sem hífen');
 
 // 3) JSON shape para done
 const json = run('L-03 --json');
@@ -52,12 +52,15 @@ assert.match(rev, /qa-review/, 'review => skill qa-review');
 assert.match(rev, /claim/, 'review => verbo claim');
 assert.match(rev, /--integrar/, 'review => invocação recomendada com --integrar por padrão');
 assert.match(rev, /guarda de identidade:/, 'deve imprimir guarda de identidade');
+assert.match(rev, /AÇÃO AGORA/, 'estado acionável => diretiva imperativa no topo');
+assert.match(rev, /AGORA EXECUTE/, 'estado acionável => reforço de execução no rodapé');
+assert.match(rev, /NÃO é um relatório para resumir/, 'deve avisar que não é relatório');
 removeTemp(f5);
 
 // 5) ready => worker/executar-task/start
 const f6 = writeTemp('FAKE-READY', `---\nid: FAKE-READY\nstatus: ready\n---\n# x\n## 2. Contexto RAG\n## 9. Log de Execução\n- **[2026-07-17T00:00]** - *gpt-5* - \`[Iniciado]\``);
 const rdy = run('FAKE-READY');
-assert.match(rdy, /papel · worker/, 'ready => papel worker');
+assert.match(rdy, /papel: worker/, 'ready => papel worker');
 assert.match(rdy, /executar-task/, 'ready => skill executar-task');
 assert.match(rdy, /start/, 'ready => verbo start');
 removeTemp(f6);
@@ -66,6 +69,8 @@ removeTemp(f6);
 const f1 = writeTemp('FAKE-IN-REVIEW', `---\nid: FAKE-IN-REVIEW\nstatus: in_review\n---\n# x\n## 2. Contexto RAG\n## 9. Log de Execução\n- **[2026-07-17T00:00]** - *gpt-5* - \`[Iniciado]\``);
 const inReview = run('FAKE-IN-REVIEW');
 assert.match(inReview, /PARE/, 'in_review => PARE');
+assert.match(inReview, /NÃO execute nada/, 'estado terminal => diretiva de não-ação');
+assert.doesNotMatch(inReview, /AGORA EXECUTE/, 'estado terminal => sem reforço de execução');
 removeTemp(f1);
 
 // 7) draft:pending_decision => PARE + decisões

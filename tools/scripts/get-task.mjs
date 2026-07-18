@@ -47,6 +47,8 @@ const executor = lastExecutor(sections);
 const identityGuard = executor
   ? `guarda de identidade: revisor DEVE ser modelo ≠ ${executor}`
   : 'guarda de identidade: executor não identificado no §9';
+const invocation = state.skill ? `/${state.skill}${state.args ? ` ${state.args}` : ''} ${taskId}` : null;
+const actionable = Boolean(state.skill);
 
 function normalizeId(input) {
   return input.trim().toLowerCase().replace(/-/g, '');
@@ -221,11 +223,17 @@ function textOutput() {
   const parecer = lastParecer();
   const lines = [];
 
-  lines.push(`ID · ${taskId} · status · ${fm.status} · papel · ${state.role} · próximo verbo · ${state.verb}`);
-  if (state.skill) {
-    lines.push(`invocação recomendada: /${state.skill}${state.args ? ` ${state.args}` : ''} ${taskId}`);
+  lines.push(`═══════════ DESPACHO MGTIA · ${taskId} ═══════════`);
+  lines.push(`papel: ${state.role}  ·  status: ${fm.status}  ·  próximo verbo: ${state.verb}`);
+  if (actionable) {
+    lines.push(`▶ AÇÃO AGORA — VOCÊ é o executor deste papel. Execute:  ${invocation}`);
+    lines.push(`   Comece pelo verbo \`${state.verb}\` e SIGA a skill inlinada no fim deste output.`);
+    lines.push(`⚠ Este output é seu CONTEXTO DE TRABALHO (task + RAG + código + skill) — NÃO é um relatório para resumir nem uma pergunta. Não devolva o conteúdo; EXECUTE a ação acima até a task mudar de estado.`);
+  } else {
+    lines.push(`■ NÃO execute nada. A task está em \`${fm.status}\` → ${state.verb}. Apenas reporte este estado a quem despachou; não há trabalho a fazer aqui.`);
   }
   lines.push(identityGuard);
+  lines.push('═════════════════════════════════════════════════');
   lines.push('---');
   lines.push('## Task');
   lines.push(taskText);
@@ -278,6 +286,13 @@ function textOutput() {
   lines.push('---');
   lines.push(`## Skill inline: ${state.skill || '—'}`);
   if (skillText) lines.push(skillText);
+  if (actionable) {
+    lines.push('');
+    lines.push('─────────────────────────────────────────────────');
+    lines.push(`▶ FIM DO CONTEXTO. AGORA EXECUTE:  ${invocation}  (comece pelo verbo \`${state.verb}\`).`);
+    lines.push('   Isto era o contexto, não a tarefa concluída — não pare aqui nem resuma; siga a skill acima até a task transicionar.');
+    lines.push('─────────────────────────────────────────────────');
+  }
   return lines.join('\n');
 }
 
@@ -294,6 +309,11 @@ function jsonOutput() {
     verb: state.verb,
     skill: state.skill,
     args: state.args || null,
+    actionable,
+    invocation,
+    directive: actionable
+      ? `EXECUTE ${invocation} (comece por ${state.verb}); este payload é contexto de trabalho, não um relatório.`
+      : `NÃO execute nada; task em ${fm.status} → ${state.verb}, apenas reporte.`,
     identityGuard,
     rag: rag.map(r => ({ link: r.link, status: r.status, resolved: r.resolved, snippet: r.content ? r.content.slice(0, 2000) : null })),
     scopePaths,
