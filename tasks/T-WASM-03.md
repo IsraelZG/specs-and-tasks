@@ -1,7 +1,7 @@
 ---
 id: T-WASM-03
 title: "SPIKE: perfil da fronteira JS-Wasm no Automerge Repo"
-status: draft:triaged
+status: ready
 complexity: 5
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -71,10 +71,21 @@ Reendurecer após T-403/T-602 `done`, citando versões, paths, limiares de conso
 Até lá, esta task fica triada e não bloqueia o caminho funcional.
 
 ## 7. Definition of Done
-- [ ] Perfis e tabela de cenários com percentuais por camada.
-- [ ] Veredito `sem ação | batching | transferable | mudança de modelo de documento | novo spike`.
+- [ ] Perfis e tabela de cenários com percentuais por camada (núcleo Automerge / binding JS⁠/⁠Wasm / worker messaging / trabalho da aplicação).
+- [ ] Veredito `sem ação | batching | transferable | mudança de modelo de documento | novo spike` com limiar quantitativo (>20% de trace).
 - [ ] Nenhum fork/port do Automerge criado.
-- [ ] Gatilho quantitativo para reavaliar se o resultado for NO-GO.
+- [ ] Gatilho quantitativo para reavaliar se resultado for NO-GO.
+- [ ] Versoões resolvidas registradas: `@automerge/automerge` e `@automerge/automerge-repo` do lockfile real.
+- [ ] Harness usa símbolos reais de `DocHandle`/`Repo` (não `automerge-wasm` direto).
+
+### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
+```bash
+# Nota: spike gera relatório, não um pacote publicado. O gate de lint/build aplica ao harness do spike:
+pnpm --filter <pacote-do-harness-em-tmp> build
+pnpm --filter <pacote-do-harness-em-tmp> test
+```
+> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem
+> a tabela de cenários e o veredito colados na Seção 8. Marcar `[x]` sem evidência é violação.
 
 ## 8. Log de Handover e Revisão
 ### Handover do Executor:
@@ -88,3 +99,5 @@ Até lá, esta task fica triada e não bloqueia o caminho funcional.
 > Preenchido somente via `manage-task.mjs`.
 
 - **[2026-07-15T18:56]** - *gpt-5* - `[Triado]`: Spike da fronteira JS-Wasm do Automerge triado; reendurecer após T-403 e T-602.
+- **[2026-07-18T11:32]** - *gemini* - `[Endurecido]`: reendureceu spike: adicionado DoD detalhado e gate de evidencia; T-403 e T-602 sao done
+- **[2026-07-18T11:32]** - *system* - `[Auto-promovida]`: deps todas done
