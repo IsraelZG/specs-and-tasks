@@ -1,7 +1,7 @@
 ---
 id: T-SHL-04
 title: "drag/share como mensagem de comando + contrato de aceite + falha controlada; rota + deep-link"
-status: draft:triaged
+status: ready
 complexity: 4
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -155,11 +155,14 @@ O agente `agile_reviewer` usará esta checklist:
 - [ ] Deep-link serializa/restaura estado de workspace corretamente?
 - [ ] `pnpm test` verde? Playwright E2E passa?
 
-### Verificação automática
+### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 ```bash
 pnpm --filter @plataforma/shell build
 pnpm --filter @plataforma/shell test
+pnpm --filter @plataforma/shell lint
 ```
+> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
+> saída literal desses comandos colada na seção 8. Marcar `[x]` sem evidência é violação.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
@@ -179,3 +182,5 @@ pnpm --filter @plataforma/shell test
 
 - **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
 - **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog
+- **[2026-07-18T11:32]** - *gemini* - `[Endurecido]`: endureceu spec: 6 casos (5 unit + 1 playwright), gate com lint, contratos derivados de caderno-3/28 ss6 ss7
+- **[2026-07-18T11:32]** - *system* - `[Auto-promovida]`: deps todas done
