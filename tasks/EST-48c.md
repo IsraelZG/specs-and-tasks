@@ -1,7 +1,7 @@
 ---
 id: EST-48c
 title: "P0.3c Config de endpoint e API key com cut-over do chat"
-status: in_progress
+status: review
 complexity: 4
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -812,6 +812,103 @@ O E2E falha no `global-setup`, antes de iniciar o browser ou executar os cenári
 verificação B5 permanece bloqueada pela infraestrutura E2E; não é seguro finalizar esta task
 enquanto esse comando não ficar verde.
 
+### Evidência de retomada (2026-07-18, gpt-5)
+
+Após rebase de `task/EST-48c` sobre `master` (`dbadc60`, incluindo EST-53/54/55), os três
+comandos da UI passaram:
+
+```text
+$ pnpm --filter @plataforma/estaleiro-ui build
+✓ 226 modules transformed.
+dist/assets/index-NBI6Li-e.css   19.62 kB │ gzip: 3.40 kB
+✓ built in 356ms
+
+$ pnpm --filter @plataforma/estaleiro-ui test
+Test Files  18 passed (18)
+Tests       104 passed (104)
+
+$ pnpm --filter @plataforma/estaleiro-ui lint
+$ eslint src/
+exit code: 0
+```
+
+O quarto comando obrigatório ainda falha antes de iniciar o browser:
+
+```text
+$ pnpm --filter @plataforma/estaleiro test:e2e
+Error: Process from config.webServer was not able to start. Exit code: 1
+SqliteError: no such column: data
+  at createSqliteStorageBackend (.../@plataforma/plugin-tasks/dist/src/storage/sqlite.js:9:24)
+```
+
+Diagnóstico reproduzível: `apps/estaleiro/e2e/global-setup.ts` abre `e2e-test.db` e usa
+`CREATE TABLE IF NOT EXISTS`; se o arquivo contém o schema legado de `tasks`, a tabela não ganha
+a coluna `data`, mas `packages/plugin-tasks/src/storage/sqlite.ts` prepara `SELECT data FROM tasks`.
+Confirmação somente-leitura em `apps/estaleiro/e2e-test.db`: `PRAGMA table_info(tasks)` retornou
+as colunas legadas `id`, `title`, `status`, `complexity`, …, `section9_log`, sem `data`.
+Uma repetição diagnóstica após apagar somente esse banco gerado chegou ao browser, confirmando o
+schema novo `id,data`, mas também falhou: o cenário 18 (`CLAUDE.md ligado`) excedeu 30 s aguardando
+`getByPlaceholder("Digite sua mensagem...")` e o `webServer` caiu em seguida com
+`Error [ERR_HTTP_HEADERS_SENT]: Cannot write headers after they are sent to the client` em
+`@plataforma/estaleiro-core/dist/bootstrap.js`. Portanto, a limpeza manual não é solução do Gate:
+o setup precisa ser hermético e a rota precisa não encerrar o servidor ao atender esse fluxo.
+Isso é uma regressão do isolamento/seed do E2E, fora do escopo de UI desta task. B5 permanece
+bloqueado; não chamar `finish` até que este comando retorne verde.
+
+### Desbloqueio e conclusão do B5 (2026-07-18, claude-fable-5)
+
+Retomei o handoff acima e diagnostiquei os DOIS bloqueios até a causa raiz — nenhum era o que
+parecia:
+
+**1. `SqliteError: no such column: data` — artefato local legado, não bug de código.** O
+`e2e-test.db` da worktree era sobra de uma execução ANTERIOR ao fix de schema de
+[EST-53](./EST-53.md) (o `unlinkSync` foi removido de propósito lá, por causa da corrida EBUSY —
+ver §8 de EST-53). Um arquivo gitignored com o schema antigo de colunas largas faz o
+`CREATE TABLE IF NOT EXISTS` virar no-op. Limpeza única por worktree resolve (`rm e2e-test.db*`);
+o próprio worker já tinha feito isso e o banco atual estava no schema novo. Não é regressão.
+
+**2. Caso 18 expirando + `ERR_HTTP_HEADERS_SENT` — dois defeitos reais, ambos consertados nesta
+branch:**
+
+- **Casos 18/19/20 sem `mockActiveProfile`** (`fbf66a7`): a própria EST-48c mudou o `ChatView`
+  para só renderizar a textarea com perfil ativo (decisão D4). O worker criou o helper
+  `mockActiveProfile()` e aplicou nos casos 1/2/3/17/21, mas esqueceu 18/19/20 — sem perfil
+  mockado, `getByPlaceholder("Digite sua mensagem...")` nunca aparece e expira em 30s. Fix: 3
+  linhas (helper nos 3 casos).
+- **Crash do servidor em toda requisição real a `/api/profiles`** (`ba3b6b6`, arquivo
+  `apps/estaleiro/core/src/bootstrap.ts` — **fora do escopo §3 declarado, justificativa causal
+  abaixo**): a cadeia de dispatch de rotas não propagava o `handled` — quando
+  `handleProfileRoutes` atendia a rota, o primeiro `.then` retornava `undefined`, o segundo elo
+  tratava como não-atendida e rodava `handleApiRoutes` sobre uma `res` já respondida →
+  `ERR_HTTP_HEADERS_SENT` → o `json(res, 500, ...)` do `.catch` lançava DE NOVO → processo
+  morria. **Bug latente de [EST-48b](./EST-48b.md)** (a master nunca crashou porque nenhuma UI
+  chamava `/api/profiles` até esta task introduzir o fetch no ChatView — consumidor novo expôs o
+  defeito). Era ele que derrubava o `webServer` no meio da suíte e fazia os `estaleiro.spec.ts`
+  falharem com `ERR_CONNECTION_REFUSED` (vítimas colaterais). Fix: 1 linha (`return true`) + guard
+  `headersSent` no `.catch` para nunca mais derrubar o processo por double-send. Justificativa de
+  escopo: sem este fix o gate canônico do pacote é INALCANÇÁVEL para esta task (mesmo padrão dos
+  fixes EST-54/EST-55 embarcados na branch de EST-53, aceito nesta campanha).
+- **Bug real de UX no fluxo central da task** (`3205810`): `ChatView` buscava `/api/profiles`
+  só no mount, e o FlexLayout mantém abas montadas — perfil criado/ativado na aba Config **nunca
+  aparecia no Chat sem reload da página** (exatamente o fluxo "cadastro → ativação → chat" do
+  caso 21 do config.spec). Fix: `useProfiles.refresh()` agora dispara
+  `CustomEvent("estaleiro:profiles-changed")` após cada mutação e o ChatView escuta e re-busca.
+- **3 locators strict-mode** (`3205810`, `e5d04e6`): `getByText("DeepSeek")` casava com o span
+  da URL; `getByText("ToDelete")`/`getByText("Delete")` casavam por substring com o header do
+  Chat (FlexLayout mantém abas inativas no DOM e não as esconde de forma que o
+  `filter({visible})` detecte). Fixes: `exact: true`, escopo por painel, `.first()`.
+
+**Gate de Evidência (canônico, worktree `_slot-1` @ `e5d04e6`):**
+```
+$ pnpm gate @plataforma/estaleiro
+✅ build | exit=0 | 2341ms
+✅ test | exit=0 | 60297ms   (integration 24/24 + E2E 16/16 — chat 10/10, config 4/4, estaleiro 3/3)
+✅ lint | exit=0 | 655ms
+📦 artefato: .gate/e45e443a357bc7b633099b326275dc8defd9d75b.json | allGreen=true
+```
+UI isolada (já verde no handoff anterior, re-confirmada): build ✅ (CSS 19,62 kB) · test ✅
+104/104 · lint ✅ exit 0.
+
 ## 9. Log de Execução
 > Atualizado somente por `manage-task.mjs`/serviço MGTIA.
 - **[2026-07-16T13:25]** - *gpt-5* - `[Triado]`: triagem P0.3c: UI de configuração e remoção do hardcode após backend seguro
@@ -829,3 +926,6 @@ enquanto esse comando não ficar verde.
 - **[2026-07-18T11:25]** - *agile_reviewer:moonshotai/kimi-k2.7-code* - `[Requer Refatoração]`: Rework EST-48c (R2): 3 BLOCKERs + 1 MAJOR persistem. B1 lint 109 erros (R1 114 -5 casts via --fix; raiz unresolved @plataforma/estaleiro-core / @plataforma/plugin-providers INTACTA; master=0; claim worker de '110 pre-existing' e FALSO). B2 tsc 9 novos erros (TS2375 do R1 resolvido mas raiz persiste: 6 TS2307 + 2 TS2459 + 1 NOVO TS2339 em ProfileSection.test.tsx:161 - regressao do --fix que removeu as HTMLInputElement cast). B3 gate artifact .gate/8be384c...json AINDA STALE (treeSha 8be384c != HEAD^{tree} 7e8c2b0; artifact cobre so a5c403d pre-eslint-fix; allGreen=false; lint exitCode=1). B5 UI em browser real nao verificada (worker escreveu specs E2E mas nao rodou pnpm test:e2e; R2 reviewer tb nao - ambiente pesado). M1 apps/estaleiro/package.json NAO revertido (0.0.92 -> 0.0.96 - BUMP nao revert; commit 1bc5e8d MENSAGEM DIZ 'revert' mas diff mostra bump; Log §9 da task contaminado com claim falso). B4 e M2 do R1 CONSERTADOS (4 E2E scenarios 21-24 em config.spec.ts + tests 3/14 em ProfileSection.test.tsx adicionados; suite 104/104 verde). m1 imports nao usados ainda em aberto (CreateProfileInput/UpdateProfileInput). Veredito: REFATORACAO NECESSARIA (rodada 3 - investigar causa-raiz unresolved modules sistematicamente). 1 nao-bloqueante novo (m1 ainda em aberto) -> ledger de pendencias.
 - **[2026-07-18T11:33]** - *gpt-5* - `[Iniciado]`: rework: corrigindo B1,B2,B3,B5,M1,m1
 - **[2026-07-18T11:55]** - *gpt-5* - `[Pausado/Handoff]`: rework: B1/B2/B3 corrigidos e Gate verde; B5 bloqueado por E2E global-setup (SqliteError: no such column: data) antes do browser
+- **[2026-07-19T01:26]** - *gpt-5* - `[Pausado/Handoff]`: Gate retomado após rebase em master dbadc60: UI build/test/lint verdes (104 testes), mas test:e2e falha antes do browser com SqliteError no such column: data; schema legado de e2e-test.db não é migrado pelo global-setup.
+- **[2026-07-19T01:32]** - *gpt-5* - `[Pausado/Handoff]`: E2E diagnosticado além do schema: com e2e-test.db limpo chega ao browser, mas cenário 18 expira e o webServer cai com ERR_HTTP_HEADERS_SENT. O Gate canônico também segue falhando no schema legado sem coluna data.
+- **[2026-07-19T02:22]** - *claude-fable-5* - `[Finalizado]`: B5 resolvido: gate canonico allGreen=true (16/16 E2E + 24/24 integration). 4 fixes: mockActiveProfile nos casos 18-20; crash do servidor em /api/profiles (handled nao propagado no dispatch, bug latente de EST-48b, fix embarcado com justificativa); staleness Config->Chat via CustomEvent; 3 locators strict-mode. Branch task/EST-48c @ e5d04e6.
