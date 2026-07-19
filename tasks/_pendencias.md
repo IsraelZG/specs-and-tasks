@@ -551,6 +551,18 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- C-21 -->
 - [ ] [M1][C-21][@plataforma/plugin-context] Scope creep em m3: spec §3 dizia apenas `export const TOK_EST = (s: string): number => Math.ceil(s.length / 4);` para `src/constants.ts`, mas worker extraiu também `GATE_TOK = 2000` no mesmo arquivo. Funcionalmente correto (GATE_TOK é usado em 3 sites de optimize.ts) e coeso, mas §3 não autorizava. Decidir: (a) estender spec retroativamente, (b) reverter GATE_TOK para inline em optimize.ts. Sem decisão de arquiteto, o rework de C-21 só fecha B1 (cast `as any` em nanoPreprocess.ts:41). (packages/plugin-context/src/constants.ts:1-2)
 <!-- END C-21 -->
+<!-- T-409 -->
+- [ ] [M1][T-409][controle] **Drift de ledger mascarou estado real.** `manage-task.mjs reconcile` sincronizou para ledger stale (ready, de 2026-07-03); worker registrou [Finalizado] (in_progress→review) no §9 mas ledger não acompanhou. Sem diff na branch `task/T-409` + sem worktree, o serviço não detectou que o trabalho sumiu. Ação corretiva: spike/meta para guard "review sem código = reject automático" — `manage-task.mjs finish` falha se `git diff master..task/<ID> --stat` está vazio.
+- [ ] [m1][T-409][controle] §6 "DECIDIDO (2026-07-16) — adaptar à API existente" é sólida e o caminho correto. Mas o alinhamento de §6 ficou só no papel — não há código que materialize a decisão. Reaproveitar §6 ao re-executar a task.
+- [ ] [i1][T-409][controle] BOM UTF-8 em `tasks/T-409.md` (1 de 519 arquivos em `tasks/`) impedia o `get-task.mjs` de detectar o status. Bug do parser (`parseFrontmatter` não trata BOM). Removido no review de 2026-07-18. Fix de raiz: `tools/scripts/get-task.mjs:79` — `text.replace(/^\uFEFF/, "")` antes do regex de frontmatter.
+<!-- END T-409 -->
+
+<!-- EST-49a -->
+- [ ] [m1][EST-49a][apps/estaleiro/core] `reasoningEffort` enviado via `providerOptions.openai.reasoningEffort` em `generateText`; o spec §3.2 prescrevia `createOpenAI(...).chat(mId, chatOptions).reasoningEffort`. Ambas as APIs são oficiais do `@ai-sdk/openai@1.3.x` e produzem o mesmo wire field `reasoning_effort`. Não bloqueia, mas se quiser fidelidade literal ao spec mover para o segundo arg de `.chat()` (apps/estaleiro/core/src/chat-service.ts:75-79).
+- [ ] [m2][EST-49a][apps/estaleiro/core] `pnpm --filter @plataforma/estaleiro test:integration` foi omitido do bloco "Gate de Evidência" do §8 Handover (spec §7 lista 7 comandos; worker colou 6). Re-execução pós-merge passa (5 files · 24 tests). Handover deveria colar os 7.
+- [ ] [m3][EST-49a][packages/plugin-providers] Branch vazia `if (sanitized.includes("[REDACTED]")) { /* Log sanitized, continue to fallback */ }` em `catalog.ts:83-85` — `sanitize()` já substituiu a chave; o `if` não tem corpo e o `return buildStaticFallback` está fora dele. Dead code — remover ou implementar o `console.warn(sanitized)` pretendido (packages/plugin-providers/src/catalog.ts:79-87).
+<!-- END EST-49a -->
+
 <!-- END PENDENCIAS -->
 
 <!-- BEGIN SPEC-PENDENCIAS -->
