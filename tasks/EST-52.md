@@ -1,7 +1,7 @@
 ---
 id: EST-52
 title: "Fix: imports relativos sem extensao .js em core/testkit quebram Node ESM no standalone"
-status: ready
+status: done
 complexity: 2
 target_agent: devops_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
@@ -147,19 +147,61 @@ pnpm --filter <pacote> lint       # ZERO erros novos (rode o baseline ANTES de t
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
-- 
+- **Fix aplicado:** 16 imports relativos sem extensão `.js` corrigidos em 3 arquivos (`packages/core/src/index.ts`, `packages/testkit/src/index.ts`, `packages/testkit/src/SimNetwork.ts`).
+- **Prova real do fix:** `node -e "import('./packages/core/dist/index.js')"` e `node -e "import('./packages/testkit/dist/index.js')"` resolvem sem `ERR_MODULE_NOT_FOUND` — antes do fix, falhavam com `Cannot find module '.../dist/keyVault' imported from '.../dist/index.js'`.
+- **Nota:** `node apps/estaleiro/server.mjs` ainda falha com `ERR_MODULE_NOT_FOUND` para `@plataforma/estaleiro-core/dist/index.js` — isso é fora do escopo da EST-52 (depende de build de outros pacotes: plugin-providers, plugin-tasks, plugin-zen-engine, plugin-workflows — provavelmente EST-50/EST-51).
 
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória — colar saída de build/tsc + test + lint):**
 ```
-(cole aqui a saída real de pnpm build, pnpm test e pnpm lint)
+Artefato de gate: .gate/2f998556a8a591699773d91e2cac0226fc0adfeb.json
+treeSha: 2f998556a8a591699773d91e2cac0226fc0adfeb ✓ (corresponde a HEAD^{tree})
+
+@plataforma/testkit (do artefato):
+  build: ✓ tsc (cache hit)
+  test: ✓ 9 test files, 64 tests passed
+  lint: ✓ eslint src/ (sem erros)
+
+@plataforma/core (do handover do worker):
+  build: ✓ tsc (sem erros)
+  test: ✓ 27 test files, 241 tests passed (7.44s)
+  lint: ✓ eslint src/ (sem erros)
+
+Prova real (Node ESM puro):
+  $ node -e "import('./packages/core/dist/index.js').then(m => console.log(Object.keys(m)))"
+  → BlockingError, ConcurrentReconciliationGuard, CrockfordBase32, ... ✓
+
+  $ node -e "import('./packages/testkit/dist/index.js').then(m => console.log(Object.keys(m)))"
+  → NatType, SeededRandom, SimNetwork, VERSION, VirtualClock, ... ✓
 ```
 - **Comentários de Revisão:**
+
+**Auditoria de código (nível 0):**
+
+| Declarado (§3) | Alterado | Disposição |
+|---|---|---|
+| `packages/core/src/index.ts` [UPDATE] | ✓ alterado | Conforme spec: 7 imports `.js` adicionados |
+| `packages/testkit/src/index.ts` [UPDATE] | ✓ alterado | Conforme spec: 8 imports `.js` adicionados |
+| `packages/testkit/src/SimNetwork.ts` [UPDATE] | ✓ alterado | Conforme spec: 1 import `.js` adicionado |
+| Fora do escopo | ✓ nada | Diff do merge-base (0cb6880..task/EST-52) mostra apenas os 3 arquivos esperados |
+
+**Análise:**
+- **Escopo:** ✓ estritamente conforme spec §3 (3 arquivos, 16 imports)
+- **Mecânica:** ✓ padrão correto (adicionar `.js` a imports relativos, convenção NodeNext/ESM)
+- **Gate:** ✓ artefato presente e válido (treeSha corresponde)
+- **Prova real:** ✓ Node ESM puro resolve sem `ERR_MODULE_NOT_FOUND`
+- **Fast-track (R6):** capacity_target=haiku, diff=16 linhas (≤20), artefato válido → nível 0 sem reexecução
+
+**Veredicto:** APROVADO — fix mecânico correto, escopo respeitado, gate válido.
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-18T12:56]** - *claude-opus* - `[Triado]`: triado — haiku, mecânico, 3 arquivos, zero decisões
 - **[2026-07-18T12:56]** - *claude-opus* - `[Endurecido]`: endureceu spec — haiku, zero decisões abertas, 16 imports em 3 arquivos
 - **[2026-07-18T12:56]** - *claude-opus* - `[Promovida p/ ready]`: promovido para ready — zero dependências, spec endurecida
+- **[2026-07-18T13:14]** - *claude-sonnet* - `[Iniciado]`
+- **[2026-07-18T13:22]** - *claude-sonnet* - `[Finalizado]`: Gate completo: core (build+test+lint) ✓, testkit (build+test+lint) ✓, prova real Node ESM ✓
+- **[2026-07-18T15:37]** - *agile_reviewer:claude-opus* - `[Em revisão]`: revisando
+- **[2026-07-18T15:42]** - *agile_reviewer:claude-opus* - `[Aprovado]`: Integrado: merge na master (commit 3483386), worktree removida, Gate verde (core: build+test+lint ✓, testkit: build+test+lint ✓). Zero não-bloqueantes.
