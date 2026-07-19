@@ -414,3 +414,40 @@ de shell para tocar um arquivo de código-fonte ou config já existente.
 **Limites:** isto é disciplina de ferramenta, não um guard automático — nenhum linter roda hoje para
 pegar esse padrão antes do commit. Se reaparecer com frequência, considerar um pre-commit check que
 grepa por bytes nulos intercalados em arquivos texto rastreados.
+
+---
+
+## P-013 · E2E `webServer` na mesma porta reaproveita processo zumbi de sessão anterior (`reuseExistingServer`)
+
+**Data:** 2026-07-18 (desbloqueio de EST-56, integração de EST-53/54/55/56)
+**Sintoma:** Depois de corrigir todo o código relevante e reconstruir o standalone do zero, o
+`test:e2e` continua exibindo sintomas de código **antigo** (ex.: board do Playwright cheio de
+tasks reais de produção, mesmo com o fix de `ESTALEIRO_TASKS_DIR` aplicado e confirmado no
+arquivo deployado) — parece regressão, mas o código-fonte está correto.
+**Causa raiz:** `playwright.config.ts` usa `webServer.reuseExistingServer: !process.env.CI`. Uma
+`node backend/server.mjs` de uma sessão/gate **anterior**, iniciada manualmente para debug (ou
+deixada viva por um comando cortado), continua ouvindo a porta fixa (`8899`) muito depois do
+comando que a subiu ter "terminado" no terminal do agente. Como nenhuma env var `CI` está setada
+numa investigação manual, o Playwright detecta a porta já respondendo e **reaproveita esse
+processo velho** em vez de subir o `backend/server.mjs` recém-buildado — os testes rodam contra
+um binário sem nenhum dos fixes da sessão atual.
+**Diagnóstico:** antes de investigar "regressão" num E2E cujo código parece correto, confirme
+**quem** está ouvindo a porta e **desde quando**:
+```powershell
+Get-NetTCPConnection -LocalPort 8899 -ErrorAction SilentlyContinue
+Get-Process -Id <OwningProcess> | Select Id, Path, StartTime
+```
+Se o `StartTime` for anterior ao início da sessão atual (ou ao último rebuild), é este caso.
+**Solução aplicada:** `Stop-Process -Id <pid> -Force` no processo zumbi antes de re-rodar
+`test:e2e`/`pnpm gate` — o Playwright então sobe o `webServer` de verdade contra o build atual.
+**Como prevenir recorrência:** ao investigar qualquer diagnóstico manual de E2E fora do
+`pnpm gate` (rodar `node backend/server.mjs` direto, `curl` contra `localhost:8899`, etc.), mate o
+processo na porta ao terminar cada investigação — não deixe servidores de debug vivos entre
+sessões. Se o sintoma "parece regressão mas o código está certo" aparecer, checar processo zumbi
+**antes** de suspeitar do código.
+**Limites:** só se aplica a `webServer` com `reuseExistingServer` ligado (comportamento default
+fora de CI) numa porta fixa. Setar `CI=true` no ambiente de diagnóstico manual evita o reaproveitamento
+(força `reuseExistingServer: false`), mas então cada rodada paga o custo de subir um servidor novo
+— aceitável para depuração pontual, não para o loop rápido de dev. Complementa P-010 (que cobre
+mascaramento por **pasta de build velha**, não por **processo já vivo**) e P-012 (deps não
+buildadas em worktree nova).
