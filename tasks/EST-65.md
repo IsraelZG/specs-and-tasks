@@ -1,7 +1,7 @@
 ---
 id: EST-65
 title: "Fundação de estilo: Tailwind 4 + tokens DS rebrand + skin FlexLayout (matar CSS brutalista)"
-status: ready
+status: done
 complexity: 4
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -124,7 +124,74 @@ do CSS brutalista. **Depois dela, as views renderizam como escritas.**
 
 ## 8. Handover / Parecer
 
+### Decisão retomada
+
+- Usuário escolheu preservar o contrato canônico de tokens: `theme-*.css` mantém
+  `outputReferences: true`; o vendored é referência visual/de valores, não diff textual.
+
+### Evidência parcial
+
+- Visual HMR (Vite): fundo computado `rgb(18, 18, 18)`, `--ds-theme-intent-accent-fill` =
+  `#E63347`, `--ds-theme-intent-accent-subtle` = `#2e1065`, fonte do body = Inter e
+  `.flexlayout__tabset` = `20px` de border-radius. Inspecionado em 1280px e 900px sem quebra
+  interna dos painéis.
+- `pnpm --filter @plataforma/design-system build` ✅
+- `pnpm --filter @plataforma/design-system test` ✅ — 49 arquivos / 218 testes.
+- `pnpm --filter @plataforma/estaleiro-ui build` ✅
+
+### Gate final
+
+O teste de chat foi isolado da chave real do ambiente antes de criar o bootstrap; a evidência
+reutilizável foi registrada no `PITFALLS.md` como P-016. O E2E foi executado com `CI=true` e a
+porta 8899 limpa, evitando reaproveitar um standalone antigo.
+
+```text
+✅ build | exit=0 | 2013ms
+✅ test | exit=0 | 92084ms
+✅ lint | exit=0 | 616ms
+
+📦 artefato: .gate/74ddd8eabf6e1cc66b52320a08cc76d022c4b2e9.json | allGreen=true
+```
+
+Código em `task/EST-65`: `d6d1010` (fundação visual) + `d4e2015` (isolamento do provider e
+normalização da asserção E2E).
+
+### Rework [B1]
+
+O script `build` de `@plataforma/design-system` agora executa `build:tokens` antes de
+`build:react`, regenerando `theme-dark.css` e `theme-light.css` em checkout limpo. Build focado
+do Design System passou antes do Gate.
+
+```text
+✅ build | exit=0 | 3393ms
+✅ test | exit=0 | 94079ms
+✅ lint | exit=0 | 633ms
+
+📦 artefato: .gate/5877be4bec95e2322a11d3edbbdb1130d2e18484.json | allGreen=true
+```
+
+Código do rework: `36ac2f7` (`fix(EST-65): [B1] gerar tokens no build do DS`).
+
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-20T12:26]** - *claude-fable* - `[Triado]`: triagem: escopo e capacidade definidos na criação (estilo-first, ref superapp-shell vendored)
 - **[2026-07-20T12:27]** - *claude-fable* - `[Endurecido]`: endurecida na criação: fatos verificados no código em 2026-07-20 (vite sem tailwind, index.css brutalista, tokens DS divergem do vendored), oráculo = docs/_vendor/superapp-shell, decisões de marca fechadas pelo arquiteto
 - **[2026-07-20T12:27]** - *claude-fable* - `[Promovida p/ ready]`: sem dependências — pronta para despacho (estilo-first: bloqueia dispatch das ondas C-G por decisão do arquiteto)
+- **[2026-07-20T13:02]** - *gpt-5* - `[Iniciado]`: iniciando fundação de estilo e loop visual
+- **[2026-07-20T13:07]** - *gpt-5* - `[Pausado/Handoff]`: BLOCKER de contrato: §3 exige CSS theme-{dark,light}.css equivalente por diff ao vendored (valores achatados), enquanto docs/caderno-3-sdk/09 exige outputReferences:true para manter cadeias de tokens e propagação de overrides. O gerador atual também produz css/variables-*.css, mas package.json exporta theme-*.css inexistentes. Decisão arquitetural necessária: priorizar artefato vendored achatado ou contrato canônico com referências; definir nome/caminho do artefato.
+- **[2026-07-20T13:30]** - *gpt-5* - `[Pausado/Handoff]`: Gate bloqueado fora do escopo: chat-route.test.ts espera MISSING_API_KEY 400, recebeu 200. Implementação visual preservada e pushada em task/EST-65@d6d1010; §8 contém evidências HMR e checks verdes.
+- **[2026-07-20T13:52]** - *gpt-5* - `[Finalizado]`: Fundação Tailwind/tokens/skin FlexLayout + E2E visual; gate verde (build 2013ms, test 92084ms, lint 616ms). Código pushado em d4e2015.
+- **[2026-07-20T14:23]** - *agile_reviewer:gemini* - `[Em revisão]`: revisando
+
+### Parecer QA (Reviewer 2)
+- **Veredito:** [x] APROVADO
+- **Diff vs Escopo:** Todos os arquivos declarados foram alterados. style-dictionary.config.js e E2E/integra��o alterados como consequ�ncia necess�ria (gate). pnpm-lock.yaml atualizado corretamente.
+- **Visual (Vite HMR):** Validado em http://localhost:5173/, tokens de cor aplicados (accent-fill vermelho #E63347), radius removido, tabs FlexLayout com radius correto.
+- **[2026-07-20T14:44]** - *agile_reviewer:gemini* - `[Requer Refatoração]`: Rework: [B1] O Gate pós-merge falhou no teste E2E 'styles.spec.ts'. O build no CI falha em gerar o theme-dark.css atualizado porque o script de 'build' no packages/design-system/package.json não executa 'build:tokens'. Como a pasta 'build/' é corretamente ignorada no .gitignore (ao contrário do que diz a spec original), o teste E2E usa o CSS stale e falha ao checar rgb(18, 18, 18). Corrija o script 'build' em design-system para rodar 'build:tokens && build:react'. Não-bloqueantes → ledger.
+- **[2026-07-20T14:48]** - *gpt-5* - `[Iniciado]`: rework: corrigindo B1 — build do design-system deve regenerar tokens
+- **[2026-07-20T14:56]** - *gpt-5* - `[Finalizado]`: rework pronto: B1 corrigido + Gate verde (build 3393ms, test 94079ms, lint 633ms)
+- **[2026-07-20T15:01]** - *agile_reviewer:gemini* - `[Em revisão]`: revisando novamente
+
+### Parecer QA (Reviewer 3 - Rework)
+- **Veredito:** [x] APROVADO
+- **Diff vs Escopo:** A corre��o do Rework ([B1] script de build atualizado para gerar os tokens) foi implementada em design-system/package.json. As verifica��es locais no Vite se mantiveram corretas.
+- **[2026-07-20T15:17]** - *agile_reviewer:gemini* - `[Aprovado]`: Rework APROVADO. O Gate pós-merge finalizou verde (allGreen=true).
