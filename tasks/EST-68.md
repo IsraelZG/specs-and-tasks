@@ -1,7 +1,7 @@
 ---
 id: EST-68
 title: "Dev-loop de UI com HMR: vite dev + proxy no estaleiro-ui + cache headers no standalone"
-status: draft:hardened
+status: blocked
 complexity: 2
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -69,3 +69,5 @@ contra cache de browser.
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-20T12:40]** - *claude-fable* - `[Triado]`: triagem na criação (retrospectiva do dev-loop)
 - **[2026-07-20T12:40]** - *claude-fable* - `[Endurecido]`: endurecida: escopo fechado (vite proxy + cache headers), dep EST-65 pelo vite.config compartilhado
+- **[2026-07-20T15:17]** - *system* - `[Auto-promovida]`: dep EST-65 concluída
+- **[2026-07-20T18:24]** - *gpt-5* - `[Bloqueado]`: BLOCKER de ambiente: pnpm wt new recusou criar a worktree porque C:\Dev2026\superapp tem alterações não commitadas (packages/design-system/src/metadata/components.index.json e banco local do Estaleiro). Nenhum arquivo foi alterado.

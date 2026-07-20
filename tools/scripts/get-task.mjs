@@ -42,7 +42,13 @@ const STATE_MAP = {
   'done': { role: 'ninguém', skill: null, verb: 'nada a fazer' },
 };
 
-const state = STATE_MAP[status] || { role: '???', skill: null, verb: '?' };
+const isUiTask = fm.ui === 'true' || fm.target_agent === 'frontend_agent';
+let state = STATE_MAP[status] || { role: '???', skill: null, verb: '?' };
+let uiSkillSwap = false;
+if (isUiTask && state.skill === 'executar-task') {
+  state = { ...state, skill: 'executar-task-ui' };
+  uiSkillSwap = true;
+}
 const executor = lastExecutor(sections);
 const identityGuard = executor
   ? `guarda de identidade: revisor DEVE ser modelo ≠ ${executor}`
@@ -203,6 +209,20 @@ function readSkill(name) {
   return fs.readFileSync(skillPath, 'utf-8');
 }
 
+// executar-task-ui é um ADENDO ao contrato base (worktree/start/gate/finish) — inlina os dois em
+// sequência para que o context pack fique autocontido (get-task.mjs é a única fonte de contexto).
+function skillChain(name) {
+  if (!name) return [];
+  if (name === 'executar-task-ui') return ['executar-task', 'executar-task-ui'];
+  return [name];
+}
+
+function readSkillChain(name) {
+  const names = skillChain(name);
+  if (names.length === 0) return null;
+  return names.map(n => `<!-- skill: ${n} -->\n${readSkill(n)}`).join('\n\n---\n\n');
+}
+
 function lastParecer() {
   const sec8 = sections[8]?.content || '';
   const parts = sec8.split('### Parecer do Agente Revisor');
@@ -219,12 +239,15 @@ function textOutput() {
   const rag = resolveRAG();
   const scopePaths = getScopePaths();
   const git = gitState();
-  const skillText = readSkill(state.skill);
+  const skillText = readSkillChain(state.skill);
   const parecer = lastParecer();
   const lines = [];
 
   lines.push(`═══════════ DESPACHO MGTIA · ${taskId} ═══════════`);
   lines.push(`papel: ${state.role}  ·  status: ${fm.status}  ·  próximo verbo: ${state.verb}`);
+  if (uiSkillSwap) {
+    lines.push(`nota: task de UI (ui:true/frontend_agent) → skill trocada de executar-task para executar-task-ui.`);
+  }
   if (actionable) {
     lines.push(`▶ AÇÃO AGORA — VOCÊ é o executor deste papel. Execute:  ${invocation}`);
     lines.push(`   Comece pelo verbo \`${state.verb}\` e SIGA a skill inlinada no fim deste output.`);
@@ -284,7 +307,7 @@ function textOutput() {
     lines.push(pendingDecisions() || '(não listadas)');
   }
   lines.push('---');
-  lines.push(`## Skill inline: ${state.skill || '—'}`);
+  lines.push(`## Skill inline: ${skillChain(state.skill).join(' + ') || '—'}`);
   if (skillText) lines.push(skillText);
   if (actionable) {
     lines.push('');
@@ -300,7 +323,7 @@ function jsonOutput() {
   const rag = resolveRAG();
   const scopePaths = getScopePaths();
   const git = gitState();
-  const skillText = readSkill(state.skill);
+  const skillText = readSkillChain(state.skill);
   const parecer = lastParecer();
   return JSON.stringify({
     id: taskId,
@@ -308,6 +331,9 @@ function jsonOutput() {
     role: state.role,
     verb: state.verb,
     skill: state.skill,
+    skillChain: skillChain(state.skill),
+    uiTask: isUiTask,
+    uiSkillSwap,
     args: state.args || null,
     actionable,
     invocation,
