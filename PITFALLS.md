@@ -6,6 +6,25 @@
 
 ---
 
+## P-016 · Bootstrap de teste semeia provider com chave real do ambiente
+
+**Data:** 2026-07-20 (Gate da EST-65)
+**Sintoma:** Um caso que espera `400 MISSING_API_KEY` recebe `200` somente em máquinas que têm
+`DEEPSEEK_API_KEY` configurada.
+**Causa raiz:** o `createBootstrap()` migra chaves de ambiente para um perfil persistido na partida.
+Quando o servidor é criado em `beforeAll` e o teste só faz `vi.stubEnv()` em `beforeEach`, a chave
+real já foi semeada no banco temporário antes do override.
+**Solução aplicada:** neutralizar `DEEPSEEK_API_KEY` em `beforeAll` **antes** de criar o bootstrap e
+limpar o banco temporário; cada caso passa a injetar a chave que precisa. Em `afterAll`, chamar
+`vi.unstubAllEnvs()` após parar o servidor. Evidência: `pnpm --filter @plataforma/estaleiro
+test:integration` verde (31 testes).
+**Como prevenir recorrência:** todo teste que inicializa um bootstrap capaz de persistir variáveis
+de provider deve isolar essas variáveis antes do startup, não apenas antes da requisição.
+**Limites:** testes cujo objetivo é validar explicitamente a migração de variáveis para perfis devem
+fornecer a chave de forma deliberada e usar banco temporário próprio; não devem aplicar esse reset.
+
+---
+
 ## P-001 · pnpm EACCES/EPERM no node_modules/.pnpm (binários de plataforma errada)
 
 **Data:** 2026-06-16
