@@ -1,7 +1,7 @@
 ---
 id: EST-66
 title: "Varredura de conformidade visual das views do Estaleiro (pós-fundação de estilo)"
-status: ready
+status: in_progress
 complexity: 3
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -80,3 +80,6 @@ componentes DS onde existirem.
 - **[2026-07-20T12:26]** - *claude-fable* - `[Triado]`: triagem: escopo e capacidade definidos na criação (estilo-first, ref superapp-shell vendored)
 - **[2026-07-20T12:27]** - *claude-fable* - `[Endurecido]`: endurecida na criação: fatos verificados no código em 2026-07-20 (vite sem tailwind, index.css brutalista, tokens DS divergem do vendored), oráculo = docs/_vendor/superapp-shell, decisões de marca fechadas pelo arquiteto
 - **[2026-07-20T15:17]** - *system* - `[Auto-promovida]`: dep EST-65 concluída
+- **[2026-07-20T19:51]** - *gpt-5* - `[Iniciado]`: iniciando varredura visual
+- **[2026-07-20T20:05]** - *gpt-5* - `[Pausado/Handoff]`: bloqueio de ambiente: pnpm gate @plataforma/estaleiro excede 64s sem artefato .gate nem avanço após inicialização do Turbo; validação light indisponível sem controle de data-theme
+- **[2026-07-20T20:23]** - *claude-opus* - `[Pausado/Handoff]`: Pausada a pedido do usuário — não é blocker técnico. Diagnóstico do pause anterior (gpt-5): falso alarme, o Gate simplesmente demora ~2-3min com E2E (fase test fica ~113s em silêncio, indistinguível de hang). Achado sério ao investigar: gate.mjs validava a árvore ERRADA quando invocado por caminho relativo em vez de 'pnpm gate <pkg>' — corrigido na master (commit e30cc70) + documentado (P-018) + skill executar-task-ui atualizada com a expectativa de duração. Estado real: 3/10 views feitas e commitadas (Chat, Config, Custo), árvore limpa, evidência de Gate válida (.gate/b6f911ba...json, allGreen=true) para esse estado parcial. Branch task/EST-66 pushada (era só local). Faltam: Board, Execução, Frota, Docs/RAG, Decisões, Planejamento, Terminal. Retomar com /executar-task-ui EST-66 — worktree do slot-1 preservada.
