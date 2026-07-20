@@ -1,7 +1,7 @@
 ---
 id: EST-67
 title: "Chrome do shell do Estaleiro: Header + Footer + toggle de tema (padrão superapp-shell)"
-status: draft:hardened
+status: ready
 complexity: 2
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -73,3 +73,4 @@ FlexLayout existente.
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-20T12:26]** - *claude-fable* - `[Triado]`: triagem: escopo e capacidade definidos na criação (estilo-first, ref superapp-shell vendored)
 - **[2026-07-20T12:27]** - *claude-fable* - `[Endurecido]`: endurecida na criação: fatos verificados no código em 2026-07-20 (vite sem tailwind, index.css brutalista, tokens DS divergem do vendored), oráculo = docs/_vendor/superapp-shell, decisões de marca fechadas pelo arquiteto
+- **[2026-07-20T15:17]** - *system* - `[Auto-promovida]`: dep EST-65 concluída
