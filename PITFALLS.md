@@ -518,3 +518,75 @@ que só aparece no browser do usuário, nunca no do agente (que abre limpo). Ao 
 também COM estado persistido de versão anterior, não só em browser limpo.
 **Limites:** o self-heal cobre abas novas; não cobre remoção/renomeação de abas (aba deletada do
 default sobrevive no persistido — inofensivo por ora; tratar se virar problema).
+
+## P-016 · `pnpm wt new` recusa (master suja) por artefato gerado não-determinístico + DB não-gitignorado
+
+**Data:** 2026-07-20 (EST-68 bloqueada ao tentar iniciar)
+**Sintoma:** Worker roda `pnpm wt new EST-68` (ou qualquer task) e o script morre com
+`<label> tem mudanças não commitadas — commit/stash antes de continuar` — mesmo sem o worker ter
+tocado em nada. `git status --short` na master do superapp mostra 1-2 arquivos sujos que ninguém
+lembra de ter editado.
+**Causa raiz (duas, independentes, ambas em `packages/design-system`):**
+1. `packages/design-system/src/metadata/components.index.json` é regenerado por
+   `build-component-index.mjs` toda vez que `pnpm --filter @plataforma/design-system build` roda
+   (inclusive como parte do Gate pós-merge do `/integrar-task`, Caminho A passo 3). O gerador
+   tinha `metadataPath: file.replace(join(__dirname,'..')+'/', '')` — `join()` no Windows usa
+   `\`, então o `.replace()` com `'/'` NUNCA casava, e o path **absoluto da máquina/worktree**
+   (`C:\Dev2026\.superapp-worktrees\EST-46\...`) vazava pro arquivo commitado. Regenerar em
+   qualquer outro checkout sempre produz um path diferente → diff garantido.
+2. `generatedAt: new Date().toISOString()` no mesmo arquivo — timestamp que muda a cada
+   regeneração, segunda fonte de diff garantido, independente do bug 1.
+3. `apps/estaleiro/estaleiro.db*` não estava no `.gitignore` (só `e2e-test.db*` estava) — rodar
+   o app/testes contra a master gera um DB runtime que aparece como untracked.
+**Diagnóstico:** `git -C ../superapp status --short` na master ANTES de `pnpm wt new`. Se sujo,
+NÃO é "outro agente esqueceu de commitar" por padrão — cheque se os arquivos batem com este
+padrão (artefato gerado por build, ou DB/log runtime).
+**Solução aplicada (commit 37f8baf):** `build-component-index.mjs` usa `path.relative()` +
+normalização de separador (determinístico — verificado: 2 rodadas seguidas produzem output
+byte-idêntico); `generatedAt` removido (nada o lia); `.gitignore` ganhou
+`apps/estaleiro/estaleiro.db*`.
+**Como prevenir recorrência:** qualquer script gerador cujo output é commitado (índices,
+manifests, catálogos) precisa ser **determinístico entre checkouts** — sem path absoluto, sem
+timestamp, sem `Date.now()`/random. Teste de idempotência (rodar 2x, diff = vazio) deveria ser
+CI-worthy para esse tipo de script. Runtime artifacts (`*.db`, `*.log`, caches) entram no
+`.gitignore` no MOMENTO em que o padrão nasce, não depois de bloquear alguém.
+**Limites:** cobre só os dois arquivos encontrados; outro gerador com o mesmo padrão de bug
+(path absoluto ou timestamp em artefato commitado) pode existir em outro pacote — não auditado.
+
+## P-017 · Dev loop de UI em worktree nova falha por deps de workspace não-buildadas + churn de EOL do índice
+
+**Data:** 2026-07-20 (EST-68 — 2ª tentativa de iniciar bloqueou)
+**Sintoma (dois, encadeados):**
+1. `pnpm --filter @plataforma/estaleiro-ui dev` sobe o Vite mas a página não renderiza — o Vite
+   falha ao resolver `@import "@plataforma/design-system/tokens-global.css"` (e outros CSS de
+   pacotes de workspace). "Funciona no checkout principal, quebra na worktree."
+2. Ao rodar o Gate na worktree, `git status` fica sujo com `components.index.json` — mas o `git
+   diff --ignore-all-space` mostra **0 linhas**: é só line-ending (CRLF↔LF). Impede `finish`/merge
+   com árvore limpa; o Gate suja a própria árvore que precisa validar.
+**Causa raiz:**
+1. `build/`/`dist/` dos pacotes de workspace são **gitignored** → uma worktree recém-criada
+   (`pnpm wt new`/`claim`) não tem os artefatos de build. O `claim` do pool troca a branch mas
+   **não rebuilda**, e o `refresh` que pré-buildou o slot pode ser anterior ao último merge que
+   mudou uma dep (ex.: EST-65 mudou os tokens do design-system). O Gate sobrevive porque roda
+   `turbo build`; o **dev loop (`vite dev`) não tinha nenhum hook que buildasse as deps**. Mesma
+   classe do P-012, agora no dev em vez do gate.
+2. `build-component-index.mjs` escreve o índice com `'\n'` (LF), mas `core.autocrlf=true` no
+   Windows reconverte p/ CRLF a cada checkout → toda regeneração (`turbo build`) diverge do que
+   está no git. Continuação do P-016 (determinismo de artefato gerado) pela dimensão de EOL.
+**Solução aplicada (commit 3315ef7):**
+1. `apps/estaleiro/ui/package.json` ganhou `predev: turbo run build --filter=@plataforma/estaleiro-ui^...`
+   — builda o grafo de deps antes do Vite (cacheado; ~9s a frio, instantâneo depois). Dev loop
+   autossuficiente a partir de qualquer estado de slot. Verificado: apagar `build/web`+`shell/dist`
+   e rodar `pnpm run predev` restaura tudo; `vite dev` renderiza.
+2. `.gitattributes`: `packages/design-system/src/metadata/components.index.json text eol=lf`.
+   Renormalizado; regenerar o índice agora deixa a árvore limpa (verificado — Gate na master
+   pós-merge terminou com `git status` vazio).
+**Como prevenir recorrência:**
+- Qualquer app servido por dev server (Vite/Next) cujos `@import`/imports resolvem para
+  **build outputs** de pacotes de workspace precisa de um `predev` que builde essas deps. O padrão
+  reutiliza no superapp quando ele tiver UI servida.
+- TODO artefato **gerado E commitado** deve ser pinado a `eol=lf` no `.gitattributes` (além de
+  determinístico em conteúdo — P-016), senão `autocrlf=true` o suja a cada regeneração.
+**Limites:** o `predev` builda o grafo inteiro (inclui a própria UI — redundante mas inócuo, o
+`^...` do turbo nesta versão não exclui o target). Se editar uma **dep** durante o dev (ex. tokens
+do design-system), é preciso rebuildá-la à mão — o HMR do Vite só cobre a fonte da própria UI.
