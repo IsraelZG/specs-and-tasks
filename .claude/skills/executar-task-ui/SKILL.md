@@ -61,6 +61,12 @@ O Gate da task de UI tem uma peça a mais além de build+test+lint:
 - E2E quando a spec exigir (`ui: true` ⇒ E2E obrigatório no review — Regra 3b; rodá-lo você
   mesmo evita a devolução).
 
+**`pnpm gate <pkg>` demora ~2-3 minutos quando há E2E — e fica em SILÊNCIO TOTAL por até ~130s
+durante a fase `test` (o Playwright roda a suite inteira antes de imprimir qualquer coisa). Isso é
+NORMAL, não é travamento (P-018). Não conclua blocker por silêncio sozinho — espere terminar (o
+prompt volta e `.gate/<sha>.json` aparece). Se realmente travar por muito mais que isso (vários
+minutos sem retorno do processo), aí sim é blocker de ambiente de verdade.**
+
 ## NÃO faça
 - NÃO iterar contra o standalone/artefato buildado (só validação final).
 - NÃO marcar concluído um visual que você não viu renderizado (nem "deve funcionar").

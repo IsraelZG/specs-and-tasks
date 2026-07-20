@@ -590,3 +590,38 @@ CI-worthy para esse tipo de script. Runtime artifacts (`*.db`, `*.log`, caches) 
 **Limites:** o `predev` builda o grafo inteiro (inclui a própria UI — redundante mas inócuo, o
 `^...` do turbo nesta versão não exclui o target). Se editar uma **dep** durante o dev (ex. tokens
 do design-system), é preciso rebuildá-la à mão — o HMR do Vite só cobre a fonte da própria UI.
+
+## P-018 · Gate "travado" era só silêncio no test phase (~2min) — e quase validei a árvore errada
+
+**Data:** 2026-07-20 (EST-66 — worker pausou achando o Gate travado)
+**Sintoma:** Worker roda `pnpm gate <pkg>` (ou invoca `gate.mjs`), turbo inicializa, e depois fica
+**silêncio total por 60-130+ segundos** — sem nenhuma linha de progresso. Parece travado; o worker
+(paciência de 64s) concluiu blocker e pausou. Investigando, o artefato `.gate/<sha>.json` com
+`allGreen: true` **já existia no disco**, gerado no mesmíssimo segundo em que o worker desistiu.
+**Causa raiz 1 (perceptual, não é bug):** a fase `test` do Gate roda `pnpm --filter <pkg> test`,
+que para o Estaleiro inclui o **Playwright E2E completo** (23 specs). `gate.mjs` usa `execSync`
+(bufferiza tudo, zero stdout incremental) — do ponto de vista de quem chama, "turbo terminou" →
+**113 segundos de nada** → resultado. Indistinguível de travamento sem saber que isso é esperado.
+**Causa raiz 2 (bug real, achado ao tentar reproduzir):** para investigar, invoquei `gate.mjs` por
+caminho relativo de dentro da worktree (`node ../../superapp/scripts/gate.mjs <pkg>`) em vez do
+`pnpm gate <pkg>` documentado. `gate.mjs` calculava `root` via `import.meta.url` — a localização
+do **arquivo físico do script**, não o `cwd` de quem chama. Resultado: o comando rodou build/test/
+lint **inteiro contra a master**, não contra a branch `task/EST-66` — silenciosamente, sem erro,
+com output que parecia legítimo. Só bati o `treeSha` impresso contra o artefato real no disco e vi
+que não existia — se não tivesse cruzado essa evidência, teria dado `finish` na EST-66 com prova de
+Gate da árvore ERRADA.
+**Solução aplicada (commit e30cc70):** `gate.mjs` agora resolve `root` via
+`git rev-parse --show-toplevel` a partir de `process.cwd()` — sempre opera sobre o repo de quem
+chama, `pnpm gate <pkg>` ou caminho direto, tanto faz.
+**Como prevenir recorrência:**
+- **Gate demora ~2-3min de verdade quando há E2E.** Silêncio de até ~130s após o turbo inicializar
+  é NORMAL, não é blocker. Skills de worker (`/executar-task`, `/executar-task-ui`, `/rework-task`)
+  devem declarar essa expectativa explicitamente — não deixar o worker inferir "travou" sozinho.
+- **Sempre valide o `treeSha` do artefato contra `headSha`/branch esperada** antes de usar uma
+  evidência de Gate para `finish`/`approve` — mesmo com o fix, é o hábito que pega qualquer classe
+  nova do mesmo bug (ex.: symlink de worktree apontando errado).
+- Scripts de tooling que outros scripts/skills documentam invocar por MÚLTIPLOS caminhos (script
+  path direto E via `pnpm run`) devem resolver `root` pelo `cwd`, nunca por `import.meta.url` —
+  a segunda forma só é segura se a única invocação suportada for local ao próprio pacote.
+**Limites:** o silêncio de 113s é específico de quando `test` inclui E2E; pacotes sem E2E (ex.
+design-system) têm fases rápidas e não geram essa ambiguidade.
