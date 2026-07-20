@@ -19,6 +19,36 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '../..');
 const distPath = path.resolve(repoRoot, 'apps/nexus-backend/dist/services/task.service.js');
 
+// --- helpers de leitura de frontmatter (sem depender do TaskService) ---------
+function readTaskField(id, field) {
+  for (const dir of ['tasks', 'meta-tasks']) {
+    const p = path.resolve(repoRoot, dir, `${id}.md`);
+    if (!existsSync(p)) continue;
+    const content = readFileSync(p, 'utf-8');
+    const m = content.match(new RegExp(`^${field}:\\s*(.+)$`, 'm'));
+    return m ? m[1].trim() : null;
+  }
+  return null;
+}
+function parseIdArray(raw) {
+  if (!raw) return [];
+  return raw.replace(/#.*$/, '').replace(/[\[\]"']/g, '').split(',').map(s => s.trim()).filter(Boolean);
+}
+
+// --- M4a: promote exige TODAS as dependências `done` (não `in_progress`) ------
+// Retrospectiva 2026-07-19: EST-49b foi promovida a ready com dep "in_progress",
+// nasceu de um master sem a dep, e o conflito estrutural era garantido. `done`
+// significa MERGEADO na master — só então a dep existe para o worker herdar.
+if (action === 'promote') {
+  const deps = parseIdArray(readTaskField(taskId, 'dependencies'));
+  const notDone = deps.filter(d => (readTaskField(d, 'status') || 'unknown') !== 'done');
+  if (notDone.length > 0) {
+    console.error(`❌ promote bloqueado: dependências não-\`done\` (não mergeadas): ${notDone.join(', ')}.`);
+    console.error('   `in_progress`/`review` NÃO é `done`. A task nasceria de um master sem a dep — conflito garantido (ver retrospectiva M4).');
+    process.exit(1);
+  }
+}
+
 // --- Gate validation on finish -----------------------------------------------
 if (action === 'finish') {
   const worktreeDir = path.resolve(repoRoot, '..', '.superapp-worktrees', taskId);
@@ -51,6 +81,18 @@ if (action === 'finish') {
     if (!artifact.allGreen) {
       console.error(`❌ gate stale: .gate/${treeSha}.json tem allGreen=false. Corrija as falhas e rode o gate novamente.`);
       process.exit(1);
+    }
+
+    // --- M4b: advisory (não bloqueia) se master não é ancestral do HEAD -------
+    // Retrospectiva 2026-07-19: uma branch cortada antes de uma dep entrar na
+    // master revisa/mergeia uma composição fóssil. Não bloqueia (master avança
+    // o tempo todo), mas avisa: se a task depende de algo mergeado recentemente,
+    // rebase antes do review para o parecer ver a composição real.
+    try {
+      execSync('git merge-base --is-ancestor master HEAD', { cwd: worktreeDir, stdio: 'ignore' });
+    } catch {
+      console.error('⚠️  aviso (M4b): `master` não é ancestral desta branch — ela pode preceder deps já mergeadas.');
+      console.error('   Se a task tem dependências fechadas recentemente, considere `git merge master` antes do review.');
     }
   }
 }

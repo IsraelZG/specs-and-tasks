@@ -53,16 +53,40 @@ Se `$ARGUMENTS` estiver vazio:
 - Se `claim` falhar (status != `review`, ou papel ≠ reviewer) → **PARE** e explique por quê.
 - **Se a task já está `in_review`** → outro reviewer a pegou. PARE. Não audite nem escreva parecer.
 
-## 2. Para cada task identificada
+## 2. Protocolo de 3 níveis de revisão
+
+A evidência de gate é transferível por hash de árvore, eliminando reexecução
+redundante quando a árvore do merge é idêntica à auditada.
+
+| Nível | Quando | O que o reviewer faz |
+|---|---|---|
+| **0 — sempre** | toda review | `claim` · escopo por commits (`git log master..branch` + `git show`) · **auditoria de código** (onde os bugs reais aparecem) · **validar artefato de gate**: `.gate/<tree-sha>.json` commitado na branch, com `treeSha == git rev-parse HEAD^{tree}` (hash prova que artefato corresponde ao código auditado) |
+| **1 — no merge** | integrar | árvore do merge == árvore da branch (`HEAD^{tree} == branch^{tree}`) → **evidência transfere, zero execução**. Árvore difere → **1 gate na master mesclada** — execução genuinamente nova (testa a composição que nunca existiu) |
+| **2 — exceção** | re-run completo | artefato ausente/stale · task de crypto/segurança/autorização · suspeita fundamentada do reviewer |
+
+### Fast-track (R6)
+
+Tasks com `capacity_target: haiku` **E** diff ≤ 20 linhas **E** artefato de gate válido presente
+fazem **nível 0 sem reexecução**: o reviewer valida diff + artefato, sem rodar gate próprio.
+`claim`, escopo e auditoria de código permanecem obrigatórios — só a reexecução é cortada.
+
+### 2a. Nível 0 — Auditoria por task
 
 Despache o subagent `agile-reviewer` com o ID da task como argumento.
 
 O subagent retornará o **QA Report completo** (seções BLOCKER/MAJOR/MINOR/INFO + veredicto).
 Um relatório **sem a Evidência de Execução** (saída real de build/tsc + test, com o placar
-`N passed`) é inválido — devolva ao `agile-reviewer` para rodar e colar a saída antes de
-consolidar. Nunca apresente um veredito baseado só em inspeção.
+`N passed` + hash do artefato) é inválido — devolva ao `agile-reviewer` para rodar e colar a saída
+antes de consolidar. Nunca apresente um veredito baseado só em inspeção.
 
-### 2a. Verificação de Disposição por Achado (C-tasks — INVIOLÁVEL)
+**E2E OBRIGATÓRIO para tasks de produto (M3, 2026-07-19 — INVIOLÁVEL).** Se a task é `ui: true` ou
+toca fluxo observável no navegador, o Parecer **exige** a saída literal de `pnpm --filter <app>
+test:e2e` (~70s). "Pulei o E2E por custo/tempo" **invalida o parecer** — devolva ao reviewer. Foi
+exatamente essa economia falsa que deixou um seletor renderizando em branco passar por 3 rodadas de
+review na EST-49b; verificação de *comportamento* no browser real pega o que unit test em JSDOM não
+pega. (Tasks sem UI e sem fluxo de produto seguem só build+test+lint.)
+
+#### Verificação de Disposição por Achado (C-tasks — INVIOLÁVEL)
 
 Para tasks de cleanup (`C-NN`), além do Gate (build verde), o reviewer **VERIFICA** que **CADA
 achado da §5** tem disposição explícita no Handover (§8). Taxonomia válida:
@@ -80,7 +104,7 @@ Se o worker classificou achados como `spec→` ou `decision→`, confirme que el
 `<!-- BEGIN SPEC-PENDENCIAS -->` do `_pendencias.md` (o `/agrupar-cleanup` já os roteou; o worker
 pode adicionar novos durante a execução).
 
-### 2b. Segunda revisão independente (quando já há um parecer Aprovado)
+#### Segunda revisão independente (quando já há um parecer Aprovado)
 
 Um parecer **Aprovado** já na Seção 8 **NÃO** dispensa nem encerra a revisão — ele é o gate
 **ideal** para um segundo par de olhos. A própria regra do CLAUDE.md ("revisor de modelo diferente
@@ -97,7 +121,7 @@ tasks importantes recebam **mais de uma** revisão independente. Então:
   3…) — o parecer anterior fica preservado. Se a 2ª revisão achar um bloqueante, o **agregado**
   vira REFATORAÇÃO (o `integrar-task` só aprova se o ÚLTIMO veredito é Aprovado e zero `Bn` aberto).
 
-### 2c. Gate obrigatório: diff × escopo da Seção 3
+#### Gate obrigatório: diff × escopo da Seção 3
 
 Antes de aceitar o Parecer, confirme que o `agile-reviewer` comparou **o diff inteiro da branch da
 task contra a base correta** com a Seção 3 da spec. `HEAD~1` é insuficiente: perde commits
@@ -122,6 +146,25 @@ parcial nem confie apenas no handover.
 - Arquivo rastreado fora do escopo, sem disposição, é **MAJOR** e produz `REFATORAÇÃO NECESSÁRIA`.
   Se ampliar privilégio, vazar segredo, mudar contrato público ou contornar um gate, é **BLOCKER**.
 - Relatório sem esta comparação é incompleto, mesmo com build e testes verdes; devolva-o ao reviewer.
+
+### 2b. Nível 1 — No merge / evidência transfere
+
+Quando o `integrar-task` for chamado, o merge deve comparar as árvores:
+
+1. `git rev-parse HEAD^{tree}` (master mesclada) vs `git rev-parse task/<ID>^{tree}`.
+2. **Idênticas** → evidência do artefato existente transfere, sem reexecução.
+3. **Diferem** (master avançou) → rode 1 gate na master mesclada: `pnpm gate <pkg>`.
+   Esta execução é genuinamente nova — testa a composição que nunca existiu.
+
+### 2c. Nível 2 — Exceção / re-run completo
+
+Reexecute o gate completo quando:
+
+- Artefato `.gate/<tree-sha>.json` ausente ou stale (`treeSha` não corresponde a `HEAD^{tree}`).
+- Task de **crypto/segurança/autorização** (exige verificação independente do worker).
+- **Suspeita fundamentada** do reviewer (indício de falha no gate do worker).
+
+Nestes casos, rode `pnpm gate <pkg>` na worktree e cole a saída literal no Parecer.
 
 ## 3. Consolidar e apresentar
 
