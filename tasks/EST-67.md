@@ -1,7 +1,7 @@
 ---
 id: EST-67
 title: "Chrome do shell do Estaleiro: Header + Footer + toggle de tema (padrão superapp-shell)"
-status: ready
+status: in_progress
 complexity: 2
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -74,3 +74,5 @@ FlexLayout existente.
 - **[2026-07-20T12:26]** - *claude-fable* - `[Triado]`: triagem: escopo e capacidade definidos na criação (estilo-first, ref superapp-shell vendored)
 - **[2026-07-20T12:27]** - *claude-fable* - `[Endurecido]`: endurecida na criação: fatos verificados no código em 2026-07-20 (vite sem tailwind, index.css brutalista, tokens DS divergem do vendored), oráculo = docs/_vendor/superapp-shell, decisões de marca fechadas pelo arquiteto
 - **[2026-07-20T15:17]** - *system* - `[Auto-promovida]`: dep EST-65 concluída
+- **[2026-07-20T20:11]** - *gpt-5* - `[Iniciado]`: iniciando chrome do shell
+- **[2026-07-20T20:19]** - *gpt-5* - `[Pausado/Handoff]`: Implementação em a17bcf1 (Header, Footer, toggle e 125 testes verdes; lint verde) foi enviada. Bloqueio: o Browser Use recusou navegar/recarregar http://127.0.0.1:4173 apesar do Vite HMR pronto, impedindo screenshots dark/light exigidos pela spec. Retomar quando a visualização local estiver permitida; então tirar os dois screenshots, rodar pnpm gate @plataforma/estaleiro e finalizar.
