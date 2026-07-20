@@ -26,6 +26,11 @@ Após cada problema não trivial resolvido, execute a habilidade `extract-approa
 prosseguir. Uma solução sem sua nota de aprendizados — ou sem a confirmação explícita de que o
 aprendizado já vive no artefato canônico — é trabalho inacabado.
 
+**Melhoria contínua (2026-07-20):** entender *o que houve* não basta — todo problema enfrentado
+gera também uma **proposta de mudança de processo** que o teria evitado (roteada pelo
+extract-approach: armadilha→`PITFALLS.md`, conduta→skill, invariante→guard executável por M6).
+Sintoma repetido 2x sem mudança de processo é falha do processo, não do executor.
+
 ---
 
 ## MGTIA — Gestão de Tarefas
@@ -84,9 +89,15 @@ Cada task iniciada ganha uma branch task/<ID> (isolamento) **no repo superapp (c
 
 **3. Gate de Evidência (INVIOLÁVEL).** `finish` só com a saída literal de `pnpm --filter <pkg> build` + `test` + `lint` colada na mensagem. Sem evidência = não terminou. Se falhar, conserte antes — nunca finalize no escuro. (Lint entrou no gate em 2026-07-06 após 3 reworks consecutivos por regressão de lint cobrada só no review — T-807, EST-02b, EST-02c; o critério cobrado precisa ser o critério escrito.)
 
+> **3b. E2E não é opcional no review (M3, 2026-07-19).** Se a task tem `ui: true` ou toca fluxo de produto observável, o E2E (`pnpm --filter <app> test:e2e`, ~70s) é **obrigatório** no Parecer — "pulei por custo/tempo" está proibido. Custo real: 70 segundos. Custo de pular: um seletor que renderizava **em branco** passou por worker + 3 reviewers na EST-49b e só caiu quando o E2E finalmente rodou. Verificação de *comportamento* > verificação de *forma*. Em troca, use o fast-track (R6 do `/qa-review`) para cortar cerimônia de tasks pequenas com diff ≤20 linhas e artefato válido.
+>
+> **3c. Gate de ONDA = demo executável (M1, 2026-07-19).** Gate verde por task NÃO prova que o produto funciona — 86 tasks verdes conviveram com uma **tela em branco** por 10 dias porque nada exercitava a *composição*. Toda onda/fatia fecha com um smoke de produto: subir o standalone e provar UMA ação de usuário ponta-a-ponta ("boot → clicar → efeito observável"), com a saída colada. Gate unitário mede a peça; o smoke de onda mede o carro.
+
 **4. Rework (auto-contido).** Task em `rework`? Leia o "Parecer do Revisor" (seção 8) e corrija EXATAMENTE os achados `[Bn/Mn/mn]`. Re-rode build+test, aplique o Gate, chame `finish`. O ciclo worker→review→rework roda sem intervenção humana.
 
 **5. Automação.** Tarefas repetitivas viram scripts, subagents (`.claude/agents/`) ou skills (`.claude/skills/`). Idempotência obrigatória.
+
+> **5b. Regra nova só se virar código (M6, 2026-07-19).** Toda INVIOLÁVEL nova entra como **guard executável** (pré-check no `manage-task.mjs`, guard no TaskService, ou check em script) — não como mais um parágrafo neste arquivo. Prosa já provou que não segura modelo pequeno: os logs contêm claims factualmente falsos registrados COM as regras escritas ("0.0.90 = master" quando era 0.0.98; commit "revert version bump" cujo diff bumpa). Cada incidente virando regra-de-prosa é cicatriz sobre cicatriz que o próximo modelo pequeno também não carrega. Este documento deve **encolher** conforme regras viram guards, não crescer. (Padrão de referência: o gate-on-finish e os guards M4 são pré-checks no wrapper `manage-task.mjs`, fora do nexus congelado.)
 
 **6. Separação de papéis nas transições (INVIOLÁVEL).** `approve`/`request_changes` são exclusivos
 do Reviewer (`frontmatter.reviewer_agent` da própria task). Worker NUNCA chama essas duas ações —
@@ -104,11 +115,17 @@ registrar o que encontrou; não tenta o próximo verbo só porque o serviço ace
 
 ### Dimensionamento (INVIOLÁVEL)
 
-Tasks ≤ Sonnet (preferencialmente Haiku). A spec precisa ter: zero decisões abertas, assinaturas e tipos explícitos, APIs fixadas, verificação por comando. O que exige Opus → **spike** (entregável = ADR/PoC com critério claro) ou **épico** subdividido. Inclua `Capacidade-alvo: haiku | sonnet | opus-spike` no corpo da task.
+O default é decompor: tasks ≤ Sonnet (preferencialmente Haiku), spec com zero decisões abertas, assinaturas e tipos explícitos, APIs fixadas, verificação por comando. O que exige Opus só para *decidir* → **spike** (entregável = ADR/PoC). Inclua `Capacidade-alvo: haiku | sonnet | opus | opus-spike` no corpo da task.
+
+> **Dimensionar é bidirecional (M5, retrospectiva 2026-07-19).** Decompor 1→N não é sempre certo. Quando o **custo de esteira** (endurecer + worktree + gate + review + integrar + **reconciliar N specs que se cruzam**) supera o ganho de granularidade, **componha N→1** para uma Opus. Sinais de que deveria compor em vez de decompor: as tasks tocam os mesmos arquivos; o contrato de uma só fecha sabendo o da outra; o valor só aparece quando as N estão juntas (fatia vertical: UI + rota + fluxo). Trabalho **integrativo** (uma tela que precisa de backend+estado+layout juntos) é o caso típico — 3 Sonnet + 3 endurecimentos + 3 reviews + reconciliações custam mais que 1 Opus coerente. Métrica de decisão: *transições de status por linha útil entregue*, não número de tasks.
+>
+> **Como compor:** `node tools/scripts/compose-task.mjs <novoId> "<título>" <src1> <src2> [...]` — funde fontes **não-iniciadas** (draft:*/ready) numa Opus com proveniência, obsoletando as fontes. Depois `/endurecer-task <novoId>` unifica a spec. É o inverso simétrico do `decompose`. Opus é capacidade legítima para execução integrativa — não só para spike.
 
 **Eixo de qualidade da spec.** O antigo campo `spec_status` foi colapsado nos sub-status de `draft:<sub>` — `draft:placeholder | draft:triaged | draft:pending_decision | draft:hardened | draft:decomposed`. Cada sub-status é transicionado pelos **verbos de endurecimento** (`triage`/`harden`/`block_decision`/`decompose`/`decide` via `manage-task.mjs`), não mais editando frontmatter à mão. **Endureça em dois passes:** triagem cedo (pega spikes/decisões), endurecimento profundo just-in-time (quando as deps já são `done`, troca placeholder por assinatura real — *reendurecimento*).
 
 **Automatismos (T-1029):** `harden`/`decide` com deps todas `done` → auto-promove para `ready`; `approve → done` → auto-promove dependentes elegíveis e encerra pais decompostos quando a última filha fecha. Painel: `node tools/scripts/hardening.mjs [prefixo]` (estado dos draft:<sub> · fila de decisões · promovíveis safety-net · candidatas a reendurecer).
+
+> **Guard M4 (2026-07-19):** `promote` (manual) agora **recusa** se qualquer dependência não estiver `done` — `in_progress`/`review` NÃO conta (`done` = mergeado na master; só então a dep existe para o worker herdar). O `finish` também avisa (não bloqueia) se `master` não é ancestral da branch — sinal de que a task precede deps já mergeadas e deveria mesclar master antes do review. Isso mata a classe de bug "branch fóssil" (ex.: EST-49b, cortada antes da dep EST-49a entrar → conflito estrutural garantido).
 
 **Ledger de ciclo de vida.** `node tools/scripts/ledger.mjs [prefixo]` regenera `tasks/LEDGER.md` (gitignored): tabela agrupada por status com **quem fez cada papel** — worker, reviewer, cada rework (`N× (ator → ator)`), endurecedor. **Não é fonte nova nem passo a mais pro agente:** é uma *projeção* dos Logs §9 que o `manage-task.mjs` já escreve a cada transição (o ator é o `<SeuNome>` passado). Reworks variáveis não viram colunas fixas — viram uma célula. `/drenar-fila` o refresca no heartbeat periódico.
 
@@ -116,9 +133,13 @@ Tasks ≤ Sonnet (preferencialmente Haiku). A spec precisa ter: zero decisões a
 
 ## Skills e Agentes
 
-**Skills:** `/verificar` · `/qa-review` · `/integrar-task` · `/agrupar-cleanup` · `/endurecer-task` · `/endurecer-fila` · `/wargame-task` · `/arquiteto-decisoes` · `/arquiteto-promover` · `/drenar-fila` · `/vincular-rag` · `/executar-task` · `/rework-task` · `/absorver-rfc` · `/rodar-onda` · `/consolidar-arquivo` · `/consolidar-glossario` · `/handoff` · `/migrar-caderno` · `/novo-verbete` · `/revisar-rfc` · `/revisar-rfcs` · `/sync-provider`
+**Skills:** `/verificar` · `/qa-review` · `/integrar-task` · `/agrupar-cleanup` · `/endurecer-task` · `/endurecer-fila` · `/wargame-task` · `/arquiteto-decisoes` · `/arquiteto-promover` · `/drenar-fila` · `/vincular-rag` · `/executar-task` · `/executar-task-ui` · `/frontend-design` · `/rework-task` · `/absorver-rfc` · `/rodar-onda` · `/consolidar-arquivo` · `/consolidar-glossario` · `/handoff` · `/migrar-caderno` · `/novo-verbete` · `/revisar-rfc` · `/revisar-rfcs` · `/sync-provider`
 
-> **Pipeline de uma task:** `/endurecer-task` (→ `draft:triaged`/`draft:hardened`/`draft:pending_decision`) · `/arquiteto-decisoes` (resolve decisões, chama `decide`) · `/arquiteto-promover` (safety-net: promove `draft:hardened` não pego pelo auto-promote) · `/wargame-task` (OPCIONAL, exige modelo forte: grava o Plano de Batalha §5b na task — rota movimento-a-movimento com observações esperadas, falhas+contra-movimentos, forks com gatilho, aborts — p/ worker menor executar cego; pós-ready, pré-execução) · `/executar-task` (worker, na worktree, commits frequentes; **se a task tem §5b, siga o plano à risca** — os forks/contra-movimentos já foram lutados por um modelo maior) · `/qa-review` (Parecer, review-only, começa com `claim`) · `/integrar-task` (merge+`approve`, ou `request_changes`→`rework`; auto-side-effects T-1029 disparam no approve) · `/rework-task` (corrige os achados do Parecer, volta a `review`) · `/agrupar-cleanup` (drena o ledger de pendências). Painel transversal: `node tools/scripts/hardening.mjs`. **Persistência no controle:** cada skill **enfileira** o commit (`fila.mjs add`); `/drenar-fila` commita+pusha em lote (nenhum agente roda git no Docs).
+> **Pipeline de uma task:** `/endurecer-task` (→ `draft:triaged`/`draft:hardened`/`draft:pending_decision`) · `/arquiteto-decisoes` (resolve decisões, chama `decide`) · `/arquiteto-promover` (safety-net: promove `draft:hardened` não pego pelo auto-promote) · `/wargame-task` (OPCIONAL, exige modelo forte: grava o Plano de Batalha §5b na task — rota movimento-a-movimento com observações esperadas, falhas+contra-movimentos, forks com gatilho, aborts — p/ worker menor executar cego; pós-ready, pré-execução) · `/executar-task` (worker, na worktree, commits frequentes; **se a task tem §5b, siga o plano à risca** — os forks/contra-movimentos já foram lutados por um modelo maior; **task de UI** (`ui: true`/frontend_agent) usa **`/executar-task-ui`** — loop visual HMR obrigatório + critério da `/frontend-design`; nunca estilizar às cegas) · `/qa-review` (Parecer, review-only, começa com `claim`) · `/integrar-task` (merge+`approve`, ou `request_changes`→`rework`; auto-side-effects T-1029 disparam no approve) · `/rework-task` (corrige os achados do Parecer, volta a `review`) · `/agrupar-cleanup` (drena o ledger de pendências). Painel transversal: `node tools/scripts/hardening.mjs`. **Persistência no controle:** cada skill **enfileira** o commit (`fila.mjs add`); `/drenar-fila` commita+pusha em lote (nenhum agente roda git no Docs).
+
+> **Dimensionar antes de executar (M5):** `decompose` quebra 1→N (spec grande demais); `node tools/scripts/compose-task.mjs` funde N→1 numa Opus (esteira cara demais para o ganho de granularidade — trabalho integrativo). Decida a direção olhando *transições por linha útil*, não contagem de tasks. Ver "Dimensionamento (INVIOLÁVEL)".
+>
+> **M7 (orquestrador — operacional):** o `orquestrar.mjs` roda com `max_concurrent` configurável. Com `max_concurrent=0` **todo o custo do pipeline de despacho automático existe sem benefício** (todo despacho vira manual). Ou sobe para 1–2 e o sistema faz dogfooding (executa a própria construção, achando os gaps do plugin-dispatcher), ou se assume operação manual — mas então não pague o overhead de fila/slot fingindo automação.
 
 **Agentes** (`.claude/agents/`): `agile-reviewer` · `auditor-consistencia-rfc` · `consolidador` · `criador-verbete` · `emendador-rfc` · `incorporador` · `rfc-roteador` · `triador-review`
 

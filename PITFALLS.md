@@ -451,3 +451,51 @@ fora de CI) numa porta fixa. Setar `CI=true` no ambiente de diagnóstico manual 
 — aceitável para depuração pontual, não para o loop rápido de dev. Complementa P-010 (que cobre
 mascaramento por **pasta de build velha**, não por **processo já vivo**) e P-012 (deps não
 buildadas em worktree nova).
+
+## P-014 · `estaleiro-standalone.mjs` deployava UI sem rodar `vite build` — mascarava mudança de `.tsx`
+
+**Data:** 2026-07-20 (redesign do Chat pós-onda B)
+**Sintoma:** Depois de editar `apps/estaleiro/ui/src/**` (ex.: `ChatView.tsx`), rebuildar o
+standalone e recarregar `localhost:8899`, a UI renderiza o **código antigo** — strings/layout de
+uma sessão anterior — mesmo com os testes de UI verdes contra a fonte nova. Parece cache do browser,
+mas persiste após hard-reload.
+**Causa raiz:** o passo `[4/4]` do `estaleiro-standalone.mjs` fazia só `cpSync(apps/estaleiro/ui/dist → DEST/ui)`
+— **nunca** rodava `pnpm --filter @plataforma/estaleiro-ui build` (vite). O passo `[1/4]` builda os
+pacotes TS via `tsc`, mas a UI é `vite build` e não estava em lugar nenhum do script. Resultado: o
+deploy empacota o `dist/` que **por acaso** estava na árvore — quase sempre de uma sessão anterior.
+O gate `pnpm gate` roda `vitest` contra a **fonte**, então passa; só o standalone servido diverge.
+**Diagnóstico:** se a UI servida não bate com a fonte, confirme o bundle deployado em vez de culpar o
+browser:
+```bash
+grep -o "<string nova>" estaleiro-run/vX/ui/assets/*.js   # 0 ocorrências = dist velho
+```
+**Solução aplicada:** adicionado `execSync("pnpm --filter @plataforma/estaleiro-ui build")` **antes**
+do `cpSync` no passo `[4/4]`. (Regra M6: virou código no script, não prosa.)
+**Como prevenir recorrência:** qualquer passo de deploy que **copia** um artefato de build (dist,
+bundle) deve **produzi-lo** no mesmo passo — copiar sem buildar é a mesma classe de P-010 (pasta
+velha) e do bug do `plugin-mcp` no TS_PACKAGES (dist pré-buildado na worktree mascarava a falta do
+pacote no build). Se a fonte muda e o servido não, checar o artefato antes do browser.
+**Limites:** só afeta o fluxo do standalone (`node backend/server.mjs` servindo `../ui` estático);
+o `pnpm dev` (vite dev server) lê a fonte direto e nunca sofre disso.
+
+## P-015 · Estado persistido do cliente (localStorage) esconde UI nova — layout FlexLayout fossilizado
+
+**Data:** 2026-07-20 (usuário não via o Chat/Modo agente da onda B)
+**Sintoma:** Deploy novo, backend certo, bundle certo — mas o usuário continua vendo a UI
+**antiga** (abas Board-first, sem Chat/Config). Hard-reload não resolve. No browser limpo (MCP)
+tudo aparece — "funciona pra mim", não pro usuário.
+**Causa raiz:** o layout do FlexLayout é persistido em
+`localStorage("estaleiro-workspace-default-v2")` a cada mudança e lido ANTES do default do
+código. Um layout salvo antes de uma aba existir a esconde para sempre — o default novo nunca é
+consultado. Cada onda que adiciona view (Chat, Terminal, LSP…) reproduziria o bug.
+**Solução aplicada:** auto-cura em `apps/estaleiro/ui/src/shell/default-layout.ts::healLayout()`
+(commit f33bce1): no load, as abas que existem no default e faltam no persistido são injetadas
+(miolo → primeiro tabset; borders → border da mesma location), e o resultado curado é
+re-persistido. Teste em `src/shell/default-layout.test.ts`.
+**Como prevenir recorrência:** TODO estado de UI persistido no cliente (layout, preferências,
+cache de dados) precisa de estratégia de reconciliação com o default do código — self-heal
+(preferido), versionamento de chave com migração, ou TTL. "Persistir e ler cru" é bug latente
+que só aparece no browser do usuário, nunca no do agente (que abre limpo). Ao QA de UI: teste
+também COM estado persistido de versão anterior, não só em browser limpo.
+**Limites:** o self-heal cobre abas novas; não cobre remoção/renomeação de abas (aba deletada do
+default sobrevive no persistido — inofensivo por ora; tratar se virar problema).
