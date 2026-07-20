@@ -39,6 +39,11 @@ mole, porque finge dureza. Na dúvida entre derivar e inventar: é ABERTO.
      vago, zero parâmetro sem tipo, retorno sempre explícito (`Promise<T>` etc.).
    - **Escopo de arquivos (Seção 3):** caminhos **exatos e únicos** (arquivo OU diretório, sem
      "substitua pelo caminho real"). Marque cada um `[READ]`/`[CREATE]`/`[UPDATE]`.
+   - **Export público esperado (Seção 3):** verifique que todo símbolo que a §3 declara como
+     `[CREATE]` de barrel ou função pública tem um export correspondente no barrel correto. Sem
+     isso, o gate compila+testa+lint passa verde com API pública quebrada — a lição do B1 da L-03
+     (EST-03b R1): `assertFiscalTransition` fora de todo barrel, gate verde, feature inalcançável.
+     Adicione ao checklist do worker: *"export público esperado declarado na §3?"*.
    - **Testes (Seção 4):** **enumere os casos** (lista numerada de cenários verificáveis), não
      descrições genéricas. Diga o framework e o ambiente.
    - **Gate por comando (Seção 7):** inclua o bloco "Verificação automática" com os comandos

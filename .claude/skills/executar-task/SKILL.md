@@ -48,25 +48,31 @@ CLAUDE.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
      quebrou antes (worktrees iam parar em `.nexus-worktrees`). Confira com `pnpm wt ls`.
    - Trabalhe **dentro** dela. Confirme: `git branch --show-current` → `task/$ARGUMENTS`. **Não
      troque de branch numa worktree**, **não** abra duas worktrees pra mesma task.
-3. **Inicie** (ledger no controle): `node "<CTRL>/tools/scripts/manage-task.mjs" start $ARGUMENTS <EU> "iniciando"`.
+4. **Inicie** (ledger no controle): `node "<CTRL>/tools/scripts/manage-task.mjs" start $ARGUMENTS <EU> "iniciando"`.
    - Se já em `in_progress` por você, siga. Se `review`/`done` → PARE.
-4. **Implemente no CÓDIGO** (sua pasta) — ESTRITAMENTE a Seção 3 da spec, respeitando a Seção 5
+5. **Context pack** (1 chamada, substitui 4-8 leituras):
+   `node "<CTRL>/tools/scripts/get-task.mjs" $ARGUMENTS`
+   - Imprime task completa, RAG resolvido, estado da worktree, branch, merge-base e o
+   texto inline desta skill. Use a saída como **única fonte de contexto** para os passos
+   seguintes — não releia arquivo por arquivo.
+6. **Implemente no CÓDIGO** (sua pasta) — ESTRITAMENTE a Seção 3 da spec, respeitando a Seção 5
    ("NÃO FAZER"). TDD quando a spec pedir. Nada fora do escopo.
    - **Commit a cada unidade que fecha** (um teste verde, um arquivo concluído, um sub-passo da
      Seção 5) — `git add -A && git commit -m "wip($ARGUMENTS): <o que fechou>"`. Não acumule tudo
      num commit gigante no fim: commits frequentes preservam o trabalho se a sessão estourar tokens
      ou travar, e dão um handoff legível pro próximo agente. **Pushe** de tempos em tempos
      (`git push -u origin task/$ARGUMENTS`) — o push barato é melhor que perder uma tarde.
-5. **Gate de Evidência (INVIOLÁVEL):** rode os comandos EXATOS da Seção 7 **na sua pasta (CÓDIGO)** e
-   cole a **saída literal** na Seção 8 de `<CTRL>/tasks/$ARGUMENTS.md`. Tudo verde é obrigatório.
-   Vermelho → conserte; falha de ambiente → `pause`/`block` (nunca finalize no escuro).
+7. **Gate de Evidência (INVIOLÁVEL):** `pnpm gate <pkg>` (1 comando — turbo build/test/lint do pacote
+   alvo). O script grava o artefato `.gate/<tree-sha>.json` na branch, contendo fases, tempos,
+   exitCodes e a saída literal. Cole a **saída literal** na Seção 8 de `<CTRL>/tasks/$ARGUMENTS.md`.
+   Tudo verde é obrigatório. Vermelho → conserte; falha de ambiente → `pause`/`block`.
    > **Ambiente do Gate (Windows-native):** `pnpm install`/build **trava** se rodado pelo terminal
    > **integrado do VS Code** (PITFALLS P-002). Rode o worker num **terminal standalone** (Windows
    > Terminal/PowerShell) para o Gate ser autônomo; se estiver no VS Code, peça o Gate ao usuário e
    > finalize com a saída colada. **pnpm 11:** se `pnpm install` der `ERR_PNPM_IGNORED_BUILDS`, o campo
    > é `allowBuilds:` → `<pkg>: true` no `pnpm-workspace.yaml` (P-006), **não** `onlyBuiltDependencies`;
    > e config nova só vale após apagar `node_modules`+`pnpm-lock.yaml` (o lock velho pula a resolução).
-6. **Finalize** (ledger): antes do `finish` de task em campanha, rode `campanha.mjs can-finish
+8. **Finalize** (ledger): antes do `finish` de task em campanha, rode `campanha.mjs can-finish
    <manifesto> $ARGUMENTS`. O comando exige deps `done`, branch transplantada e
    `review_base_sha` válida. Depois chame `node "<CTRL>/tools/scripts/manage-task.mjs" finish
    $ARGUMENTS <EU> "<resumo + placar de testes>"`.
@@ -75,33 +81,33 @@ CLAUDE.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
      e gates prontos; aguardando upstream <predecessor>". Após ele ficar `done`, retome, faça
      `git rebase --onto master <stack_base_sha> task/$ARGUMENTS`, registre `review_base_sha` com
      `campanha.mjs register-review-base ... master`, re-gate e só então rode `can-finish` + `finish`.
-6a. **VERIFIQUE a transição — NÃO assuma que deu certo (INVIOLÁVEL).** A saída do `finish` deve
+8a. **VERIFIQUE a transição — NÃO assuma que deu certo (INVIOLÁVEL).** A saída do `finish` deve
    mostrar explicitamente `Status: review`. Qualquer coisa diferente (erro, status inalterado,
    exceção) → **NÃO prossiga** para push/enqueue como se a task estivesse fechada. Confirme lendo
    o frontmatter real (`grep "^status:" "<CTRL>/tasks/$ARGUMENTS.md"`). Se ainda não for `review`:
    (a) tente `finish` de novo uma vez (pode ser falha transiente); (b) falhou de novo → **é falha
    de ambiente = BLOCKER** (CLAUDE.md Regra 3 — "falha de ambiente durante uma transição é ela
    mesma um blocker"). Chame `pause` explicando literalmente o que a saída do `finish` mostrou.
-   NUNCA passe pro passo 7 com a task ainda em `in_progress` — é isso que faz o Reviewer perder
+   NUNCA passe pro passo 8 com a task ainda em `in_progress` — é isso que faz o Reviewer perder
    tempo descobrindo sozinho que o trabalho estava pronto mas preso no status errado.
-7. **Commit final + push do CÓDIGO** (na sua pasta = superapp) — fecha o que sobrou desde o último
-   commit incremental (passo 4) e garante que **tudo** está no remoto:
+9. **Commit final + push do CÓDIGO** (na sua pasta = superapp) — fecha o que sobrou desde o último
+   commit incremental (passo 6) e garante que **tudo** está no remoto:
    ```
    git add -A
    git commit -m "feat($ARGUMENTS): <resumo curto>"   # se houver algo não-commitado
    git push -u origin task/$ARGUMENTS
    ```
-8. **Persiste o CONTROLE — ENFILEIRE** (no `<CTRL>` = Docs): o `manage-task` + sua edição da Seção 8
+10. **Persiste o CONTROLE — ENFILEIRE** (no `<CTRL>` = Docs): o `manage-task` + sua edição da Seção 8
    alteraram `tasks/$ARGUMENTS.md`. O Docs é compartilhado e **agentes não rodam git lá** (ver regra
    de Paralelismo no CLAUDE.md). Enfileire a intenção de commit:
    ```
    node "<CTRL>/tools/scripts/fila.mjs" add $ARGUMENTS "chore($ARGUMENTS): review + evidência"
    ```
    Um único `/drenar-fila` (consumidor serial) commita+pusha depois. Você não toca git no Docs.
-9. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
+11. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
    `node tools/scripts/orquestrar.mjs --on-finish $ARGUMENTS` — para liberar seu slot e deixar o
    orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; é disparar e seguir.
-10. **Próxima task:** só depois desta em `review`, com código pushado e controle **enfileirado**. **PARE.**
+12. **Próxima task:** só depois desta em `review`, com código pushado e controle **enfileirado**. **PARE.**
 
 ## NÃO faça
 - NÃO toque arquivos fora da Seção 3 (no CÓDIGO); NÃO toque o repo do nexus.

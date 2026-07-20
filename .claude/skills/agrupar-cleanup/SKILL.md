@@ -72,6 +72,13 @@ Cada achado do ledger pertence a exatamente uma categoria:
 6. **Remova do ledger** as linhas consumidas (as que entraram numa C-task) — reescreva o bloco
    PENDENCIAS mantendo só as linhas que você NÃO agrupou. Não apague os marcadores nem o cabeçalho.
 
+### 6a. Drenagem de PROC-PENDENCIAS (achados de processo)
+
+Repita os passos 1–6 também para o bloco `<!-- BEGIN PROC-PENDENCIAS -->` / `<!-- END PROC-PENDENCIAS -->`
+do `_pendencias.md` (achados de processo/tooling/reporte, P0/P1 de relatórios de execução).
+A diferença: as tasks geradas são de tooling (`P-NN` ou `C-NN` com perfil `devops_agent`) e vão para
+o mesmo fluxo de endurecimento. Se o bloco estiver vazio, pule.
+
 7. **Persiste o controle — ENFILEIRE** (agentes não rodam git no Docs; ver Paralelismo no CLAUDE.md).
    O `generate-task.mjs` já regenerou o INDEX local (gitignored — fora da fila). Enfileire com os paths
    que VOCÊ criou/editou: `node tools/scripts/fila.mjs add C-NN "chore(cleanup): agrupa N pendências

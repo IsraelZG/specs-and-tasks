@@ -37,29 +37,31 @@ agente" no CLAUDE.md.
    `pnpm wt new $ARGUMENTS` recria da branch. Confirme `git branch --show-current`.
 4. **Inicie:** `node "<CTRL>/tools/scripts/manage-task.mjs" start $ARGUMENTS <EU> "rework: corrigindo B1..Bn"`
    (move `rework→in_progress`).
-5. **Corrija achado a achado.** Para cada `[Bn]`/`[Mn]`: aplique a Ação corretiva, e **commite por
+5. **Context pack:** `node "<CTRL>/tools/scripts/get-task.mjs" $ARGUMENTS`
+   — 1 chamada com task, RAG, parecer e skill inline. Única fonte de contexto.
+6. **Corrija achado a achado.** Para cada `[Bn]`/`[Mn]`: aplique a Ação corretiva, e **commite por
    achado** — `git add -A && git commit -m "fix($ARGUMENTS): [B1] <o que corrigiu>"`. Rastreável,
    e o reviewer confere 1-a-1. Se o reviewer deixou uma sonda (`*.probe.test.ts`) que falhava,
    adicione a cobertura **própria** equivalente (a sonda em si não entra no deliverable).
-6. **Gate de Evidência (INVIOLÁVEL):** re-rode os comandos EXATOS da Seção 7 **na worktree** e cole
-   a **saída literal** na Seção 8. Tudo verde. Vermelho → conserte; falha de ambiente →
-   `pause`/`block` (mesmo aviso de terminal standalone do `/executar-task`).
-7. **Finalize:** `node "<CTRL>/tools/scripts/manage-task.mjs" finish $ARGUMENTS <EU> "rework pronto:
+7. **Gate de Evidência (INVIOLÁVEL):** `pnpm gate <pkg>` (1 comando — turbo build/test/lint do pacote
+   alvo, grava `.gate/<tree-sha>.json`). Re-rode e cole a **saída literal** na Seção 8. Tudo verde.
+   Vermelho → conserte; falha de ambiente → `pause`/`block`.
+8. **Finalize:** `node "<CTRL>/tools/scripts/manage-task.mjs" finish $ARGUMENTS <EU> "rework pronto:
    B1..Bn corrigidos + placar de testes"` (move pra `review`). O reviewer/integrar-task reassume.
-7a. **VERIFIQUE a transição — NÃO assuma que deu certo (INVIOLÁVEL).** A saída do `finish` deve
+8a. **VERIFIQUE a transição — NÃO assuma que deu certo (INVIOLÁVEL).** A saída do `finish` deve
    mostrar explicitamente `Status: review`. Qualquer coisa diferente (erro, status inalterado,
    exceção) → **NÃO prossiga** para push/enqueue como se a task estivesse fechada. Confirme lendo
    o frontmatter real (`grep "^status:" "<CTRL>/tasks/$ARGUMENTS.md"`). Se ainda não for `review`:
    (a) tente `finish` de novo uma vez (pode ser falha transiente); (b) falhou de novo → **é falha
    de ambiente = BLOCKER** (CLAUDE.md Regra 3 — "falha de ambiente durante uma transição é ela
    mesma um blocker"). Chame `pause` explicando literalmente o que a saída do `finish` mostrou.
-   NUNCA passe pro passo 8 com a task ainda em `rework`/`in_progress` — é isso que faz o Reviewer
+   NUNCA passe pro passo 9 com a task ainda em `rework`/`in_progress` — é isso que faz o Reviewer
    perder tempo descobrindo sozinho que o trabalho estava pronto mas preso no status errado.
-8. **Push do CÓDIGO** (worktree): `git push origin task/$ARGUMENTS`.
-9. **Persiste o CONTROLE — ENFILEIRE, não comite** (Docs é compartilhado; agentes não rodam git lá —
+9. **Push do CÓDIGO** (worktree): `git push origin task/$ARGUMENTS`.
+10. **Persiste o CONTROLE — ENFILEIRE, não comite** (Docs é compartilhado; agentes não rodam git lá —
    ver regra de Paralelismo no CLAUDE.md): `node "<CTRL>/tools/scripts/fila.mjs" add $ARGUMENTS
    "chore($ARGUMENTS): rework + evidência"`. Um único `/drenar-fila` commita+pusha depois. **PARE.**
-10. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
+11. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
    `node tools/scripts/orquestrar.mjs --on-finish $ARGUMENTS` — para liberar seu slot e deixar o
    orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; é disparar e seguir.
 
