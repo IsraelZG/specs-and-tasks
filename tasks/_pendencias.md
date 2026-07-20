@@ -12,6 +12,16 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 ---
 
 <!-- BEGIN PENDENCIAS -->
+- [ ] [m][EST-59][estaleiro-ui e2e] E2E caso 28 (modo agente) mocka /api/chat/agent — legítimo para E2E determinístico; o loop real está coberto no teste de integração headless. Sem ação necessária, registro.
+- [ ] [m][EST-59][plugin-mcp manager] Dedup de chave redundante em manager.ts:107 (cosmético).
+- [ ] [m][EST-58][estaleiro-ui ChatView] Hidratação de conversa descarta content-array e roles tool/system — resolver na EST-59 quando tool-messages passarem a existir (ChatView handleResumeConversation).
+- [ ] [m][EST-58][estaleiro-core conversation-store] `seq` calculado com MAX(seq)+1 fora de transação — corrida só cross-process (irreal hoje); envolver em transação quando houver segundo escritor.
+- [ ] [m][EST-58][gate] unit tests + lint do estaleiro-core não entram no gate do app `@plataforma/estaleiro` — avaliar incluir o core no pipeline do gate.
+- [ ] [M][EST-49b][apps/estaleiro/ui ChatView] Casos de teste 4 e 5 do §4 (ocultação do seletor de esforço p/ modelo sem effortOptions; reset de effort ao trocar de modelo) nunca são exercidos apesar do fixture ter um modelo sem effortOptions — cobrir ao reabrir a task.
+- [ ] [M][EST-49b][apps/estaleiro/ui ChatView] Textarea não é desabilitado quando `/api/models` falha ou retorna vazio (só o botão via clique); `handleKeyDown`/Enter não checam `canSend`, permitindo enviar com modelId vazio; falta mensagem de aviso textual (DoD §4 caso 6).
+- [ ] [m][EST-49b][ChatClient.http.ts] `send()` tipa `effort` como `string` solto em vez de `"low"|"medium"|"high"` do contrato §3.1.
+- [ ] [m][EST-49b][apps/estaleiro/package.json] Bump de versão 0.0.92→0.0.104 não explicado no handover (provável artefato de tooling).
+<!-- P-EST-49b -->
 - [ ] [M][C-20][@plataforma/plugin-knowledge] Artefato de gate stale na worktree: o `.gate/<tree>.json` commitado em `task/C-20` após o 1º commit (`8ec6aa9`) ficou stale após o 2º commit (`e90af59` — fix de NFD no search) e não foi regerado; o `finish` rodou contra a tree antiga. Re-rodar `pnpm gate <pkg>` antes do `finish` sempre que houver commit adicional na mesma task; idealmente o próprio `manage-task.mjs finish` deveria regerar o gate contra o `HEAD^{tree}` da branch, não aceitar artefato antigo.
 <!-- P-01 -->
 - [ ] [m1][P-01][superapp/processo] `tasks/.telemetry/` criado dentro do superapp para telemetria opcional — diretório não faz parte da estrutura do repo; sink real deve ser definido por P-02 (scripts/gate.mjs:70-80)
@@ -562,6 +572,9 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [m2][EST-49a][apps/estaleiro/core] `pnpm --filter @plataforma/estaleiro test:integration` foi omitido do bloco "Gate de Evidência" do §8 Handover (spec §7 lista 7 comandos; worker colou 6). Re-execução pós-merge passa (5 files · 24 tests). Handover deveria colar os 7.
 - [ ] [m3][EST-49a][packages/plugin-providers] Branch vazia `if (sanitized.includes("[REDACTED]")) { /* Log sanitized, continue to fallback */ }` em `catalog.ts:83-85` — `sanitize()` já substituiu a chave; o `if` não tem corpo e o `return buildStaticFallback` está fora dele. Dead code — remover ou implementar o `console.warn(sanitized)` pretendido (packages/plugin-providers/src/catalog.ts:79-87).
 <!-- END EST-49a -->
+
+- [ ] [m2][EST-48c][@plataforma/estaleiro-ui] Dívida técnica — `apps/estaleiro/ui/src/estaleiro-core.types.ts` (22 linhas) e `apps/estaleiro/ui/src/provider-profile.types.ts` (30 linhas) são cópias locais verbatim de tipos canônicos de `apps/estaleiro/core/src/chat-service.ts` e `packages/plugin-providers/src/profile-types.ts`; o `tsconfig.json` mapeia `@plataforma/estaleiro-core` e `@plataforma/plugin-providers` para esses arquivos via `paths`. Risco de drift silencioso (qualquer dev que mexer no tipo canônico não recebe sinal). Workaround pragmático para destravar B1 do R1, mas precisa ser substituído por .d.ts gerado quando `@plataforma/estaleiro-core` e `@plataforma/plugin-providers` virarem pré-requisitos de build da UI. Criar C-task "regenerate-types-d-ts" no cleanup para tracking.
+- [ ] [m3][EST-48c][superapp/processo] Pre-commit hook auto-bump de versão no `apps/estaleiro/package.json` (R3: 4 commits B5 cada bumpou +1 patch 0.0.99→0.0.100→0.0.101→0.0.102; master avançou para 0.0.98 no mesmo intervalo). O hook não tem noção de escopo-de-task e gera drift permanente entre branches paralelas. Investigar origem (provavelmente `scripts/pre-commit` ou `lefthook.yml`) e propor opt-out por-branch ou detecção "arquivo não está em §3 da spec".
 
 <!-- END PENDENCIAS -->
 
