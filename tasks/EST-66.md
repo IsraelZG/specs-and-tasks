@@ -76,6 +76,38 @@ componentes DS onde existirem.
 
 ## 8. Handover / Parecer
 
+### Implementação
+
+- Chat: bolhas passaram a usar `--ds-component-message-*`; chips e aprovação usam tokens
+  `badge`/`alert`; erros, superfícies e bordas usam tokens semânticos.
+- Config: badges, ações destrutivas, erros, cartões e modais passaram a usar tokens DS.
+- Custo: o gráfico SVG usa tokens semânticos, sem paleta hexadecimal fixa.
+- Planejamento: em larguras abaixo de `lg`, editor e painel HITL empilham para evitar compressão
+  interna; a 900 px não houve erro de console.
+
+### Verificação visual
+
+- Standalone `v0.0.109` reconstruído pelo Gate e inspecionado no navegador.
+- Capturas viewport das 10 abas: Chat, Board, Execução, Frota, Docs/RAG, Decisões, Custo,
+  Config, Planejamento e Terminal; além da checagem responsiva a 900 px.
+- Tema escuro inspecionado visualmente. Tema claro verificado pela E2E `styles.spec.ts`, que aplica
+  `data-theme="light"` e confirma canvas `rgb(242, 240, 235)` e accent `#d71e33`.
+
+### Gate de Evidência
+
+```text
+✅ build | exit=0 | 2445ms
+✅ test | exit=0 | 121026ms
+✅ lint | exit=0 | 660ms
+
+📦 artefato: .gate/0d392e5bad013cf2eb1803fe8414061c660d9ee8.json | allGreen=true
+```
+
+O Gate executou 23 E2E verdes, incluindo `styles.spec.ts` e os fluxos de Chat, Config e
+standalone. A primeira repetição após a captura visual falhou somente porque o servidor local
+mantinha o diretório do standalone aberto (`EBUSY`); o processo foi encerrado e a repetição acima
+é a evidência final verde.
+
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-20T12:26]** - *claude-fable* - `[Triado]`: triagem: escopo e capacidade definidos na criação (estilo-first, ref superapp-shell vendored)
 - **[2026-07-20T12:27]** - *claude-fable* - `[Endurecido]`: endurecida na criação: fatos verificados no código em 2026-07-20 (vite sem tailwind, index.css brutalista, tokens DS divergem do vendored), oráculo = docs/_vendor/superapp-shell, decisões de marca fechadas pelo arquiteto
@@ -83,3 +115,4 @@ componentes DS onde existirem.
 - **[2026-07-20T19:51]** - *gpt-5* - `[Iniciado]`: iniciando varredura visual
 - **[2026-07-20T20:05]** - *gpt-5* - `[Pausado/Handoff]`: bloqueio de ambiente: pnpm gate @plataforma/estaleiro excede 64s sem artefato .gate nem avanço após inicialização do Turbo; validação light indisponível sem controle de data-theme
 - **[2026-07-20T20:23]** - *claude-opus* - `[Pausado/Handoff]`: Pausada a pedido do usuário — não é blocker técnico. Diagnóstico do pause anterior (gpt-5): falso alarme, o Gate simplesmente demora ~2-3min com E2E (fase test fica ~113s em silêncio, indistinguível de hang). Achado sério ao investigar: gate.mjs validava a árvore ERRADA quando invocado por caminho relativo em vez de 'pnpm gate <pkg>' — corrigido na master (commit e30cc70) + documentado (P-018) + skill executar-task-ui atualizada com a expectativa de duração. Estado real: 3/10 views feitas e commitadas (Chat, Config, Custo), árvore limpa, evidência de Gate válida (.gate/b6f911ba...json, allGreen=true) para esse estado parcial. Branch task/EST-66 pushada (era só local). Faltam: Board, Execução, Frota, Docs/RAG, Decisões, Planejamento, Terminal. Retomar com /executar-task-ui EST-66 — worktree do slot-1 preservada.
+- **[2026-07-20T22:41]** - *gpt-5* - `[Pausado/Handoff]`: pronta para review e Gate verde, mas push de task/EST-66 bloqueado pela política do ambiente: remoto não verificável para transferência de código
