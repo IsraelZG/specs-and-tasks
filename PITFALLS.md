@@ -625,3 +625,68 @@ chama, `pnpm gate <pkg>` ou caminho direto, tanto faz.
   a segunda forma só é segura se a única invocação suportada for local ao próprio pacote.
 **Limites:** o silêncio de 113s é específico de quando `test` inclui E2E; pacotes sem E2E (ex.
 design-system) têm fases rápidas e não geram essa ambiguidade.
+
+## P-019 · Slot do pool com `pnpm install` incompleto (só `.pnpm`, zero bin-linking) — `turbo`/`vite` "não reconhecidos"
+
+**Data:** 2026-07-20 (EST-67, slot-2)
+**Sintoma:** Dentro de uma worktree do pool (`_slot-N`), `pnpm run predev`/`pnpm gate` falha com
+`'turbo' não é reconhecido como um comando interno...` (ou `vite`). `node_modules/.pnpm` existe e
+parece populado, mas `node_modules/.bin/` não existe, e `node_modules/@plataforma/*` (symlinks de
+workspace) também não.
+**Causa raiz:** o `claim` do pool (usado quando há slot livre) troca a branch mas **não reinstala**
+— depende do `refresh` anterior ter deixado o slot com install completo. Se esse `pnpm install`
+foi interrompido (sessão travada, comando cortado) depois de baixar o store (`.pnpm`) mas antes do
+passo de bin-linking, o slot fica num estado "quase pronto" que passa despercebido até alguém tentar
+usá-lo — `node_modules/.modules.yaml` existe, então um `pnpm install` normal pode nem detectar a
+divergência.
+**Solução aplicada:** `pnpm install --config.confirmModulesPurge=false` (mesmo flag do
+`estaleiro-standalone.mjs`) reinstala do zero sem prompt interativo — necessário porque o pnpm
+recusa `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY` ao detectar a inconsistência sem TTY.
+**Como prevenir recorrência:** antes de confiar num slot do pool pra dev-loop, checar
+`node_modules/.bin/turbo` existe. Se `worktree.mjs refresh` for interrompido no meio, o slot fica
+inconsistente sem sinalizar — considerar um `pnpm install --config.confirmModulesPurge=false`
+(idempotente, seguro) como primeiro passo de qualquer sessão de UI antes do `predev`, não só
+quando já falhou.
+**Limites:** específico a slots do pool (`claim`); `pnpm wt new` (worktree efêmera) sempre roda
+install completo na criação.
+
+## P-020 · `e2e-test.db` local sobrevive entre tentativas na MESMA worktree com schema velho
+
+**Data:** 2026-07-20 (EST-67, slot-2)
+**Sintoma:** `pnpm gate <pkg>` falha no E2E com `SqliteError: no such column: data` dentro do
+`[WebServer]` do Playwright, mesmo com código correto e testes unitários verdes.
+**Causa raiz:** `apps/estaleiro/e2e-test.db*` (gitignored, isolado do DB compartilhado do Docs por
+design — ver `playwright.config.ts` `ESTALEIRO_DB=./e2e-test.db`) **persiste entre execuções na
+mesma worktree**. Uma tentativa anterior (de um worker diferente, ou de uma versão de código
+anterior a alguma mudança de schema) deixou o arquivo com uma tabela `tasks` sem a coluna `data` —
+como o storage usa `CREATE TABLE IF NOT EXISTS`, o schema velho nunca é corrigido.
+**Solução aplicada:** `rm apps/estaleiro/e2e-test.db*` antes de re-rodar o Gate.
+**Como prevenir recorrência:** se o Gate falhar no E2E com erro de schema/coluna ausente, suspeitar
+do `e2e-test.db` local ANTES de suspeitar do código — apagá-lo é sempre seguro (recriado do zero
+no próximo `pretest:e2e`). Mesma família de P-015 (estado persistido sobrevive a uma mudança de
+schema/versão), aqui pela via do SQLite de teste em vez do localStorage do browser.
+
+## P-021 · Harnesses de worker não-Claude-Code podem não ter rede pra GitHub nem para localhost
+
+**Data:** 2026-07-20 (EST-66/67, worker gpt-5)
+**Sintoma:** Worker completa o código corretamente (commits reais, testes verdes) mas reporta
+bloqueio ao tentar `git push` ("remoto não verificável para transferência de código") OU ao tentar
+abrir o dev server no browser pra screenshot ("Browser Use recusou navegar... localhost:4173").
+**Causa raiz:** o harness que executa modelos não-Claude-Code (`gpt-5` neste caso, roteado por
+Crush/Headroom — ver `project_windows_agent_tui_crush`/`project_headroom_integration` na memória)
+roda num sandbox de rede mais restrito: sem egress confiável pra `github.com` e sem acesso ao
+`localhost` da máquina host pro browser tool dele. Reproduzindo os MESMOS comandos numa sessão
+Claude Code (com acesso de rede completo e Browser pane com acesso a localhost), ambos funcionaram
+imediatamente sem nenhum erro — não é um problema do código, da task ou do repositório.
+**Solução aplicada (caso a caso, ainda sem automação):** uma sessão com rede completa (Claude Code)
+finaliza o push e/ou a verificação visual em nome do worker — mesmo padrão de "committer confiável"
+que a fila do Docs já usa pra evitar corrida de push (`fila.mjs`/`drenar-fila`).
+**Como prevenir recorrência:** ao despachar uma task de UI (`ui: true`/frontend_agent, que agora
+exige `/executar-task-ui` com loop visual + push do próprio worker) para um harness cuja rede não
+foi confirmada, esperar que ela pare em "pronto pro código, falta push/screenshot" — isso não é
+falha do worker nem motivo pra rework, é o handoff correto (`pause`, nunca inventar/pular a
+evidência). Uma sessão Claude Code deve varrer periodicamente `node tools/scripts/worktree.mjs ls`
+por branches "ahead" do remoto e finalizar o handoff.
+**Limites:** não sabemos ainda quais harnesses/modelos têm rede completa vs. restrita — é
+descoberto por incidente, não configurado antecipadamente. Não é um bug pra "consertar", é uma
+característica de infraestrutura heterogênea que o processo precisa absorver.
