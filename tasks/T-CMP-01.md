@@ -7,7 +7,7 @@ target_agent: logic_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential
 dependencies: ["T-WASM-03"]
-blocks: []
+blocks: ["T-CMP-02"]
 capacity_target: opus-spike
 ---
 
@@ -27,6 +27,7 @@ Testar se a compressão format-aware do OpenZL entrega ganho líquido para **um*
 - `tasks/T-313.md` e `tasks/T-313a.md` — archive cifrado já usa zstd; não substituir sem ganho medido.
 - `tasks/T-308.md` e `docs/adr/0003-snapshot-persistence-model.md` — bootstrap usa gzip como decisão de interoperabilidade.
 - `tasks/T-IA-01.md` e `tasks/T-WASM-01.md` — `VectorIndex` é hot-path; apenas snapshot pode ser candidato.
+- [ADR 0019](../docs/adr/0019-tools-workflows-context-and-encrypted-storage.md) §7 — ciphertext não comprime; repack autorizado ocorre no Crypto Worker como decifra → transforma/comprime → recifra.
 - [OpenZL README](https://github.com/facebook/openzl), [conceitos](https://openzl.org/getting-started/concepts/) e [guia de uso](https://openzl.org/getting-started/using-openzl/) — grafo de compressão, perfil estrutural e APIs em evolução.
 
 ## 3. Matriz Obrigatória
@@ -38,7 +39,7 @@ Para cada corpus elegível, comparar:
 4. Brotli nativo para payloads cujo orçamento de latência permita.
 5. OpenZL somente se perfil/SDDL e codec forem reproduzidos a partir de release ou commit fixado no endurecimento.
 
-Corpora mínimos: batches incrementais e snapshots do Automerge observados em T-WASM-03; logs estruturados sintéticos com schema/cardinalidade documentados; e snapshot/export de `VectorIndex` se T-IA-01 existir. Medir tamanho, razão, compressão/descompressão p50/p95, CPU, heap/RSS, cold start, custo do parser/perfil e acesso aleatório. No sync, medir antes de criptografar e depois de descriptografar sem mudar integridade, framing ou semântica CRDT.
+Corpora mínimos: batches incrementais e snapshots do Automerge observados em T-WASM-03; logs estruturados sintéticos com schema/cardinalidade documentados; e snapshot/export de `VectorIndex` se T-IA-01 existir. Medir tamanho, razão, compressão/descompressão p50/p95, CPU, heap/RSS, cold start, custo do parser/perfil e acesso aleatório. No sync, medir o corpus em claro **autorizado** antes de cifrar e, para repack de conteúdo já cifrado, somente após decifração em memória pelo Crypto Worker; nunca persistir esse plaintext de benchmark nem mudar integridade, framing ou semântica CRDT.
 
 ## 4. Critérios de Evidência e Decisão
 - >=30 repetições após warm-up por célula; seed, dados brutos e hardware registrados.
@@ -51,6 +52,7 @@ Corpora mínimos: batches incrementais e snapshots do Automerge observados em T-
 ## 5. Não Fazer / Pegadinhas
 - **NÃO** substituir gzip de bootstrap, zstd de archive ou qualquer wire-format nesta task.
 - **NÃO** comprimir ciphertext e concluir sobre dados estruturados; medir plaintext autorizado antes de criptografar.
+- **NÃO** usar corpus de usuário cifrado real na PoC; usar dados sintéticos/anonimizados e registrar a fronteira Crypto Worker quando medir o fluxo de repack.
 - **NÃO** adicionar binding nativo/Wasm ao monorepo ou colocar OpenZL no hot-path de `VectorIndex`.
 - **NÃO** alegar que OpenZL entende tabelas/JSON automaticamente: registrar schema, parser/perfil e grafo usados.
 
