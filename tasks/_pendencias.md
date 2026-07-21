@@ -12,6 +12,13 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 ---
 
 <!-- BEGIN PENDENCIAS -->
+<!-- EST-61 -->
+- [ ] [M][EST-61][estaleiro-ui e2e] E2E não executado — M3 exige `pnpm --filter estaleiro test:e2e` para tasks `ui: true`; suite existente não cobre terminal output nem approval card para comandos arriscados. Adicionar testes E2E para run_command fg/bg + approval card (spec→T-61 ou follow-up separado).
+- [ ] [M][EST-61][spec] AgentTerminal.tsx não atualizado — §3 declara `[UPDATE] view Terminal — streams de PTY do chat via mesmo fleetStore` mas o arquivo não tem alterações na branch. Validar com arquiteto se §3 está desatualizada (ChatView é o entry point correto para chat agêntico) ou se a implementação está incompleta.
+- [ ] [m1][EST-61][plugin-terminal] `safeChunk` (index.ts:90) mede `chunk.length` em code units JS, não UTF-8 bytes — para output com acentos/chinês, 4000 code units ≈ 2000-8000 bytes reais. Ceiling aceitável para v1.
+- [ ] [m2][EST-61][plugin-terminal/pty-runner] `shellWrap` Windows background via `Start-Job` não herda o PTY; output do job não alimenta o ring buffer do mesmo processo. Ceiling documentado no comentário (pty-runner.ts:76-77); v1 funcional para fg; bg Windows tem limitação conhecida.
+- [ ] [i1][EST-61][plugin-terminal] Gate artifacts treeSha diverge de `git rev-parse HEAD^{tree}` — provável bug no gate tool (computa hash de forma diferente); branch limpa, HEAD = ca7b43c, tests passam. Investigar separadamente.
+<!-- END EST-61 -->
 - [ ] [m][EST-59][estaleiro-ui e2e] E2E caso 28 (modo agente) mocka /api/chat/agent — legítimo para E2E determinístico; o loop real está coberto no teste de integração headless. Sem ação necessária, registro.
 - [ ] [m][EST-59][plugin-mcp manager] Dedup de chave redundante em manager.ts:107 (cosmético).
 - [ ] [m][EST-58][estaleiro-ui ChatView] Hidratação de conversa descarta content-array e roles tool/system — resolver na EST-59 quando tool-messages passarem a existir (ChatView handleResumeConversation).
