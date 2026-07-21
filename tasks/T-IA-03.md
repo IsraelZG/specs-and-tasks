@@ -6,8 +6,8 @@ complexity: 5
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: ["T-IA-01", "T-IA-02"]
-blocks: ["T-IA-04", "T-IA-05"]
+dependencies: ["T-IA-01", "T-IA-02", "T-KNOW-01"]
+blocks: ["T-IA-04", "T-IA-05", "T-CTX-01"]
 capacity_target: sonnet
 ---
 
@@ -21,7 +21,7 @@ capacity_target: sonnet
 - **Capacidade-alvo:** sonnet
 
 ## 1. Objetivo
-Implementar recuperação híbrida por Reciprocal Rank Fusion (RRF) combinando 3 sinais: léxico (`search_index_fts`), semântico (`vector_index`), e estrutural (GraphRAG — traversal de arestas a partir dos candidatos). Com filtro de permissão (só recupera nós que o principal pode ler). Bypass escalar: consultas determinísticas (contagem, soma, status) não passam por IA — resolvem-se nas projeções SQLite.
+Implementar recuperação híbrida por Reciprocal Rank Fusion (RRF) combinando 3 sinais: léxico (`search_index_fts`), semântico (`vector_index`), e estrutural (GraphRAG — traversal de arestas a partir dos candidatos). Os três sinais são projeções derivadas de nodes canônicos autorizados no GraphStore, não de arquivos Markdown como fonte de verdade. Com filtro de permissão (só recupera nós que o principal pode ler). Bypass escalar: consultas determinísticas (contagem, soma, status) não passam por IA — resolvem-se nas projeções SQLite.
 **Fonte:** `caderno-3-sdk/14-ia-rag-e-agentes.md §3` — RRF + GraphRAG, permissão, bypass. **Conceitos:** [[recuperacao-hibrida]], [[agente-de-ia]].
 
 ### Contratos exatos
@@ -100,6 +100,8 @@ export interface RRFParams {
 
 ## 2. Contexto RAG (Spec-Driven Development)
 - [caderno-3-sdk/14-ia-rag-e-agentes.md](../docs/caderno-3-sdk/14-ia-rag-e-agentes.md) — §3 (RRF 3 sinais, permissão na recuperação, bypass escalar, traversal ancorado em projeções)
+- [ADR 0019](../docs/adr/0019-tools-workflows-context-and-encrypted-storage.md) §§4–6 — nodes canônicos no banco, projeções derivadas e filtro antes da entrega.
+- [T-KNOW-01](./T-KNOW-01.md) — migração da fonte documental canônica para nodes do GraphStore.
 - [[recuperacao-hibrida]] — definição canônica
 - [[agente-de-ia]] — consumidor da recuperação
 
@@ -144,9 +146,7 @@ Casos de teste:
 5. Rode build + test (Seção 7) e cole saída.
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÃO EM ABERTO:**
-> - **T-IA-01 (vector_index) e T-IA-02 (ai-plugins) estão sendo endurecidas nesta passada.** Os tipos `VectorIndex`, `Float32Array` estão definidos. A integração real depende da implementação.
-> **Status:** `draft` até T-IA-01 e T-IA-02 chegarem a `ready`. Contratos RRF estão derivados de fonte.
+> **REENDURECIMENTO OBRIGATÓRIO:** além de T-IA-01/T-IA-02, a fonte e o contrato de conteúdo agora dependem de T-KNOW-01. Não implementar contra filesystem como fonte canônica. Refixar paths, adapters e teste de proveniência quando as três dependências estiverem `done`.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 
@@ -154,6 +154,7 @@ Casos de teste:
 ```bash
 pnpm --filter @plataforma/rag build
 pnpm --filter @plataforma/rag test
+pnpm --filter @plataforma/rag lint
 ```
 > **GATE DE EVIDÊNCIA:** Worker cola a saída literal na Seção 8.
 
@@ -162,7 +163,8 @@ pnpm --filter @plataforma/rag test
 - [ ] `topK` e `signals` filtram corretamente?
 - [ ] `bypassScalar` delega para `scalarQuery`?
 - [ ] Filtro de permissão (`principalId`) exclui nós proibidos?
-- [ ] `pnpm --filter @plataforma/rag build` e `test` verdes?
+- [ ] Resultados apontam para nodes/versionamentos canônicos, não para path de arquivo como fonte de verdade?
+- [ ] `pnpm --filter @plataforma/rag build`, `test` e `lint` verdes?
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
