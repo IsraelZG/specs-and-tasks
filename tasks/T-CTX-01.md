@@ -27,6 +27,7 @@ Criar o `ContextBundle` auditável e decompor a preparação de contexto em Tool
 - [EST-09](./EST-09.md) — crusher, nano, LLMLingua-2 e CCR existentes.
 - [T-KNOW-01](./T-KNOW-01.md) e [T-IA-03](./T-IA-03.md) — fontes/projeções canônicas e retrieval híbrido.
 - [DMM-17](./DMM-17.md) — invocação uniforme de workflows.
+- [Referências locais](../docs/referencias-codigo-aberto.md) — Headroom em `docs/_vendor/headroom-upstream` (CCR/decisão de compressão) e LLMLingua em `docs/_vendor/llmlingua/llmlingua/prompt_compressor.py`; adaptar comportamento, não runtime Python.
 
 ## 3. Escopo a endurecer
 - **[READ]** API/exportações reais de `plugin-context` e `plugin-local-inference`.
