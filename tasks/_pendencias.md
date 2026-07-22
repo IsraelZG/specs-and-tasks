@@ -14,6 +14,11 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- BEGIN PENDENCIAS -->
 <!-- EST-63 -->
 - [ ] [m1][EST-63][estaleiro-ui estaleiro-core.types] `ContentPart`/`TextContentPart`/`ImageContentPart` duplicados em `apps/estaleiro/ui/src/estaleiro-core.types.ts` ao lado do canônico em `apps/estaleiro/core/src/chat-service.ts` (re-exportado por core/index.ts). Header do arquivo UI já diz "replace it with a core chat-types export when that package is decomposed" — não foi decomposto no rework. Não-bloqueante: ChatView.tsx importa corretamente do core; a duplicação é inerte. Track: remover cópia do UI quando core tiver barrel de tipos (apps/estaleiro/ui/src/estaleiro-core.types.ts:9-21)
+- [ ] [M][EST-63][estaleiro-core] Conversão ContentPart→AI SDK ausente no caminho `/api/chat` (não-agente): `chat-service.send` passa `messages` cru para `generateText`; após reload de conversa com image-part persistido (shape MCP `{type:"image", data, mimeType}`), o ai@5.0.213 rejeita com `AI_InvalidPromptError` → 500 (sonda R3 reproduziu com provider fake; ImagePart do SDK exige `{type:"image", image, mediaType}`). Spec §3 ("conversão AI SDK") e §4 (teste "conversão para AI SDK preserva imagem") não entregues. Fix: mapear parts antes de `generateText` em chat-service.ts:84 + teste unitário (tasks/EST-63.md §8, Parecer R3)
+- [ ] [m][EST-63][estaleiro-core tests] Isolamento ambiental incompleto em `tests/integration/chat-route.test.ts` (família P-016): o teste 10 stuba só `DEEPSEEK_API_KEY`, mas o seed EST-48b (bootstrap.ts:105-125) migra QUALQUER `apiKeyEnv` presente e ATIVA o perfil — com `OPENROUTER_API_KEY` etc. no ambiente, `resolveProvider` acha o perfil ativo e o teste 10 recebe 502 em vez de 400 (reproduzido na master: falha com env da máquina, 5/5 com env limpo). Fix: stubar todas as `apiKeyEnv` no `beforeAll` ou injetar `secretStore` isolado via `opts.secretStore`
+- [ ] [m][EST-63][estaleiro-ui e2e] Teste 17 de `e2e/chat.spec.ts` é flaky por race real: o 2º clique em "Enviar" durante `loading=true` é dropado silenciosamente (`handleSend` early-return, ChatView.tsx:866) — o request nunca dispara e o assert `requests.length===2` falha (1 falha + 2 pass em `--repeat-each=3`; CI cobre com retries=2). Fix: desabilitar o botão visualmente ou enfileirar o turno
+- [ ] [m][EST-63][estaleiro-ui] "Clique amplia" de imagem usa `window.open(data:...)` (ChatView.tsx, 2 ocorrências) — Chromium bloqueia navegação top-level para data: URLs, então a ampliação provavelmente não abre no browser real. Renderização inline (max-h-300px) funciona. Fix: lightbox/modal ou blob URL
+- [ ] [M][EST-63][processo onda-F] B2 (demo executável §7: "abra localhost:8899 e me descreva a tela" → screenshot renderizado + modelo multimodal descreve) ficou como DEFER OPERACIONAL (decisão R2, endossada por R3): depende de ação do operador humano — Add do `@playwright/mcp` na Config, ativar perfil multimodal (ex.: openrouter seed), prompt literal — e colar evidência no §8 da EST-63 (ou criar task de smoke). Bloqueia o fechamento formal da onda F, não a fundação mergeada
 <!-- END EST-63 -->
 <!-- EST-62 -->
 - [ ] [m][EST-62][estaleiro-core integration] `tests/integration/chat-route.test.ts:101` falha com 502 em vez de 400 em teste pré-existente (sem API key) — candidato P-022 em PITFALLS, fora do escopo do plugin-lsp.
@@ -596,6 +601,9 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- BEGIN SPEC-PENDENCIAS -->
 <!-- Achados de spec/decisão recuperados de C-01..C-09 (2026-07-02) + C-18/19 (2026-07-06).
      O `/endurecer-task` ou `/arquiteto-decisoes` consome e resolve cada linha. -->
+
+<!-- EST-63 — sdk -->
+- [ ] [spec→EST-64] [m][EST-63][sdk] Spec §5 prescrevia "screenshots >2MB são reduzidos (resize)"; impl OMITE (substitui por text-part) — deviation aceita pelo R2/R3 (sharp/jimp ≈ 20-30MB nativos fere ponytail). Reendurecer wording em tasks futuras de multimodal: "reduzidos ou omitidos, conforme tradeoff documentado"; se resize for exigido, vira decisão de arquiteto (lib, tamanho-alvo, on-the-fly vs cache)
 
 <!-- C-01 — protocol -->
 - [ ] [spec→T-407] [m1][T-407][protocol] Spec §1 declara `generateOobLink(multiaddr, ephemeralPubKey, relayHint?)` com 3 params, mas `nonce: Uint8Array` é obrigatório na impl — reendurecer assinatura (tasks/T-407.md:44-48 vs outOfBand.ts:38-43)
