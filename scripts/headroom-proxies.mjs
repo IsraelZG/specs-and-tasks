@@ -20,7 +20,7 @@
  */
 import { spawn, execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, openSync, readdirSync, unlinkSync, mkdirSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { tmpdir, hostname } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
@@ -324,12 +324,17 @@ function publicValidationEntry(entry) {
     taskId: taskIdFromValidationEntry(entry),
     label: entry?.label ?? 'validação',
     createdAt: entry?.createdAt ?? null,
+    token: entry?.token ?? null,
+    pid: Number.isInteger(entry?.pid) ? entry.pid : null,
   };
 }
 
+function validationCodeRepo() {
+  return process.env.SUPERAPP_DIR || join(rootDir(), '..', 'superapp');
+}
+
 function fetchValidationQueueStatus() {
-  const codeRepo = process.env.SUPERAPP_DIR || join(rootDir(), '..', 'superapp');
-  const { queueRoot, owner, tickets } = validationQueueStatus({ repoDir: codeRepo });
+  const { queueRoot, owner, tickets } = validationQueueStatus({ repoDir: validationCodeRepo() });
   return {
     queueRoot,
     active: owner ? publicValidationEntry(owner) : null,
@@ -338,6 +343,24 @@ function fetchValidationQueueStatus() {
       .map(publicValidationEntry),
     updatedAt: new Date().toISOString(),
   };
+}
+
+function cancelValidationQueueOwner(token) {
+  const { owner } = validationQueueStatus({ repoDir: validationCodeRepo() });
+  if (!owner) return { status: 409, error: 'nenhuma validação está em execução' };
+  if (!token || token !== owner.token) return { status: 409, error: 'a fila mudou; atualize o painel antes de encerrar' };
+  if (String(owner.hostname).toLowerCase() !== hostname().toLowerCase()) {
+    return { status: 409, error: 'o processo ativo pertence a outra máquina' };
+  }
+  if (!Number.isInteger(owner.pid) || owner.pid <= 0 || owner.pid === process.pid) {
+    return { status: 409, error: 'PID de validação inválido' };
+  }
+  try {
+    process.kill(owner.pid);
+    return { status: 200, ok: true, pid: owner.pid, label: owner.label };
+  } catch (e) {
+    return { status: e?.code === 'ESRCH' ? 409 : 500, error: e?.code === 'ESRCH' ? 'processo já terminou' : e.message };
+  }
 }
 
 function cmdDashboard(portOverride) {
@@ -372,6 +395,24 @@ function cmdDashboard(portOverride) {
       } catch (e) {
         json(res, 500, { ok: false, error: e.message });
       }
+      return;
+    }
+    // POST /api/validation-queue/cancel — encerra apenas o dono atual do lease, após confirmação UI.
+    if (req.method === 'POST' && req.url === '/api/validation-queue/cancel') {
+      let body = '';
+      req.on('data', (chunk) => {
+        body += chunk;
+        if (body.length > 1_024) req.destroy();
+      });
+      req.on('end', () => {
+        try {
+          const { token } = JSON.parse(body);
+          const result = cancelValidationQueueOwner(token);
+          json(res, result.status, result);
+        } catch (e) {
+          json(res, 400, { ok: false, error: e.message });
+        }
+      });
       return;
     }
     // POST /api/{start|stop|restart}/<name> — controla os proxies a partir da página.
@@ -663,12 +704,26 @@ function queueItem(item){
   const when=item.createdAt?new Date(item.createdAt).toLocaleTimeString():'agora';
   return '<div class="ledger-item"><span>'+esc(task)+'</span> '+esc(item.label)+' <small>· desde '+when+'</small></div>';
 }
+function queueCancelAction(item){
+  if(!item.token||!item.pid)return '';
+  return '<div class="actions"><button type="button" class="stop" onclick="cancelValidationQueue(\''+item.token+'\',this)">■ Encerrar processo</button></div>';
+}
+async function cancelValidationQueue(token,btn){
+  if(!confirm('Encerrar o processo que detém a fila de validação? O ticket seguinte poderá iniciar.'))return;
+  btn.disabled=true;const text=btn.textContent;btn.textContent='Encerrando…';
+  try{
+    const r=await fetch('/api/validation-queue/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
+    const j=await r.json();
+    if(!r.ok||!j.ok)throw new Error(j.error||'falhou');
+    setTimeout(tickValidationQueue,500);
+  }catch(e){alert('Não foi possível encerrar: '+e.message);btn.disabled=false;btn.textContent=text;}
+}
 async function tickValidationQueue(){
   const el=document.getElementById('validation-queue');
   try{
     const r=await fetch('/api/validation-queue');const d=await r.json();
     if(!r.ok)throw new Error(d.error||'erro ao carregar');
-    const active=d.active?'<div class="ledger-group"><div class="ledger-status" style="color:#58a6ff">EM EXECUÇÃO</div>'+queueItem(d.active)+'</div>':
+    const active=d.active?'<div class="ledger-group"><div class="ledger-status" style="color:#58a6ff">EM EXECUÇÃO</div>'+queueItem(d.active)+queueCancelAction(d.active)+'</div>':
       '<div class="ledger-group"><div class="ledger-status" style="color:#8b93a1">LIVRE</div><div class="ledger-item">nenhum gate em execução</div></div>';
     const waiting=d.waiting.length?'<div class="ledger-group"><div class="ledger-status" style="color:#d29922">AGUARDANDO ('+d.waiting.length+')</div>'+d.waiting.map(queueItem).join('')+'</div>':
       '<div class="ledger-group"><div class="ledger-status" style="color:#8b93a1">AGUARDANDO (0)</div><div class="ledger-item">fila vazia</div></div>';
