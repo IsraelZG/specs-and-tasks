@@ -61,7 +61,7 @@ redundante quando a árvore do merge é idêntica à auditada.
 | Nível | Quando | O que o reviewer faz |
 |---|---|---|
 | **0 — sempre** | toda review | `claim` · escopo por commits (`git log master..branch` + `git show`) · **auditoria de código** (onde os bugs reais aparecem) · **validar artefato de gate**: `.gate/<tree-sha>.json` commitado na branch, com `treeSha == git rev-parse HEAD^{tree}` (hash prova que artefato corresponde ao código auditado) |
-| **1 — no merge** | integrar | árvore do merge == árvore da branch (`HEAD^{tree} == branch^{tree}`) → **evidência transfere, zero execução**. Árvore difere → **1 gate na master mesclada** — execução genuinamente nova (testa a composição que nunca existiu) |
+| **1 — no merge** | integrar | **1 gate na composição candidata**, dentro da mesma fila/transação de merge; nenhuma outra integração altera a master entre gate e push |
 | **2 — exceção** | re-run completo | artefato ausente/stale · task de crypto/segurança/autorização · suspeita fundamentada do reviewer |
 
 ### Fast-track (R6)
@@ -75,13 +75,14 @@ fazem **nível 0 sem reexecução**: o reviewer valida diff + artefato, sem roda
 Despache o subagent `agile-reviewer` com o ID da task como argumento.
 
 O subagent retornará o **QA Report completo** (seções BLOCKER/MAJOR/MINOR/INFO + veredicto).
-Um relatório **sem a Evidência de Execução** (saída real de build/tsc + test, com o placar
-`N passed` + hash do artefato) é inválido — devolva ao `agile-reviewer` para rodar e colar a saída
-antes de consolidar. Nunca apresente um veredito baseado só em inspeção.
+O artefato verde com árvore e `test_profile` exatos é a evidência canônica da suíte: o reviewer
+**não a repete**. Ele executa de uma a três sondas baratas e direcionadas aos riscos encontrados.
+Artefato ausente/stale, perfil abaixo do declarado ou suspeita fundamentada exige novo `pnpm gate
+<pkg> --profile <test_profile>`, sempre pela fila. Nunca apresente veredito baseado só em inspeção.
 
 **E2E OBRIGATÓRIO para tasks de produto (M3, 2026-07-19 — INVIOLÁVEL).** Se a task é `ui: true` ou
-toca fluxo observável no navegador, o Parecer **exige** a saída literal de `pnpm --filter <app>
-test:e2e` (~70s). "Pulei o E2E por custo/tempo" **invalida o parecer** — devolva ao reviewer. Foi
+toca fluxo observável no navegador, use `test_profile: ui|full`; o artefato deve provar a fase
+Playwright. "Pulei o E2E por custo/tempo" **invalida o parecer** — devolva ao reviewer. Foi
 exatamente essa economia falsa que deixou um seletor renderizando em branco passar por 3 rodadas de
 review na EST-49b; verificação de *comportamento* no browser real pega o que unit test em JSDOM não
 pega. (Tasks sem UI e sem fluxo de produto seguem só build+test+lint.)
@@ -147,14 +148,11 @@ parcial nem confie apenas no handover.
   Se ampliar privilégio, vazar segredo, mudar contrato público ou contornar um gate, é **BLOCKER**.
 - Relatório sem esta comparação é incompleto, mesmo com build e testes verdes; devolva-o ao reviewer.
 
-### 2b. Nível 1 — No merge / evidência transfere
+### 2b. Nível 1 — Gate transacional no merge
 
-Quando o `integrar-task` for chamado, o merge deve comparar as árvores:
-
-1. `git rev-parse HEAD^{tree}` (master mesclada) vs `git rev-parse task/<ID>^{tree}`.
-2. **Idênticas** → evidência do artefato existente transfere, sem reexecução.
-3. **Diferem** (master avançou) → rode 1 gate na master mesclada: `pnpm gate <pkg>`.
-   Esta execução é genuinamente nova — testa a composição que nunca existiu.
+O `integrar-task` usa `worktree.mjs merge ... -- pnpm gate ... --profile ...`. A fila cobre
+sincronização, merge sem commit, gate, commit e push. Assim o gate testa exatamente a composição
+publicada e outro reviewer não consegue inserir um merge no intervalo.
 
 ### 2c. Nível 2 — Exceção / re-run completo
 
@@ -164,7 +162,7 @@ Reexecute o gate completo quando:
 - Task de **crypto/segurança/autorização** (exige verificação independente do worker).
 - **Suspeita fundamentada** do reviewer (indício de falha no gate do worker).
 
-Nestes casos, rode `pnpm gate <pkg>` na worktree e cole a saída literal no Parecer.
+Nestes casos, rode `pnpm gate <pkg> --profile <test_profile>` na worktree e cole a saída literal no Parecer.
 
 ## 3. Consolidar e apresentar
 

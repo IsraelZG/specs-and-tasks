@@ -78,6 +78,9 @@ Cada task iniciada ganha uma branch task/<ID> (isolamento) **no repo superapp (c
 > - **NUNCA** `git commit`/`git push`/`git add` no Docs a partir de uma skill de worker/reviewer/arquiteto. Se precisar persistir, **enfileire**.
 > - **`tasks/INDEX.md`** (e `meta-tasks/INDEX.md`) e **`tasks/.commit-queue/`** são **gitignored** — o `TaskService` regenera o INDEX a cada transição; a fila é transiente. Nunca commite.
 > - **No superapp (código) o git continua igual:** cada task tem branch `task/<ID>` isolada (worktree), o worker commita+pusha lá normalmente. A fila é **só do controle**.
+> - **Validações pesadas são outra fila, global à máquina:** `pnpm gate` e os scripts de teste do
+>   Estaleiro usam o lease em `git-common-dir/mgtia-validation-queue`. Worktrees e master entram na
+>   mesma FIFO. A integração mantém esse lease de sync até push; não rode runners internos por fora.
 
 ### As 6 Regras
 
@@ -87,13 +90,18 @@ Cada task iniciada ganha uma branch task/<ID> (isolamento) **no repo superapp (c
 
 **2b. Multi-máquina — pull é obrigatório (desde 2026-06-22).** Este repo (e o `superapp`) são trabalhados em mais de uma máquina contra o mesmo remote. `git pull` em ambos os repos no início de cada sessão e antes de `pnpm wt new`/`merge` (o script já faz fetch+pull --ff-only automático e aborta se divergente, mas isso não substitui o pull manual ao retomar trabalho). Termine toda task com push dos dois repos (código + controle) — sem isso a outra máquina vê um estado velho e pode duplicar/sobrepor trabalho.
 
-**3. Gate de Evidência (INVIOLÁVEL).** `finish` só com a saída literal de `pnpm --filter <pkg> build` + `test` + `lint` colada na mensagem. Sem evidência = não terminou. Se falhar, conserte antes — nunca finalize no escuro. (Lint entrou no gate em 2026-07-06 após 3 reworks consecutivos por regressão de lint cobrada só no review — T-807, EST-02b, EST-02c; o critério cobrado precisa ser o critério escrito.)
+**3. Gate de Evidência (INVIOLÁVEL).** `finish` só com `pnpm gate <pkg> --profile <test_profile>`
+verde e seu artefato `.gate/<tree>.json` commitado. Perfis: `backend` (sem browser), `ui` (UI +
+Playwright) e `full` (default conservador). `manage-task.mjs` recusa perfil diferente do declarado.
+O gate local é serializado automaticamente na máquina.
 
-> **3b. E2E não é opcional no review (M3, 2026-07-19).** Se a task tem `ui: true` ou toca fluxo de produto observável, o E2E (`pnpm --filter <app> test:e2e`, ~70s) é **obrigatório** no Parecer — "pulei por custo/tempo" está proibido. Custo real: 70 segundos. Custo de pular: um seletor que renderizava **em branco** passou por worker + 3 reviewers na EST-49b e só caiu quando o E2E finalmente rodou. Verificação de *comportamento* > verificação de *forma*. Em troca, use o fast-track (R6 do `/qa-review`) para cortar cerimônia de tasks pequenas com diff ≤20 linhas e artefato válido.
+> **3b. E2E é seletivo, não opcional (M3/M-017).** Task `ui: true` ou fluxo observável usa
+> `test_profile: ui|full`; backend interno usa `backend`. O reviewer valida o artefato pela árvore
+> e não repete a suíte inteira: faz 1–3 sondas focais. Browser ausente numa task UI invalida o gate.
 >
 > **3c. Gate de ONDA = demo executável (M1, 2026-07-19).** Gate verde por task NÃO prova que o produto funciona — 86 tasks verdes conviveram com uma **tela em branco** por 10 dias porque nada exercitava a *composição*. Toda onda/fatia fecha com um smoke de produto: subir o standalone e provar UMA ação de usuário ponta-a-ponta ("boot → clicar → efeito observável"), com a saída colada. Gate unitário mede a peça; o smoke de onda mede o carro.
 
-**4. Rework (auto-contido).** Task em `rework`? Leia o "Parecer do Revisor" (seção 8) e corrija EXATAMENTE os achados `[Bn/Mn/mn]`. Re-rode build+test, aplique o Gate, chame `finish`. O ciclo worker→review→rework roda sem intervenção humana.
+**4. Rework (auto-contido).** Task em `rework`? Leia o "Parecer do Revisor" (seção 8) e corrija EXATAMENTE os achados `[Bn/Mn/mn]`. Re-rode o gate com o `test_profile` declarado, chame `finish`. O ciclo worker→review→rework roda sem intervenção humana.
 
 **5. Automação.** Tarefas repetitivas viram scripts, subagents (`.claude/agents/`) ou skills (`.claude/skills/`). Idempotência obrigatória.
 

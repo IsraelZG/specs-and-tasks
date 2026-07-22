@@ -28,6 +28,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { performance } from 'node:perf_hooks';
 import { emit } from './lib/telemetry.mjs';
+import { runQueuedCommand } from './lib/validation-queue.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const docsRoot = path.resolve(__dirname, '..', '..');          // controle
@@ -391,8 +392,32 @@ function cmdLs() {
   }
 }
 
-function cmdMerge(id) {
-  if (!id) die('uso: worktree merge <ID>');
+function abortMerge() {
+  if (git(['rev-parse', '--verify', '--quiet', 'MERGE_HEAD']).status === 0) {
+    git(['merge', '--abort'], { stdio: 'inherit' });
+  }
+}
+
+function commandForWindows(command) {
+  if (process.platform !== 'win32') return command;
+  return ['pnpm', 'npm', 'npx'].includes(command) ? `${command}.cmd` : command;
+}
+
+function candidateTreeWithoutGate() {
+  const indexTree = git(['write-tree']).stdout.trim();
+  const entries = git(['ls-tree', indexTree]).stdout
+    .split(/\r?\n/)
+    .filter((line) => line && !line.endsWith('\t.gate'))
+    .join('\n');
+  const result = git(['mktree'], { input: entries ? `${entries}\n` : '' });
+  if (result.status !== 0) die('não foi possível calcular a árvore candidata sem .gate');
+  return result.stdout.trim();
+}
+
+function cmdMergeLocked(id, gateCommand) {
+  if (!id || gateCommand.length === 0) {
+    die('uso: worktree merge <ID> -- pnpm gate <pacote> [--profile backend|ui|full]');
+  }
   requireCodeRepo();
   const branch = `task/${id}`;
   const main = defaultBranch();
@@ -403,9 +428,73 @@ function cmdMerge(id) {
   const cur = git(['rev-parse', '--abbrev-ref', 'HEAD']).stdout.trim();
   if (cur !== main) die(`o superapp está em '${cur}', não '${main}'`);
   ensureUpToDate(codeRepo, 'código (superapp)', false);
-  const r = git(['merge', '--no-ff', branch, '-m', `merge ${branch}`], { stdio: 'inherit' });
-  if (r.status !== 0) die(`merge de ${branch} falhou (conflito?) — resolva manualmente`);
-  console.log(`✅ ${branch} mergeado em ${main} (superapp). Não esqueça: git push origin ${main}`);
+
+  const baseHead = git(['rev-parse', 'HEAD']).stdout.trim();
+  const merge = git(['merge', '--no-ff', '--no-commit', branch], { stdio: 'inherit' });
+  if (merge.status !== 0) {
+    abortMerge();
+    die(`merge transacional de ${branch} falhou; master restaurada em ${baseHead}`);
+  }
+  if (git(['rev-parse', 'HEAD']).stdout.trim() !== baseHead) {
+    abortMerge();
+    die('HEAD da master mudou durante o merge transacional');
+  }
+  if (git(['rev-parse', '--verify', '--quiet', 'MERGE_HEAD']).status !== 0) {
+    die(`${branch} não produziu candidato de merge (já integrado?)`);
+  }
+
+  const candidateTree = candidateTreeWithoutGate();
+  console.log(`• candidato montado sobre ${baseHead}; executando gate exclusivo...`);
+  const gate = spawnSync(commandForWindows(gateCommand[0]), gateCommand.slice(1), {
+    cwd: codeRepo,
+    stdio: 'inherit',
+    env: process.env,
+  });
+  if (gate.status !== 0) {
+    abortMerge();
+    die(`gate pós-merge falhou; master restaurada em ${baseHead}`);
+  }
+
+  if (git(['rev-parse', 'HEAD']).stdout.trim() !== baseHead) {
+    abortMerge();
+    die('HEAD da master mudou enquanto o gate pós-merge rodava');
+  }
+  const integrationArtifact = path.join(codeRepo, '.gate', `${candidateTree}.json`);
+  if (fs.existsSync(integrationArtifact)) {
+    if (git(['add', '-f', '--', integrationArtifact], { stdio: 'inherit' }).status !== 0) {
+      abortMerge();
+      die('não foi possível incluir o artefato do gate no merge');
+    }
+  }
+  if (git(['commit', '-m', `merge ${branch}`], { stdio: 'inherit' }).status !== 0) {
+    abortMerge();
+    die(`commit do merge ${branch} falhou; master restaurada em ${baseHead}`);
+  }
+
+  const mergeCommit = git(['rev-parse', 'HEAD']).stdout.trim();
+  const push = git(['push', 'origin', main], { stdio: 'inherit' });
+  if (push.status !== 0) {
+    const current = git(['rev-parse', 'HEAD']).stdout.trim();
+    if (current === mergeCommit) {
+      git(['reset', '--hard', baseHead], { stdio: 'inherit' });
+    }
+    die(`push de ${mergeCommit} falhou; master local restaurada em ${baseHead}`);
+  }
+  console.log(`✅ ${branch} integrado em ${main} (${mergeCommit}) com Gate verde e push concluído.`);
+}
+
+function cmdMerge(id, gateCommand) {
+  if (!id || gateCommand.length === 0) {
+    die('uso: worktree merge <ID> -- pnpm gate <pacote> [--profile backend|ui|full]');
+  }
+  const status = runQueuedCommand({
+    repoDir: codeRepo,
+    cwd: docsRoot,
+    label: `integração:${id}`,
+    command: process.execPath,
+    args: [fileURLToPath(import.meta.url), 'merge-locked', id, '--', ...gateCommand],
+  });
+  if (status !== 0) process.exit(status);
 }
 
 function cmdRm(id) {
@@ -434,6 +523,8 @@ const baseFlag = argvRest.indexOf('--base');
 const baseRef = baseFlag !== -1 ? argvRest[baseFlag + 1] : undefined;
 const nFlag = argvRest.indexOf('-n');
 const poolN = nFlag !== -1 ? argvRest[nFlag + 1] : undefined;
+const separator = argvRest.indexOf('--');
+const gateCommand = separator === -1 ? [] : argvRest.slice(separator + 1);
 
 const wtStart = performance.now();
 
@@ -444,7 +535,8 @@ switch (cmd) {
   case 'refresh': cmdRefresh(); break;
   case 'init': cmdInit(poolN || argvRest[1]); break;
   case 'ls': cmdLs(); break;
-  case 'merge': cmdMerge(id); break;
+  case 'merge': cmdMerge(id, gateCommand); break;
+  case 'merge-locked': cmdMergeLocked(id, gateCommand); break;
   case 'rm': cmdRm(id); break;
   case 'pool': {
     const sub = argvRest[1];
@@ -461,7 +553,7 @@ switch (cmd) {
     console.log(`  refresh      — síncrono: atualiza todos os slots (fetch+reset+install+turbo)`);
     console.log(`  init [-n N]  — cria N slots (default ${POOL_SIZE_DEFAULT}) + pnpm install`);
     console.log(`  ls           — lista worktrees + pool`);
-    console.log(`  merge <ID>   — merge --no-ff de task/<ID>`);
+    console.log(`  merge <ID> -- pnpm gate <pkg> [--profile P] — fila + merge transacional + gate + push`);
     console.log(`  rm <ID>      — remove worktree efêmera (release para pool)`);
     process.exit(cmd ? 1 : 0);
 }

@@ -82,6 +82,12 @@ if (action === 'finish') {
       console.error(`❌ gate stale: .gate/${treeSha}.json tem allGreen=false. Corrija as falhas e rode o gate novamente.`);
       process.exit(1);
     }
+    const expectedProfile = readTaskField(taskId, 'test_profile');
+    if (expectedProfile && artifact.profile !== expectedProfile) {
+      console.error(`❌ gate com perfil incorreto: esperado ${expectedProfile}, artefato registra ${artifact.profile ?? 'perfil legado ausente'}.`);
+      console.error(`   Rode \`pnpm gate <pkg> --profile ${expectedProfile}\` na worktree e commite o artefato.`);
+      process.exit(1);
+    }
 
     // --- M4b: advisory (não bloqueia) se master não é ancestral do HEAD -------
     // Retrospectiva 2026-07-19: uma branch cortada antes de uma dep entrar na

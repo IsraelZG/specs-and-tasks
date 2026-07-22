@@ -58,9 +58,11 @@ Se `$ARGUMENTS` estiver vazio:
 Despache o subagent `agile-reviewer` com o ID da task como argumento.
 
 O subagent retornará o **QA Report completo** (seções BLOCKER/MAJOR/MINOR/INFO + veredicto).
-Um relatório **sem a Evidência de Execução** (saída real de build/tsc + test, com o placar
-`N passed`) é inválido — devolva ao `agile-reviewer` para rodar e colar a saída antes de
-consolidar. Nunca apresente um veredito baseado só em inspeção.
+O artefato `.gate/<tree>.json` verde, com árvore e `test_profile` exatos, é a evidência canônica da
+suíte e pode ser reutilizado: o reviewer **não repete a suíte inteira**. Ele ainda executa de uma a
+três sondas baratas e direcionadas aos riscos que encontrou. Artefato ausente/stale, perfil abaixo
+do declarado ou árvore divergente exige `pnpm gate <pacote(s)> --profile <test_profile>` — sempre
+pela fila. Nunca apresente um veredito baseado só em inspeção.
 
 ### 2a. Verificação de Disposição por Achado (C-tasks — INVIOLÁVEL)
 

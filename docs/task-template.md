@@ -6,6 +6,7 @@ complexity: 2 # 1 a 5 (5 exige quebra)
 target_agent: logic_agent # devops_agent | logic_agent | crypto_agent | frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # sequential | parallel | broadcast
+test_profile: full # backend | ui | full
 dependencies: [] # Ex: ["T-001", "T-002"]
 blocks: [] # Ex: ["T-004"]
 ---
@@ -57,6 +58,14 @@ O agente \`agile_reviewer\` usará esta checklist para aprovar ou rejeitar:
 - [ ] Os testes passam no ambiente especificado na Seção 4?
 - [ ] \`pnpm --filter <pacote> lint\` sem erros NOVOS (regressão de lint bloqueia no review — faz parte do Gate de Evidência junto com build+test)?
 - [ ] Nenhuma das regras "NÃO FAZER" da Seção 5 foi violada?
+
+### Verificação automática
+
+```bash
+pnpm gate <pacote> --profile <backend|ui|full>
+```
+
+`backend` não abre browser; `ui` e `full` incluem Playwright. O gate local usa a fila única da máquina.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:

@@ -6,6 +6,53 @@
 
 ---
 
+## P-022 · Gates concorrentes saturam a máquina e merge pós-gate perde atribuição
+
+**Data:** 2026-07-22 (M-017)
+**Sintoma:** dois ou mais agentes rodam build/Vitest/Playwright ao mesmo tempo; a máquina quase
+para. Em paralelo, um reviewer pode testar a master após seu merge enquanto outro reviewer já
+inseriu outro código, fazendo a falha parecer pertencer à task errada.
+**Causa raiz:** `workers: 1`/`fullyParallel: false` limitavam apenas um processo Playwright; não
+existia exclusão mútua entre processos, worktrees e master. O merge também era commitado antes do
+gate, então `git merge --abort` já não podia restaurar a master.
+**Solução aplicada:** fila FIFO em `git-common-dir/mgtia-validation-queue`, usada automaticamente
+por `pnpm gate` e pelos scripts de teste do Estaleiro. A integração mantém o mesmo lease durante
+`sync → merge --no-commit → gate → commit → push`; vermelho/conflito aborta antes do commit.
+**Evidência:** `validation-queue.test.mjs` prova FIFO/exclusão/recovery; `worktree-merge.test.mjs`
+prova rollback no gate vermelho e merge de dois pais no verde.
+**Como prevenir recorrência:** execute suites locais por `pnpm gate ... --profile ...` ou pelo
+wrapper `queued-command.mjs`; `worktree.mjs merge` recusa integração sem gate explícito.
+**Limites:** a FIFO vale para checkouts que compartilham o mesmo Git common dir na mesma máquina.
+Outro clone/máquina não compartilha lease; nesse caso um push remoto concorrente é rejeitado e a
+transação local volta ao SHA base. CI não usa a fila local porque seus runners são isolados.
+
+---
+
+## P-023 · `vmmem` não identifica emulação x64 no Windows on Arm
+
+**Data:** 2026-07-22 (auditoria Snapdragon X / M-017)
+**Sintoma:** o Gerenciador de Tarefas mostra `vmmem` durante desenvolvimento e a lentidão é
+atribuída à emulação x64 dos testes.
+**Causa raiz:** são mecanismos distintos. Windows on Arm traduz cada processo x86/x64 em user mode;
+`vmmem` representa memória/CPU de uma VM baseada em Hyper-V (tipicamente WSL2), não o tradutor x64.
+**Diagnóstico aplicado:** `node -p "process.platform + ' ' + process.arch"` confirmou `win32 arm64`;
+`wsl.exe -l -v` informou nenhuma distribuição instalada; inspeção do campo Machine dos executáveis
+mostrou Node, Chrome/Edge do sistema, better-sqlite3, esbuild, sharp, Rollup ARM e Tailwind nativos.
+Os candidatos x64 observados foram o `turbo.exe` instalado e o Chromium `chrome-win64` do Playwright.
+`cbor-extract` não oferece addon win32-arm64 nesta instalação e caiu no fallback JS após falha
+opcional de build — isso não cria uma VM x64.
+**Solução aplicada:** no Windows ARM64, Playwright usa `channel: 'chrome'`, aproveitando o Chrome
+ARM64 do sistema em vez do Chromium win64 empacotado. O Turbo não foi substituído sem binário nativo
+compatível comprovado; a fila evita várias instâncias simultâneas.
+**Como prevenir recorrência:** identifique arquitetura pelo PE do executável realmente iniciado e
+pelo `process.arch`; use `wsl.exe -l -v`/processos Docker para investigar `vmmem`. Não mate `vmmem`
+nem troque dependências apenas pelo nome exibido no Gerenciador de Tarefas.
+**Limites:** a lista de binários é um retrato desta instalação/lockfile. Reaudite após atualizar
+Turbo, Playwright ou o lockfile. Um `vmmem` grande pode sim vir de WSL2/Docker/Hyper-V, mas continua
+não sendo a emulação x64 do Windows on Arm.
+
+---
+
 ## P-016 · Bootstrap de teste semeia provider com chave real do ambiente
 
 **Data:** 2026-07-20 (Gate da EST-65)

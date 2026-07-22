@@ -41,8 +41,10 @@ agente" no AGENTS.md.
    achado** — `git add -A && git commit -m "fix($ARGUMENTS): [B1] <o que corrigiu>"`. Rastreável,
    e o reviewer confere 1-a-1. Se o reviewer deixou uma sonda (`*.probe.test.ts`) que falhava,
    adicione a cobertura **própria** equivalente (a sonda em si não entra no deliverable).
-6. **Gate de Evidência (INVIOLÁVEL):** re-rode os comandos EXATOS da Seção 7 **na worktree** e cole
-   a **saída literal** na Seção 8. Tudo verde. Vermelho → conserte; falha de ambiente →
+6. **Gate de Evidência (INVIOLÁVEL):** re-rode `pnpm gate <pacote(s)> --profile <test_profile>`
+   (spec antiga sem campo ⇒ `full`)
+   **na worktree** e cole a saída literal na Seção 8. A fila local é automática; não invoque o
+   runner interno diretamente. Tudo verde. Vermelho → conserte; falha de ambiente →
    `pause`/`block` (mesmo aviso de terminal standalone do `/executar-task`).
 7. **Finalize:** `node "<CTRL>/tools/scripts/manage-task.mjs" finish $ARGUMENTS <EU> "rework pronto:
    B1..Bn corrigidos + placar de testes"` (move pra `review`). O reviewer/integrar-task reassume.

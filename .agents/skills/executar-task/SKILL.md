@@ -57,8 +57,11 @@ AGENTS.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
      num commit gigante no fim: commits frequentes preservam o trabalho se a sessão estourar tokens
      ou travar, e dão um handoff legível pro próximo agente. **Pushe** de tempos em tempos
      (`git push -u origin task/$ARGUMENTS`) — o push barato é melhor que perder uma tarde.
-5. **Gate de Evidência (INVIOLÁVEL):** rode os comandos EXATOS da Seção 7 **na sua pasta (CÓDIGO)** e
-   cole a **saída literal** na Seção 8 de `<CTRL>/tasks/$ARGUMENTS.md`. Tudo verde é obrigatório.
+5. **Gate de Evidência (INVIOLÁVEL):** rode o comando EXATO da Seção 7 — `pnpm gate <pacote(s)>
+   --profile <test_profile>` (ausente em spec antiga ⇒ `full`) — **na sua pasta (CÓDIGO)** e cole a saída literal na Seção 8 de
+   `<CTRL>/tasks/$ARGUMENTS.md`. O gate entra automaticamente na fila única da máquina; nunca rode
+   Vitest/Playwright por fora para ganhar prioridade. `backend` não abre browser; `ui` e `full`
+   incluem Playwright. Tudo verde é obrigatório.
    Vermelho → conserte; falha de ambiente → `pause`/`block` (nunca finalize no escuro).
    > **Ambiente do Gate (Windows-native):** `pnpm install`/build **trava** se rodado pelo terminal
    > **integrado do VS Code** (PITFALLS P-002). Rode o worker num **terminal standalone** (Windows

@@ -43,8 +43,8 @@ agente" no CLAUDE.md.
    achado** — `git add -A && git commit -m "fix($ARGUMENTS): [B1] <o que corrigiu>"`. Rastreável,
    e o reviewer confere 1-a-1. Se o reviewer deixou uma sonda (`*.probe.test.ts`) que falhava,
    adicione a cobertura **própria** equivalente (a sonda em si não entra no deliverable).
-7. **Gate de Evidência (INVIOLÁVEL):** `pnpm gate <pkg>` (1 comando — turbo build/test/lint do pacote
-   alvo, grava `.gate/<tree-sha>.json`). Re-rode e cole a **saída literal** na Seção 8. Tudo verde.
+7. **Gate de Evidência (INVIOLÁVEL):** `pnpm gate <pkg> --profile <test_profile>` (ausente ⇒ `full`; fila automática,
+   grava `.gate/<tree-sha>.json`). Re-rode e cole a **saída literal** na Seção 8. Tudo verde.
    Vermelho → conserte; falha de ambiente → `pause`/`block`.
 8. **Finalize:** `node "<CTRL>/tools/scripts/manage-task.mjs" finish $ARGUMENTS <EU> "rework pronto:
    B1..Bn corrigidos + placar de testes"` (move pra `review`). O reviewer/integrar-task reassume.

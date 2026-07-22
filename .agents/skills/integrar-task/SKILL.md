@@ -61,24 +61,17 @@ Foi o approve manual que travou ORQ-02 esperando ORQ-01 (aprovada na mão, sem a
 
 ## Caminho A — Parecer = APROVADO
 
-1. **Pré-flight.** `git -C ../superapp status` deve estar limpo e em `master`. Rode
-   `node tools/scripts/drift-check.mjs` para ter o baseline.
-2. **Merge.** `node tools/scripts/worktree.mjs merge $ARGUMENTS`.
-   - **Conflito? NÃO force.** Resolva à mão e re-rode o Gate. Conflitos típicos (vistos na
-     integração tardia de T-204/T-501/T-301/T-308):
-     - `*/src/index.ts`: **combine** os exports dos dois lados (não escolha um).
-     - **Contrato evoluído** — a branch precede mudanças que entraram na master. Ex.: `WsAdapter`
-       não tinha `onClose` (ADR-0004); fixture de teste não tinha `parentHash` (T-108-rework-3).
-       Implemente/ajuste o que o contrato atual exige, **citando** a evolução.
-     - `pnpm-lock.yaml`: `git checkout --ours` + `pnpm install` (se a branch adicionou dep) para
-       reconciliar; o lock da master pode estar stale (diff grande é esperado).
-3. **Gate pós-merge (INVIOLÁVEL).** Rode `pnpm --filter <pacote(s) da task> build && test && lint`
-   na master e **confirme verde**. Sem Gate verde, o merge não vale — `git merge --abort` e devolva
-   para `rework` com o motivo.
-4. **Commit + push** do merge no superapp (`git push origin master`).
-5. **Verifica integração:** `node tools/scripts/drift-check.mjs` → sem novo integration drift para
+1. **Pré-flight.** Rode `node tools/scripts/drift-check.mjs` para ter o baseline.
+2. **Integração transacional e serial (INVIOLÁVEL).** Rode uma única vez:
+   `node tools/scripts/worktree.mjs merge $ARGUMENTS -- pnpm gate <pacote(s)> --profile <test_profile>`.
+   O comando adquire a fila global, sincroniza a master, faz `merge --no-commit`, executa o gate
+   sobre a composição candidata e só então faz commit+push, sem liberar a fila. Gate vermelho ou
+   conflito aborta o merge e preserva a master anterior. **Nunca** separe merge, gate e push.
+   - **Conflito? NÃO force na master.** Corrija na branch da task (ou devolva para `rework`), gateie
+     novamente e repita a transação.
+3. **Verifica integração:** `node tools/scripts/drift-check.mjs` → sem novo integration drift para
    `$ARGUMENTS` (os arquivos do deliverable estão na master).
-6. **Remove a worktree:** `node tools/scripts/worktree.mjs rm $ARGUMENTS` (preserva a branch).
+4. **Remove a worktree:** `node tools/scripts/worktree.mjs rm $ARGUMENTS` (preserva a branch).
 7. **Pendências:** extraia os achados **não-bloqueantes** (`MAJOR`/`MINOR`/`INFO`) dos pareceres da
    Seção 8 e **anexe** ao `tasks/_pendencias.md` (entre os marcadores `BEGIN/END PENDENCIAS`), uma
    linha por achado: `- [ ] [M|m|i][$ARGUMENTS][pacote] achado — ref`. (Não crie task `-followup`.)
@@ -92,7 +85,7 @@ Foi o approve manual que travou ORQ-02 esperando ORQ-01 (aprovada na mão, sem a
    Enfileire UMA intenção com **só os arquivos que VOCÊ tocou**: `tasks/$ARGUMENTS.md` (default) e
    `tasks/_pendencias.md`: `node tools/scripts/fila.mjs add $ARGUMENTS "<msg>" tasks/_pendencias.md`.
    **NÃO** enfileire `INDEX.md` (gitignored). Um `/drenar-fila` commita+pusha depois — você não toca
-   git no Docs (no superapp, o push do merge já foi no passo 4).
+   git no Docs (no superapp, o push do merge já ocorreu dentro da transação do passo 2).
 10. **Dispara o orquestrador (fire-and-forget).** Após enfileirar, rode **sem aguardar** —
    `node tools/scripts/orquestrar.mjs --on-finish $ARGUMENTS` — para liberar seu slot e deixar o
    orquestrador despachar o próximo passo. NÃO espere a saída nem cole no Gate; é disparar e seguir.

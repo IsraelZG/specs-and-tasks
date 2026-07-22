@@ -41,17 +41,16 @@ mole, porque finge dureza. Na dúvida entre derivar e inventar: é ABERTO.
      "substitua pelo caminho real"). Marque cada um `[READ]`/`[CREATE]`/`[UPDATE]`.
    - **Testes (Seção 4):** **enumere os casos** (lista numerada de cenários verificáveis), não
      descrições genéricas. Diga o framework e o ambiente.
-   - **Gate por comando (Seção 7):** inclua o bloco "Verificação automática" com os comandos
-     `pnpm --filter <pkg> build`/`test`/`lint` exatos + a nota do **Gate de Evidência** (saída
-     literal colada na Seção 8). **Lint é parte do gate** (Regra 3 do AGENTS.md, desde 2026-07-06
-     — 3 reworks consecutivos por regressão de lint cobrada só no review); task endurecida sem
-     `lint` no bloco gera rework garantido. **Escope o gate ao(s) pacote(s) da task** (`--filter`);
+   - **Gate por comando (Seção 7):** inclua `pnpm gate <pkg> --profile <test_profile>` e fixe
+     `test_profile: backend|ui|full` no frontmatter. `backend` só vale sem fluxo observável no
+     browser; UI/produto usa `ui|full`; na dúvida use `full`. O gate já inclui build/test/lint,
+     grava evidência e entra na fila local. **Escope o gate ao(s) pacote(s) da task**;
      só escreva `pnpm -r build/test/lint` (workspace inteiro) quando o próprio objetivo da task for
      provar limpeza global (ex.: quebra de ciclo entre pacotes) — caso contrário o gate fica lento
      e roda pacotes fora do escopo (ver EST-34, onde o `-r` era necessário; é a exceção, não o
      padrão do nexus congelado).
    - **Frontmatter:** `complexity` coerente (5 exige quebra), `target_agent` válido (sem typos),
-     `dependencies` conferidas contra o que a task realmente consome.
+     `test_profile` explícito e `dependencies` conferidas contra o que a task realmente consome.
    - **Contratos cross-task / fontes "canônicas" (confrontação obrigatória):** se o spec referencia
      tipo/verbo/comportamento definido por OUTRA task (dependência) ou por um componente que se
      apresenta como "canônico" (ex.: máquina de estados, schema compartilhado), NÃO assuma — confronte:

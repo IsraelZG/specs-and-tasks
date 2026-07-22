@@ -22,6 +22,7 @@ complexity: ${taskComplexity || 2}
 target_agent: ${targetAgent || 'logic_agent'} # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
+test_profile: full # backend | ui | full — reduza só quando o escopo provar que browser não agrega
 dependencies: [] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
 capacity_target: # haiku | sonnet | opus-spike — preenchido no endurecimento (pass 2)
@@ -82,7 +83,7 @@ capacity_target: # haiku | sonnet | opus-spike — preenchido no endurecimento (
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente \`agile_reviewer\` usará esta checklist para aprovar ou rejeitar o PR:
 - [ ] O código segue estritamente os arquivos de Output especificados (sem criar arquivos não solicitados)?
-- [ ] O \`pnpm test\` roda sem erros no ambiente especificado (Node/JSDOM)?
+- [ ] O \`pnpm gate <pacote> --profile <test_profile>\` fica verde no ambiente especificado?
 - [ ] Linter (\`pnpm lint\`) não acusa problemas?
 - [ ] A implementação respeita a Regra do Que Não Fazer?
 - [ ] **[gate de wiring — se a task entrega primitiva de autorização/privacidade]** existe caller de produção em \`src/**\` que a consome no caminho real, OU há task de integração linkada? (primitiva só testada = feature NÃO entregue)
@@ -90,12 +91,12 @@ O agente \`agile_reviewer\` usará esta checklist para aprovar ou rejeitar o PR:
 
 ### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 \`\`\`bash
-pnpm --filter <pacote> build      # tsc — precisa terminar sem erro
-pnpm --filter <pacote> test       # precisa ficar verde, sem regressão
-pnpm --filter <pacote> lint       # ZERO erros novos (rode o baseline ANTES de tocar; regressão de lint bloqueia no review)
+pnpm gate <pacote> --profile <backend|ui|full>
 \`\`\`
-> **GATE DE EVIDÊNCIA:** nem o \`finish\` (worker) nem o veredito (reviewer) são válidos sem a
-> saída literal desses comandos colada na seção 8. Marcar \`[x]\` sem evidência é violação.
+> O perfil vem de \`test_profile\`: \`backend\` não abre browser; \`ui\` cobre UI + Playwright;
+> \`full\` é o default conservador. Todo gate local entra automaticamente na fila única da máquina.
+> **GATE DE EVIDÊNCIA:** nem o \`finish\` (worker) nem o veredito (reviewer) são válidos sem o
+> artefato do gate e suas saídas registrados na seção 8. Marcar \`[x]\` sem evidência é violação.
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:

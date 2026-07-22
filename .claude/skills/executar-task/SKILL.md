@@ -62,10 +62,12 @@ CLAUDE.md — o Log §9 e o `ledger.mjs` só têm valor se isso for respeitado.
      num commit gigante no fim: commits frequentes preservam o trabalho se a sessão estourar tokens
      ou travar, e dão um handoff legível pro próximo agente. **Pushe** de tempos em tempos
      (`git push -u origin task/$ARGUMENTS`) — o push barato é melhor que perder uma tarde.
-7. **Gate de Evidência (INVIOLÁVEL):** `pnpm gate <pkg>` (1 comando — turbo build/test/lint do pacote
-   alvo). O script grava o artefato `.gate/<tree-sha>.json` na branch, contendo fases, tempos,
+7. **Gate de Evidência (INVIOLÁVEL):** `pnpm gate <pkg> --profile <test_profile>` (spec antiga sem
+   campo ⇒ `full`). O script entra
+   na fila única da máquina e grava o artefato `.gate/<tree-sha>.json` na branch, contendo fases, tempos,
    exitCodes e a saída literal. Cole a **saída literal** na Seção 8 de `<CTRL>/tasks/$ARGUMENTS.md`.
-   Tudo verde é obrigatório. Vermelho → conserte; falha de ambiente → `pause`/`block`.
+   `backend` não abre browser; `ui` e `full` incluem Playwright. Não invoque runners internos por
+   fora da fila. Tudo verde é obrigatório. Vermelho → conserte; falha de ambiente → `pause`/`block`.
    > **Ambiente do Gate (Windows-native):** `pnpm install`/build **trava** se rodado pelo terminal
    > **integrado do VS Code** (PITFALLS P-002). Rode o worker num **terminal standalone** (Windows
    > Terminal/PowerShell) para o Gate ser autônomo; se estiver no VS Code, peça o Gate ao usuário e
