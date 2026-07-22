@@ -12,6 +12,12 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 ---
 
 <!-- BEGIN PENDENCIAS -->
+<!-- EST-63 -->
+- [ ] [m1][EST-63][estaleiro-ui estaleiro-core.types] `ContentPart`/`TextContentPart`/`ImageContentPart` duplicados em `apps/estaleiro/ui/src/estaleiro-core.types.ts` ao lado do canônico em `apps/estaleiro/core/src/chat-service.ts` (re-exportado por core/index.ts). Header do arquivo UI já diz "replace it with a core chat-types export when that package is decomposed" — não foi decomposto no rework. Não-bloqueante: ChatView.tsx importa corretamente do core; a duplicação é inerte. Track: remover cópia do UI quando core tiver barrel de tipos (apps/estaleiro/ui/src/estaleiro-core.types.ts:9-21)
+<!-- END EST-63 -->
+<!-- EST-62 -->
+- [ ] [m][EST-62][estaleiro-core integration] `tests/integration/chat-route.test.ts:101` falha com 502 em vez de 400 em teste pré-existente (sem API key) — candidato P-022 em PITFALLS, fora do escopo do plugin-lsp.
+<!-- END EST-62 -->
 <!-- EST-61 -->
 - [ ] [M][EST-61][estaleiro-ui e2e] E2E não executado — M3 exige `pnpm --filter estaleiro test:e2e` para tasks `ui: true`; suite existente não cobre terminal output nem approval card para comandos arriscados. Adicionar testes E2E para run_command fg/bg + approval card (spec→T-61 ou follow-up separado).
 - [ ] [M][EST-61][spec] AgentTerminal.tsx não atualizado — §3 declara `[UPDATE] view Terminal — streams de PTY do chat via mesmo fleetStore` mas o arquivo não tem alterações na branch. Validar com arquiteto se §3 está desatualizada (ChatView é o entry point correto para chat agêntico) ou se a implementação está incompleta.
