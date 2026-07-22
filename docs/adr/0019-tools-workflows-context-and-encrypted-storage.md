@@ -158,18 +158,23 @@ As primitives reutilizáveis são classificação, seleção de modelo/equipe, r
 
 ## 9. Repositórios externos: posição de adoção
 
+Os commits, paths locais ignorados e módulos de referência estão fixados em
+[`docs/referencias-codigo-aberto.md`](../referencias-codigo-aberto.md). A task que absorver uma
+ideia lê o clone local no commit registrado, verifica a licença e registra no handover o trecho
+consultado; nunca depende de `main` remoto mutável.
+
 | Referência | Valor absorvido | Posição |
 | --- | --- | --- |
-| Cognee | memória, GraphRAG e temporalidade | contratos e algoritmos locais; não adotar runtime inteiro |
-| Collective Intelligence | estratégias e verificação coletiva | workflows próprios; não incorporar plataforma AGPL |
-| Headroom / LLMLingua | crusher, CCR e compressão extrativa | capacidades próprias em `plugin-context` |
-| Dashi | catálogo, inspeção e spec restrita | UI spec-driven clean-room |
-| Archify | IR validado, layout e render | spike/Tools próprias |
-| OpenZL | compressão format-aware | decisão por benchmark por corpus |
-| Lightpanda | browser CDP leve | adapter com fallback; processo local legítimo |
-| DocuSeal | assinatura e evidência | connector/service boundary após discovery jurídico |
-| BiGain | aceleração de difusão | pesquisa bloqueada e separada de contexto/RAG |
-| Serena/tree-sitter | recuperação semântica de código | Tools de símbolos/parse; WASM para parsing, LSP local para semântica |
+| Cognee | memória, GraphRAG e temporalidade | `docs/_vendor/cognee`; contratos e algoritmos locais, não runtime inteiro |
+| Collective Intelligence | estratégias e verificação coletiva | `docs/_vendor/collective-intelligence`; workflows próprios, sem incorporar AGPL |
+| Headroom / LLMLingua | crusher, CCR e compressão extrativa | `docs/_vendor/headroom-upstream`, `docs/_vendor/llmlingua`; capacidades próprias em `plugin-context` |
+| Dashi | catálogo, inspeção e spec restrita | `docs/_vendor/dashi-ppt-skill`; UI spec-driven clean-room |
+| Archify | IR validado, layout e render | `docs/_vendor/archify`; spike/Tools próprias |
+| OpenZL | compressão format-aware | `docs/_vendor/openzl`; decisão por benchmark por corpus |
+| Lightpanda | browser CDP leve | `docs/_vendor/lightpanda-browser`; adapter com fallback, processo local legítimo |
+| DocuSeal | assinatura e evidência | `docs/_vendor/docuseal`; connector/service boundary após discovery jurídico |
+| BiGain | aceleração de difusão | `docs/_vendor/bigain`; pesquisa bloqueada e separada de contexto/RAG |
+| Serena/tree-sitter | recuperação semântica de código | `docs/_vendor/serena`, `docs/_vendor/tree-sitter`; WASM para parsing, LSP local para semântica |
 
 Licença, maturidade e commit de referência são verificados na task concreta antes de qualquer reuso de código. Inspiração arquitetural não autoriza cópia de implementação.
 
