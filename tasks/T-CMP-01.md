@@ -29,6 +29,7 @@ Testar se a compressão format-aware do OpenZL entrega ganho líquido para **um*
 - `tasks/T-IA-01.md` e `tasks/T-WASM-01.md` — `VectorIndex` é hot-path; apenas snapshot pode ser candidato.
 - [ADR 0019](../docs/adr/0019-tools-workflows-context-and-encrypted-storage.md) §7 — ciphertext não comprime; repack autorizado ocorre no Crypto Worker como decifra → transforma/comprime → recifra.
 - [OpenZL README](https://github.com/facebook/openzl), [conceitos](https://openzl.org/getting-started/concepts/) e [guia de uso](https://openzl.org/getting-started/using-openzl/) — grafo de compressão, perfil estrutural e APIs em evolução.
+- [Referências locais](../docs/referencias-codigo-aberto.md) — OpenZL em `docs/_vendor/openzl`, commit fixado; começar por `examples/training.cpp` e `src/openzl/` ao reproduzir perfil/SDDL.
 
 ## 3. Matriz Obrigatória
 Para cada corpus elegível, comparar:

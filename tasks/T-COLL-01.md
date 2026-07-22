@@ -26,7 +26,7 @@ Criar Tools reutilizáveis para orquestração coletiva: reserva/consumo de orç
 - [DMM-16](./DMM-16.md) — descriptor e adapters universais.
 - [EST-10](./EST-10.md) — providers, scoring e fallback existentes.
 - [DMM-11](./DMM-11.md) — Judge operacional; não confundir com verificação semântica de resposta.
-- [Collective Intelligence](https://github.com/ailinone/collective-intelligence) — referência de estratégias/maturidade; não copiar implementação AGPL.
+- [Referências locais](../docs/referencias-codigo-aberto.md) — Collective Intelligence em `docs/_vendor/collective-intelligence`, commit fixado; ler `api/src/core/orchestration/orchestration-engine.ts`, `strategy-tiers.ts` e `verification/answer-check-resolver.ts`; não copiar implementação AGPL.
 
 ## 3. Escopo a endurecer
 - **[READ]** contratos reais de provider, run trace e Tool registry.
