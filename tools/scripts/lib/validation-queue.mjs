@@ -109,7 +109,8 @@ export function acquireValidationLease({
   const resolvedRoot = path.resolve(queueRoot);
   if (
     process.env.MGTIA_VALIDATION_LEASE &&
-    path.resolve(process.env.MGTIA_VALIDATION_QUEUE_ROOT ?? '') === resolvedRoot
+    process.env.MGTIA_VALIDATION_QUEUE_ROOT &&
+    path.resolve(process.env.MGTIA_VALIDATION_QUEUE_ROOT) === resolvedRoot
   ) {
     return {
       reentrant: true,

@@ -398,9 +398,19 @@ function abortMerge() {
   }
 }
 
-function commandForWindows(command) {
-  if (process.platform !== 'win32') return command;
-  return ['pnpm', 'npm', 'npx'].includes(command) ? `${command}.cmd` : command;
+function commandForWindows(command, args) {
+  if (process.platform === 'win32' && command === 'pnpm') {
+    const candidates = [
+      process.env.npm_execpath,
+      process.env.APPDATA && path.join(process.env.APPDATA, 'npm', 'node_modules', 'pnpm', 'bin', 'pnpm.mjs'),
+    ];
+    const script = candidates.find((candidate) => candidate && candidate.toLowerCase().includes('pnpm') && fs.existsSync(candidate));
+    if (script) return { command: process.execPath, args: [script, ...args] };
+  }
+  return {
+    command: process.platform === 'win32' && ['npm', 'npx'].includes(command) ? `${command}.cmd` : command,
+    args,
+  };
 }
 
 function candidateTreeWithoutGate() {
@@ -444,8 +454,20 @@ function cmdMergeLocked(id, gateCommand) {
   }
 
   const candidateTree = candidateTreeWithoutGate();
+  const integrationArtifact = path.join(codeRepo, '.gate', `${candidateTree}.json`);
+  // A branch pode conter seu próprio artefato para a mesma árvore. A integração
+  // precisa gerar o artefato da composição atual; removê-lo do índice evita que
+  // uma tentativa (inclusive vermelha) suje o arquivo staged e impeça abortar.
+  if (fs.existsSync(integrationArtifact)) {
+    if (git(['rm', '--cached', '--ignore-unmatch', '--', integrationArtifact], { stdio: 'inherit' }).status !== 0) {
+      abortMerge();
+      die('não foi possível preparar o artefato do gate para a integração');
+    }
+    fs.rmSync(integrationArtifact, { force: true });
+  }
   console.log(`• candidato montado sobre ${baseHead}; executando gate exclusivo...`);
-  const gate = spawnSync(commandForWindows(gateCommand[0]), gateCommand.slice(1), {
+  const gateTarget = commandForWindows(gateCommand[0], gateCommand.slice(1));
+  const gate = spawnSync(gateTarget.command, gateTarget.args, {
     cwd: codeRepo,
     stdio: 'inherit',
     env: process.env,
@@ -459,7 +481,6 @@ function cmdMergeLocked(id, gateCommand) {
     abortMerge();
     die('HEAD da master mudou enquanto o gate pós-merge rodava');
   }
-  const integrationArtifact = path.join(codeRepo, '.gate', `${candidateTree}.json`);
   if (fs.existsSync(integrationArtifact)) {
     if (git(['add', '-f', '--', integrationArtifact], { stdio: 'inherit' }).status !== 0) {
       abortMerge();

@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { acquireValidationLease } from './lib/validation-queue.mjs';
 
 const cli = path.resolve('tools/scripts/validation-queue.mjs');
 
@@ -69,4 +70,24 @@ test('recupera owner abandonado', async () => {
   ]);
   assert.equal(code, 0);
   assert.equal(existsSync(active), false);
+});
+
+test('token sem raiz não é tratado como reentrância', () => {
+  const root = path.join(tmpdir(), `mgtia-validation-env-${process.pid}-${Date.now()}`);
+  const queue = path.join(root, 'queue');
+  const previousLease = process.env.MGTIA_VALIDATION_LEASE;
+  const previousRoot = process.env.MGTIA_VALIDATION_QUEUE_ROOT;
+  process.env.MGTIA_VALIDATION_LEASE = 'token-sem-raiz';
+  delete process.env.MGTIA_VALIDATION_QUEUE_ROOT;
+
+  try {
+    const lease = acquireValidationLease({ repoDir: root, queueRoot: queue, label: 'env-test' });
+    assert.equal(lease.reentrant, false);
+    lease.release();
+  } finally {
+    if (previousLease === undefined) delete process.env.MGTIA_VALIDATION_LEASE;
+    else process.env.MGTIA_VALIDATION_LEASE = previousLease;
+    if (previousRoot === undefined) delete process.env.MGTIA_VALIDATION_QUEUE_ROOT;
+    else process.env.MGTIA_VALIDATION_QUEUE_ROOT = previousRoot;
+  }
 });
