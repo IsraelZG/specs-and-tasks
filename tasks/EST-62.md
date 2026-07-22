@@ -1,7 +1,7 @@
 ---
 id: EST-62
 title: "Onda E: plugin-lsp (typescript-language-server) - diagnostics, definition, hover"
-status: rework
+status: done
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -136,8 +136,61 @@ O fluxo agêntico end-to-end está coberto por:
 Não rodei o fluxo com `typescript-language-server` REAL contra um arquivo TS com erro proposital porque o ambiente de teste não tem o binário acessível para spawn em todas as plataformas (o E2E roda com a dep instalada mas o `workspaceRoot` mock não tem tsconfig; o `node-pty` segue o mesmo padrão da EST-61 que validou por WIP + E2E mockado). A integração LSP real é responsabilidade do teste de aceitação manual ou de uma task posterior de spike se necessário.
 
 ### Parecer do Agente Revisor:
-- [ ] **Aprovado**
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
+
+> **⚠ NOTA DE PROCESSO (2026-07-21, sessão `minmax` que executou o despacho)**
+>
+> Esta task voltou para `rework` por uma **violação do guard de identidade do revisor**,
+> **NÃO** por bugs reais no código entregue:
+>
+> - O executor de EST-62 foi `minmax` (ver §9 linha 16:38).
+> - O script `tools/scripts/get-task.mjs` tem guard: `revisor DEVE ser modelo ≠ minmax`.
+> - O modelo ativo nesta sessão (que estava seguindo o despacho `/qa-review --integrar EST-62`)
+>   também é `minmax` — não pode satisfazer o guard, então a revisão tem que ser feita por
+>   outro modelo (claude-sonnet, gemini, deepseek, claude-opus, etc.).
+> - Para liberar a trava `in_review` (claim feito automaticamente pela skill), o agente
+>   `agile_reviewer:minmax` chamou `request_changes` com a mensagem explícita acima. **Não
+>   há código a corrigir** — é só um processo de handoff para um revisor de modelo diferente.
+> - **Ação esperada do próximo agente:** se for um worker `minmax` vendo esta task em
+>   `rework`, NÃO mexa no código; responda com `pause` indicando que EST-62 está aguardando
+>   revisor de modelo diferente. Se for um revisor de modelo ≠ minmax, rode
+>   `manage-task.mjs claim EST-62 agile_reviewer:<seu-modelo> "revisando"` — o claim
+>   funciona a partir de `rework` se o service suportar (caso contrário, peça ao arquiteto
+>   para re-promover a `review` via `reconcile` ou ajuste manual do `manage-task.mjs`).
+> - O gate `@plataforma/plugin-lsp` continua válido (artefato `.gate/fe275884fa372773a8a306a04613f6fe7dbeb21b.json`,
+>   commitado na branch `task/EST-62` em `C:\Dev2026\.superapp-worktrees\_slot-1`); a
+>   evidência transfere quando a árvore do merge for idêntica (Nível 1 do qa-review).
+> - Achado pré-existente `tests/integration/chat-route.test.ts:101` permanece não-bloqueante
+>   (candidato P-022 em PITFALLS) — fora do escopo desta task.
+
+#### Parecer QA (Revisor 2 — `gemini`) — 2026-07-21
+
+**Veredicto: APROVADO**
+
+- **Guard de Identidade:** Revisor `gemini` (Gemini 3.6 Flash) ≠ Executores (`minmax`, `big-pickle`). Requisito satisfeito.
+
+**Tabela de Escopo (§3 × Diff `master...task/EST-62`):**
+
+| Declarado em §3 | Alterado na branch | Disposição |
+| --- | --- | --- |
+| `packages/plugin-lsp/` [CREATE] | `packages/plugin-lsp/*` | `fixed` (novo pacote do plugin) |
+| `chat-agent-service.ts` [UPDATE] | `apps/estaleiro/core/src/chat-agent-service.ts` | `fixed` (integração LSP com heurística tsconfig) |
+| Non-declared (core deps) | `apps/estaleiro/core/package.json` | `fixed` (dep `@plataforma/plugin-lsp`) |
+| Non-declared (core tests) | `apps/estaleiro/core/tests/chat-agent-service.integration.test.ts` | `fixed` (unit tests do core) |
+| `ChatView.tsx` [UPDATE] | `apps/estaleiro/ui/src/views/chat/ChatView.tsx` | `fixed` (chip de diagnósticos LSP) |
+| Non-declared (e2e chat spec) | `apps/estaleiro/e2e/chat.spec.ts` | `fixed` (E2E test 29 ex §4) |
+| Non-declared (pnpm-lock) | `pnpm-lock.yaml` | `fixed` (lockfile) |
+
+**Evidência de Execução:**
+
+- **`@plataforma/plugin-lsp`**:
+  - `build`: exit=0 (tsc clean)
+  - `test`: exit=0 (3 files, 20/20 tests passed)
+  - `lint`: exit=0 (eslint clean)
+- **`@plataforma/estaleiro-core`**:
+  - `test`: exit=0 (30 files, 229/229 tests passed)
+
 
 ## 9. Log de Execução
 > Atualizado somente por `manage-task.mjs`/serviço MGTIA.
@@ -148,3 +201,7 @@ Não rodei o fluxo com `typescript-language-server` REAL contra um arquivo TS co
 - **[2026-07-21T16:38]** - *minmax* - `[Finalizado]`: EST-62 entregue: plugin-lsp + 3 tools (get_diagnostics/get_definition/get_hover) + integração no chat-agent com heurística tsconfig.json + chip de diagnostics na UI. Gate @plataforma/plugin-lsp allGreen (build 4.9s, 20/20 tests, lint clean). E2E chat 16/16 (novo teste 29 prova chip). 229/229 testes no estaleiro-core. Observação: pre-existing failure em tests/integration/chat-route.test.ts:101 (502 vs 400 MISSING_API_KEY) não relacionada a esta task — ver §8.
 - **[2026-07-21T16:41]** - *agile_reviewer:minimax* - `[Em revisão]`: verificando guard de identidade
 - **[2026-07-21T16:42]** - *agile_reviewer:minimax* - `[Requer Refatoração]`: Identity guard: este reviewer é o mesmo modelo (minmax) que executou EST-62. Service aceita o claim, mas o get-task.mjs guard exige revisor != minmax. Devolvendo a task para review sem julgamento — outro modelo deve claim/review.
+- **[2026-07-21T16:52]** - *big-pickle* - `[Iniciado]`: rework: verificando achados do parecer
+- **[2026-07-21T16:54]** - *big-pickle* - `[Finalizado]`: rework pronto: sem findings bloqueantes (violação de identidade do revisor era o único achado — NÃO é bug de código). Gate @plataforma/plugin-lsp re-executado: build ok, 20/20 tests pass, lint clean. Worktree task/EST-62 limpa. Pronto para review.
+- **[2026-07-21T17:15]** - *agile_reviewer:gemini* - `[Em revisão]`: revisando
+- **[2026-07-21T17:30]** - *agile_reviewer:gemini* - `[Aprovado]`: Integrado: merge na master (commit e390680), worktree liberada, Gate verde (@plataforma/plugin-lsp build+test 20/20, core test 229/229). 1 nao-bloqueante -> ledger.
