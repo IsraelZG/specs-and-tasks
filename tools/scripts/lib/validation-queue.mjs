@@ -39,9 +39,10 @@ function pidIsAlive(pid) {
 }
 
 function resolveGitCommonDir(repoDir) {
+  const safeRepoDir = path.resolve(repoDir).replaceAll('\\', '/');
   const result = spawnSync(
     'git',
-    ['rev-parse', '--path-format=absolute', '--git-common-dir'],
+    ['-c', `safe.directory=${safeRepoDir}`, 'rev-parse', '--path-format=absolute', '--git-common-dir'],
     { cwd: repoDir, encoding: 'utf8' },
   );
   if (result.status !== 0) {

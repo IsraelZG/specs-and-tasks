@@ -25,6 +25,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 import { createServer as createHttpServer } from 'node:http';
+import { validationQueueStatus } from '../tools/scripts/lib/validation-queue.mjs';
 
 // .env é a fonte canônica das chaves (CLAUDE.md / sync-provider). Carrega e SOBREPÕE o
 // env do sistema — que pode ter chaves velhas. ponytail: parser inline, sem dep dotenv.
@@ -88,6 +89,20 @@ const PROXIES = {
     anyllmProvider: 'openai',
     apiBaseEnv: 'ZENMUX_API_KEY',
     apiBase: 'https://zenmux.ai/api/v1',
+  },
+  sakana: {
+    port: 8795,
+    backend: 'anyllm',
+    anyllmProvider: 'openai',
+    apiBaseEnv: 'SAKANA_API_KEY',
+    apiBase: 'https://api.sakana.ai/v1',
+  },
+  kimi: {
+    port: 8796,
+    backend: 'anyllm',
+    anyllmProvider: 'openai',
+    apiBaseEnv: 'KIMI_API_KEY',
+    apiBase: 'https://api.kimi.com/coding/v1',
   },
 };
 
@@ -299,6 +314,32 @@ async function fetchProxyStatus(name) {
   }
 }
 
+function taskIdFromValidationEntry(entry) {
+  const match = `${entry?.label ?? ''} ${entry?.command ?? ''}`.match(/\b[A-Z][A-Z0-9]*-\d+\b/i);
+  return match ? match[0].toUpperCase() : null;
+}
+
+function publicValidationEntry(entry) {
+  return {
+    taskId: taskIdFromValidationEntry(entry),
+    label: entry?.label ?? 'validação',
+    createdAt: entry?.createdAt ?? null,
+  };
+}
+
+function fetchValidationQueueStatus() {
+  const codeRepo = process.env.SUPERAPP_DIR || join(rootDir(), '..', 'superapp');
+  const { queueRoot, owner, tickets } = validationQueueStatus({ repoDir: codeRepo });
+  return {
+    queueRoot,
+    active: owner ? publicValidationEntry(owner) : null,
+    waiting: tickets
+      .filter((ticket) => ticket?.token !== owner?.token)
+      .map(publicValidationEntry),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 function cmdDashboard(portOverride) {
   const port = portOverride || DASHBOARD_PORT;
   const json = (res, code, body) => {
@@ -322,6 +363,15 @@ function cmdDashboard(portOverride) {
   const server = createHttpServer(async (req, res) => {
     if (req.url === '/api/status') {
       json(res, 200, await Promise.all(Object.keys(PROXIES).map(fetchProxyStatus)));
+      return;
+    }
+    // GET /api/validation-queue — estado persistido da fila global de gates do superapp.
+    if (req.url === '/api/validation-queue') {
+      try {
+        json(res, 200, fetchValidationQueueStatus());
+      } catch (e) {
+        json(res, 500, { ok: false, error: e.message });
+      }
       return;
     }
     // POST /api/{start|stop|restart}/<name> — controla os proxies a partir da página.
@@ -526,10 +576,12 @@ section h2{font-size:15px;font-weight:650;margin:0 0 10px;padding-bottom:6px;bor
 <section><h2>Instâncias (Orquestrador)</h2><div id="instances"><div class="empty">carregando…</div></div></section>
 <section><h2>Eventos ao Vivo</h2><div id="event-stream"><div class="empty">conectando…</div></div></section>
 <section><h2>Ledger</h2><div id="ledger"><div class="empty">carregando…</div></div></section>
+<section><h2>Fila de Validação</h2><div id="validation-queue"><div class="empty">carregando…</div></div></section>
 <section><h2>Saldos</h2><div id="saldo"><div class="empty">carregando…</div></div></section>
 <script>
 const fmt=n=>n>=1000?(n/1000).toFixed(1)+'k':String(n);
 const pct=n=>(n||0).toFixed(1)+'%';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function card(p){
   if(!p.up) return \`<div class="card"><div class="top"><span class="dot down"></span>
     <span class="name">\${p.name}</span><span class="port">:\${p.port}</span></div>
@@ -605,6 +657,24 @@ async function tickLedger(){
     document.getElementById('ledger').innerHTML='<div class="ledger-grid">'+Object.entries(groups).map(([s,ts])=>\`<div class="ledger-group"><div class="ledger-status" style="color:\${statusColors[s]||'#8b93a1'}">\${s} (\${ts.length})</div>\`+ts.map(t=>\`<div class="ledger-item"><span>\${t.id}</span> \${t.title||''} <small>\${t.capacity_target||''}</small></div>\`).join('')+'</div>').join('')+'</div>';
   }catch(e){document.getElementById('ledger').innerHTML='<div class="empty">erro ao carregar</div>';}
 }
+// Fila global de validação: owner é o gate em execução; tickets restantes aguardam FIFO.
+function queueItem(item){
+  const task=item.taskId||'sem task';
+  const when=item.createdAt?new Date(item.createdAt).toLocaleTimeString():'agora';
+  return '<div class="ledger-item"><span>'+esc(task)+'</span> '+esc(item.label)+' <small>· desde '+when+'</small></div>';
+}
+async function tickValidationQueue(){
+  const el=document.getElementById('validation-queue');
+  try{
+    const r=await fetch('/api/validation-queue');const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'erro ao carregar');
+    const active=d.active?'<div class="ledger-group"><div class="ledger-status" style="color:#58a6ff">EM EXECUÇÃO</div>'+queueItem(d.active)+'</div>':
+      '<div class="ledger-group"><div class="ledger-status" style="color:#8b93a1">LIVRE</div><div class="ledger-item">nenhum gate em execução</div></div>';
+    const waiting=d.waiting.length?'<div class="ledger-group"><div class="ledger-status" style="color:#d29922">AGUARDANDO ('+d.waiting.length+')</div>'+d.waiting.map(queueItem).join('')+'</div>':
+      '<div class="ledger-group"><div class="ledger-status" style="color:#8b93a1">AGUARDANDO (0)</div><div class="ledger-item">fila vazia</div></div>';
+    el.innerHTML='<div class="ledger-grid">'+active+waiting+'</div>';
+  }catch(e){el.innerHTML='<div class="empty">erro ao carregar fila de validação</div>';}
+}
 // Saldo
 async function tickSaldo(){
   try{
@@ -644,8 +714,8 @@ function connectEventStream(){
     document.getElementById('event-stream').innerHTML='<div class="empty">desconectado, reconectando…</div>';
   };
 }
-tick();tickInstances();tickLedger();tickSaldo();tickStuck();connectEventStream();
-setInterval(tick,4000);setInterval(tickInstances,5000);setInterval(tickLedger,8000);setInterval(tickSaldo,15000);setInterval(tickStuck,10000);
+tick();tickInstances();tickLedger();tickValidationQueue();tickSaldo();tickStuck();connectEventStream();
+setInterval(tick,4000);setInterval(tickInstances,5000);setInterval(tickLedger,8000);setInterval(tickValidationQueue,3000);setInterval(tickSaldo,15000);setInterval(tickStuck,10000);
 </script></body></html>`;
 
 // ── Main ────────────────────────────────────────────────────────────────
