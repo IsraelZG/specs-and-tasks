@@ -26,6 +26,7 @@ Migrar a semântica de conhecimento do produto de corpus markdown-first no files
 - [caderno SDK/01](../docs/caderno-3-sdk/01-sqlite-and-projections-schema.md) §§4–5 — nodes/edges, projeções e caminho pós-decifra.
 - [T-1043](./T-1043.md) — core já usa GraphStorePort.
 - [EST-13a](./EST-13a.md), [EST-13b](./EST-13b.md), [EST-13c](./EST-13c.md) — grafo/FTS/writer atuais.
+- [Referências locais](../docs/referencias-codigo-aberto.md) — Cognee em `docs/_vendor/cognee` no commit fixado; ler `cognee/memify_pipelines/` apenas como referência de pipeline/provenance.
 
 ## 3. Escopo a endurecer
 - **[READ]** GraphStorePort e adapters persistentes atuais.

@@ -25,7 +25,7 @@ Implementar contratos e workflows explícitos para memória de sessão, promoç�
 - [ADR 0019](../docs/adr/0019-tools-workflows-context-and-encrypted-storage.md) §6.
 - [T-KNOW-01](./T-KNOW-01.md) — conteúdo canônico em nodes.
 - [T-IA-03](./T-IA-03.md) — retrieval, permissão e RRF.
-- [Cognee](https://github.com/topoteretes/cognee) — inspiração de ciclos `remember`, `recall`, `forget` e memória temporal; não reutilizar runtime inteiro.
+- [Referências locais](../docs/referencias-codigo-aberto.md) — Cognee em `docs/_vendor/cognee`, commit fixado; ler `cognee/memify_pipelines/` e `examples/demos/memory_provenance_demo.py` como inspiração de `remember`/`recall`/`forget`, sem reutilizar runtime inteiro.
 
 ## 3. Escopo a endurecer
 - **[READ]** modelo de nodes/edges e permission filter final.

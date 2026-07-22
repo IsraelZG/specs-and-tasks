@@ -25,7 +25,7 @@ Implementar pipeline de ingestão que normaliza/chunka/deduplica e, quando a pol
 - [ADR 0019](../docs/adr/0019-tools-workflows-context-and-encrypted-storage.md) §6.
 - [T-MEM-01](./T-MEM-01.md) — provenance, temporalidade e lifecycle.
 - [T-IA-02](./T-IA-02.md) — compute local de embedding/LLM.
-- [Cognee](https://github.com/topoteretes/cognee) — inspiração de pipeline/ontologia, sem dependência de runtime.
+- [Referências locais](../docs/referencias-codigo-aberto.md) — Cognee em `docs/_vendor/cognee`, commit fixado; ler pipelines de `memify` como inspiração de extração/validação, sem dependência de runtime.
 
 ## 3. Escopo a endurecer
 - **[READ]** contratos de memória e inferência resultantes das dependências.
