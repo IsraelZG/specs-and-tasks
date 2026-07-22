@@ -68,6 +68,15 @@ function existsExact(rel) {
   try { return fs.readdirSync(path.dirname(abs)).includes(path.basename(abs)); } catch { return false; }
 }
 
+function isTracked(rel) {
+  try {
+    git(['ls-files', '--error-unmatch', '--', rel]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // ---- add -------------------------------------------------------------------
 function add(taskId, message, extraPaths) {
   if (!taskId || !message) {
@@ -127,8 +136,10 @@ function flush(author = 'fila') {
   for (const f of files) {
     const full = path.join(queueDir, f);
     const [message, ...paths] = fs.readFileSync(full, 'utf8').trim().split('\n');
-    const existing = paths.filter(existsExact);
-    if (!existing.length) {
+    // Um path rastreado que foi removido não "existe", mas precisa chegar ao git add para a
+    // deleção ser commitada. Sem isso, moves viram cópias e deixam o arquivo antigo na master.
+    const eligible = paths.filter(rel => existsExact(rel) || isTracked(rel));
+    if (!eligible.length) {
       skipped.push(`${f}: nenhum path existe (${paths.join(', ')})`);
       fs.rmSync(full);
       continue;
@@ -137,11 +148,11 @@ function flush(author = 'fila') {
     // INTEIRA, e o catch retinha a entrada para sempre como "transiente". Filtra-os antes.
     // check-ignore sai 0 com ignorados no stdout, 1 quando nenhum é ignorado (throw esperado).
     let ignored = [];
-    try { ignored = git(['check-ignore', '--', ...existing]).trim().split('\n').filter(Boolean); }
+    try { ignored = git(['check-ignore', '--', ...eligible]).trim().split('\n').filter(Boolean); }
     catch { /* nenhum path ignorado */ }
-    const commitPaths = existing.filter((p) => !ignored.includes(p));
+    const commitPaths = eligible.filter((p) => !ignored.includes(p));
     if (!commitPaths.length) {
-      skipped.push(`${f}: só paths gitignored (${existing.join(', ')}) — descartado`);
+      skipped.push(`${f}: só paths gitignored (${eligible.join(', ')}) — descartado`);
       fs.rmSync(full);
       continue;
     }
