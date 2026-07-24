@@ -1,7 +1,7 @@
 ---
 id: T-UIE-04
 title: "Workflow de geração de SPEC:PAGE via catálogo e UI Engines"
-status: draft:triaged
+status: draft:hardened
 complexity: 4
 target_agent: frontend_agent
 reviewer_agent: agile_reviewer
@@ -99,3 +99,4 @@ pnpm gate @plataforma/pages --profile ui
 ## 9. Log de Execução
 - **[2026-07-21T16:09]** - *gpt-5* - `[Triado]`: Triada geração de SPEC:PAGE via catálogo.
 - **[2026-07-24T06:49]** - *gemini-3.6-flash* - `[Hardened]`: Spec endurecida com Zod schemas, testes Playwright/Vitest e gate de UI.
+- **[2026-07-24T14:17]** - *deepseek-v4-pro* - `[Endurecido]`: Spec endurecida com Zod schemas, testes Playwright/Vitest e gate de UI — zero decisões em aberto
