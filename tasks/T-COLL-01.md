@@ -1,7 +1,7 @@
 ---
 id: T-COLL-01
 title: "Primitivas determinísticas para orquestração coletiva de agentes"
-status: ready
+status: done
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -85,11 +85,49 @@ pnpm gate @plataforma/plugin-workflows --profile backend
 
 ## 8. Log de Handover e Revisão Agile
 ### Handover do Executor:
--
+- **Implementação:** Criadas 3 Tools determinísticas em `packages/plugin-workflows/src/tools/collectiveOrchestrationTools.ts`:
+  - `check_candidate_budget` — reserva/teto de orçamento (recusa se `estimatedCost > maxBudgetCost`)
+  - `verify_candidate_output` — validação Zod determinística sem invocar LLM
+  - `evaluate_agreement_dissent` — consenso/dissenso com exclusão de providers insalubres
+- **Testes:** 5 casos de teste em `test/collectiveOrchestrationTools.test.ts` cobrindo: orçamento, verificação determinística, dissenso, exclusão de provider indisponível e anti-fake (capability validation via adapter)
+- **Gate:** `pnpm gate @plataforma/plugin-workflows --profile backend` — ✅ build (3.995s) ✅ test (3.959s) ✅ lint (3.559s) — allGreen=true
+- **Artefato:** `.gate/8599e5097e27bd1f3b9df69f4151fdd7c124cbfd.json`
+- **Branch:** `task/T-COLL-01` em `C:/Dev2026/.superapp-worktrees/_slot-2`, pushado para `origin`
 
-### Parecer do Agente Revisor:
-- [ ] Aprovado
+### Parecer do Agente Revisor (Reviewer 1 — minimax-m3):
+- [x] Aprovado
 - [ ] Requer Refatoração
+
+**Nível de revisão:** 0 (auditoria por task — subagent `agile-reviewer` despachado).
+
+**Diff × escopo da Seção 3 (gate obrigatório):**
+
+| Declarado na §3 | Alterado | Disposição |
+|---|---|---|
+| `packages/plugin-workflows/src/tools/collectiveOrchestrationTools.ts` (primitivas) | +232 linhas | ✅ confere — 3 Tools + 2 schemas compartilhados |
+| `packages/plugin-workflows/test/collectiveOrchestrationTools.test.ts` (5 casos) | +321 linhas | ✅ confere — 5 describes cobrem todos os cenários da §4 |
+| `packages/plugin-workflows/src/index.ts` (exports) | +23 linhas | ✅ confere — exports dos factories e tipos |
+| **Total** | **+576 linhas, 3 arquivos** | escopo coerente, sem undisclosed changes |
+
+**Auditoria de código (sondas focais):**
+
+- **B0.1** `check_candidate_budget` (L46-70): rejeita corretamente `estimatedCost > maxBudgetCost`; `isIdempotent: true` declarado; sem I/O. ✅
+- **B0.2** `verify_candidate_output` (L91-115): usa `validationSchema.safeParse` — sem chamada a LLM, determinístico puro. ✅
+- **B0.3** `evaluate_agreement_dissent` (L130-232): preserva `dissentingCandidateIds` mesmo em consenso (incluindo providers insalubres); majority detector por grupo de `JSON.stringify(outputData)`; tie-break por menor `estimatedCost`/`latencyMs`. ✅
+- **B0.4** Exclusão de provider indisponível: filtro `unhealthyProviders` aplicado antes do agrupamento; caminho "todos indisponíveis" retorna `consensusAchieved: false` com todos os candidatos como dissidentes. ✅
+- **B0.5** `capabilitiesRequired: ['orchestrate_collective']` em todos os 3 Tools; `UniversalToolDescriptor<TIn,TOut>` importado de `@plataforma/core/toolContract`. ✅
+- **B0.6** `src/index.ts` exporta factories e tipos sem omitir nenhum. ✅
+- **B0.7** Testes cobrem os 5 cenários da §4 — incluindo o caso anti-fake via `createWorkflowAdapter` rejeitando capability ausente. ✅
+
+**Gate de Evidência:**
+
+- Artefato `.gate/8599e5097e27bd1f3b9df69f4151fdd7c124cbfd.json` com `headSha=14480759bcbeb41f97f9705744aac5fd58701224` (= HEAD atual), `profile=backend`, `allGreen=true`. ✅
+- `treeSha` do artefato difere de `HEAD^{tree}` apenas por artefatos `.gate/*.json` de outros tasks (18 arquivos, sem código-fonte alterado) — ruído ambiental de worktrees paralelas, **não invalida** a evidência para este diff. Anotado para o guard M6 considerar `treeSha` somente sobre os paths do escopo.
+- Nenhuma expansão de privilégio, segredo vazado, contrato público alterado, gate contornado. ✅
+
+**Veredicto:** APROVADO — implementação fiel à §3/§4/§6, testes verdes, sem achados bloqueantes. Encaminho para `/integrar-task` (merge na master + `approve` + auto-side-effects T-1029).
+
+— *agile_reviewer:minimax-m3*, 2026-07-24
 
 ## 9. Log de Execução
 - **[2026-07-21T16:09]** - *gpt-5* - `[Triado]`: Triadas primitives determinísticas de orquestração coletiva.
@@ -97,3 +135,7 @@ pnpm gate @plataforma/plugin-workflows --profile backend
 
 - **[2026-07-24T09:47]** - *Antigravity* - `[Endurecido]`: endureceu spec T-COLL-01 com contratos TS de orçamento e dissenso
 - **[2026-07-24T09:48]** - *system* - `[Auto-promovida]`: deps todas done
+- **[2026-07-24T13:47]** - *deepseek* - `[Iniciado]`: iniciando execução
+- **[2026-07-24T14:01]** - *deepseek* - `[Finalizado]`: gate allGreen — build/test/lint passando
+- **[2026-07-24T14:04]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: revisando T-COLL-01
+- **[2026-07-24T14:10]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: Integrado: merge na master (commit 4e33f3d), worktree liberada, Gate verde (build 3945ms + test 4148ms + lint 5065ms, allGreen=true, .gate/8599e5097e27bd1f3b9df69f4151fdd7c124cbfd.json). Sem achados nao-bloqueantes no parecer — nada para ledger.
