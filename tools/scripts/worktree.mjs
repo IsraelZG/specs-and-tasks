@@ -315,7 +315,7 @@ function cmdRefresh() {
   for (const name of names) {
     if (pool.slots[name]?.id) continue;
     const wt = wtPath(name);
-    spawnSync('npx.cmd', ['turbo', 'run', 'build'], { cwd: wt, stdio: 'inherit', shell: true });
+    spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', ['turbo', 'run', 'build'], { cwd: wt, stdio: 'inherit', shell: true });
   }
 
   writePool(pool);

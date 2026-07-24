@@ -30,11 +30,14 @@ async function httpOk(url, timeoutMs = 2000) {
   }
 }
 
-/** True se o PID estiver vivo no Windows (tasklist). */
+/** True se o PID estiver vivo (tasklist no Windows, kill(0) no POSIX). */
 function pidAlive(pid) {
   if (!pid) return false;
-  const r = spawnSync('tasklist', ['/FI', `PID eq ${pid}`, '/NH'], { encoding: 'utf8' });
-  return (r.stdout || '').includes(String(pid));
+  if (process.platform === 'win32') {
+    const r = spawnSync('tasklist', ['/FI', `PID eq ${pid}`, '/NH'], { encoding: 'utf8' });
+    return (r.stdout || '').includes(String(pid));
+  }
+  try { process.kill(pid, 0); return true; } catch { return false; }
 }
 
 function readPid(name) {
@@ -44,19 +47,22 @@ function readPid(name) {
   return Number.isFinite(v) ? v : null;
 }
 
-/** Resolve o headroom.exe: PATH (`where`) → caminho conhecido do pip Scripts. */
+/** Resolve o binário do headroom: PATH (`where`/`which`) → caminhos conhecidos do pip. */
 function resolveHeadroomExe() {
-  const w = spawnSync('where', ['headroom'], { encoding: 'utf8' });
+  const isWin = process.platform === 'win32';
+  const w = spawnSync(isWin ? 'where' : 'which', ['headroom'], { encoding: 'utf8' });
   const fromPath = (w.stdout || '').split(/\r?\n/).map((s) => s.trim()).find((s) => s && fs.existsSync(s));
   if (fromPath) return fromPath;
-  const known = path.join(process.env.APPDATA || '', 'Python', 'Python313', 'Scripts', 'headroom.exe');
+  const known = isWin
+    ? path.join(process.env.APPDATA || '', 'Python', 'Python313', 'Scripts', 'headroom.exe')
+    : path.join(process.env.HOME || '', '.local', 'bin', 'headroom');
   return fs.existsSync(known) ? known : null;
 }
 
 // ─────────────────────────────────────────────────────────── 1. pré-requisito
 const headroomExe = resolveHeadroomExe();
 if (!headroomExe) {
-  console.error('❌ headroom.exe não encontrado no Windows. Instale com:');
+  console.error('❌ headroom não encontrado no PATH. Instale com:');
   console.error('       python -m pip install "headroom-ai[all]"');
   process.exit(2);
 }

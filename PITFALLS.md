@@ -113,7 +113,9 @@ Filtrar o que é da plataforma correta (manter) e o que é de outras plataformas
 
 Passo 4 — após corrigir `.npmrc` e limpar dirs errados, rodar `pnpm install`.
 
-**Nota:** O `.npmrc` deste repo já tem `supportedArchitectures` configurado para a última máquina usada. Se trocar de máquina, revisar essas linhas antes de rodar `pnpm install`.
+**Nota:** O `.npmrc` é **por máquina** e está gitignored nos dois repos (Regra 2b / P-008) — cada
+máquina mantém o seu com o `supportedArchitectures` do próprio host. Ao configurar uma máquina
+nova, crie-o antes do primeiro `pnpm install` (receitas prontas em `docs/setup-multimaquina.md`).
 
 ---
 

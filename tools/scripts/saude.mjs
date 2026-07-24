@@ -7,7 +7,8 @@
  *   - tasks/SAUDE.md      — tabela markdown legível
  *   - --preflight <pkg>  — exit ≠ 0 se pacote tem dívida basal
  *
- * Tooling-do-controle: vive em tools/scripts/ (Docs), roda contra C:\Dev2026\superapp.
+ * Tooling-do-controle: vive em tools/scripts/ (Docs), roda contra o superapp
+ * (SUPERAPP_DIR ou a pasta irmã ../superapp).
  * Uso:  node tools/scripts/saude.mjs
  *       node tools/scripts/saude.mjs --preflight @plataforma/core
  */
@@ -22,7 +23,7 @@ const stripAnsi = s => s.replace(/\u001b\[[0-9;]*m/g, '');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..', '..');
 const tasksDir = path.join(root, 'tasks');
-const superappDir = 'C:\\Dev2026\\superapp';
+const superappDir = path.resolve(process.env.SUPERAPP_DIR || path.join(root, '..', 'superapp'));
 const jsonPath = path.join(tasksDir, '.saude.json');
 const mdPath = path.join(tasksDir, 'SAUDE.md');
 
@@ -34,12 +35,11 @@ const PKG_DIM_HASH_RE = /(@[a-z0-9_-]+\/[a-z0-9_-]+)#(build|lint|test)/g;
 
 // ---- helpers -----------------------------------------------------------------
 function resolveTurbo() {
-  // On Windows, use the .cmd wrapper (Node's execSync can't run Unix #! scripts)
-  const cmdPath = path.join(superappDir, 'node_modules', '.bin', 'turbo.cmd');
-  if (fs.existsSync(cmdPath)) return cmdPath;
-  const binPath = path.join(superappDir, 'node_modules', '.bin', 'turbo');
+  const isWin = process.platform === 'win32';
+  // No Windows, usa o wrapper .cmd (execSync do Node não roda scripts com #! Unix)
+  const binPath = path.join(superappDir, 'node_modules', '.bin', isWin ? 'turbo.cmd' : 'turbo');
   if (fs.existsSync(binPath)) return binPath;
-  return 'npx.cmd --yes turbo';
+  return `${isWin ? 'npx.cmd' : 'npx'} --yes turbo`;
 }
 
 const TURBO_CMD = resolveTurbo();

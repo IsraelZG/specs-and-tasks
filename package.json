@@ -2,6 +2,9 @@
   "name": "nexus-workspace",
   "private": true,
   "packageManager": "pnpm@11.1.2",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "turbo run build --filter=!nexus-backend --filter=!nexus-frontend",
     "dev": "turbo run dev --filter=!nexus-backend --filter=!nexus-frontend",

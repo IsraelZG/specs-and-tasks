@@ -1,0 +1,25 @@
+# Normalização de line endings para desenvolvimento multi-OS (Windows + Linux).
+# LF no repositório E no checkout — evita diffs fantasma CRLF/LF entre máquinas.
+# Após adicionar/alterar este arquivo, rodar UMA VEZ em cada clone:
+#   git add --renormalize . && git commit -m "chore: renormaliza line endings"
+* text=auto eol=lf
+
+# Scripts de shell do Windows exigem CRLF no checkout (cmd.exe quebra com LF)
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binários — git nunca deve tocar
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.pdf binary
+*.zip binary
+*.db binary
+*.sqlite binary
+*.wasm binary
+*.onnx binary

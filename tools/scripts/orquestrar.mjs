@@ -8,6 +8,8 @@ import { emit } from './lib/telemetry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..', '..');
+// Repo de código: SUPERAPP_DIR ou a pasta irmã ../superapp (padrão multi-máquina, ver campanha.mjs)
+const codeRepo = path.resolve(process.env.SUPERAPP_DIR || path.join(root, '..', 'superapp'));
 
 const REGISTRY_DIR = path.join(root, 'tasks', '.orchestrator');
 const LOCK_DIR = path.join(REGISTRY_DIR, '.lock');
@@ -147,7 +149,7 @@ export function planDispatch(ledger, config, balances, _runningCount) {
     }
 
     const cwd = (task.next_action === 'work' || task.next_action === 'rework')
-      ? 'C:\\Dev2026\\superapp'
+      ? codeRepo
       : root;
 
     result.planned.push({
@@ -381,7 +383,7 @@ export function resumeTask(resumeId, ledgerFile) {
   }
 
   const cwd = (task.next_action === 'work' || task.next_action === 'rework')
-    ? 'C:\\Dev2026\\superapp'
+    ? codeRepo
     : '.';
 
   const item = { id: resumeId, action: task.next_action, role: task.next_action, model: sel.model, cwd, reason: `resume (${sel.reason})` };
