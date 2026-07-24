@@ -126,9 +126,14 @@ nova, crie-o antes do primeiro `pnpm install` (receitas prontas em `docs/setup-m
 **Causa raiz:** O subprocesso sandboxed da extension bloqueia o terminal integrado em operações longas/bloqueantes.
 **Solução:** Para operações potencialmente longas, o Claude deve guiar o usuário a rodar o comando manualmente no próprio PowerShell e aguardar o resultado colado. O Claude só usa a tool internamente para operações rápidas (leituras, greps, edições, git status).
 **Operações que exigem execução manual pelo usuário:**
-- `pnpm install` (especialmente com reconciliação de lockfile)
 - `Remove-Item -Recurse -Force` em `node_modules/`
 - `tsc` na primeira compilação fria de projetos grandes
+
+> **`pnpm install` liberado para a tool (2026-07-24):** a restrição original vinha do terminal
+> integrado do VS Code travando. Rodado via Bash/PowerShell tool nesta sessão (Docs e superapp),
+> sem travar — autorizado pelo usuário a rodar direto daqui em diante. Ainda não valida o caso de
+> instalação longa/reconciliação pesada de lockfile (o rodado aqui foi reconciliação trivial,
+> <1s); se travar num install grande, reabra a restrição.
 
 ---
 
