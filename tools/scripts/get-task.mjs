@@ -3,6 +3,7 @@
 // READ-ONLY: resolve e imprime; nunca transiciona estado.
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
 
@@ -27,6 +28,14 @@ const taskText = fs.readFileSync(taskFile, 'utf-8');
 const fm = parseFrontmatter(taskText);
 const sections = parseSections(taskText);
 const status = (fm.status || '').toLowerCase();
+
+const currentMachine = os.hostname();
+const taskMachine = fm.machine || null;
+const isOtherMachine = Boolean(taskMachine && taskMachine.toLowerCase() !== currentMachine.toLowerCase());
+let multiMachineVeto = false;
+if (isOtherMachine && (status === 'in_progress' || status === 'rework')) {
+  multiMachineVeto = true;
+}
 
 const STATE_MAP = {
   'draft:placeholder': { role: 'endurecedor', skill: 'endurecer-task', verb: 'triage/harden' },
@@ -54,7 +63,7 @@ const identityGuard = executor
   ? `guarda de identidade: revisor DEVE ser modelo ≠ ${executor}`
   : 'guarda de identidade: executor não identificado no §9';
 const invocation = state.skill ? `/${state.skill}${state.args ? ` ${state.args}` : ''} ${taskId}` : null;
-const actionable = Boolean(state.skill);
+const actionable = Boolean(state.skill) && !multiMachineVeto;
 
 function normalizeId(input) {
   return input.trim().toLowerCase().replace(/-/g, '');
@@ -187,15 +196,19 @@ function defaultBranch() {
 }
 
 function gitState() {
-  const wt = path.join(worktreesBase, taskId);
+  const wt = fm.worktree_path || path.join(worktreesBase, taskId);
   const out = { exists: fs.existsSync(wt), path: wt };
   if (!out.exists) return out;
   try {
-    out.branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: wt, encoding: 'utf-8' }).trim();
-    out.clean = execSync('git status --porcelain', { cwd: wt, encoding: 'utf-8' }).trim().length === 0;
+    out.branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: wt, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+    out.clean = execSync('git status --porcelain', { cwd: wt, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] }).trim().length === 0;
     const base = defaultBranch();
-    out.log = execSync(`git log ${base}..task/${taskId} --oneline`, { cwd: codeRepo, encoding: 'utf-8' }).trim();
-    out.mergeBase = execSync(`git merge-base ${base} task/${taskId}`, { cwd: codeRepo, encoding: 'utf-8' }).trim();
+    try {
+      out.log = execSync(`git log ${base}..task/${taskId} --oneline`, { cwd: codeRepo, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+    } catch { out.log = '(sem branch no repo)'; }
+    try {
+      out.mergeBase = execSync(`git merge-base ${base} task/${taskId}`, { cwd: codeRepo, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+    } catch { out.mergeBase = '-'; }
   } catch (e) {
     out.error = e.message;
   }
@@ -245,13 +258,32 @@ function textOutput() {
 
   lines.push(`═══════════ DESPACHO MGTIA · ${taskId} ═══════════`);
   lines.push(`papel: ${state.role}  ·  status: ${fm.status}  ·  próximo verbo: ${state.verb}`);
+  if (taskMachine) {
+    lines.push(`máquina alocada: ${taskMachine}  (máquina atual: ${currentMachine})`);
+  }
+  if (git.exists) {
+    lines.push(`worktree: ${git.path}`);
+  }
   if (uiSkillSwap) {
     lines.push(`nota: task de UI (ui:true/frontend_agent) → skill trocada de executar-task para executar-task-ui.`);
   }
-  if (actionable) {
+
+  if (multiMachineVeto) {
+    lines.push(`❌ VETO MULTI-MÁQUINA: Esta tarefa foi iniciada na máquina '${taskMachine}', mas você está executando em '${currentMachine}'. A worktree e as alterações locais residem em '${taskMachine}'. A execução foi bloqueada nesta máquina.`);
+  } else if (actionable) {
     lines.push(`▶ AÇÃO AGORA — VOCÊ é o executor deste papel. Execute:  ${invocation}`);
-    lines.push(`   Comece pelo verbo \`${state.verb}\` e SIGA a skill inlinada no fim deste output.`);
-    lines.push(`⚠ Este output é seu CONTEXTO DE TRABALHO (task + RAG + código + skill) — NÃO é um relatório para resumir nem uma pergunta. Não devolva o conteúdo; EXECUTE a ação acima até a task mudar de estado.`);
+    if (status === 'in_progress' || status === 'rework') {
+      lines.push(`▶ RETOMADA DE TRABALHO: Worktree em '${git.path || fm.worktree_path}'. Continue o desenvolvimento.`);
+      lines.push(`   Ao concluir, execute: node tools/scripts/concluir-task.mjs finish ${taskId} <EU> "<resumo>"`);
+    } else if (status === 'review' || status === 'in_review') {
+      lines.push(`▶ REVISÃO DE CÓDIGO: Worktree/branch 'task/${taskId}'. Verifique o código e execute:`);
+      lines.push(`   Para aprovar: node tools/scripts/concluir-task.mjs approve ${taskId} <EU> "<parecer>"`);
+      lines.push(`   Para rejeitar: node tools/scripts/concluir-task.mjs reject ${taskId} <EU> "<parecer>"`);
+    } else {
+      lines.push(`   Comece pelo verbo \`${state.verb}\` e SIGA a skill inlinada no fim deste output.`);
+      lines.push(`   Ao concluir, execute: node tools/scripts/concluir-task.mjs finish ${taskId} <EU> "<resumo>"`);
+    }
+    lines.push(`⚠ Este output é seu CONTEXTO DE TRABALHO (task + RAG + código + skill) — NÃO é um relatório para resumir nem uma pergunta. EXECUTE a ação até concluir a task.`);
   } else {
     lines.push(`■ NÃO execute nada. A task está em \`${fm.status}\` → ${state.verb}. Apenas reporte este estado a quem despachou; não há trabalho a fazer aqui.`);
   }
@@ -313,7 +345,7 @@ function textOutput() {
     lines.push('');
     lines.push('─────────────────────────────────────────────────');
     lines.push(`▶ FIM DO CONTEXTO. AGORA EXECUTE:  ${invocation}  (comece pelo verbo \`${state.verb}\`).`);
-    lines.push('   Isto era o contexto, não a tarefa concluída — não pare aqui nem resuma; siga a skill acima até a task transicionar.');
+    lines.push('   Ao terminar o trabalho, conclua chamando o script determinístico `concluir-task.mjs`.');
     lines.push('─────────────────────────────────────────────────');
   }
   return lines.join('\n');
@@ -332,14 +364,20 @@ function jsonOutput() {
     verb: state.verb,
     skill: state.skill,
     skillChain: skillChain(state.skill),
+    machine: taskMachine,
+    currentMachine,
+    multiMachineVeto,
+    worktreePath: git.path || fm.worktree_path || null,
     uiTask: isUiTask,
     uiSkillSwap,
     args: state.args || null,
     actionable,
     invocation,
-    directive: actionable
-      ? `EXECUTE ${invocation} (comece por ${state.verb}); este payload é contexto de trabalho, não um relatório.`
-      : `NÃO execute nada; task em ${fm.status} → ${state.verb}, apenas reporte.`,
+    directive: multiMachineVeto
+      ? `VETO MULTI-MÁQUINA: Task iniciada em ${taskMachine}. Execução bloqueada em ${currentMachine}.`
+      : (actionable
+          ? `EXECUTE ${invocation} (comece por ${state.verb}); ao concluir rode concluir-task.mjs.`
+          : `NÃO execute nada; task em ${fm.status} → ${state.verb}, apenas reporte.`),
     identityGuard,
     rag: rag.map(r => ({ link: r.link, status: r.status, resolved: r.resolved, snippet: r.content ? r.content.slice(0, 2000) : null })),
     scopePaths,

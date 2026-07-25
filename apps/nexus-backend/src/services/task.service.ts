@@ -350,8 +350,8 @@ export class TaskService {
     return this.getTask(id);
   }
 
-  /** Persiste campos `branch`/`worktreePath` no frontmatter da task. NÃO regenera o INDEX. */
-  setMeta(id: string, fields: { branch?: string; worktreePath?: string }): TaskRecord {
+  /** Persiste campos `branch`/`worktreePath`/`worktree_path`/`machine` no frontmatter da task. NÃO regenera o INDEX. */
+  setMeta(id: string, fields: { branch?: string; worktreePath?: string; worktree_path?: string; machine?: string }): TaskRecord {
     const filePath = this.resolvePath(id);
     let content = fs.readFileSync(filePath, 'utf8');
     for (const [key, value] of Object.entries(fields)) {

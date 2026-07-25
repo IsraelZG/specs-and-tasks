@@ -1,4 +1,5 @@
 import path from 'path';
+import os from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { execSync, spawn } from 'child_process';
@@ -7,6 +8,7 @@ import { emit } from './lib/telemetry.mjs';
 
 const [, , action, taskId, agentName, ...messageParts] = process.argv;
 const tStart = performance.now();
+const currentMachine = os.hostname();
 
 if (!action || !taskId || !agentName) {
   console.error('Uso: node manage-task.mjs <triage|harden|decide|block_decision|decompose|claim|demote|obsolete|start|promote|pause|finish|approve|request_changes|block|unblock|reconcile> <TaskID> <NomeDoAgente> [Mensagem...]');
@@ -35,10 +37,16 @@ function parseIdArray(raw) {
   return raw.replace(/#.*$/, '').replace(/[\[\]"']/g, '').split(',').map(s => s.trim()).filter(Boolean);
 }
 
+// --- Veto Multi-Máquina ------------------------------------------------------
+if (['finish', 'pause', 'block', 'start'].includes(action)) {
+  const recordedMachine = readTaskField(taskId, 'machine');
+  if (recordedMachine && recordedMachine.toLowerCase() !== currentMachine.toLowerCase()) {
+    console.error(`❌ Ação '${action}' bloqueada: A task ${taskId} está alocada na máquina '${recordedMachine}', mas você está executando na máquina '${currentMachine}'.`);
+    process.exit(1);
+  }
+}
+
 // --- M4a: promote exige TODAS as dependências `done` (não `in_progress`) ------
-// Retrospectiva 2026-07-19: EST-49b foi promovida a ready com dep "in_progress",
-// nasceu de um master sem a dep, e o conflito estrutural era garantido. `done`
-// significa MERGEADO na master — só então a dep existe para o worker herdar.
 if (action === 'promote') {
   const deps = parseIdArray(readTaskField(taskId, 'dependencies'));
   const notDone = deps.filter(d => (readTaskField(d, 'status') || 'unknown') !== 'done');
@@ -51,15 +59,12 @@ if (action === 'promote') {
 
 // --- Gate validation on finish -----------------------------------------------
 if (action === 'finish') {
-  const worktreeDir = path.resolve(repoRoot, '..', '.superapp-worktrees', taskId);
+  const recordedWtPath = readTaskField(taskId, 'worktree_path');
+  const worktreeDir = recordedWtPath || path.resolve(repoRoot, '..', '.superapp-worktrees', taskId);
 
-  // Only validate if task has a code worktree (tooling-do-controle is exempt)
   if (existsSync(worktreeDir)) {
-    // O trabalho da task vive na worktree, não no checkout principal (que está na master).
-    // treeSha e artefato têm de ser lidos da worktree — o gate.mjs os grava lá (cwd onde roda).
     let treeSha;
     try {
-      // treeSha excluindo .gate/ (bootstrap fix B1)
       const fullTree = execSync('git rev-parse "HEAD^{tree}"', { cwd: worktreeDir, encoding: 'utf-8' }).trim();
       treeSha = execSync(`git ls-tree ${fullTree} | grep -v ".gate" | git mktree`, { cwd: worktreeDir, encoding: 'utf-8' }).trim();
     } catch {
@@ -89,11 +94,6 @@ if (action === 'finish') {
       process.exit(1);
     }
 
-    // --- M4b: advisory (não bloqueia) se master não é ancestral do HEAD -------
-    // Retrospectiva 2026-07-19: uma branch cortada antes de uma dep entrar na
-    // master revisa/mergeia uma composição fóssil. Não bloqueia (master avança
-    // o tempo todo), mas avisa: se a task depende de algo mergeado recentemente,
-    // rebase antes do review para o parecer ver a composição real.
     try {
       execSync('git merge-base --is-ancestor master HEAD', { cwd: worktreeDir, stdio: 'ignore' });
     } catch {
@@ -102,7 +102,6 @@ if (action === 'finish') {
     }
   }
 }
-// ----------------------------------------------------------------------------
 
 let TaskService;
 try {
@@ -120,6 +119,31 @@ try {
   } else {
     rec = await svc.transition(taskId, action, agentName, message);
   }
+
+  // --- Auto-provisioning & metadata recording on start ---
+  if (action === 'start') {
+    try {
+      execSync(`node "${path.join(repoRoot, 'tools', 'scripts', 'worktree.mjs')}" claim ${taskId}`, { cwd: repoRoot, stdio: 'inherit' });
+    } catch (e) {
+      console.warn(`[worktree] aviso ao alocar slot para ${taskId}: ${e.message}`);
+    }
+    const wtBase = path.resolve(repoRoot, '..', '.superapp-worktrees');
+    let finalWtPath = path.join(wtBase, taskId);
+    const poolPath = path.join(wtBase, '.pool.json');
+    if (existsSync(poolPath)) {
+      try {
+        const pool = JSON.parse(readFileSync(poolPath, 'utf-8'));
+        for (const [slotName, slot] of Object.entries(pool.slots || {})) {
+          if (slot.id === taskId) {
+            finalWtPath = path.join(wtBase, slotName);
+            break;
+          }
+        }
+      } catch {}
+    }
+    svc.setMeta(taskId, { worktree_path: finalWtPath, machine: currentMachine });
+  }
+
   console.log(`✅ Tarefa ${taskId} atualizada. Status: ${rec.frontmatter.status}. Log adicionado.`);
   emit({
     task: taskId, phase: `manage-task.${action}`,
@@ -127,7 +151,7 @@ try {
     wallMs: Math.round(performance.now() - tStart), exitCode: 0, actor: agentName,
   });
 
-  // --- Auto-resume: re-dispatch tasks blocked on this one (P-04 B0) ---
+  // --- Auto-resume: re-dispatch tasks blocked on this one ---
   if (action === 'approve') {
     const tasksDir = path.resolve(repoRoot, 'tasks');
     let resumed = 0;
