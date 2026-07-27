@@ -1,7 +1,7 @@
 ---
 id: T-MSG-01
 title: "envoltorio sobre o chat existente + integracao com DM social"
-status: draft:pending_decision
+status: ready
 complexity: 3
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -9,7 +9,6 @@ execution_mode: sequential
 dependencies: ["T-201", "T-403"]
 blocks: ["T-MSG-02", "T-MSG-03"]
 capacity_target: sonnet
-decisions: ["ABERTO-1: path de implementacao — nexus-backend inexistente no monorepo atual; opcoes A/B/C na Secao 6"]
 ---
 
 # T-MSG-01 · envoltorio sobre o chat existente + integracao com DM social
@@ -148,17 +147,8 @@ Casos de teste (numerados):
 5. Rode build + test (Secao 7) e cole saida.
 
 ## 6. Feedback de Especificacao (Spec Feedback Loop)
-> **DECISOES EM ABERTO — requer definicao do arquiteto:**
->
-> **[ABERTO-1] Path de implementacao obsoleto.** A spec original apontava para `apps/nexus-backend/src/modules/messages/` mas `apps/nexus-backend` NAO EXISTE no monorepo atual (auditoria 2026-07-18: so existem `apps/bancada`, `apps/design-system-showcase`, `apps/estaleiro`, `apps/system-peer`, `apps/web`).
->
-> Opcoes para o arquiteto:
-> - **A)** ChatWrapper vai para novo pacote `packages/messages/` (approach library — se outros apps vao consumir)
-> - **B)** ChatWrapper vai para `apps/estaleiro/src/modules/messages/` (approach app-module — se exclusivo do Estaleiro)
-> - **C)** ChatWrapper vai para `packages/core/src/chat/` (approach protocol extension — se parte do grafo central)
->
-> Enquanto esta decisao nao fechar: paths das Secoes 3 e 4 e `--filter` do gate (Secao 7) NAO podem ser fixados.
-> Task permanece em `draft:pending_decision`.
+> **DECIDIDO (arquiteto, 2026-07-27):** Opção A — Implementar no pacote `packages/messages/` (`@plataforma/messages`).
+> - **[ABERTO-1] (RESOLVIDO):** O ChatWrapper e abstrações de mensagens sociais serão implementados no novo pacote `packages/messages/` (library approach para reuso no monorepo).
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
 O agente `agile_reviewer` usara esta checklist para aprovar ou rejeitar o PR:
@@ -198,3 +188,5 @@ pnpm --filter <pacote-ABERTO-1> lint
 
 ## 9. Log de Execução (Agent Execution Log)
 - **[2026-07-18T11:21]** - *gemini* - `[Decisão pendente]`: ABERTO-1 path nexus-backend inexistente decisao de arquiteto sobre pacote de destino
+- **[2026-07-27T13:49]** - *gemini* - `[Decidido]`: decisão: Opção A (packages/messages/)
+- **[2026-07-27T13:49]** - *system* - `[Auto-promovida]`: deps todas done
