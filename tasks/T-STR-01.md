@@ -1,7 +1,7 @@
 ---
 id: T-STR-01
 title: "SPECs de conteudo/canal/colecao + reproducao adaptativa sobre o media plane"
-status: draft:placeholder
+status: ready
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -13,32 +13,34 @@ capacity_target: sonnet
 
 # T-STR-01 · SPECs de conteudo/canal/colecao + reproducao adaptativa sobre o media plane
 
-## 0. Ambiente de Execucao Obrigatorio
+## 0. Ambiente de Execução Obrigatório
 - **Runtime:** Node.js v20+
-- **Package Manager:** `pnpm` (NAO USE npm ou yarn)
+- **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
 - **Test Runner:** `vitest` (Node puro, sem browser)
 - **Capacidade-alvo:** sonnet
 
-
-> [!WARNING]
-> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
-> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
-> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+> **⚠️ DECISÃO ARQUITETURAL PENDENTE: caminho de implementação (OPEN-1).**
+> Os contratos TS abaixo são DERIVADOS de `docs/caderno-3-sdk/19-streaming-reference-spec.md` S1-S2,
+> `docs/conceitos/content-file.md`, `docs/conceitos/rendition.md` — fontes normativas válidas.
+> O path original (`apps/nexus-backend/src/modules/streaming/`) aponta para o Nexus congelado.
+> Arquiteto precisa definir o destino — ver Seção 6.
 
 ## 1. Objetivo
-Definir as especificacoes (SPECs) de conteudo, canal e colecao conforme
-`19-streaming-reference-spec.md` S1-S2: conteudo = `CONTENT` (video/audio/live) governado por
-`SPEC` da modalidade; canal/criador = `PROFILE`; colecao (playlist, album, serie) = `CONTENT`
-agregador por aresta. Reproducao adaptativa escolhe a rendition pela banda; streaming
-progressivo a partir dos chunks (AES-256-GCM por chunk, T-801a).
+Definir as especificações (SPECs) de conteúdo, canal e coleção conforme
+`19-streaming-reference-spec.md` S1-S2: conteúdo = `CONTENT` (vídeo/áudio/live) governado por
+`SPEC` da modalidade; canal/criador = `PROFILE`; coleção (playlist, álbum, série) = `CONTENT`
+agregador por aresta. Reprodução adaptativa escolhe a rendition pela banda + buffer-ahead;
+streaming progressivo a partir dos chunks (AES-256-GCM por chunk, T-801).
 
-### Contratos exatos (assinaturas TS fixadas)
+> **Derivação:** Tipos derivados de `docs/caderno-3-sdk/19-streaming-reference-spec.md` S1-S2,
+> `docs/conceitos/content-file.md`, `docs/conceitos/rendition.md`, T-004 (portas, `done`),
+> T-801 (chunking/storage engine, `done`). *(fontes: todas verificadas e existentes.)*
+
+### Contratos exatos (assinaturas TS fixadas — destino do arquivo pendente OPEN-1)
 
 ```ts
-// --- apps/nexus-backend/src/modules/streaming/types.ts 
----
-
+// --- <caminho a definir (OPEN-1)>/types.ts 
 export type MediaKind = 'video' | 'audio' | 'live';
 export type DeliveryMode = 'vod' | 'live' | 'audio';
 
@@ -49,7 +51,7 @@ export interface MediaContentSpec {
   description?: string;
   authorId: string;                // PROFILE do criador
   channelId?: string;              // PROFILE do canal
-  collectionIds?: string[];        // colecoes a que pertence
+  collectionIds?: string[];        // coleções a que pertence
   durationMs?: number;
   createdAt: number;
   publishedAt?: number;
@@ -62,7 +64,7 @@ export interface ChannelSpec {
   displayName: string;
   description?: string;
   avatarContentId?: string;
-  subscriberCount?: number;        // projecao
+  subscriberCount?: number;        // projeção
 }
 
 export interface CollectionSpec {
@@ -76,7 +78,7 @@ export interface CollectionSpec {
 }
 
 export interface AdaptivePlaybackStrategy {
-  /** Seleciona a rendition ideal com base na banda estimada. */
+  /** Seleciona a rendition ideal com base na banda estimada e buffer-ahead. */
   selectRendition(
     availableRenditions: RenditionInfo[],
     estimatedBandwidthBps: number,
@@ -95,55 +97,56 @@ export interface RenditionInfo {
 ```
 
 ```ts
-// --- apps/nexus-backend/src/modules/streaming/media-catalog.ts ---
-
+// --- <caminho a definir (OPEN-1)>/media-catalog.ts ---
 export interface MediaCatalog {
-  /** Cria ou atualiza SPEC de conteudo de midia. */
+  /** Cria ou atualiza SPEC de conteúdo de mídia. */
   upsertContent(spec: MediaContentSpec): Promise<MediaContentSpec>;
 
   /** Cria ou atualiza SPEC de canal. */
   upsertChannel(spec: ChannelSpec): Promise<ChannelSpec>;
 
-  /** Cria colecao e arestas de agregacao. */
+  /** Cria coleção e arestas de agregação. */
   createCollection(spec: CollectionSpec): Promise<CollectionSpec>;
 
-  /** Adiciona conteudo a uma colecao. */
+  /** Adiciona conteúdo a uma coleção. */
   addToCollection(collectionId: string, contentId: string, position?: number): Promise<void>;
 
-  /** Remove conteudo de uma colecao. */
+  /** Remove conteúdo de uma coleção. */
   removeFromCollection(collectionId: string, contentId: string): Promise<void>;
 
-  /** Lista conteudos de um canal. */
+  /** Lista conteúdos de um canal. */
   listChannelContent(channelId: string, cursor?: string): Promise<{
     items: MediaContentSpec[];
     nextCursor?: string;
   }>;
 
-  /** Lista renditions disponiveis para um conteudo. */
+  /** Lista renditions disponíveis para um conteúdo. */
   listRenditions(contentId: string): Promise<RenditionInfo[]>;
 }
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [mecanica-de-telas.md §B8 + §T2](../docs/mecanica-de-telas.md) — estados de reprodução validados em mockup (sem-seeder declarado, renditions processando, buffering). Integração (§T2): `streaming:content` é payload de drag/share (conteúdo → Ads = campanha pré-roll; arquivo do Studio → publicar como conteúdo). Assistente (§T1): título/descrição/capítulos geráveis por IA como proposta.
-- [caderno-3-sdk/19-streaming-reference-spec.md](../docs/caderno-3-sdk/19-streaming-reference-spec.md) S1-S2
-- [[content-file]] — `CONTENT:FILE` como representacao fisica do blob
-- [[rendition]] — Variantes de qualidade como nos `CONTENT` irmaos
-- T-004 — Portas fundamentais
-- T-801a — Chunking (AES-256-GCM por chunk)
+- [docs/mecanica-de-telas.md §B8 + §T2](../docs/mecanica-de-telas.md) — estados de reprodução validados em mockup; `streaming:content` é payload de drag/share.
+- [docs/caderno-3-sdk/19-streaming-reference-spec.md](../docs/caderno-3-sdk/19-streaming-reference-spec.md) S1-S2 — Conteúdo, canal, coleção, adaptativo
+- [[content-file]] — `CONTENT:FILE` como representação física do blob
+- [[rendition]] — Variantes de qualidade como nós `CONTENT` irmãos
+- [T-004 · Portas fundamentais](./T-004.md) — `done`. PeerId, portas base.
+- [T-801 · Storage Engine de BLOBs (Chunking)](./T-801.md) — `done`. AES-256-GCM por chunk, Merkle Tree.
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
+> **⚠️ DEPENDENTE DE OPEN-1.** Paths originais (Nexus) — o arquiteto definirá o destino final.
+
 - **[READ]** `docs/caderno-3-sdk/19-streaming-reference-spec.md` S1-S2
 - **[READ]** `docs/conceitos/content-file.md` — Modelo de `CONTENT:FILE`
 - **[READ]** `docs/conceitos/rendition.md` — Modelo de rendition, manifesto JSON
-- **[CREATE]** `apps/nexus-backend/src/modules/streaming/types.ts` — Tipos acima
-- **[CREATE]** `apps/nexus-backend/src/modules/streaming/media-catalog.ts` — MediaCatalog interface + implementacao
-- **[CREATE]** `apps/nexus-backend/src/modules/streaming/adaptive-playback.ts` — AdaptivePlaybackStrategy
-- **[CREATE]** `apps/nexus-backend/src/modules/streaming/media-catalog.test.ts` — Testes TDD
+- **[CREATE]** `<OPEN-1>/types.ts` — Tipos acima
+- **[CREATE]** `<OPEN-1>/media-catalog.ts` — MediaCatalog interface + implementação
+- **[CREATE]** `<OPEN-1>/adaptive-playback.ts` — AdaptivePlaybackStrategy
+- **[CREATE]** `<OPEN-1>/media-catalog.test.ts` — Testes TDD
 
-## 4. Estrategia de Testes Estrita (Test-Driven Development)
+## 4. Estratégia de Testes Estrita (Test-Driven Development)
 - [x] **Framework:** Vitest (Node puro, sem browser)
-- [x] **Ambiente do Teste:** Node puro, `pnpm --filter nexus-backend test`
+- [x] **Ambiente do Teste:** Node puro, `pnpm --filter <pkg> test` (pkg = definido em OPEN-1)
 - [x] **Fora de Escopo:** Testes com blobs reais; rede P2P; player UI
 
 Casos de teste (numerados):
@@ -151,72 +154,65 @@ Casos de teste (numerados):
 2. `upsertContent` com `kind: 'live'` persiste com `isLive: true`.
 3. `upsertChannel` cria `ChannelSpec` vinculado a `PROFILE`.
 4. `createCollection` com `kind: 'playlist'` cria `CONTENT` agregador com arestas para `contentIds`.
-5. `addToCollection` insere conteudo na posicao correta; `removeFromCollection` remove.
-6. `listChannelContent` retorna conteudos paginados do canal.
+5. `addToCollection` insere conteúdo na posição correta; `removeFromCollection` remove.
+6. `listChannelContent` retorna conteúdos paginados do canal.
 7. `selectRendition` com banda 5Mbps escolhe 1080p entre [720p, 1080p, 4K].
 8. `selectRendition` com banda 1Mbps escolhe 720p; com buffer baixo (<2s) degrada para menor qualidade.
-9. `listRenditions` retorna renditions como `CONTENT` irmaos (aresta `RELATES:MEDIA:RENDITION`).
+9. `listRenditions` retorna renditions como `CONTENT` irmãos (aresta `RELATES:MEDIA:RENDITION`).
 
-## 5. Instrucoes de Execucao (Step-by-Step)
-> **REGRAS DO QUE NAO FAZER:**
-> - **NAO** crie tipo de no novo — use `CONTENT`, `SPECIFICATION`, `PROFILE`, `RELATES:MEDIA:RENDITION`.
-> - **NAO** implemente download/streaming de blobs — isso e responsabilidade do media plane (T-801a).
-> - **NAO** confunda rendition com versao — renditions sao irmas, `MUTATES` e proibido entre elas.
+## 5. Instruções de Execução (Step-by-Step)
+> **REGRAS DO QUE NÃO FAZER:**
+> - **NÃO** crie tipo de nó novo — use `CONTENT`, `SPECIFICATION`, `PROFILE`, `RELATES:MEDIA:RENDITION`.
+> - **NÃO** implemente download/streaming de blobs — isso é responsabilidade do media plane (T-801).
+> - **NÃO** confunda rendition com versão — renditions são irmãs, `MUTATES` é proibido entre elas.
 
 ### Pegadinhas conhecidas
-- **Armadilha:** Renditions sao nos `CONTENT` irmaos, ligados ao asset logico por `RELATES:MEDIA:RENDITION` — nao por `MUTATES` ([[rendition]]). `MUTATES` e reservado para re-encodar/corrigir os bytes de uma rendition especifica.
-- **Armadilha:** Colecao (playlist, album, serie) e `CONTENT` agregador por aresta, nao um tipo de no novo (19-streaming S1). Use arestas `BELONGS_TO` ou similar para vincular conteudos a colecao.
-- **Armadilha:** Audio (musica, podcast) usa a maquinaria de VOD (19-streaming S4). Nao crie um caminho separado para audio — e VOD de faixa de audio.
-- **Armadilha:** `selectRendition` deve considerar nao apenas banda, mas tambem buffer-ahead. Se o buffer esta abaixo de um limiar configuravel, degrade proativamente para evitar stalling.
+- **Armadilha:** Renditions são nós `CONTENT` irmãos, ligados ao asset lógico por `RELATES:MEDIA:RENDITION` — não por `MUTATES` ([[rendition]]).
+- **Armadilha:** Coleção (playlist, álbum, série) é `CONTENT` agregador por aresta, não um tipo de nó novo (19-streaming S1).
+- **Armadilha:** Áudio (música, podcast) usa a maquinaria de VOD (19-streaming S4). Não crie caminho separado.
+- **Armadilha:** `selectRendition` deve considerar não apenas banda, mas também buffer-ahead. Se o buffer está abaixo de um limiar configurável, degrade proativamente para evitar stalling.
 
-1. **[TDD]** Escreva `media-catalog.test.ts` com os 9 casos da Secao 4.
-2. Crie `types.ts` com interfaces da Secao 1.
-3. Implemente `media-catalog.ts` com operacoes CRUD de catalogo, delegando a T-004 (portas).
-4. Implemente `adaptive-playback.ts` com estrategia de selecao por banda + buffer.
-5. Rode build + test (Secao 7) e cole saida.
+1. **[TDD]** Escreva `media-catalog.test.ts` com os 9 casos da Seção 4.
+2. Crie `types.ts` com interfaces da Seção 1.
+3. Implemente `media-catalog.ts` com operações CRUD de catálogo, delegando a T-004 (portas).
+4. Implemente `adaptive-playback.ts` com estratégia de seleção por banda + buffer.
+5. Rode build + test (§7) e cole saída.
 
-## 6. Feedback de Especificacao (Spec Feedback Loop)
-> **DECISOES EM ABERTO — requer definicao do arquiteto:**
-> - **Nenhuma.** Contratos derivados de 19-streaming S1-S2, [[content-file]], e [[rendition]].
-> **Status:** `draft` ate o arquiteto validar Secoes 1-4 e 7.
+## 6. Feedback de Especificação (Spec Feedback Loop)
+> **DECIDIDO (arquiteto, 2026-07-27):** Opção A — Implementar no pacote `@plataforma/plugin-streaming` (`packages/plugin-streaming/`).
+> - **OPEN-1 (RESOLVIDO):** O subsistema de Streaming e Mídia será implementado como o plugin `@plataforma/plugin-streaming`, seguindo o padrão de plugins do Estaleiro Host.
+> - **Demais itens:** Nenhuma decisão em aberto.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
-O agente `agile_reviewer` usara esta checklist para aprovar ou rejeitar o PR:
-- [ ] O codigo segue estritamente os arquivos de Output especificados?
-- [ ] O `pnpm test` roda sem erros (Node puro)?
-- [ ] Linter (`pnpm lint`) nao acusa problemas?
-- [ ] A implementacao respeita a Regra do Que Nao Fazer?
-- [ ] `MediaCatalog` compila com as assinaturas exatas da Secao 1?
+- [ ] OPEN-1 resolvido pelo arquiteto (path/pacote definido)?
+- [ ] Código segue estritamente os arquivos de Output especificados?
+- [ ] `pnpm gate <pkg> --profile backend` verde (saída colada)?
+- [ ] `MediaCatalog` compila com as assinaturas exatas da Seção 1?
 - [ ] `selectRendition` considera banda E buffer-ahead?
 
-### Verificacao automatica *(comandos exatos — worker E reviewer rodam e COLAM a saida)*
+### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 ```bash
-pnpm --filter nexus-backend build
-pnpm --filter nexus-backend test
+pnpm gate <pkg> --profile backend
 ```
-> **GATE DE EVIDENCIA:** nem o `finish` (worker) nem o veredito (reviewer) sao validos sem a
-> saida literal desses comandos colada na secao 8. Marcar `[x]` sem evidencia e violacao.
+> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
+> saída literal desse comando colada na seção 8. `<pkg>` = pacote definido pelo arquiteto em OPEN-1.
 
-## 8. Log de Handover e Revisao Agile (Code Review)
+## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
-- 
+-
 
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
-- [ ] **Requer Refatoracao**
-- **Evidencia de Execucao (obrigatoria — colar saida de build/tsc + test):**
+- [ ] **Requer Refatoração**
+- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
 ```
-(cole aqui a saida real de pnpm build e pnpm test)
+(cole aqui a saída real de pnpm build e pnpm test)
 ```
-- **Comentarios de Revisao:**
-
-## 9. Log de Execucao (Agent Execution Log)
-> **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
-- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
-- **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog
-- **[2026-07-03T20:03]** - *system* - `[Endurecido]`: Endurecimento em lote (dependencies done/empty)
-- **[2026-07-03T20:03]** - *system* - `[Auto-promovida]`: deps todas done
-- **[2026-07-10T15:14]** - *Antigravity* - `[Demovido]`: Rebaixada por obsolescencia de arquitetura (Nexus/Zen)
+- **[2026-07-26T14:03]** - *deepseek* - `[Decisão pendente]`: OPEN-1: caminho de implementacao — tipos derivados de 19-streaming, mas path Nexus congelado. Decidir pacote/plugin destino.
+- **[2026-07-27T14:01]** - *gemini* - `[Reconciliado]`: status restaurado de draft:pending_decision para draft:placeholder (drift corrigido)
+- **[2026-07-27T14:01]** - *gemini* - `[Decisão pendente]`: decisão pendente OPEN-1
+- **[2026-07-27T14:01]** - *gemini* - `[Decidido]`: decisão: Opção A (@plataforma/plugin-streaming)
+- **[2026-07-27T14:01]** - *system* - `[Auto-promovida]`: deps todas done
