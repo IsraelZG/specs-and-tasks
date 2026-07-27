@@ -367,6 +367,33 @@ export class TaskService {
     return this.getTask(id);
   }
 
+  /** Escape hatch do veto multi-máquina: transfere posse de `machine` para outro hostname
+   *  e grava justificativa no Log de Execução. Uso manual — nenhuma skill de worker/reviewer
+   *  chama isto. `reason` é obrigatório (auditoria de por que o veto foi contornado). */
+  reassignMachine(id: string, newMachine: string, agent: string, reason: string): TaskRecord {
+    if (!reason || reason.trim() === '') {
+      throw new TaskError('Motivo da reatribuição é obrigatório.');
+    }
+    const filePath = this.resolvePath(id);
+    let content = fs.readFileSync(filePath, 'utf8');
+    const oldMachineMatch = content.match(/^machine:\s*(.*)$/m);
+    const oldMachine = oldMachineMatch ? oldMachineMatch[1].trim() : '(nenhuma)';
+
+    const machineRe = /^machine:\s*.*$/m;
+    if (machineRe.test(content)) {
+      content = content.replace(machineRe, `machine: ${newMachine}`);
+    } else {
+      content = content.replace(/^id:.*$/m, (match) => `${match}\nmachine: ${newMachine}`);
+    }
+
+    const ts = new Date().toISOString().slice(0, 16);
+    content = this.appendLog(content, agent, '[Reatribuída]',
+      `${oldMachine} -> ${newMachine}: ${reason}`, ts);
+    fs.writeFileSync(filePath, content, 'utf8');
+    this.rebuildIndexes();
+    return this.getTask(id);
+  }
+
   // ------------------------------------------------------------- utilitários
 
   /** Parseia arrays de ids do frontmatter naive (dependencies/blocks/subtasks).
