@@ -1,14 +1,18 @@
 ---
 id: T-SHL-03
+machine: Vivobook16
+worktree_path: C:\Dev2026\.superapp-worktrees\T-SHL-03
 title: "responsividade continua (multi-coluna para mobile) + chrome-como-modulo (menu reposicionado)"
-status: ready
+status: done
 complexity: 4
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+target_pkg: "@plataforma/shell"
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-SHL-01", "T-SHL-02"] # IDs de tarefas que bloqueiam esta
 blocks: [] # IDs de tarefas que esta bloqueia
 capacity_target: sonnet
+test_profile: full
 ---
 
 # T-SHL-03 · responsividade continua (multi-coluna para mobile) + chrome-como-modulo (menu reposicionado)
@@ -136,16 +140,66 @@ pnpm --filter @plataforma/shell lint
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
-- 
+- **Arquivos criados:** `src/responsive.ts`, `src/responsive-shell.ts`, `src/chrome-module.ts`, `tests/responsive.test.ts`, `e2e/responsive.spec.ts`
+- **Arquivos atualizados:** `src/index.ts` (novos re-exports)
+- **Fixture atualizado:** `e2e/fixture/main.ts` (regime indicator + nav/footer elementos)
+- **Contratos:** `ResponsiveDetector`, `ResponsiveShell`, `ChromeAdapter` conforme spec §1
+- **Gate:** full profile — build + test + lint all green
 
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
 ```
-(cole aqui a saída real de pnpm build e pnpm test)
+✅ @plataforma/shell:build | exit=0 | 5185ms
+✅ @plataforma/shell:test | exit=0 | 9079ms  (34 passed, 3 files: layout-solver, responsive, workspace)
+✅ @plataforma/shell:lint | exit=0 | 6483ms
+📦 artefato: .gate/c772a3694e2e704f0b273081de328ca27618787d.json | profile=full | allGreen=true
+   treeSha verificado contra HEAD^{tree} stripado (.gate removido) → match
+   headSha/finalHeadSha = cebb557 = HEAD
 ```
-- **Comentários de Revisão:**
+- **Sonda E2E (Playwright — caso 5 do spec §4):**
+```
+$ pnpm --filter @plataforma/shell test:e2e --grep "Responsive shell E2E"
+  ✓  e2e\responsive.spec.ts:8:3 › Responsive shell E2E › resize 1920→360→1024
+     dispara transições de regime com layout correto (1.8s)
+  1 passed (5.8s)
+```
+- **Comentários de Revisão (Reviewer 2 — minimax-m3):**
+
+  **Auditoria de código (Nível 0):** 7 arquivos / 511 inserções, 3 deleções, escopo 100% aderente ao §3 da spec.
+  - `responsive.ts`: detector puro, boundaries 1025/641 conforme spec §1 (defaults), config customizada suportada.
+  - `responsive-shell.ts`: debounce 150ms conforme pegadinha §5; `adaptChrome` idempotente (early return se regime==current); `desktop↔tablet` corretamente no-op; mesmo `navModuleId` em `mountNav` e `mountFooter` (caso 4).
+  - `chrome-module.ts`: stubs declarados "Fora de Escopo" pelo spec §4 (FlexLayout integration em WorkspaceShell, filter real em T-502). Parâmetros `_manifest`/`_regime` marcados com eslint-disable — aceitável enquanto a integração não acontece.
+  - `index.ts`: re-exports de tipos e factories presentes.
+  - `tests/responsive.test.ts`: 18 tests cobrindo boundaries (1024↔1025, 640↔641, 0), custom config, transições, debounce, mesmo-module.
+  - `e2e/responsive.spec.ts`: caso 5 validado, passa.
+
+  **DoD checklist (spec §7):**
+  - [x] Regimes desktop/tablet/mobile detectados por largura
+  - [x] Mesmo módulo de menu reposicionado (não dois códigos)
+  - [x] Transições de regime não perdem estado (chrome desmonta/monta, estado preservado)
+  - [x] Chrome filtrável por permissão
+  - [x] `pnpm test` verde + Playwright E2E passa
+
+  **Diff × Escopo (§3):** declarado | alterado | disposição
+  - [READ] caderno-3-sdk/28-shell-e-composicao.md §2,§5 | — (não versionado) | ok
+  - [READ] layout-manager.ts | — (não modificado) | ok
+  - [CREATE] src/responsive.ts | +35 | declarado
+  - [CREATE] src/responsive-shell.ts | +94 | declarado
+  - [CREATE] src/chrome-module.ts | +48 | declarado
+  - [CREATE] tests/responsive.test.ts | +249 | declarado
+  - [CREATE] e2e/responsive.spec.ts | +40 | declarado
+  - [UPDATE] src/index.ts | +19 (re-exports) | declarado
+  - **e2e/fixture/main.ts | +29 −3 | `minor`** — modificado sem declaração explícita no §3, justificado no handover ("Fixture atualizado: regime indicator + nav/footer elementos") e necessário para o caso 5 do E2E rodar. Spec-future: endurecedores de T-SHL-XX devem listar fixtures E2E no §3 quando o caso de teste exigir data attributes novas.
+
+  **Achados:**
+  - `B0` (bloqueante): 0
+  - `M0` (major): 0
+  - `m0` (minor): 1 (scope do fixture E2E)
+  - `i0` (info): spec §7 lista `pnpm test` mas o gate canônico (gate.mjs) não inclui `test:e2e` para pacotes não-estaleiro — a fase Playwright ficou só provada por sonda do reviewer, não pelo artefato. Não bloqueia este parecer (prova foi feita), mas o spec deveria declarar `pnpm --filter @plataforma/shell test:e2e` no bloco "Verificação automática" ou o gate.mjs deveria ganhar um ramo para `test_profile: ui|full` em pacotes com playwright.config.
+
+  **Veredito:** APROVADO. Pronto para `integrar-task`.
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
@@ -154,3 +208,7 @@ pnpm --filter @plataforma/shell lint
 - **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
 - **[2026-07-18T11:32]** - *gemini* - `[Endurecido]`: endureceu spec: 5 casos (4 unit + 1 playwright), gate com lint, contratos derivados de caderno-3/28 ss2 ss5
 - **[2026-07-18T11:32]** - *system* - `[Auto-promovida]`: deps todas done
+- **[2026-07-26T21:12]** - *claude-sonnet* - `[Iniciado]`: iniciando
+- **[2026-07-26T21:29]** - *claude-sonnet* - `[Finalizado]`: responsividade continua (multi-coluna para mobile) + chrome-como-modulo (menu reposicionado). 34/34 tests pass, E2E responsive resize 1920→360→1024 pass, gate full allGreen=true. build:873ms test:2040ms lint:3328ms
+- **[2026-07-27T12:04]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: revisando
+- **[2026-07-27T13:06]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: QA Reviewer 2 (minimax-m3) — APROVADO. Gate full profile verde (3 phases: build 5185ms, test 9079ms 34/34, lint 6483ms), treeSha matches HEAD^{tree} stripado, headSha=cebb557. Sonda Playwright E2E caso 5 (resize 1920-360-1024) verde em 1.8s. DoD 5/5. 0B/0M/1m (escopo fixture E2E). Parecer completo em tasks/T-SHL-03.md Secao 8.
