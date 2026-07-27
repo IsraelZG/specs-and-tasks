@@ -15,8 +15,9 @@ model: sonnet
 > merge foi o que criou o gap de integração. Para fazer os dois de uma vez, use **`--integrar`**.
 >
 > **Lock de revisão:** o primeiro passo é **`claim`** (`review → in_review`) — trava a task para que
-> o orquestrador não despache outro reviewer. Se `claim` falhar (task já está `in_review`), outro
-> reviewer já pegou → PARE (não rouba a revisão).
+> o orquestrador não despache outro reviewer. Se `claim` falhar porque já está `in_review`, isso
+> **não** significa sempre "outro pegou, pare" — pode ser um claim travado/abandonado sem veredito.
+> Ver §1a para o fluxo completo (drift vs. claim travado vs. revisão em paralelo).
 
 ## 1. Identificar tarefas a revisar
 
@@ -47,11 +48,26 @@ Se `$ARGUMENTS` estiver vazio:
 - Se houver mais de uma, liste ao usuário e pergunte qual revisar (ou se quer revisar
   todas em sequência). Aguarde confirmação antes de prosseguir.
 
-## 1a. Claim — trava a task para revisão (NOVO, INVIOLÁVEL)
+## 1a. Claim — trava a task para revisão (INVIOLÁVEL)
 
 **Antes** de auditar, reclame a task: `node tools/scripts/manage-task.mjs claim <ID> agile_reviewer:<SeuModelo> "revisando"`.
-- Se `claim` falhar (status != `review`, ou papel ≠ reviewer) → **PARE** e explique por quê.
-- **Se a task já está `in_review`** → outro reviewer a pegou. PARE. Não audite nem escreva parecer.
+- Se `claim` falhar por **papel** (agente ≠ `reviewer_agent` da task) → **PARE** e explique por quê.
+- **Se `claim` falhar porque a task já está `in_review`** (o verbo `claim` só parte de `review`) —
+  NÃO é automaticamente "outro reviewer pegou, pare". Olhe o Log §9:
+  - **Há um veredito (`[Aprovado]`/`[Requer Refatoração]`) DEPOIS do último `[Em revisão]`, mas o
+    status do arquivo ainda é `in_review`?** Isso é *drift* (a transição não aplicou — falha
+    conhecida, não invente correção manual do Markdown): rode
+    `node tools/scripts/manage-task.mjs reconcile <ID> <SeuNome>` e prossiga normalmente.
+  - **Não há veredito depois do último `[Em revisão]`?** É um claim travado (sessão anterior caiu
+    ou foi abandonada antes de concluir) ou alguém revisando agora mesmo em paralelo. Nos dois
+    casos **você não precisa reclaimar** — a máquina de estados já permite `approve`/
+    `request_changes` a partir de `in_review`, sem passar por `claim` de novo. Audite normalmente e
+    conclua via `node tools/scripts/concluir-task.mjs approve|reject <ID> agile_reviewer:<SeuModelo>
+    "<parecer>"`. Prefira um modelo diferente do que fez o claim travado quando disponível (evita
+    repetir os mesmos pontos cegos) — mas isso é **preferência, não bloqueio**: como nenhum
+    parecer foi ancorado ainda para esta rodada, não se aplica a regra da §"Segunda revisão
+    independente" abaixo (essa é para quando JÁ existe um veredito Aprovado e a 2ª leitura precisa
+    ser descorrelacionada dele).
 
 ## 2. Protocolo de 3 níveis de revisão
 

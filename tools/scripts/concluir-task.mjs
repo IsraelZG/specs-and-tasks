@@ -147,8 +147,10 @@ switch (action) {
   }
 
   case 'approve': {
-    if (currentStatus !== 'review') {
-      die(`Para aprovar ('approve'), a task deve estar em 'review' (status atual: '${currentStatus}').`);
+    // 'review' (sem claim) ou 'in_review' (claimada — inclusive por um claim travado/abandonado;
+    // a maquina de estados ja permite approve/request_changes a partir de in_review sem reclaimar).
+    if (currentStatus !== 'review' && currentStatus !== 'in_review') {
+      die(`Para aprovar ('approve'), a task deve estar em 'review' ou 'in_review' (status atual: '${currentStatus}').`);
     }
 
     // 1. Merge transacional via worktree.mjs merge (inclui gate, push master e fetch origin)
@@ -225,8 +227,8 @@ switch (action) {
   }
 
   case 'reject': {
-    if (currentStatus !== 'review') {
-      die(`Para rejeitar ('reject'), a task deve estar em 'review' (status atual: '${currentStatus}').`);
+    if (currentStatus !== 'review' && currentStatus !== 'in_review') {
+      die(`Para rejeitar ('reject'), a task deve estar em 'review' ou 'in_review' (status atual: '${currentStatus}').`);
     }
 
     console.log(`• Executando manage-task.mjs request_changes ${taskId}...`);

@@ -42,7 +42,10 @@ assert.strictEqual(obj.id, 'L-03');
 assert.strictEqual(obj.status, 'done');
 assert.strictEqual(obj.verb, 'nada a fazer');
 assert.ok(obj.skillText === null || typeof obj.skillText === 'string');
-assert.match(obj.identityGuard, /agile_reviewer:claude-opus/, 'JSON guarda de identidade');
+// guarda de identidade compara contra o WORKER (gpt-5), nunca contra o reviewer (agile_reviewer:claude-opus) —
+// senão a guarda vira tautológica assim que a task passa por in_review (ver correção EST-71).
+assert.match(obj.identityGuard, /gpt-5/, 'JSON guarda de identidade compara com o worker, não com o reviewer');
+assert.doesNotMatch(obj.identityGuard, /agile_reviewer/, 'guarda de identidade nunca aponta para o próprio papel reviewer');
 
 // 4) review => reviewer/qa-review/claim + --integrar por padrão + guarda de identidade
 const f5 = writeTemp('FAKE-REVIEW', `---\nid: FAKE-REVIEW\nstatus: review\n---\n# x\n## 2. Contexto RAG\n## 9. Log de Execução\n- **[2026-07-17T00:00]** - *gpt-5* - \`[Finalizado]\``);
@@ -65,12 +68,18 @@ assert.match(rdy, /executar-task/, 'ready => skill executar-task');
 assert.match(rdy, /start/, 'ready => verbo start');
 removeTemp(f6);
 
-// 6) in_review => PARE
-const f1 = writeTemp('FAKE-IN-REVIEW', `---\nid: FAKE-IN-REVIEW\nstatus: in_review\n---\n# x\n## 2. Contexto RAG\n## 9. Log de Execução\n- **[2026-07-17T00:00]** - *gpt-5* - \`[Iniciado]\``);
+// 6) in_review sem veredito depois do claim => acionável (retomada de claim travado/handoff),
+// NÃO mais um dead-end incondicional (correção EST-71: concluir-task.mjs approve/reject já aceita
+// in_review, e a task ficava presa pra sempre — inclusive para quem tinha claimado corretamente).
+const f1 = writeTemp('FAKE-IN-REVIEW', `---\nid: FAKE-IN-REVIEW\nstatus: in_review\nreviewer_agent: agile_reviewer\n---\n# x\n## 2. Contexto RAG\n## 9. Log de Execução\n- **[2026-07-17T00:00]** - *gpt-5* - \`[Finalizado]\`\n- **[2026-07-17T01:00]** - *agile_reviewer:minimax-m3* - \`[Em revisão]\`: revisando`);
 const inReview = run('FAKE-IN-REVIEW');
-assert.match(inReview, /PARE/, 'in_review => PARE');
-assert.match(inReview, /NÃO execute nada/, 'estado terminal => diretiva de não-ação');
-assert.doesNotMatch(inReview, /AGORA EXECUTE/, 'estado terminal => sem reforço de execução');
+assert.match(inReview, /AÇÃO AGORA/, 'in_review sem veredito ainda é acionável (não é dead-end)');
+assert.match(inReview, /concluir-task\.mjs approve/, 'in_review => instrução de approve via concluir-task');
+assert.match(inReview, /concluir-task\.mjs reject/, 'in_review => instrução de reject via concluir-task');
+assert.match(inReview, /claimada por 'agile_reviewer:minimax-m3'/, 'deve avisar quem claimou e quando');
+assert.match(inReview, /não precisa \(nem possível\) reclaimar|NÃO é preciso.*reclaimar/, 'deve explicar que reclaim não é necessário');
+assert.match(inReview, /guarda de identidade:.*gpt-5/, 'guarda de identidade compara com o WORKER (gpt-5), não com o reviewer travado (minimax-m3)');
+assert.doesNotMatch(inReview, /guarda de identidade:.*minimax-m3/, 'guarda de identidade não deve apontar para o reviewer travado');
 removeTemp(f1);
 
 // 7) draft:pending_decision => PARE + decisões

@@ -45,7 +45,11 @@ const STATE_MAP = {
   'ready': { role: 'worker', skill: 'executar-task', verb: 'start' },
   'in_progress': { role: 'worker-retomada', skill: 'executar-task', verb: '—' },
   'review': { role: 'reviewer', skill: 'qa-review', args: '--integrar', verb: 'claim' },
-  'in_review': { role: 'ninguém', skill: null, verb: 'PARE' },
+  // Claim já foi feito (review -> in_review) mas nenhum veredito chegou depois no Log §9 — pode ser
+  // uma sessão travada/abandonada OU alguém revisando agora. NÃO é dead-end: a máquina de estados
+  // (TRANSITIONS) já permite approve/request_changes a partir de in_review sem reclaimar — só o
+  // get-task/concluir-task antigos não sabiam disso. Ver guarda de claim travado no textOutput().
+  'in_review': { role: 'reviewer (retomada/handoff)', skill: 'qa-review', args: '--integrar', verb: 'approve/request_changes' },
   'rework': { role: 'worker', skill: 'rework-task', verb: 'start' },
   'blocked': { role: 'ninguém', skill: null, verb: 'nada a fazer' },
   'done': { role: 'ninguém', skill: null, verb: 'nada a fazer' },
@@ -58,7 +62,8 @@ if (isUiTask && state.skill === 'executar-task') {
   state = { ...state, skill: 'executar-task-ui' };
   uiSkillSwap = true;
 }
-const executor = lastExecutor(sections);
+const reviewerAgentRole = (fm.reviewer_agent || 'agile_reviewer').trim().toLowerCase();
+const executor = lastExecutor(sections, reviewerAgentRole);
 const identityGuard = executor
   ? `guarda de identidade: revisor DEVE ser modelo ≠ ${executor}`
   : 'guarda de identidade: executor não identificado no §9';
@@ -122,14 +127,31 @@ function parseSections(text) {
   return sections;
 }
 
-function lastExecutor(sections) {
+// Guarda de identidade compara sempre contra quem CODOU (worker), nunca contra quem revisou — senão,
+// uma vez a task em in_review, "o último ator do log" vira o próprio reviewer e a guarda fica
+// tautológica ("revisor deve ser diferente de si mesmo"), que foi o que confundiu uma sessão travada
+// em EST-71 (achou que precisava trocar de modelo em relação ao reviewer anterior, não ao worker).
+function lastExecutor(sections, reviewerRole) {
   const sec9 = sections[9]?.content || '';
   const lines = sec9.split('\n').filter(l => l.includes('- **['));
   for (let i = lines.length - 1; i >= 0; i--) {
     const m = lines[i].match(/\*\*\[.*?\]\*\*\s*-\s*\*([^*]+?)\*/);
-    if (m) return m[1].trim();
+    if (!m) continue;
+    const actor = m[1].trim();
+    if (actor.split(':')[0].trim().toLowerCase() === reviewerRole) continue;
+    return actor;
   }
   return null;
+}
+
+/** Última entrada `[Em revisão]` (claim) do Log §9 — quem reclamou a task e quando. */
+function lastClaim(sections) {
+  const sec9 = sections[9]?.content || '';
+  const lines = sec9.split('\n').filter(l => l.includes('[Em revisão]'));
+  if (lines.length === 0) return null;
+  const last = lines[lines.length - 1];
+  const m = last.match(/\*\*\[(.+?)\]\*\*\s*-\s*\*([^*]+?)\*/);
+  return m ? { timestamp: m[1], agent: m[2].trim() } : null;
 }
 
 function resolveLink(link, baseFile) {
@@ -279,6 +301,12 @@ function textOutput() {
       lines.push(`▶ REVISÃO DE CÓDIGO: Worktree/branch 'task/${taskId}'. Verifique o código e execute:`);
       lines.push(`   Para aprovar: node tools/scripts/concluir-task.mjs approve ${taskId} <EU> "<parecer>"`);
       lines.push(`   Para rejeitar: node tools/scripts/concluir-task.mjs reject ${taskId} <EU> "<parecer>"`);
+      if (status === 'in_review') {
+        const claim = lastClaim(sections);
+        if (claim) {
+          lines.push(`⚠ Esta task já foi claimada por '${claim.agent}' em ${claim.timestamp}, sem veredito registrado depois no Log §9. NÃO é preciso (nem possível) reclaimar — 'approve'/'request_changes' já são permitidos a partir de 'in_review' pela própria máquina de estados. Se essa sessão travou/abandonou o claim, prossiga normalmente com a auditoria e conclua via concluir-task.mjs acima. Prefira um modelo diferente de '${claim.agent}' quando disponível (descorrelaciona pontos cegos), mas isso é preferência, não bloqueio: nenhum parecer foi ancorado ainda para essa rodada.`);
+        }
+      }
     } else {
       lines.push(`   Comece pelo verbo \`${state.verb}\` e SIGA a skill inlinada no fim deste output.`);
       lines.push(`   Ao concluir, execute: node tools/scripts/concluir-task.mjs finish ${taskId} <EU> "<resumo>"`);
@@ -310,10 +338,16 @@ function textOutput() {
     const exists = fs.existsSync(p);
     lines.push(`- ${p} ${exists ? '(existe)' : '(não existe)'}`);
     if (exists && fs.statSync(p).isFile()) {
-      const head = fs.readFileSync(p, 'utf-8').split('\n').slice(0, 20).join('\n');
-      lines.push('```');
-      lines.push(head);
-      lines.push('```');
+      const ext = path.extname(p).toLowerCase();
+      const size = fs.statSync(p).size;
+      if (['.db', '.sqlite', '.sqlite3', '.bin', '.png', '.jpg', '.jpeg', '.gif', '.ico', '.woff', '.woff2', '.mp3', '.mp4', '.zip', '.tar', '.gz'].includes(ext) || size > 1024 * 1024) {
+        lines.push(`  (binário ou muito grande — ${(size / 1024 / 1024).toFixed(1)}MB, ignorado)`);
+      } else {
+        const head = fs.readFileSync(p, 'utf-8').split('\n').slice(0, 20).join('\n');
+        lines.push('```');
+        lines.push(head);
+        lines.push('```');
+      }
     }
   }
   lines.push('---');
@@ -385,6 +419,7 @@ function jsonOutput() {
     skillText: skillText ? skillText.slice(0, 4000) : null,
     parecer,
     pendingDecisions: status === 'draft:pending_decision' ? pendingDecisions() : null,
+    pendingClaim: status === 'in_review' ? lastClaim(sections) : null,
   }, null, 2);
 }
 
