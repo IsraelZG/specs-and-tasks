@@ -1,7 +1,7 @@
 ---
 id: T-AD-01
 title: "SPEC:AD/AD_CAMPAIGN + RELATES:AD:PROMOTES + orcamento/pacing por BALANCE_STATE/LOCK"
-status: draft:placeholder
+status: ready
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -13,32 +13,34 @@ capacity_target: sonnet
 
 # T-AD-01 · SPEC:AD/AD_CAMPAIGN + RELATES:AD:PROMOTES + orcamento/pacing por BALANCE_STATE/LOCK
 
-## 0. Ambiente de Execucao Obrigatorio
+## 0. Ambiente de Execução Obrigatório
 - **Runtime:** Node.js v20+
-- **Package Manager:** `pnpm` (NAO USE npm ou yarn)
+- **Package Manager:** `pnpm` (NÃO USE npm ou yarn)
 - **Monorepo:** Turborepo (`pnpm build`, `pnpm test`, `pnpm lint` na raiz afetam todos os pacotes)
 - **Test Runner:** `vitest` (Node puro, sem browser)
 - **Capacidade-alvo:** sonnet
 
-
-> [!WARNING]
-> **REVISAR:** Esta spec contém dependência de terminologia e infraestrutura do antigo monólito "Nexus" ou chamadas diretas ao motor "Zen Engine". 
-> Em virtude da introdução do Estaleiro (RFC-018) e do `@plataforma/plugin-workflows`, esses componentes foram superados ou encapsulados. 
-> Re-endureça esta spec adequando aos novos contratos antes de desenvolvê-la.
+> **⚠️ DECISÃO ARQUITETURAL PENDENTE: caminho de implementação (OPEN-1).**
+> Os contratos TS abaixo são DERIVADOS de `docs/caderno-3-sdk/29-anuncios-reference-spec.md` §1,
+> `docs/conceitos/anuncio.md` e `docs/conceitos/anuncio-listing.md` — fontes normativas válidas
+> independentemente do pacote de implementação. O path original (`apps/nexus-backend/src/modules/ads/`)
+> aponta para o monólito Nexus (congelado). Arquiteto precisa definir o destino — ver Seção 6.
 
 ## 1. Objetivo
-Definir as especificacoes de anuncio e campanha conforme `29-anuncios-reference-spec.md` S1:
-anuncio = `CONTENT` (criativo) governado por `SPEC:AD`, ligado ao item promovido por
-`RELATES:AD:PROMOTES`; campanha = `SPECIFICATION:AD_CAMPAIGN` (orcamento, periodo, modelo de
-cobranca, segmentacao, superficies). Orcamento da campanha = `ASSET:BALANCE_STATE` dedicado;
-reserva de verba por veiculacao usa `ASSET:LOCK` (pacing).
+Definir as especificações de anúncio e campanha conforme `29-anuncios-reference-spec.md` S1:
+anúncio = `CONTENT` (criativo) governado por `SPEC:AD`, ligado ao item promovido por
+`RELATES:AD:PROMOTES`; campanha = `SPECIFICATION:AD_CAMPAIGN` (orçamento, período, modelo de
+cobrança, segmentação, superfícies). Orçamento da campanha = `ASSET:BALANCE_STATE` dedicado;
+reserva de verba por veiculação usa `ASSET:LOCK` (pacing).
 
-### Contratos exatos (assinaturas TS fixadas)
+> **Derivação:** Tipos derivados de `docs/caderno-3-sdk/29-anuncios-reference-spec.md` §1,
+> `docs/conceitos/anuncio.md`, `docs/conceitos/anuncio-listing.md`, T-004 (PeerId/portas
+> fundamentais, `done`). *(fontes: todas verificadas e existentes no estado atual do repo.)*
+
+### Contratos exatos (assinaturas TS fixadas — destino do arquivo pendente OPEN-1)
 
 ```ts
-// --- apps/nexus-backend/src/modules/ads/types.ts 
----
-
+// --- <caminho a definir (OPEN-1)>/types.ts 
 export type AdBillingModel = 'CPM' | 'CPC' | 'CPA';
 
 export type AdSurface = 'feed' | 'pre_roll' | 'mid_roll' | 'banner' | 'search' | 'listing';
@@ -63,77 +65,78 @@ export interface AdCampaignSpec {
   name: string;
   budget: {
     totalCredits: number;
-    dailyCap?: number;             // pacing diario
+    dailyCap?: number;             // pacing diário
     remainingCredits: number;      // derivado de BALANCE_STATE
   };
   billingModel: AdBillingModel;
-  cpmCents?: number;               // custo por mil impressoes
-  cpcCents?: number;               // custo por clique
-  cpaCents?: number;               // custo por acao/conversao
-  surfaces: AdSurface[];           // superficies elegiveis
-  targetSegments?: string[];       // criterios de segmentacao
+  cpmCents?: number;
+  cpcCents?: number;
+  cpaCents?: number;
+  surfaces: AdSurface[];
+  targetSegments?: string[];
   startAt: number;
   endAt: number;
   isActive: boolean;
-  /** k-anonimato: coorte minimo para iniciar veiculacao. */
+  /** k-anonimato: coorte mínimo para iniciar veiculação. */
   minCohortSize: number;           // default: 100
 }
 ```
 
 ```ts
-// --- apps/nexus-backend/src/modules/ads/ad-manager.ts ---
-
+// --- <caminho a definir (OPEN-1)>/ad-manager.ts ---
 export interface AdManager {
-  /** Cria anuncio (CONTENT governado por SPEC:AD) + aresta RELATES:AD:PROMOTES. */
+  /** Cria anúncio (CONTENT governado por SPEC:AD) + aresta RELATES:AD:PROMOTES. */
   createAd(spec: AdSpec): Promise<AdSpec>;
 
   /** Cria campanha (SPECIFICATION:AD_CAMPAIGN) + BALANCE_STATE dedicado. */
   createCampaign(spec: AdCampaignSpec): Promise<AdCampaignSpec>;
 
-  /** Atualiza campanha (pausa, ajusta orcamento). */
+  /** Atualiza campanha (pausa, ajusta orçamento). */
   updateCampaign(campaignId: string, updates: Partial<AdCampaignSpec>): Promise<AdCampaignSpec>;
 
-  /** Reserva verba para uma veiculacao (LOCK sobre BALANCE_STATE). */
+  /** Reserva verba para uma veiculação (LOCK sobre BALANCE_STATE). */
   reserveBudget(campaignId: string, amountCredits: number): Promise<{
     lockId: string;
     reserved: boolean;             // false se saldo insuficiente
     remainingCredits: number;
   }>;
 
-  /** Libera lock de verba (impressao nao concretizada). */
+  /** Libera lock de verba (impressão não concretizada). */
   releaseBudget(lockId: string): Promise<void>;
 
-  /** Liquida evento cobravel (debita BALANCE_STATE, credita plataforma/publicador). */
+  /** Liquida evento cobrável (debita BALANCE_STATE, credita plataforma/publicador). */
   settleEvent(campaignId: string, lockId: string, eventCostCredits: number): Promise<{
     remainingCredits: number;
     campaignPaused: boolean;       // true se esgotou
   }>;
 
-  /** Lista anuncios ativos de uma campanha. */
+  /** Lista anúncios ativos de uma campanha. */
   listCampaignAds(campaignId: string): Promise<AdSpec[]>;
 }
 ```
 
 ## 2. Contexto RAG (Spec-Driven Development)
-- [mecanica-de-telas.md §B9 + §T2](../docs/mecanica-de-telas.md) — validado em mockup: verba estourada tem precedência visual/comportamental sobre o status (pausa automática observável); "promover item" cria campanha que **referencia** o nó (RELATES:AD:PROMOTES), nunca duplica. Integração (§T2): a promoção é o caso canônico de drag/share — `marketplace:product` e `streaming:content` soltos no Ads viram campanha por referência. Assistente (§T1): criativo gerado por IA a partir do item promovido, como proposta.
-- [caderno-3-sdk/29-anuncios-reference-spec.md](../docs/caderno-3-sdk/29-anuncios-reference-spec.md) S1 — Anuncio e campanha
-- [[anuncio]] — Ecossistema de anuncios: SPEC:AD, SPECIFICATION:AD_CAMPAIGN, RELATES:AD:PROMOTES
+- [docs/mecanica-de-telas.md §B9 + §T2](../docs/mecanica-de-telas.md) — verba estourada pausa automática; "promover item" cria campanha que referencia o nó (RELATES:AD:PROMOTES), nunca duplica.
+- [docs/caderno-3-sdk/29-anuncios-reference-spec.md](../docs/caderno-3-sdk/29-anuncios-reference-spec.md) S1 — Anúncio e campanha
+- [[anuncio]] — Ecossistema de anúncios: SPEC:AD, SPECIFICATION:AD_CAMPAIGN, RELATES:AD:PROMOTES
 - [[anuncio-listing]] — Listing (oferta de vendedor) como item promovido
-- [[spec-page]] — SPEC:PAGE como superficie de veiculacao
-- T-004 — Portas fundamentais
+- [[spec-page]] — SPEC:PAGE como superfície de veiculação
+- [T-004 · Portas fundamentais](./T-004.md) — `done`. PeerId, portas base.
 
 ## 3. Escopo de Arquivos (Inputs e Outputs)
-- **[READ]** `docs/caderno-3-sdk/29-anuncios-reference-spec.md` S1
-- **[READ]** `docs/conceitos/anuncio.md` — Contratos e protecao anti-fraude
-- **[READ]** `docs/conceitos/anuncio-listing.md` — Listing como item promovido
-- **[CREATE]** `apps/nexus-backend/src/modules/ads/types.ts` — Tipos acima
-- **[CREATE]** `apps/nexus-backend/src/modules/ads/ad-manager.ts` — AdManager interface + implementacao
-- **[CREATE]** `apps/nexus-backend/src/modules/ads/ad-manager.test.ts` — Testes TDD
+> **⚠️ DEPENDENTE DE OPEN-1.** Paths originais (Nexus) — o arquiteto definirá o destino final.
 
-## 4. Estrategia de Testes Estrita (Test-Driven Development)
+- **[READ]** `docs/caderno-3-sdk/29-anuncios-reference-spec.md` S1
+- **[READ]** `docs/conceitos/anuncio.md` — Contratos e proteção anti-fraude
+- **[READ]** `docs/conceitos/anuncio-listing.md` — Listing como item promovido
+- **[CREATE]** `<OPEN-1>/types.ts` — Tipos acima
+- **[CREATE]** `<OPEN-1>/ad-manager.ts` — AdManager interface + implementação
+- **[CREATE]** `<OPEN-1>/ad-manager.test.ts` — Testes TDD
+
+## 4. Estratégia de Testes Estrita (Test-Driven Development)
 - [x] **Framework:** Vitest (Node puro, sem browser)
-- [x] **Ambiente do Teste:** Node puro, `pnpm --filter nexus-backend test`
-- [x] **Fora de Escopo:** Integracao com motor Zen real; liquidacao real de creditos; UI
+- [x] **Ambiente do Teste:** Node puro, `pnpm --filter <pkg> test` (pkg = definido em OPEN-1)
+- [x] **Fora de Escopo:** Integração com motor econômico real; liquidação real de créditos; UI
 
 Casos de teste (numerados):
 1. `createAd` cria `CONTENT` governado por `SPEC:AD` e aresta `RELATES:AD:PROMOTES` para o item promovido.
@@ -143,68 +146,61 @@ Casos de teste (numerados):
 5. `releaseBudget(lockId)` restaura saldo.
 6. `settleEvent` debita saldo; se `remainingCredits` chega a 0, `campaignPaused: true`.
 7. `updateCampaign` com `isActive: false` pausa campanha.
-8. Campanha com `minCohortSize: 100` nao inicia veiculacao se coorte < 100 (k-anonimato).
+8. Campanha com `minCohortSize: 100` não inicia veiculação se coorte < 100 (k-anonimato).
 
-## 5. Instrucoes de Execucao (Step-by-Step)
-> **REGRAS DO QUE NAO FAZER:**
-> - **NAO** crie tipo de no novo — anuncio e `CONTENT`, campanha e `SPECIFICATION`, promocao e aresta.
-> - **NAO** duplique o item promovido — `RELATES:AD:PROMOTES` referencia, nao copia.
-> - **NAO** implemente liquidacao real de creditos — delegue ao motor economico.
+## 5. Instruções de Execução (Step-by-Step)
+> **REGRAS DO QUE NÃO FAZER:**
+> - **NÃO** crie tipo de nó novo — anúncio é `CONTENT`, campanha é `SPECIFICATION`, promoção é aresta.
+> - **NÃO** duplique o item promovido — `RELATES:AD:PROMOTES` referencia, não copia.
+> - **NÃO** implemente liquidação real de créditos — delegue ao motor econômico.
 
 ### Pegadinhas conhecidas
-- **Armadilha:** `RELATES:AD:PROMOTES` e aresta hierarquica justificada pelos 4 criterios de minimalismo (29-anuncios header): relacao durave, consultavel, com payload proprio, distinta de autoria. Nao use aresta generica — use esta especifica.
-- **Armadilha:** Orcamento usa `ASSET:BALANCE_STATE` + `ASSET:LOCK` (pacing). O `LOCK` reserva verba antes da veiculacao; se a impressao nao se concretizar, `releaseBudget` libera. Nao debite direto sem lock — pode estourar orcamento com concorrencia.
-- **Armadilha:** k-anonimato (`minCohortSize`) e obrigatorio em `SPEC:AD_CAMPAIGN` (29-anuncios S3.4). Campanha so inicia veiculacao quando o coorte atinge N usuarios. Teste com coorte abaixo do minimo.
-- **Armadilha:** Anuncio nao duplica o item promovido (29-anuncios S1.1). O criativo (titulo, corpo, midia) e proprio do anuncio, mas o item promovido e referenciado, nao copiado.
+- **Armadilha:** `RELATES:AD:PROMOTES` é aresta hierárquica justificada pelos 4 critérios de minimalismo (29-anuncios header): relação durável, consultável, com payload próprio, distinta de autoria.
+- **Armadilha:** Orçamento usa `ASSET:BALANCE_STATE` + `ASSET:LOCK` (pacing). O `LOCK` reserva verba antes da veiculação; se a impressão não se concretizar, `releaseBudget` libera. Não debite direto sem lock.
+- **Armadilha:** k-anonimato (`minCohortSize`) é obrigatório em `SPEC:AD_CAMPAIGN` (29-anuncios S3.4). Campanha só inicia veiculação quando o coorte atinge N usuários.
+- **Armadilha:** Anúncio não duplica o item promovido (29-anuncios S1.1). O criativo é próprio do anúncio, mas o item promovido é referenciado, não copiado.
 
-1. **[TDD]** Escreva `ad-manager.test.ts` com os 8 casos da Secao 4.
-2. Crie `types.ts` com interfaces da Secao 1.
-3. Implemente `ad-manager.ts` com CRUD de anuncios/campanhas e controle de orcamento.
+1. **[TDD]** Escreva `ad-manager.test.ts` com os 8 casos da Seção 4.
+2. Crie `types.ts` com interfaces da Seção 1.
+3. Implemente `ad-manager.ts` com CRUD de anúncios/campanhas e controle de orçamento.
 4. Implemente `reserveBudget`/`releaseBudget`/`settleEvent` com LOCK sobre BALANCE_STATE.
-5. Rode build + test (Secao 7) e cole saida.
+5. Rode build + test (§7) e cole saída.
 
-## 6. Feedback de Especificacao (Spec Feedback Loop)
-> **DECISOES EM ABERTO — requer definicao do arquiteto:**
-> - **Nenhuma.** Contratos derivados de 29-anuncios S1, [[anuncio]], e [[anuncio-listing]].
-> **Status:** `draft` ate o arquiteto validar Secoes 1-4 e 7.
+## 6. Feedback de Especificação (Spec Feedback Loop)
+> **DECIDIDO (arquiteto, 2026-07-27):** Opção A — Implementar no pacote `@plataforma/plugin-ads` (`packages/plugin-ads/`).
+> - **OPEN-1 (RESOLVIDO):** O subsistema de Anúncios e Campanhas será implementado como o plugin `@plataforma/plugin-ads`, seguindo o padrão de plugins do Estaleiro Host.
+> - **Demais itens:** Nenhuma decisão em aberto.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
-O agente `agile_reviewer` usara esta checklist para aprovar ou rejeitar o PR:
-- [ ] O codigo segue estritamente os arquivos de Output especificados?
-- [ ] O `pnpm test` roda sem erros (Node puro)?
-- [ ] Linter (`pnpm lint`) nao acusa problemas?
-- [ ] A implementacao respeita a Regra do Que Nao Fazer?
-- [ ] `AdManager` compila com as assinaturas exatas da Secao 1?
-- [ ] `reserveBudget`/`releaseBudget`/`settleEvent` mantem integridade do saldo?
+- [ ] OPEN-1 resolvido pelo arquiteto (path/pacote definido)?
+- [ ] Código segue estritamente os arquivos de Output especificados?
+- [ ] `pnpm gate <pkg> --profile backend` verde (saída colada)?
+- [ ] `AdManager` compila com as assinaturas exatas da Seção 1?
+- [ ] `reserveBudget`/`releaseBudget`/`settleEvent` mantêm integridade do saldo?
 
-### Verificacao automatica *(comandos exatos — worker E reviewer rodam e COLAM a saida)*
+### Verificação automática *(comandos exatos — worker E reviewer rodam e COLAM a saída)*
 ```bash
-pnpm --filter nexus-backend build
-pnpm --filter nexus-backend test
+pnpm gate <pkg> --profile backend
 ```
-> **GATE DE EVIDENCIA:** nem o `finish` (worker) nem o veredito (reviewer) sao validos sem a
-> saida literal desses comandos colada na secao 8. Marcar `[x]` sem evidencia e violacao.
+> **GATE DE EVIDÊNCIA:** nem o `finish` (worker) nem o veredito (reviewer) são válidos sem a
+> saída literal desse comando colada na seção 8. `<pkg>` = pacote definido pelo arquiteto em OPEN-1.
 
-## 8. Log de Handover e Revisao Agile (Code Review)
+## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
-- 
+-
 
 ### Parecer do Agente Revisor (Reviewer):
 - [ ] **Aprovado**
-- [ ] **Requer Refatoracao**
-- **Evidencia de Execucao (obrigatoria — colar saida de build/tsc + test):**
+- [ ] **Requer Refatoração**
+- **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
 ```
-(cole aqui a saida real de pnpm build e pnpm test)
+(cole aqui a saída real de pnpm build e pnpm test)
 ```
-- **Comentarios de Revisao:**
-
-## 9. Log de Execucao (Agent Execution Log)
-> **Agentes de IA:** Registrem aqui cada sessao de trabalho usando `node tools/scripts/manage-task.mjs`.
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
-- **[2026-07-03 13:26:06]** - *system* - `[Migrado]`: spec_status:draft → status:draft:placeholder
-- **[2026-07-03T20:02]** - *system* - `[Triado]`: Triagem em lote do backlog
-- **[2026-07-03T20:03]** - *system* - `[Endurecido]`: Endurecimento em lote (dependencies done/empty)
-- **[2026-07-03T20:03]** - *system* - `[Auto-promovida]`: deps todas done
-- **[2026-07-10T15:14]** - *Antigravity* - `[Demovido]`: Rebaixada por obsolescencia de arquitetura (Nexus/Zen)
+- **[2026-07-26T14:03]** - *deepseek* - `[Decisão pendente]`: OPEN-1: caminho de implementacao — tipos derivados de 29-anuncios, mas path Nexus congelado. Decidir pacote/plugin destino.
+- **[2026-07-27T13:59]** - *gemini* - `[Reconciliado]`: status restaurado de draft:pending_decision para draft:placeholder (drift corrigido)
+- **[2026-07-27T13:59]** - *gemini* - `[Decisão pendente]`: decisão pendente OPEN-1
+- **[2026-07-27T13:59]** - *gemini* - `[Decidido]`: decisão: Opção A (@plataforma/plugin-ads)
+- **[2026-07-27T13:59]** - *system* - `[Auto-promovida]`: deps todas done
