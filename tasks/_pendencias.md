@@ -196,6 +196,9 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [i3][EST-09][plugin-context] 17 sondas adversariais ad-hoc (probe.test.ts) durante revisão — todas passaram após correção de 1 sonda mal-formada (testava JSON.stringify no escopo de teste em vez de propriedade do CCR store). Sondas cobriram: idempotência de hash, integridade de 1MB string, edge cases de CSV (vírgula, aspas, primitivos, objeto), graceful fallback quando L2/nano throws. INFO positivo — disciplina de revisão mantida.
 - [ ] [i4][EST-09][plugin-context] Worker (deepseek) entregou em 11min (13:21→13:32) — implementação 6 arquivos + 5 test files + 3 config files + lockfile. Conformidade com §3 e §4 da spec exata. INFO positivo — capacidade sonnet adequada para a complexidade.
 <!-- END EST-09 -->
+<!-- T-1053 -->
+- [ ] [m1][T-1053][controle reassign-machine] `const result = svc.reassignMachine(...)` em `tools/scripts/reassign-machine.mjs:33` é atribuído mas nunca lido (hint LSP `[6133] 'result' is declared but its value is never read`). Cosmético: ou descartar o `const`, ou logar `JSON.stringify(result, null, 2)` para feedback útil ao operador. Não-bloqueante — registrado para cleanup futuro. (tools/scripts/reassign-machine.mjs:33)
+<!-- END T-1053 -->
 <!-- EST-13c -->
 <!-- m1→C-20, m2→SPEC-PENDENCIAS, m3→C-20 -->
 - [ ] [i1][EST-13c][plugin-knowledge/processo] Gate de evidência triplo (build+test+lint) aplicado e logado pelo worker (deepseek) no 1º finish. Worker escolheu a arquitetura de "casca fina" da Decisão FECHADA (claude-opus 2026-07-06T19:47) sem scope creep — 40 linhas em writer.ts, 0 modificações em graph.ts/fts.ts. INFO positivo — comportamento esperado desde a regra de 2026-07-06.
@@ -589,8 +592,12 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- END C-21 -->
 <!-- T-409 -->
 - [ ] [M1][T-409][controle] **Drift de ledger mascarou estado real.** `manage-task.mjs reconcile` sincronizou para ledger stale (ready, de 2026-07-03); worker registrou [Finalizado] (in_progress→review) no §9 mas ledger não acompanhou. Sem diff na branch `task/T-409` + sem worktree, o serviço não detectou que o trabalho sumiu. Ação corretiva: spike/meta para guard "review sem código = reject automático" — `manage-task.mjs finish` falha se `git diff master..task/<ID> --stat` está vazio.
-- [ ] [m1][T-409][controle] §6 "DECIDIDO (2026-07-16) — adaptar à API existente" é sólida e o caminho correto. Mas o alinhamento de §6 ficou só no papel — não há código que materialize a decisão. Reaproveitar §6 ao re-executar a task.
+- [x] [m1][T-409][controle] **RESOLVIDO (R2, 2026-07-27):** §6 "DECIDIDO (2026-07-16) — adaptar à API existente" foi materializada. O rework de 2026-07-26 (`task/T-409-work`, 3 commits) implementou TopologiaTab com `SwarmRegistry` + `ConnectionPromotionEngine` de `@plataforma/transport`, `tryPromote` injetado pela composição, sem `promote()/demote()` fictícios nem import de `@plataforma/testkit`. Ver `apps/bancada/src/components/tabs/TopologiaTab.tsx` + `apps/bancada/src/App.tsx:117-126`.
 - [ ] [i1][T-409][controle] BOM UTF-8 em `tasks/T-409.md` (1 de 519 arquivos em `tasks/`) impedia o `get-task.mjs` de detectar o status. Bug do parser (`parseFrontmatter` não trata BOM). Removido no review de 2026-07-18. Fix de raiz: `tools/scripts/get-task.mjs:79` — `text.replace(/^\uFEFF/, "")` antes do regex de frontmatter.
+- [ ] [M1][T-409-R2][@plataforma/bancada] **E2E Playwright criado mas nunca executado** — `apps/bancada/e2e/topologia.smoke.test.ts` (50 linhas, 2 casos) existe, mas o rework de 2026-07-26 não rodou `pnpm --filter bancada test:e2e`. M3 INVIOLÁVEL exige prova de Playwright rodada para tasks `ui: true`. Track: rework deve rodar `pnpm gate @plataforma/bancada --profile ui` (cobre build+test+e2e) e colar a saída em §8.
+- [ ] [M2][T-409-R2][@plataforma/bancada] **Enum por número mágico + casts `as any` na impl.** `TopologiaTab.tsx:72,130` usa `state === 1` em vez de `PromotionState.PROMOTING`; 5 casts `as any` (linhas 71, 73, 122, 131, 133). §6 da spec defende explicitamente a fronteira de tipos. Track: rework deve usar o enum nominal e `PeerId` cast explícito (e propagar a mudança para o test 4 do TopologiaTab.test.tsx que também usa `1`).
+- [ ] [m1][T-409-R2][@plataforma/bancada] **Tabela de nomes de estado diverge dos rótulos do §1.** Spec §1: "direta", "promovendo...", "relay (NAT simétrico)". Impl `TopologiaTab.tsx:123`: `{ 0: 'relay', 1: 'promovendo', 2: 'direto', 3: 'falhou' }` — perde "NAT simétrico", usa "direto" em vez de "direta". Track: alinhar a tabela no rework.
+- [ ] [m2][T-409-R2][@plataforma/bancada] **Polling 5s + listener `change` são redundantes** se SwarmRegistry já emite eventos suficientes. Não é bug, é ineficiência leve. `useEffect` em `TopologiaTab.tsx:16-30` faz ambos. Decisão do worker (manter defensivo ou remover polling) — não bloqueia. Track: revisar se a cobertura de eventos é suficiente.
 <!-- END T-409 -->
 
 <!-- EST-49a -->
@@ -619,6 +626,29 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 - [ ] [M1][T-DS-04][eslint-plugin-design-system] Testes cobrem 9 cases mas faltam sub-casos da spec §4: teste 4 (dimensões zero `"0px"`, `"0rem"`, `"0em"`), teste 6 (font-family CSS literal + `inherit`/`var()`), teste 3 (CSS dimension literal + `fontSize`). Worker deve adicionar os casos faltantes antes de re-submeter. (packages/eslint-plugin-design-system/tests/no-literal-tokens.test.js)
 - [ ] [m1][T-DS-04][eslint-plugin-design-system] `isVarRef()` em index.js:74,84 hardcodes prefixo `var(--ds-`. Se algum token design system usar outro prefixo `--` (ex.: `--font-`), seria falso positivo. Baixo risco hoje (convenção `--ds-` é universal), mas flexibilizar para `var(--` genérico se o design system evoluir. (packages/eslint-plugin-design-system/index.js:74)
 <!-- END T-DS-04 -->
+
+<!-- BEGIN EST-71 -->
+- [ ] [m1][EST-71][plugin-dispatcher types] `TaskView.dependencies?: string[]` adicionado a `packages/plugin-dispatcher/src/types.ts:65` sem estar declarado em §3 da spec. Necessário para a BFS reversa de `dispatchBranch` funcionar, mas é modificação não-declarada. Track: `spec→EST-71a` reendurecendo a spec no rework. Ref: `packages/plugin-dispatcher/src/types.ts:65` (tasks/EST-71.md §8 Parecer m1)
+- [ ] [m2][EST-71][plugin-dispatcher gate] Artefato de gate `c453b231ef9a73244dc3affc5e78b17e2ae28200.json` com `treeSha` stale (`c453b231…` ≠ `HEAD^{tree}` `b8ee6d8a4ac9aa7c038d737571e7d4e72ccca608`). Commit `f58290b` só altera `.gate/`, então o código sob auditoria é equivalente, mas tecnicamente o artefato não casa com a tree atual. Track: re-rodar `pnpm gate @plataforma/plugin-dispatcher --profile full` no rework e commitar `.gate/…json` cuja `treeSha` case com a tree pós-fix. Ref: `.gate/c453b231ef9a73244dc3affc5e78b17e2ae28200.json` vs `git rev-parse task/EST-71^{tree}` (tasks/EST-71.md §8 Parecer m2)
+- [ ] [M][EST-71][estaleiro rebase overhang] Mudanças fora-de-escopo da §3 carregadas de rebase com EST-70/EST-73: `apps/estaleiro/core/src/conversation-store.ts` (−80 linhas), `apps/estaleiro/core/src/development-analytics-provider.ts` (−6 linhas), `packages/plugin-agent-learning/src/classifier.ts` (−59), `conversation-normalizer.ts` (−12), `index.ts` (−5), `service.ts` (−21), `store.ts` (−141), `task-segments.ts` (−225), `types.ts` (−48) + testes correspondentes. Spec §3 da EST-71 não autoriza nenhum desses. Track: reverter no rework ou justificar com `spec→EST-71b` se for refactor intencional absorvido. Ref: `git diff master..task/EST-71 --stat` (tasks/EST-71.md §8 Parecer R2 §Achados não-bloqueantes)
+<!-- END EST-71 -->
+
+<!-- T-WF-01 -->
+- [ ] [m][T-WF-01][workflow validator] `validateHumanTask` recebe `Record<string, unknown>` (duck-typing) em vez do tipo `HumanTaskConfig` (packages/workflow/src/validator.ts:64-79) — perde type-safety interno do validador. Sugestão: tipar parâmetro como `HumanTaskConfig` (ou aceitar o tipo e usar `as` no call site) — ~5 linhas. Não-bloqueante: comportamento está correto e testado.
+<!-- END T-WF-01 -->
+<!-- EST-71 -->
+- [ ] [m][EST-71][plugin-dispatcher types] `TaskView.dependencies?: string[]` adicionado a `packages/plugin-dispatcher/src/types.ts:65` sem estar declarado no §3 da spec. Necessário para a BFS reversa do `dispatchBranch` funcionar. Track: `spec→EST-71a` (reendurecer a spec para absorver o campo).
+- [ ] [i][EST-71][estaleiro-ui build m3''] `apps/estaleiro/package.json` foi bumpado para `0.0.118` (gate.mjs) na composição do merge — esperado pelo pipeline. Sem ação.
+<!-- END EST-71 -->
+
+<!-- T-1036.1 -->
+- [ ] [m][T-1036.1][system-peer tests] Testes 3 e 4 do `apps/system-peer/tests/keyVaultEpoch.test.ts:92-107` são funcionalmente idênticos (`send({})` espera 400). Remover um (ou renomear o 4 para sem-body sem `.send()`). Track: cleanup agrupado.
+- [ ] [m][T-1036.1][system-peer spec] `tasks/T-1036.1.md` §6 (Feedback de Especificação) ficou vazia — a decisão "Opção A: endpoint POST /api/keyvault/epoch/:scope" foi feita durante execução e está só no handover §8. Spec-debt não-bloqueante; fechar em reendurecimento da próxima task de integração similar ou adicionar uma nota retroativa.
+- [ ] [i][T-1036.1][system-peer gate infra] Gate artifact `.gate/22ade7d….json` tem `treeSha=22ade7d0…` ≠ `HEAD^{tree}=0a903891…` no commit `915e7c2` (linter fix). Working tree limpa, headSha bate, comportamento confirmado equivalente via sonda. Mesmo padrão de EST-61 [i1]/EST-73 [m1] — investigar separadamente ou pedir ao gate.mjs para regenerar o artefato na commit final.
+- [ ] [i][T-1036.1][system-peer security] `apps/system-peer/src/keyVaultEpoch.ts:43` retorna `(e as Error).message` no body do 400, expondo detalhes como `iss/aud deve ser 32 bytes hex (64 caracteres), recebeu 0`. INFORMATION DISCLOSURE leve — mapear para códigos genéricos (`malformed_proof`, `invalid_ucan`) e logar server-side.
+- [ ] [i][T-1036.1][system-peer] `buildDelegationProof` em `apps/system-peer/src/keyVaultEpoch.ts:115` faz fallback para `''` em `delegatedTo` que é dead code (route handler em `:24-27` já valida que é string). Limpar.
+- [ ] [i][T-1036.1][system-peer] `keyVaultEpoch.ts:87` `algo: 'ed25519' = rawAlgo === 'ed25519' ? 'ed25519' : 'ed25519';` é tautologia. Workaround de lint até a type do SignedUcan ganhar literal mais amplo.
+<!-- END T-1036.1 -->
 
 <!-- END PENDENCIAS -->
 
@@ -933,3 +963,14 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 <!-- BEGIN PROC-PENDENCIAS -->
 <!-- Achados de processo (P0/P1 de relatórios de execução / tooling observada) que o `/agrupar-cleanup` drena em tasks de tooling. -->
 <!-- END PROC-PENDENCIAS -->
+
+<!-- BEGIN T-603 -->
+- [ ] [i][T-603][workers sync.deterministicCommitter] `DeterministicCommitter.requestCoSignature` é stub: não envia `snapshotHash` via canal ephemeral (T-403 `automergeShell`/`portNetworkAdapter` está merged mas não consumido) e expõe apenas `addSignature` para testes injetarem. Spec §1 autoriza o stub agora; integração real (broadcast + coleta) é followup. Teste 5 cobre o contrato (não lança), teste 11 cobre a verificação real via `ed25519Verify` no `commit`. Acompanhar p/ uma task de integração Estaleiro (provavelmente T-604+ ou onda que consome o committer). Ref: `packages/workers/src/sync/deterministicCommitter.ts:187-205`
+- [ ] [m][T-603][workers sync.commitCycle] Remoção de 1 `// eslint-disable-next-line @typescript-eslint/no-deprecated` em `commitCycle.ts:33` (no rework 432c2aa) sem justificativa no handover. **Resolvido pelo rework 7d5c412** (commit message justifica: "Remove eslint-disable obsoleto em commitCycle.ts"; master NÃO tem `@deprecated` em `packages/protocol/src/*`).
+- [ ] [m][T-603][workers gate] Artefato de gate obsoleto `.gate/ee61da886e2ae13508ba960ce088b5d22251cd5c.json` (headSha=432c2aa, do branch pré-rebase) foi carregado pelo cherry-pick do commit `5081564` e persiste no master pós-merge. Não-bloqueante (integrador não lê esse arquivo — o válido é `.gate/d017e75c...` do commit `116148f`, e o do merge `6337b8f7...` foi gerado pelo `worktree.mjs merge` e commitado em `50e3102`), mas é lixo que polui o repo. **Sugestão:** commit `chore: drop stale gate artifact` removendo o arquivo. Track: agrupar com outras pendências de gate em cleanup de tooling. Ref: `git show 50e3102` mostra 3 artefatos em `.gate/` no merge; o obsoleto é o `ee61da…`.
+<!-- END T-603 -->
+
+<!-- BEGIN C-36 -->
+- [ ] [i][C-36][pnpm gate protocol] Gate artifact do worker (`.gate/71bb5afa…json`) ficou **on-disk mas não commitado** na branch `task/C-36` (`.gate/` é gitignored; o padrão do projeto usa `git add -f` para forçar tracking, que o worker esqueceu). O `treeSha` do artefato bate com `git ls-tree HEAD | grep -v '\.gate' | git mktree` (regra de `scripts/gate.mjs strippedTree()`), então a evidência é válida, só não está no `git log` da branch. **Resolvido pelo Nível 1 do integrar-task** (commit `374b9b4` rodou `pnpm gate` na composição candidata, gerando novo `.gate/7b04f611…json` commitado na master). Track: lembrar worker de `git add -f .gate/<hash>.json && git commit --amend` antes de `finish` (regra de protocolo).
+- [ ] [i][C-36][pnpm sync] Branch `task/C-36` estava 3 commits atrás de `master` (`0122c18 merge task/T-SHL-03` + 2 commits anteriores) no momento da review. Diff de C-36 não toca nesses arquivos, então a review é independente; **o `integrar-task` sincronizou master antes do merge transacional** (`wt merge C-36` faz fetch+pull --ff-only automático). Track: harden de M4 já alerta quando `master` não é ancestral da branch — confirmar que esse pré-check teria pego.
+<!-- END C-36 -->
