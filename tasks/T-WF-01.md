@@ -1,7 +1,9 @@
 ---
 id: T-WF-01
+machine: Vivobook16
+worktree_path: C:\Dev2026\.superapp-worktrees\T-WF-01
 title: "formato SPEC:WORKFLOW Nivel 1 + validador + envelope (guardas Zen, acoes intent, orcamento)"
-status: ready
+status: done
 complexity: 4
 target_agent: logic_agent
 reviewer_agent: agile_reviewer
@@ -190,16 +192,42 @@ pnpm --filter @plataforma/workflow test
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
-- 
+- Schema com todas as interfaces (WorkflowDocument, WorkflowState, WorkflowTransition, WorkflowAction, WorkflowLimits, HumanTaskConfig)
+- Validator com envelope de segurança (guarda de action types, ref não-vazia em emit_intent, human_task requer timeout+escalation)
+- Validação de limites (max_states, max_transitions_per_state, max_guard_length)
+- 20 testes (7 schema + 13 validator), todos passando
+- Commit: 8e41b46 — pushado
 
 ### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
+- [x] **Aprovado**
 - [ ] **Requer Refatoração**
 - **Evidência de Execução (obrigatória — colar saída de build/tsc + test):**
 ```
-(cole aqui a saída real de pnpm build e pnpm test)
+=== GATE (backend) — re-execução do reviewer ===
+$ pnpm gate @plataforma/workflow --profile backend
+✅ @plataforma/workflow:build | exit=0 | 4923ms
+✅ @plataforma/workflow:test | exit=0 | 2240ms
+✅ @plataforma/workflow:lint | exit=0 | 7051ms
+artefato: .gate/80406fe78faf248c446d39c591d0d59de989cf46.json | profile=backend | allGreen=true
+
+$ pnpm --filter @plataforma/workflow test
+ ✓ tests/schema.test.ts   (7 tests)  5ms
+ ✓ tests/validator.test.ts (13 tests) 6ms
+ Test Files  2 passed (2)
+      Tests  20 passed (20)
 ```
+
+- **Validação de artefato de gate:** `treeSha` 80406fe78faf… corresponde a `git rev-parse HEAD^{tree}` com `.gate/` removido via `git ls-tree | grep -v .gate | git mktree` (= 6f8d0df9716f…, HEAD 10a9c7b). Mapeamento canônico do `scripts/gate.mjs:120-128` (`strippedTree`). Artefato válido.
 - **Comentários de Revisão:**
+  - Escopo: 9 arquivos no diff, todos sob `packages/workflow/**` (+ `pnpm-lock.yaml` + `.gate/<sha>.json`). `tsconfig.json` não estava declarado mas é boilerplate padrão (extends `tsconfig.base.json` + outDir/rootDir) — sem ele o `tsc` do package não roda. Disposição: `no-op` (infraestrutura mínima obrigatória).
+  - 13 casos de teste da §4 todos cobertos: 1 (mínimo OK), 2 (NO_TRANSITIONS), 3 (TARGET_UNKNOWN), 4 (INITIAL_STATE), 5 (GUARD_LENGTH), 6 (LIMIT_STATES), 7 (ENVELOPE_ACTION_TYPE), 8 (ENVELOPE_INTENT_REF), 9 (sub_workflow_ref OK), 10 (HUMAN_TASK_TIMEOUT), 11 (HUMAN_TASK_ESCALATION), 12 (SUBSTATE_UNKNOWN), 13 (VERSION).
+  - Envelope de segurança: `VALID_ACTION_TYPES = {emit_intent, emit_event}` enforced, `emit_intent` exige `ref` não-vazia. Não há caminho que produza ação fora do envelope.
+  - `human_task` rejeita sem `timeout_ms` ou `escalation_policy` (workflow com tarefa humana sem timeout trancaria a saga indefinidamente — §4 do caderno). Coberto.
+  - `version !== '1'` rejeita documentos Nível 2 cedo (curto-circuita antes de validar estados), conforme §4 do caderno. Coberto.
+  - Decisões de arquiteto ausentes: zero — spec já estava endurecida (decisões resolvidas, contratos TS fixos).
+  - `dependencies: [T-004]` já estava `done` (protocol package), o que viabilizou o `pnpm install` workspace + gate. Tudo conforme.
+  - Pendência menor (não-bloqueante, vai para ledger): `validateHumanTask` recebe `Record<string, unknown>` (duck-typing) em vez do tipo `HumanTaskConfig` — funciona, mas perde type-safety interno do validador. Sugestão: tipar o parâmetro e usar `as` apenas no call site se necessário. Custo: ~5 linhas.
+  - Veredito: **APROVADO** — schema, validador e envelope de segurança atendem o caderno §1, §3, §4. Gate verde re-executado.
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
@@ -208,3 +236,8 @@ pnpm --filter @plataforma/workflow test
 - **[2026-07-03T20:03]** - *system* - `[Triado]`: Triagem em lote do backlog
 - **[2026-07-03T20:03]** - *system* - `[Endurecido]`: Endurecimento em lote (dependencies done/empty)
 - **[2026-07-03T20:03]** - *system* - `[Auto-promovida]`: deps todas done
+- **[2026-07-26T12:02]** - *deepseek* - `[Iniciado]`: iniciando
+- **[2026-07-26T12:35]** - *deepseek* - `[Finalizado]`: SPEC:WORKFLOW Nível 1 — schema, validator e testes (20/20). Build+test+lint ✅. Gate backend allGreen. 3 commits pushados.
+- **[2026-07-26T17:15]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: revisando
+- **[2026-07-26T17:20]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: SPEC:WORKFLOW N1 — schema, validator, envelope e 13 testes conferem com caderno §1/§3/§4. Gate backend re-executado, allGreen. treeSha do artefato bate com HEAD via strippedTree.
+- **[2026-07-26T17:23]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: Integrado: merge na master (commit eadd9aa), worktree removida, Gate verde (build+test+lint allGreen, profile=backend). 1 não-bloqueante → ledger de pendências.
