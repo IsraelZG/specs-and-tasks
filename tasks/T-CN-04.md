@@ -6,7 +6,7 @@ complexity: 4
 target_agent: logic_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
-dependencies: ["T-CN-01", "T-009a"]
+dependencies: ["T-CN-01"]
 blocks: []
 capacity_target: sonnet
 ---
