@@ -40,16 +40,33 @@ export function validateAffirmation(affirmation: ScopedAffirmation): { valid: bo
 ## 2. Contexto RAG (Spec-Driven Development)
 - [caderno-3-sdk/06-connectors.md](../docs/caderno-3-sdk/06-connectors.md) — §1.2 (identidade: persona SYSTEM + ASSET:ROLE escopado, auditabilidade)
 - [[agente-de-sistema]] — definição completa, orquestração vs afirmação
-- Deps: T-CN-01 (`ConnectorId`), T-009a (ControlPort — `draft`, interface de comando)
+- Deps: T-CN-01 (`ConnectorId`)
 
 **Testes (6 casos):** 1. `createConnectorPersona` classe C → scope com `writableNodeTypes` não vazio. 2. Classe A → sem persona (dispensável). 3. `validateAffirmation` dentro do scope → `valid: true`. 4. Afirmação fora do scope → `valid: false`. 5. `maxAffirmationsPerHour` excedido → `valid: false`. 6. Vetor: conector tenta afirmar `BALANCE_STATE` sem `writableNodeTypes` contendo → rejeitado.
 
-**Pegadinhas:** Classes A/B/E não têm persona (só C/D). `ASSET:ROLE` é escopado por tipo de nó — não por ID de nó. T-009a (ControlPort) está `draft` — a interface de comando para o system-peer ainda não definida.
+**Pegadinhas:** Classes A/B/E não têm persona (só C/D). `ASSET:ROLE` é escopado por tipo de nó — não por ID de nó.
 
 **Gate:** `pnpm --filter @plataforma/connectors build && pnpm --filter @plataforma/connectors test`
 
 ## 6. Feedback de Especificação (Spec Feedback Loop)
-> **DECISÃO EM ABERTO:** T-009a (ControlPort) está `draft`. A integração com system-peer depende da interface de comando. **Status:** `draft` até T-009a chegar a `ready`.
+> **RESOLVIDO (era DECISÃO EM ABERTO citando T-009a/ControlPort — fóssil):** T-009a (`ControlPort`,
+> pacote `@plataforma/core`) está `obsolete` — escopo `ControlPort`/`WebSocketControlClient`
+> descartado pelo arquiteto em `tasks/T-009.md` §6 [OPEN-1] (2026-06-21: "descartado, não foi
+> movido para outra task"); confirmado no Log §9 de `tasks/T-009a.md`
+> (`[2026-07-27T18:14] claude-haiku — [Obsoleto]`). Não existe, nem vai existir por essa via, uma
+> "interface de comando" ControlPort para o system-peer.
+>
+> A pergunta real que sobrevive ao fóssil — *qual interface o `system-peer` usa para receber
+> comando do conector persona* — **não se aplica a este contrato**: por
+> `caderno-3-sdk/06-connectors.md §1` ponto 1, "conector é capacidade do [[peer-do-sistema]], nunca
+> do core (...) Cada conector é um processo/worker isolado no system-peer" — o conector roda
+> *dentro* do processo do system-peer, não fala com ele por um canal de comando externo. Isso bate
+> com o contrato já fixado na Seção 1 desta task: `createConnectorPersona` e `validateAffirmation`
+> (`packages/connectors/src/system-agent-persona.ts`) são funções puras — sem import de rede, sem
+> dependência de porta de controle — logo não há gap deixado pela obsolescência de T-009a/ControlPort
+> a preencher. Nenhuma decisão de arquiteto é necessária neste eixo.
+>
+> **Status:** segue `draft:triaged` (endurecimento profundo pass-2 não é objeto desta limpeza).
 
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
