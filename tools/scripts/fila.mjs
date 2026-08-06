@@ -84,7 +84,9 @@ function add(taskId, message, extraPaths) {
     process.exit(1);
   }
   ensureQueue();
-  const paths = [`tasks/${taskId}.md`, ...extraPaths];
+  // Barra final some: `check-ignore` no flush casa "docs-v2/" contra uma LINHA VAZIA do .gitignore
+  // e a entrada inteira era descartada como "só paths gitignored" — perda silenciosa de trabalho.
+  const paths = [`tasks/${taskId}.md`, ...extraPaths.map((p) => p.replace(/[/\\]+$/, ''))];
   // Nome único por enfileiramento — sem colisão entre agentes concorrentes.
   const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const file = path.join(queueDir, `${taskId}__${stamp}.txt`);
