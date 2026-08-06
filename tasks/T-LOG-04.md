@@ -179,7 +179,6 @@ export function emitCourierLocation(
 - **[READ]** `docs/conceitos/dispatch-saga.md` — saga de dispatch, matching
 - **[READ]** `docs/conceitos/asset-lock.md` — primitiva de reserva/LOCK
 - **[READ]** `packages/logistica/src/fulfillment.ts` (T-LOG-02) — FulfillmentOrder
-- **[READ]** `tasks/T-009a.md` — ControlPort (interface de controle)
 - **[CREATE]** `packages/logistica/src/dispatch.ts` — funções acima
 - **[CREATE]** `packages/logistica/tests/dispatch.test.ts`
 - **[UPDATE]** `packages/logistica/src/index.ts` — re-export
@@ -225,8 +224,14 @@ Casos de teste (numerados):
 ## 6. Feedback de Especificação (Spec Feedback Loop)
 > **DECISÕES EM ABERTO — requer definição do arquiteto:**
 > - **T-LOG-02 e T-LOG-03 estão `draft`**: FulfillmentOrder e rastreamento ainda não definidos. Interfaces provisórias.
-> - **T-009a (ControlPort) está `draft`**: interface de controle para orquestração efêmera. Assumindo que o dispatch usa StoragePort local enquanto T-009a não está pronto.
 > - **Orquestração efêmera**: quais estados do dispatch são duráveis vs. efêmeros? A fonte RAG §4.2 diz que estados intermediários são efêmeros e não-replicados. Confirmar escopo exato.
+>
+> **Resolvido:** o dispatch usa `StoragePort` local — ponto. `StoragePort` é contrato real e presente
+> em `packages/protocol/src/ports.ts:149-156` (`exec`/`transaction`/`migrate`), re-exportado por
+> `packages/protocol/src/index.ts:1` (`export * from './ports.js'`), e já é o tipo importado pelo
+> contrato fixado na Seção 1 deste arquivo (`import type { StoragePort } from '@plataforma/protocol';`).
+> Não há mais dependência condicional de nenhuma task ControlPort (T-009a é `obsolete` — escopo
+> descartado pelo arquiteto em T-009 §6 [OPEN-1], 2026-06-21 — não existe interface de controle a esperar).
 > **Status:** `draft` até T-LOG-02 e T-LOG-03 ficarem `ready`.
 
 ## 7. Definition of Done (DoD) & Reviewer Checklist
