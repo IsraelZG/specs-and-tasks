@@ -12,6 +12,12 @@ Severidade: `M` (major não-bloqueante) · `m` (minor) · `i` (info).
 ---
 
 <!-- BEGIN PENDENCIAS -->
+<!-- T-608a (R1, REFATORAÇÃO) -->
+- [ ] [m1][T-608a][bancada tests] §4 plano declarava 6 casos Vitest, entregues 9 (1-6 + erro + expansão de forks + slot T-608b). Supra-conjunto sem ônus — nota positiva; nenhuma ação necessária.
+- [ ] [m2][T-608a][bancada UI] §1 não exige estado `loading`, só vazio/erro/cheio. Handover diz "5 estados" (vazio, erro, cheio + loading/partial implícitos no tratamento de lista vazia). Supra-conjunto aceitável. Sem ação.
+- [ ] [i1][T-608a][gate infra] `scripts/gate.mjs:74-81` `phasesFor(@plataforma/bancada)` hardcoded em `build/test/lint` para todos os perfis (`ui`/`backend`/`full`) — não dispara Playwright. Issue de infraestrutura, não desta task. Track: `spec→T-XXX` (gate infra) ou followup. Worker deveria ter rodado `pnpm --filter bancada test:e2e` manualmente para satisfazer M3.
+- [ ] [i2][T-608a][bancada UI/CSS] Pattern pre-existente: tabs da Bancada (Auth/Sync/Rede/Midia) declaram classes sem CSS no `index.css`; T-608a herdou a convenção com 37 seletores `.dados-*` indefinidos. Não é regressão, mas é debt visual que cresce — primeira aba "visualmente útil" promete. Track: cleanup futuro quando design-system-ui entrar no escopo da Bancada.
+<!-- END T-608a -->
 <!-- EST-73 -->
 - [ ] [M][EST-73][estaleiro-ui board] Mudanças fora-de-escopo em `apps/estaleiro/ui/src/views/board/BoardView.tsx` (reordenação de hooks useMemo para depois do early-return), `apps/estaleiro/ui/src/views/execution/hooks.ts` (remoção de useMemo + rename `storeVersion→_`), `apps/estaleiro/ui/src/views/fleet/hooks.ts` (remoção de `export type WsStatus`), `apps/estaleiro/ui/src/views/cost/{CostTable.tsx, CostView.test.tsx, hooks.ts}`. Spec §4.4 não lista nenhum desses para update. Risco: regressão em [B1.5] (3 E2E falhando) + [B3] (test 7 deletado). Track: reverter ou emendar spec.
 - [ ] [M][EST-73][estaleiro-ui App] `apps/estaleiro/ui/src/App.tsx:145` type cast `Parameters<typeof dispatchFleetEvent>` em chamada a `dispatchExecutionEvent` — type lie (assinaturas são idênticas, então benigno em runtime; cosmético). Track: restaurar para `Parameters<typeof dispatchExecutionEvent>`.
