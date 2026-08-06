@@ -1,14 +1,19 @@
 ---
 id: T-BW-01
+machine: Vivobook16
+worktree_path: C:\Dev2026\.superapp-worktrees\T-BW-01
 title: "Bancada: composition root real (storage OPFS + KeyVault + SwarmRegistry + WS reais)"
-status: ready
+status: done
 complexity: 3
 target_agent: frontend_agent # perfis: devops_agent, logic_agent, crypto_agent, frontend_agent
+target_pkg: "@plataforma/bancada"
+test_profile: full
 reviewer_agent: agile_reviewer
 execution_mode: sequential # parallel | sequential
 dependencies: ["T-004b", "T-110", "T-204", "T-205"]
 blocks: [] # IDs de tarefas que esta bloqueia
 capacity_target: haiku
+ui: true
 # decisions: []
 ---
 
@@ -118,19 +123,63 @@ pnpm --filter @plataforma/bancada lint       # ZERO erros de eslint
 
 ## 8. Log de Handover e Revisão Agile (Code Review)
 ### Handover do Executor:
-- 
+- **Worker:** deepseek
+- **Implementação:**
+  - `App.tsx`: adicionado `useEffect` + `useMemo` p/ `SqliteWasmStorage("bancada-db")` com `storage.migrate(MIGRATIONS)` + `WsAdapter` conectando `system-peer` via `ws://127.0.0.1:3000`, `.catch()` em cada efeito
+  - `App.test.tsx`: mocks p/ `SqliteWasmStorage` (Worker indisponível JSDOM) e `WsAdapter.connect` via `vi.mock` com `importOriginal` preservando demais exports
+- **Commits:** `b9f94b4` no superapp `task/T-BW-01`
+- **Pendencias:** N/A
 
-### Parecer do Agente Revisor (Reviewer):
-- [ ] **Aprovado**
-- [ ] **Requer Refatoração**
-- **Evidência de Execução (obrigatória — colar saída de build/tsc + test + lint):**
-```
-(cole aqui a saída real de pnpm build, pnpm test e pnpm lint)
-```
-- **Comentários de Revisão:**
+### Parecer do Agente Revisor (Reviewer 1):
+- **Reviewer:** agile_reviewer:minimax-m3
+- **Data:** 2026-07-27
+- **Veredicto:** ✅ **Aprovado**
+- **Disposição por achado:**
+
+  | declarado (Seção 3) | alterado no diff | disposição |
+  |---|---|---|
+  | `[UPDATE] apps/bancada/src/App.tsx` | sim — 22 linhas (+19/-3) | ok, dentro do escopo |
+  | `[UPDATE] apps/bancada/tests/App.test.tsx` | sim — 34 linhas (+33/-1) | ok, dentro do escopo |
+  | `[READ] apps/bancada/src/App.tsx` | (idêntico ao UPDATE) | ok |
+  | `[READ] packages/core/src/sqliteWasmStorage.ts` | não modificado | ok |
+  | `[READ] packages/core/src/keyVault.ts` | não modificado | ok |
+  | `[READ] packages/transport/src/websocket.ts` | não modificado | ok |
+  | `[READ] packages/transport/src/SwarmRegistry.ts` | não modificado | ok |
+  | arquivos rastreados fora do escopo | nenhum | ok |
+
+- **Auditoria de código (L0 — Nível 0):**
+  - `App.tsx:66-69`: instanciação de `SqliteWasmStorage` e `WsAdapter` via `useMemo` com deps `[]` — correto (instância única por mount).
+  - `App.tsx:73-77`: `useEffect` chama `storage.migrate(MIGRATIONS)` com `console.error` no catch — coerente com spec §5.3 (erro crítico de inicialização, aceitável).
+  - `App.tsx:79-83`: `useEffect` chama `wsAdapter.connect('system-peer')` com `console.warn` no catch — respeita regra §5 "NÃO use `console.error` ao tratar falha de conexão do WsAdapter".
+  - `App.tsx:67-69`: peer URL `ws://127.0.0.1:3000` hardcoded — coerente com spec §5.4 (system-peer local).
+  - `App.tsx.test.tsx:9-31`: mocks preservam demais exports via `importOriginal` (KeyVault, SwarmRegistry permanecem reais) — correto, evita mock excessivo.
+  - `App.test.tsx:33-36`: `mockClear()` em `beforeEach` isola estado entre testes — boa prática.
+  - Botões/abas/estrutura visual do Shell: **inalterados** — respeita §5 regra do que NÃO fazer.
+  - Import respeita direção de pacotes `core ← transport ← bancada` — gate de acoplamento OK.
+- **Validação do artefato de gate:**
+  - `treeSha` no artefato (`96c97639…`) difere de `HEAD^{tree}` (`1699f5b5…`) **por design**: o `gate.mjs` calcula `treeSha` com `strippedTree()` que exclui entradas `.gate/` do índice (a árvore "código-apenas", sem os artefatos versionados). Verificado: `indexTree == headTree` (igualdade exigida na linha 155 do gate, validada em runtime), `headSha` no artefato = `b9f94b4` = HEAD atual. **Artefato válido.**
+- **Reexecução do gate (L2 — sanity check):** reexecutei `pnpm gate @plataforma/bancada --profile full` na worktree para confirmar que o estado atual permanece verde. Saída literal:
+  ```
+  $ pnpm gate @plataforma/bancada --profile full
+  ✅ @plataforma/bancada:build | exit=0 | 9078ms
+  ✅ @plataforma/bancada:test  | exit=0 | 46458ms
+  ✅ @plataforma/bancada:lint  | exit=0 | 17394ms
+  📦 artefato: .gate/96c9763947686d1ebca0813bb35ccd1536a0ff5a.json | profile=full | allGreen=true
+  ```
+  Re-gate idempotente, mesmo `treeSha` (working tree limpo, mesmo código). Confirmado.
+- **Achados:**
+  - **B0** / **M0** / **m0**: nenhum bloqueante, major ou minor de código.
+  - **INFO-1 (não-bloqueante — follow-up de processo):** a spec §7 lista `pnpm --filter @plataforma/bancada test:e2e` (Playwright) como comando de verificação, mas o gate de `@plataforma/bancada` (perfil `full`) em `scripts/gate.mjs:74-81` só roda build/test/lint — não inclui `test:e2e`. A M3 (E2E obrigatório para tasks `ui: true`) portanto não é coberta pelo gate atual do bancada. **Não é defeito do worker** (a M3 veio depois desta task ter sido endurecida; o worker rodou o gate conforme definido pelo projeto). **Roteamento:** `_pendencias.md` → task futura de infra do gate para incluir `test:e2e` em tasks de UI. Não bloqueia o approve.
+  - **INFO-2:** diff tem 56 linhas (52+/4-) > limite de fast-track de 20 linhas; auditoria manual feita (L0 padrão, sem fast-track).
+- **Conclusão:** implementação segue estritamente a spec, mocks bem desenhados, gate verde, escopo do diff bate com Seção 3. **Aprovado para merge.**
 
 ## 9. Log de Execução (Agent Execution Log)
 > **Agentes de IA:** Registrem aqui cada sessão de trabalho usando `node tools/scripts/manage-task.mjs`.
 - **[2026-07-14T12:46]** - *claude-fable* - `[Triado]`: Wiring da Bancada — auditoria 2026-07-14: placeholders declarados no App.tsx; endurecimento profundo just-in-time quando as deps fecharem
 - **[2026-07-18T11:08]** - *gemini* - `[Endurecido]`: endureceu spec
 - **[2026-07-18T11:08]** - *system* - `[Auto-promovida]`: deps todas done
+- **[2026-07-27T19:28]** - *deepseek* - `[Iniciado]`: iniciando execução da bancada: composition root com storage OPFS, KeyVault, SwarmRegistry e WS reais
+- **[2026-07-27T19:41]** - *deepseek* - `[Finalizado]`: composition root real: SqliteWasmStorage + MIGRATIONS + WsAdapter conectados via useMemo/useEffect no App.tsx; mocks Worker e WsAdapter nos testes JSDOM
+- **[2026-07-27T19:52]** - *agile_reviewer:minimax-m3* - `[Em revisão]`: revisando T-BW-01 — composition root real
+- **[2026-07-27T20:01]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: composition root real wired corretamente (SqliteWasmStorage + MIGRATIONS + WsAdapter); mocks JSDOM preservam demais exports; gate full reexecutado e verde; escopo do diff bate com Seção 3; INFO: gate do bancada não inclui test:e2e (gap de processo, não do worker) — roteado para _pendencias
+- **[2026-07-27T20:04]** - *agile_reviewer:minimax-m3* - `[Aprovado]`: Aprovado (Reviewer 1, minimax-m3). Diff 56 linhas escopo vs Seção 3 bate; mocks preservam exports reais via importOriginal; gate full reexecutado e verde. INFO: gate do bancada não inclui test:e2e (gap de processo M3, nao do worker) — roteado para _pendencias.
