@@ -60,7 +60,9 @@ function parse(file) {
   };
 }
 
-const files = fs.readdirSync(tasksDir).filter((f) => /^_?[A-Z]+-[\w.]+\.md$/.test(f) && f !== 'INDEX.md');
+// `[\w.-]` (não `[\w.]`): IDs de módulo têm um segundo hífen — T-BW-05, T-CN-04, T-MK-04a.
+// Com a classe antiga, 171 tasks (145 delas abertas) sumiam do painel antes de serem lidas.
+const files = fs.readdirSync(tasksDir).filter((f) => /^_?[A-Z]+-[\w.-]+\.md$/.test(f) && f !== 'INDEX.md');
 const tasks = files.map(parse).filter(Boolean);
 const byId = new Map(tasks.map((t) => [t.id, t]));
 const pick = (t) => t.id.startsWith(prefix);
